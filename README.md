@@ -1,5 +1,5 @@
 
-## Use LexYacc to create simple C language parser to generate syntax tree
+## Create simple C language parser to generate syntax tree
 
 **c_grammar.l:**  
 
@@ -321,7 +321,7 @@
 ![enter image description here](https://r96922081.github.io/images/lexyacc/syntax_tree.png)
 
 
-## Use LexYacc to create a calculator
+## Create a calculator
 
 **cal.l:**
 
