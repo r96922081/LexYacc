@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34902.65
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexYacc", "LexYacc.csproj", "{1D5DAEB1-37A0-4658-8021-3014F0565009}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1D5DAEB1-37A0-4658-8021-3014F0565009}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D5DAEB1-37A0-4658-8021-3014F0565009}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D5DAEB1-37A0-4658-8021-3014F0565009}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D5DAEB1-37A0-4658-8021-3014F0565009}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {02CC98C9-0FD9-4117-8BC6-86D5C2717B77}
+	EndGlobalSection
+EndGlobal
