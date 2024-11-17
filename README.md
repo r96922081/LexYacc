@@ -318,7 +318,7 @@
             c_grammar.Parse(cCode);
 
 **Output**
-![enter image description here](https://r96922081.github.io/images/lexyacc/syntax_tree.png)
+[![](https://r96922081.github.io/images/LexYacc/syntax_tree.png)]
 
 
 ## Create a calculator
