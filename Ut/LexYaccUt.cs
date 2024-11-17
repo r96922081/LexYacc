@@ -11,10 +11,9 @@ public class LexYaccUt
 
     public static void LexYaccUt1()
     {
-
         // gen code
-        LexYaccCodeGen.GenCode("../../../input/cal.l", "../../../input/cal.y", LexYaccUtil.GetGenFileFolder(), "cal");
         LexYaccCodeGen.GenCode("../../../input/pair.l", "../../../input/pair.y", LexYaccUtil.GetGenFileFolder(), "pair");
+        LexYaccCodeGen.GenCode("../../../input/cal.l", "../../../input/cal.y", LexYaccUtil.GetGenFileFolder(), "cal");
         LexYaccCodeGen.GenCode("../../../input/c_grammar.l", "../../../input/c_grammar.y", LexYaccUtil.GetGenFileFolder(), "c_grammar");
 
 #if GenCodeUt
