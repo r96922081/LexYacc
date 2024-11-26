@@ -1,19 +1,5 @@
 ﻿using System.Diagnostics;
-
-public class SqlYaccData
-{
-    public static List<string> columnNames;
-    public static List<ColumnType> columnTypes;
-    public static Table table;
-
-    public static void Reset()
-    {
-        columnNames = new List<string>();
-        columnTypes = new List<ColumnType>();
-        table = null;
-    }
-}
-
+using System.Text;
 
 public enum ColumnType
 {
@@ -26,6 +12,7 @@ public class Table
     public string tableName;
     public string[] columnNames;
     public ColumnType[] columnTypes;
+    public int[] columnSizes;
     public Dictionary<string, int> columnIndexMap;
     public Dictionary<string, ColumnType> columnTypesMap;
 
@@ -36,6 +23,50 @@ public class Table
         rows.Add(row);
     }
 
+    public string GetSchema()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("table: " + tableName);
+        for (int i = 0; i < columnNames.Length; i++)
+        {
+            sb.Append(columnNames[i] + " " + columnTypes[i]);
+            if (columnTypes[i] == ColumnType.VARCHAR)
+            {
+                sb.Append("(" + columnSizes[i] + ")");
+            }
+
+            if (i != columnNames.Length - 1)
+                sb.AppendLine(",");
+            else
+                sb.AppendLine();
+        }
+
+
+        return sb.ToString();
+    }
+
+    public string GetData()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("table: " + tableName);
+
+        foreach (object[] row in rows)
+        {
+            sb.Append("| ");
+            for (int i = 0; i < row.Length; i++)
+            {
+                if (row[i] == null)
+                    ;
+                else
+                    sb.Append(row[i].ToString());
+                sb.Append(" | ");
+            }
+            sb.AppendLine();
+        }
+
+        return sb.ToString();
+    }
+
 }
 
 public class DB
@@ -44,25 +75,61 @@ public class DB
 }
 
 
-public class SqlTest
+public class SqlLexYaccCallback
 {
-    public static void Check(bool b)
+    public static void VerifyCreateTable(string name, List<(string, string)> columnDeclare)
     {
-        if (!b)
-            Trace.Assert(false);
+        for (int i = 0; i < columnDeclare.Count; i++)
+        {
+            string columnType = columnDeclare[i].Item2;
+            if (columnType.StartsWith("VARCHAR"))
+            {
+                int left = columnType.IndexOf('(');
+                int right = columnType.LastIndexOf(')');
+
+                int lengthInt;
+                string length = columnType.Substring(left + 1, right - left - 2);
+                if (!int.TryParse(length, out lengthInt))
+                    throw new Exception("Invalid VARCHAR length = " + lengthInt);
+            }
+        }
+
     }
 
-    public static void CreateTable(string name, List<string> columnNames, List<ColumnType> columnTypes)
+    public static void CreateTable(string name, List<(string, string)> columnDeclare)
     {
+        VerifyCreateTable(name, columnDeclare);
+
         Table table = new Table();
         table.tableName = name;
-        table.columnNames = columnNames.ToArray();
-        table.columnTypes = columnTypes.ToArray();
+        table.columnNames = new string[columnDeclare.Count];
+        table.columnTypes = new ColumnType[columnDeclare.Count];
+        table.columnSizes = new int[columnDeclare.Count];
+
+        for (int i = 0; i < columnDeclare.Count; i++)
+        {
+            table.columnNames[i] = columnDeclare[i].Item1;
+            string columnType = columnDeclare[i].Item2;
+            if (columnType == "NUMBER")
+            {
+                table.columnTypes[i] = ColumnType.NUMBER;
+            }
+            else if (columnType.StartsWith("VARCHAR"))
+            {
+                table.columnTypes[i] = ColumnType.VARCHAR;
+                int left = columnType.IndexOf('(');
+                int right = columnType.LastIndexOf(')');
+
+                int lengthInt;
+                string length = columnType.Substring(left + 1, right - left - 1);
+                int.TryParse(length, out lengthInt);
+                table.columnSizes[i] = lengthInt;
+            }
+        }
+
+
         table.columnIndexMap = new Dictionary<string, int>();
         table.columnTypesMap = new Dictionary<string, ColumnType>();
-
-        Array.Reverse(table.columnNames);
-        Array.Reverse(table.columnTypes);
 
         for (int i = 0; i < table.columnNames.Length; i++)
         {
@@ -73,28 +140,101 @@ public class SqlTest
         DB.tables.Add(table);
     }
 
+    public static void ShowTables()
+    {
+        foreach (Table table in DB.tables)
+            Console.WriteLine(table.GetSchema());
+    }
+
+    public static void VerifyShowTable(string table)
+    {
+        foreach (Table t2 in DB.tables)
+            if (t2.tableName == table)
+                return;
+
+        throw new Exception("No table named: " + table);
+    }
+
+
+    public static void ShowTable(string table)
+    {
+        VerifyShowTable(table);
+
+        Table t = null;
+        foreach (Table t2 in DB.tables)
+        {
+            if (t2.tableName == table)
+            {
+                t = t2;
+                break;
+            }
+        }
+
+        Console.WriteLine(t.GetData());
+    }
+
     public class DB
     {
         public static List<Table> tables = new List<Table>();
     }
 
-
-    public static void VerifyInsertRow(string tableName, string columnNameString, string valueString)
+    public enum BooleanOperator
     {
-        List<string> columnNames = null;
-        if (columnNameString != null)
-            columnNames = columnNameString.Split(",").ToList();
+        EQUAL,
+        NOT_EQUAL,
+        LESS,
+        GREATER,
+        LESS_OR_EQUAL,
+        GREATER_OR_EQUAL,
+        NONE
+    }
 
-        List<string> values = null;
-        if (valueString != null)
-            values = valueString.Split(",").ToList();
+    public class BooleanOperand { }
 
+    public class BooleanOperandString : BooleanOperand
+    {
+        public string s;
 
+        public BooleanOperandString()
+        {
+
+        }
+
+        public BooleanOperandString(string s)
+        {
+            this.s = s;
+        }
+    }
+
+    public class BooleanOperation : BooleanOperand
+    {
+        public BooleanOperand lhs;
+        public BooleanOperand rhs;
+        public BooleanOperator op;
+
+        public BooleanOperation()
+        {
+            op = BooleanOperator.NONE;
+        }
+
+        public BooleanOperation(BooleanOperand lhs, BooleanOperand rhs, BooleanOperator op)
+        {
+            this.lhs = lhs;
+            this.rhs = rhs;
+            this.op = op;
+        }
+    }
+
+    // INSERT INTO A (aaa, bbb) VALUES (AAA, BB)
+    // INSERT INTO A (bbb) VALUES (BB)
+    // INSERT INTO A VALUES (AAA, BB)
+    public static void VerifyInsertRow(string tableName, List<string> columnNames, List<string> values)
+    {
         Table table = DB.tables.FirstOrDefault(t => t.tableName == tableName);
         if (table == null)
             throw new Exception("no table named: " + tableName);
 
-        if (columnNames == null)
+        if (columnNames == null || columnNames.Count == 0)
             columnNames = table.columnNames.ToList();
 
         if (columnNames.Count != values.Count)
@@ -123,20 +263,15 @@ public class SqlTest
         }
     }
 
-    public static void InsertRow(string tableName, string columnNameString, string valueString)
+    public static void InsertRow(string tableName, List<string> columnNames, List<string> values)
     {
-        VerifyInsertRow(tableName, columnNameString, valueString);
-
-        List<string> columnNames = null;
-        if (columnNameString != null)
-            columnNames = columnNameString.Split(",").ToList();
-
-        List<string> values = null;
-        if (valueString != null)
-            values = valueString.Split(",").ToList();
+        VerifyInsertRow(tableName, columnNames, values);
 
         Table table = DB.tables.FirstOrDefault(t => t.tableName == tableName);
-        if (columnNames == null)
+        if (table == null)
+            throw new Exception("no table named: " + tableName);
+
+        if (columnNames == null || columnNames.Count == 0)
             columnNames = table.columnNames.ToList();
 
         object[] rows = new object[table.columnNames.Length];
@@ -167,11 +302,55 @@ public class SqlTest
         table.rows.Add(rows);
     }
 
-
-    public static void test()
+    public static void CommaSepString(List<string> l, string s)
     {
-        SqlYaccData.Reset();
-        object ret = sql_lexyacc.Parse("CREATE TABLE A ( NAME VARCHAR, AGE NUMBER)");
+        l.Add(s);
+    }
+
+    public static void CommaSepString(List<string> list, string s, List<string> prevList)
+    {
+        list.Add(s);
+        list.AddRange(prevList);
+    }
+
+    public static void ColumnDeclare(List<(string, string)> columnDeclare, string columnName, string columnType)
+    {
+        columnDeclare.Add((columnName, columnType));
+    }
+
+    public static void ColumnDeclare(List<(string, string)> columnDeclare, string columnName, string columnType, List<(string, string)> prevColumnDeclare)
+    {
+        columnDeclare.Add((columnName, columnType));
+        columnDeclare.AddRange(prevColumnDeclare);
+    }
+
+    public static void BooleanExpressionAnd(ref bool result, bool lhs, bool rhs)
+    {
+        result = lhs && rhs;
+    }
+
+
+    public static void BooleanExpression2Equal(ref BooleanOperation result, string lhs, bool rhs)
+    {
+        //result = new BooleanOperation(lhs, rhs, BooleanOperator.EQUAL);
+    }
+}
+
+public class SqlTest()
+{
+    public static void Check(bool b)
+    {
+        if (!b)
+            Trace.Assert(false);
+    }
+
+
+    public static void Ut()
+    {
+        object ret = sql_lexyacc.Parse("CREATE TABLE A ( NAME VARCHAR(123), AGE NUMBER)");
+        Check(ret == null || ret.ToString() == "");
+
+        ret = sql_lexyacc.Parse("CREATE TABLE A2 ( AAA VARCHAR(456), BBB NUMBER)");
         Check(ret == null || ret.ToString() == "");
 
         ret = sql_lexyacc.Parse("INSERT INTO A ( NAME, AGE ) VALUES ( DEF, 33  )");
@@ -186,19 +365,14 @@ public class SqlTest
         ret = sql_lexyacc.Parse("INSERT INTO A ( AGE ) VALUES ( 999  )");
         Check(ret == null || ret.ToString() == "");
 
-        //SqlYaccData.Reset();
-        //Check(sql_lexyacc.Parse("CREATE TABLE A ( aaa VARCHAR, bbb NUMBER)").ToString() == "");
+        ret = sql_lexyacc.Parse("SHOW TABLES");
+        Check(ret == null || ret.ToString() == "");
 
+        ret = sql_lexyacc.Parse("SHOW TABLE A");
+        Check(ret == null || ret.ToString() == "");
 
-        // INSERT INTO A (aaa, bbb) VALUES (AAA, BB)
-        // INSERT INTO A (bbb) VALUES (BB)
-        // INSERT INTO A VALUES (AAA, BB)
-
-        List<object> row = new List<object>();
-        row.Add("aaa");
-        row.Add(2);
-
-        InsertRow("A", null, "888,333");
+        ret = sql_lexyacc.Parse("DELETE FROM A WHERE (A > B) OR (D <= E AND F >= G)");
+        Check(ret == null || ret.ToString() == "");
     }
 
 }

@@ -46,8 +46,14 @@ namespace LexYaccNs
                             throw new Exception("Syntax error");
                         }
 
+
                         int start = line.IndexOf('<');
                         int end = line.IndexOf('>');
+
+                        // the case <List<List<string>>>
+                        for (; line[end + 1] == '>'; end++)
+                            ;
+
                         string type = line.Substring(start + 1, end - start - 1);
                         line = line.Substring(end + 1);
 

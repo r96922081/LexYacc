@@ -510,6 +510,48 @@ term:
         Check(yacc.EndFeeding() == true);
     }
 
+    public static void UtFeed22()
+    {
+        string s = @"
+%{
+%}
+
+%type <int> a
+
+%%
+a:
+a '&' a
+|
+'A'
+;
+%%
+";
+
+        Yacc yacc = new Yacc(s);
+        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
+        yacc.Feed(Terminal.BuildConstCharTerminal('&'));
+        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
+        yacc.Feed(Terminal.BuildConstCharTerminal('&'));
+        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
+        yacc.Feed(Terminal.BuildConstCharTerminal('&'));
+        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.EndFeeding() == true);
+    }
+
+    public static void UtFeed23()
+    {
+        string line1 = "a: 'A' | 'A' 'B';";
+
+        Yacc yacc = new Yacc(line1);
+        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.EndFeeding() == true);
+
+        yacc.Rebuild();
+        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
+        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
+        Check(yacc.EndFeeding() == true);
+    }
+
     private static void UtFeed()
     {
         UtFeed1();
@@ -533,6 +575,8 @@ term:
         UtFeed19();
         UtFeed20();
         UtFeed21();
+        UtFeed22();
+        //UtFeed23();
     }
 
     private static void UtBuild1()

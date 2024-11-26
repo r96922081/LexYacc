@@ -2,59 +2,91 @@
 
 %}
 
-%token <string> SELECT STRING CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES
-%type <string> statement column_declare column_type create_table_statement insert_statement comma_sep_string
-
+%token <string> SELECT STRING CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement show_table_statement logical_operator
+%type <List<string>> comma_sep_string
+%type <List<(string, string)>> column_declare
+%type <bool> boolean_expression
 %%
 
-statement: create_table_statement | insert_statement;
+statement: create_table_statement | insert_statement | delete_statement | show_tables_statement | show_table_statement;
 
 create_table_statement: CREATE TABLE STRING '(' column_declare ')' 
 {
-    SqlTest.CreateTable($3, SqlYaccData.columnNames, SqlYaccData.columnTypes);
+    SqlLexYaccCallback.CreateTable($3, $5);
 };
 
 column_declare: STRING column_type 
 {
-    SqlYaccData.columnNames.Add($1);
-
-    if ($2 == "NUMBER")
-        SqlYaccData.columnTypes.Add(ColumnType.NUMBER);
-    else if ($2 == "VARCHAR")
-        SqlYaccData.columnTypes.Add(ColumnType.VARCHAR);
+    SqlLexYaccCallback.ColumnDeclare($$, $1, $2);
 } 
 | 
 STRING column_type ',' column_declare 
 {
-    SqlYaccData.columnNames.Add($1);
-
-    if ($2 == "NUMBER")
-        SqlYaccData.columnTypes.Add(ColumnType.NUMBER);
-    else if ($2 == "VARCHAR")
-        SqlYaccData.columnTypes.Add(ColumnType.VARCHAR);
+    SqlLexYaccCallback.ColumnDeclare($$, $1, $2, $4);
 };
 
 insert_statement: 
 INSERT INTO STRING VALUES '(' comma_sep_string ')'
 {
-    SqlTest.InsertRow($3, null, $6);
+    SqlLexYaccCallback.InsertRow($3, null, $6);
 }
 |
 INSERT INTO STRING '(' comma_sep_string ')' VALUES '(' comma_sep_string ')'
 {
-    SqlTest.InsertRow($3, $5, $9);
+    SqlLexYaccCallback.InsertRow($3, $5, $9);
 };
+
+delete_statement:
+DELETE FROM STRING WHERE boolean_expression
+;
+
+show_tables_statement:
+SHOW TABLES
+{
+    SqlLexYaccCallback.ShowTables();
+}
+;
+
+show_table_statement:
+SHOW TABLE STRING
+{
+    SqlLexYaccCallback.ShowTable($3);
+}
+;
+
+boolean_expression:
+boolean_expression AND boolean_expression
+|
+boolean_expression OR boolean_expression
+| 
+'(' boolean_expression ')'
+| 
+STRING '=' STRING
+| 
+STRING '<' STRING
+| 
+STRING '>' STRING
+| 
+STRING NOT_EQUAL STRING
+| 
+STRING LESS_OR_EQUAL STRING
+| 
+STRING GREATER_OR_EQUAL STRING
+;
 
 comma_sep_string: 
 STRING 
 {
-    $$ = $1;
+    SqlLexYaccCallback.CommaSepString($$, $1);
 }
 | STRING ',' comma_sep_string
 {
-    $$ = $1 + "," + $3;
+    SqlLexYaccCallback.CommaSepString($$, $1, $3);
 }
 ;
 
-column_type: VARCHAR {$$ = $1;} | NUMBER {$$ = $1;};
+logical_operator: AND | OR;
+
+column_type: VARCHAR '(' STRING ')' {$$ = $1 + "(" + $3 + ")";} | NUMBER {$$ = $1;};
 %%

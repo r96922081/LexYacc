@@ -33,7 +33,7 @@ void main(int a, int b)
         ret = c_grammar.Parse(input);
 #endif
 
-        SqlTest.test();
+        SqlTest.Ut();
     }
 
 

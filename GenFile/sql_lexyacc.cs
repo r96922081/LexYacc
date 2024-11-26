@@ -20,61 +20,93 @@ public class YaccActions{
 
 %}
 
-%token <string> SELECT STRING CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES
-%type <string> statement column_declare column_type create_table_statement insert_statement comma_sep_string
-
+%token <string> SELECT STRING CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement show_table_statement logical_operator
+%type <List<string>> comma_sep_string
+%type <List<(string, string)>> column_declare
+%type <bool> boolean_expression
 %%
 
-statement: create_table_statement | insert_statement;
+statement: create_table_statement | insert_statement | delete_statement | show_tables_statement | show_table_statement;
 
 create_table_statement: CREATE TABLE STRING '(' column_declare ')' 
 {
-    SqlTest.CreateTable($3, SqlYaccData.columnNames, SqlYaccData.columnTypes);
+    SqlLexYaccCallback.CreateTable($3, $5);
 };
 
 column_declare: STRING column_type 
 {
-    SqlYaccData.columnNames.Add($1);
-
-    if ($2 == ""NUMBER"")
-        SqlYaccData.columnTypes.Add(ColumnType.NUMBER);
-    else if ($2 == ""VARCHAR"")
-        SqlYaccData.columnTypes.Add(ColumnType.VARCHAR);
+    SqlLexYaccCallback.ColumnDeclare($$, $1, $2);
 } 
 | 
 STRING column_type ',' column_declare 
 {
-    SqlYaccData.columnNames.Add($1);
-
-    if ($2 == ""NUMBER"")
-        SqlYaccData.columnTypes.Add(ColumnType.NUMBER);
-    else if ($2 == ""VARCHAR"")
-        SqlYaccData.columnTypes.Add(ColumnType.VARCHAR);
+    SqlLexYaccCallback.ColumnDeclare($$, $1, $2, $4);
 };
 
 insert_statement: 
 INSERT INTO STRING VALUES '(' comma_sep_string ')'
 {
-    SqlTest.InsertRow($3, null, $6);
+    SqlLexYaccCallback.InsertRow($3, null, $6);
 }
 |
 INSERT INTO STRING '(' comma_sep_string ')' VALUES '(' comma_sep_string ')'
 {
-    SqlTest.InsertRow($3, $5, $9);
+    SqlLexYaccCallback.InsertRow($3, $5, $9);
 };
+
+delete_statement:
+DELETE FROM STRING WHERE boolean_expression
+;
+
+show_tables_statement:
+SHOW TABLES
+{
+    SqlLexYaccCallback.ShowTables();
+}
+;
+
+show_table_statement:
+SHOW TABLE STRING
+{
+    SqlLexYaccCallback.ShowTable($3);
+}
+;
+
+boolean_expression:
+boolean_expression AND boolean_expression
+|
+boolean_expression OR boolean_expression
+| 
+'(' boolean_expression ')'
+| 
+STRING '=' STRING
+| 
+STRING '<' STRING
+| 
+STRING '>' STRING
+| 
+STRING NOT_EQUAL STRING
+| 
+STRING LESS_OR_EQUAL STRING
+| 
+STRING GREATER_OR_EQUAL STRING
+;
 
 comma_sep_string: 
 STRING 
 {
-    $$ = $1;
+    SqlLexYaccCallback.CommaSepString($$, $1);
 }
 | STRING ',' comma_sep_string
 {
-    $$ = $1 + "","" + $3;
+    SqlLexYaccCallback.CommaSepString($$, $1, $3);
 }
 ;
 
-column_type: VARCHAR {$$ = $1;} | NUMBER {$$ = $1;};
+logical_operator: AND | OR;
+
+column_type: VARCHAR '(' STRING ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER {$$ = $1;};
 %%";
 
 
@@ -97,6 +129,9 @@ column_type: VARCHAR {$$ = $1;} | NUMBER {$$ = $1;};
         actions.Add("Rule_column_declare_Producton_1", Rule_column_declare_Producton_1);
         actions.Add("Rule_insert_statement_Producton_0", Rule_insert_statement_Producton_0);
         actions.Add("Rule_insert_statement_Producton_1", Rule_insert_statement_Producton_1);
+        actions.Add("Rule_show_tables_statement_Producton_0", Rule_show_tables_statement_Producton_0);
+        actions.Add("Rule_show_table_statement_Producton_0", Rule_show_table_statement_Producton_0);
+        actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_2", Rule_boolean_expression_LeftRecursionExpand_Producton_2);
         actions.Add("Rule_comma_sep_string_Producton_0", Rule_comma_sep_string_Producton_0);
         actions.Add("Rule_comma_sep_string_Producton_1", Rule_comma_sep_string_Producton_1);
         actions.Add("Rule_column_type_Producton_0", Rule_column_type_Producton_0);
@@ -118,43 +153,33 @@ column_type: VARCHAR {$$ = $1;} | NUMBER {$$ = $1;};
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
         string _3 = (string)objects[3];
-        string _5 = (string)objects[5];
+        List<(string, string)> _5 = (List<(string, string)>)objects[5];
 
         // user-defined action
-        SqlTest.CreateTable(_3, SqlYaccData.columnNames, SqlYaccData.columnTypes);
+        SqlLexYaccCallback.CreateTable(_3, _5);
 
         return _0;
     }
 
     public static object Rule_column_declare_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+        List<(string, string)> _0 = new List<(string, string)>();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
 
         // user-defined action
-            SqlYaccData.columnNames.Add(_1);
-        
-            if (_2 == "NUMBER")
-                SqlYaccData.columnTypes.Add(ColumnType.NUMBER);
-            else if (_2 == "VARCHAR")
-                SqlYaccData.columnTypes.Add(ColumnType.VARCHAR);
+        SqlLexYaccCallback.ColumnDeclare(_0, _1, _2);
 
         return _0;
     }
 
     public static object Rule_column_declare_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+        List<(string, string)> _0 = new List<(string, string)>();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
-        string _4 = (string)objects[4];
+        List<(string, string)> _4 = (List<(string, string)>)objects[4];
 
         // user-defined action
-            SqlYaccData.columnNames.Add(_1);
-        
-            if (_2 == "NUMBER")
-                SqlYaccData.columnTypes.Add(ColumnType.NUMBER);
-            else if (_2 == "VARCHAR")
-                SqlYaccData.columnTypes.Add(ColumnType.VARCHAR);
+        SqlLexYaccCallback.ColumnDeclare(_0, _1, _2, _4);
 
         return _0;
     }
@@ -165,10 +190,10 @@ column_type: VARCHAR {$$ = $1;} | NUMBER {$$ = $1;};
         string _2 = (string)objects[2];
         string _3 = (string)objects[3];
         string _4 = (string)objects[4];
-        string _6 = (string)objects[6];
+        List<string> _6 = (List<string>)objects[6];
 
         // user-defined action
-        SqlTest.InsertRow(_3, null, _6);
+        SqlLexYaccCallback.InsertRow(_3, null, _6);
 
         return _0;
     }
@@ -178,33 +203,62 @@ column_type: VARCHAR {$$ = $1;} | NUMBER {$$ = $1;};
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
         string _3 = (string)objects[3];
-        string _5 = (string)objects[5];
+        List<string> _5 = (List<string>)objects[5];
         string _7 = (string)objects[7];
-        string _9 = (string)objects[9];
+        List<string> _9 = (List<string>)objects[9];
 
         // user-defined action
-        SqlTest.InsertRow(_3, _5, _9);
+        SqlLexYaccCallback.InsertRow(_3, _5, _9);
+
+        return _0;
+    }
+
+    public static object Rule_show_tables_statement_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+
+        // user-defined action
+        SqlLexYaccCallback.ShowTables();
+
+        return _0;
+    }
+
+    public static object Rule_show_table_statement_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        SqlLexYaccCallback.ShowTable(_3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
+        bool _0 = new bool();
 
         return _0;
     }
 
     public static object Rule_comma_sep_string_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+        List<string> _0 = new List<string>();
         string _1 = (string)objects[1];
 
         // user-defined action
-        _0 = _1;
+        SqlLexYaccCallback.CommaSepString(_0, _1);
 
         return _0;
     }
 
     public static object Rule_comma_sep_string_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+        List<string> _0 = new List<string>();
         string _1 = (string)objects[1];
-        string _3 = (string)objects[3];
+        List<string> _3 = (List<string>)objects[3];
 
         // user-defined action
-        _0 = _1 + "," + _3;
+        SqlLexYaccCallback.CommaSepString(_0, _1, _3);
 
         return _0;
     }
@@ -212,9 +266,10 @@ column_type: VARCHAR {$$ = $1;} | NUMBER {$$ = $1;};
     public static object Rule_column_type_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
 
         // user-defined action
-        _0 = _1;
+        _0 = _1 + "(" + _3 + ")";
 
         return _0;
     }
@@ -256,6 +311,17 @@ namespace sql_lexyaccNs
             { 262, "INSERT"},
             { 263, "INTO"},
             { 264, "VALUES"},
+            { 265, "DELETE"},
+            { 266, "FROM"},
+            { 267, "WHERE"},
+            { 268, "AND"},
+            { 269, "OR"},
+            { 270, "NOT"},
+            { 271, "SHOW"},
+            { 272, "TABLES"},
+            { 273, "NOT_EQUAL"},
+            { 274, "LESS_OR_EQUAL"},
+            { 275, "GREATER_OR_EQUAL"},
         };
 
         public static int SELECT = 256;
@@ -267,6 +333,17 @@ namespace sql_lexyaccNs
         public static int INSERT = 262;
         public static int INTO = 263;
         public static int VALUES = 264;
+        public static int DELETE = 265;
+        public static int FROM = 266;
+        public static int WHERE = 267;
+        public static int AND = 268;
+        public static int OR = 269;
+        public static int NOT = 270;
+        public static int SHOW = 271;
+        public static int TABLES = 272;
+        public static int NOT_EQUAL = 273;
+        public static int LESS_OR_EQUAL = 274;
+        public static int GREATER_OR_EQUAL = 275;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -294,15 +371,30 @@ namespace sql_lexyaccNs
 ""CREATE""                     { return CREATE; }
 ""TABLE""                     { return TABLE; }
 ""INSERT""                     { return INSERT; }
+""DELETE""                     { return DELETE; }
+""FROM""                     { return FROM; }
 ""INTO""                     { return INTO; }
+""WHERE""                     { return WHERE; }
 ""VALUES""                     { return VALUES; }
+""SHOW""                     { return SHOW; }
+""TABLES""                     { return TABLES; }
+""TABLE""                     { return TABLE; }
+""AND""                     { return AND; }
+""OR""                     { return OR; }
+""NOT""                     { return NOT; }
 ""NUMBER""                     { value = ""NUMBER""; return NUMBER; }
 ""VARCHAR""                     { value = ""VARCHAR""; return VARCHAR; }
+""!=""                     { return NOT_EQUAL; }
+""<=""                     { return LESS_OR_EQUAL; }
+"">=""                     { return GREATER_OR_EQUAL; }
 ""{""  { return '{'; }
 ""}""  { return '}'; }
 ""(""  { return '('; }
 "")""  { return ')'; }
 "",""  { return ','; }
+""=""  { return '='; }
+""<""  { return '<'; }
+"">""  { return '>'; }
 
 [a-zA-Z0-9_]*      { value = yytext; return STRING; }
 [ \t\n]                      {}
@@ -328,6 +420,21 @@ namespace sql_lexyaccNs
             actions.Add("LexRule12", LexAction12);
             actions.Add("LexRule13", LexAction13);
             actions.Add("LexRule14", LexAction14);
+            actions.Add("LexRule15", LexAction15);
+            actions.Add("LexRule16", LexAction16);
+            actions.Add("LexRule17", LexAction17);
+            actions.Add("LexRule18", LexAction18);
+            actions.Add("LexRule19", LexAction19);
+            actions.Add("LexRule20", LexAction20);
+            actions.Add("LexRule21", LexAction21);
+            actions.Add("LexRule22", LexAction22);
+            actions.Add("LexRule23", LexAction23);
+            actions.Add("LexRule24", LexAction24);
+            actions.Add("LexRule25", LexAction25);
+            actions.Add("LexRule26", LexAction26);
+            actions.Add("LexRule27", LexAction27);
+            actions.Add("LexRule28", LexAction28);
+            actions.Add("LexRule29", LexAction29);
         }
         public static object LexAction0(string yytext)
         {
@@ -370,7 +477,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return INTO; 
+            return DELETE; 
 
             return 0;
         }
@@ -379,7 +486,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return VALUES; 
+            return FROM; 
 
             return 0;
         }
@@ -388,7 +495,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = "NUMBER"; return NUMBER; 
+            return INTO; 
 
             return 0;
         }
@@ -397,7 +504,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = "VARCHAR"; return VARCHAR; 
+            return WHERE; 
 
             return 0;
         }
@@ -406,7 +513,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return '{'; 
+            return VALUES; 
 
             return 0;
         }
@@ -415,7 +522,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return '}'; 
+            return SHOW; 
 
             return 0;
         }
@@ -424,7 +531,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return '('; 
+            return TABLES; 
 
             return 0;
         }
@@ -433,7 +540,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return ')'; 
+            return TABLE; 
 
             return 0;
         }
@@ -442,7 +549,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return ','; 
+            return AND; 
 
             return 0;
         }
@@ -451,11 +558,146 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return STRING; 
+            return OR; 
 
             return 0;
         }
         public static object LexAction14(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return NOT; 
+
+            return 0;
+        }
+        public static object LexAction15(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = "NUMBER"; return NUMBER; 
+
+            return 0;
+        }
+        public static object LexAction16(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = "VARCHAR"; return VARCHAR; 
+
+            return 0;
+        }
+        public static object LexAction17(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return NOT_EQUAL; 
+
+            return 0;
+        }
+        public static object LexAction18(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return LESS_OR_EQUAL; 
+
+            return 0;
+        }
+        public static object LexAction19(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return GREATER_OR_EQUAL; 
+
+            return 0;
+        }
+        public static object LexAction20(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '{'; 
+
+            return 0;
+        }
+        public static object LexAction21(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '}'; 
+
+            return 0;
+        }
+        public static object LexAction22(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '('; 
+
+            return 0;
+        }
+        public static object LexAction23(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return ')'; 
+
+            return 0;
+        }
+        public static object LexAction24(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return ','; 
+
+            return 0;
+        }
+        public static object LexAction25(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '='; 
+
+            return 0;
+        }
+        public static object LexAction26(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '<'; 
+
+            return 0;
+        }
+        public static object LexAction27(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '>'; 
+
+            return 0;
+        }
+        public static object LexAction28(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return STRING; 
+
+            return 0;
+        }
+        public static object LexAction29(string yytext)
         {
             value = null;
 
@@ -1861,8 +2103,14 @@ namespace LexYaccNs
                             throw new Exception("Syntax error");
                         }
 
+
                         int start = line.IndexOf('<');
                         int end = line.IndexOf('>');
+
+                        // the case <List<List<string>>>
+                        for (; line[end + 1] == '>'; end++)
+                            ;
+
                         string type = line.Substring(start + 1, end - start - 1);
                         line = line.Substring(end + 1);
 
