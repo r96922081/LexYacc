@@ -268,8 +268,6 @@ public class SqlLexYaccCallback
         VerifyInsertRow(tableName, columnNames, values);
 
         Table table = DB.tables.FirstOrDefault(t => t.tableName == tableName);
-        if (table == null)
-            throw new Exception("no table named: " + tableName);
 
         if (columnNames == null || columnNames.Count == 0)
             columnNames = table.columnNames.ToList();
@@ -313,6 +311,16 @@ public class SqlLexYaccCallback
         list.AddRange(prevList);
     }
 
+    public static void CommaSepStringIncludeStar(List<string> l, string s)
+    {
+        CommaSepString(l, s);
+    }
+
+    public static void CommaSepStringIncludeStar(List<string> list, string s, List<string> prevList)
+    {
+        CommaSepString(list, s, prevList);
+    }
+
     public static void ColumnDeclare(List<(string, string)> columnDeclare, string columnName, string columnType)
     {
         columnDeclare.Add((columnName, columnType));
@@ -322,6 +330,54 @@ public class SqlLexYaccCallback
     {
         columnDeclare.Add((columnName, columnType));
         columnDeclare.AddRange(prevColumnDeclare);
+    }
+
+    public static void Select(List<string> columns, string tableName)
+    {
+        Table table = DB.tables.FirstOrDefault(t => t.tableName == tableName);
+
+        List<string> columnNames = new List<string>();
+        List<int> columnIndex = new List<int>();
+        foreach (string column in columns)
+        {
+            if (column == "*")
+            {
+                foreach (string column2 in table.columnNames)
+                {
+                    columnNames.Add(column2);
+                    columnIndex.Add(table.columnIndexMap[column2]);
+                }
+            }
+            else
+            {
+                columnNames.Add(column);
+                columnIndex.Add(table.columnIndexMap[column]);
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("table: " + table.tableName);
+
+        sb.Append("| ");
+        foreach (string columnName in columnNames)
+        {
+            sb.Append(columnName);
+            sb.Append(" | ");
+        }
+        sb.AppendLine();
+
+        foreach (object[] row in table.rows)
+        {
+            sb.Append("| ");
+            foreach (int index in columnIndex)
+            {
+                sb.Append(row[index]);
+                sb.Append(" | ");
+            }
+            sb.AppendLine();
+        }
+
+        Console.WriteLine(sb.ToString());
     }
 
     public static void BooleanExpressionAnd(ref bool result, bool lhs, bool rhs)
@@ -347,6 +403,7 @@ public class SqlTest()
 
     public static void Ut()
     {
+
         object ret = sql_lexyacc.Parse("CREATE TABLE A ( NAME VARCHAR(123), AGE NUMBER)");
         Check(ret == null || ret.ToString() == "");
 
@@ -368,11 +425,17 @@ public class SqlTest()
         ret = sql_lexyacc.Parse("SHOW TABLES");
         Check(ret == null || ret.ToString() == "");
 
-        ret = sql_lexyacc.Parse("SHOW TABLE A");
-        Check(ret == null || ret.ToString() == "");
-
         ret = sql_lexyacc.Parse("DELETE FROM A WHERE (A > B) OR (D <= E AND F >= G)");
         Check(ret == null || ret.ToString() == "");
+
+        ret = sql_lexyacc.Parse("SELECT * FROM A");
+        Check(ret == null || ret.ToString() == "");
+
+        ret = sql_lexyacc.Parse("SELECT AGE, * FROM A");
+        Check(ret == null || ret.ToString() == "");
+
+        //ret = sql_lexyacc.Parse("SELECT AGE,  *, NAME FROM A");
+        //Check(ret == null || ret.ToString() == "");
     }
 
 }

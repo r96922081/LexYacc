@@ -30,6 +30,7 @@
 "="  { return '='; }
 "<"  { return '<'; }
 ">"  { return '>'; }
+"*"  { return '*'; }
 
 [a-zA-Z0-9_]*      { value = yytext; return STRING; }
 [ \t\n]                      {}
