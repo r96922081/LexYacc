@@ -355,29 +355,55 @@ public class SqlLexYaccCallback
             }
         }
 
-        StringBuilder sb = new StringBuilder();
-        sb.AppendLine("table: " + table.tableName);
+        Console.WriteLine("table: " + table.tableName);
 
-        sb.Append("| ");
-        foreach (string columnName in columnNames)
+        int[] columnWidths = new int[columnNames.Count];
+        for (int i = 0; i < columnIndex.Count; i++)
         {
-            sb.Append(columnName);
-            sb.Append(" | ");
+            columnWidths[i] = columnNames[i].Length;
         }
-        sb.AppendLine();
 
+        // get column width
         foreach (object[] row in table.rows)
         {
-            sb.Append("| ");
-            foreach (int index in columnIndex)
+            for (int i = 0; i < columnIndex.Count; i++)
             {
-                sb.Append(row[index]);
-                sb.Append(" | ");
+                if (row[columnIndex[i]] == null)
+                    continue;
+
+                int cellLength = row[columnIndex[i]].ToString().Length;
+                if (cellLength > columnWidths[i])
+                {
+                    columnWidths[i] = cellLength;
+                }
             }
-            sb.AppendLine();
         }
 
-        Console.WriteLine(sb.ToString());
+        // show column name
+        Console.Write("| ");
+        for (int i = 0; i < columnNames.Count; i++)
+        {
+            Console.Write(columnNames[i].PadRight(columnWidths[i]));
+            Console.Write(" | ");
+        }
+        Console.WriteLine();
+
+        // show cell
+        foreach (object[] row in table.rows)
+        {
+            Console.Write("| ");
+            int j = 0;
+            foreach (int i in columnIndex)
+            {
+                if (row[i] == null)
+                    Console.Write("".PadRight(columnWidths[j]));
+                else
+                    Console.Write(row[i].ToString().PadRight(columnWidths[j]));
+                j++;
+                Console.Write(" | ");
+            }
+            Console.WriteLine();
+        }
     }
 
     public static void BooleanExpressionAnd(ref bool result, bool lhs, bool rhs)
@@ -392,7 +418,7 @@ public class SqlLexYaccCallback
     }
 }
 
-public class SqlTest()
+public class SqlTest
 {
     public static void Check(bool b)
     {
