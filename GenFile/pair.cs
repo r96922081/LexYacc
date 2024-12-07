@@ -476,16 +476,18 @@ namespace LexYaccNs
         {
             rules = new List<LexRule>();
 
-            sections = YaccRuleReader.SplitSecction(input);
+            sections = YaccRuleReader.SplitSecction(input, false);
             string ruleSectionString = sections.ruleSection.Trim();
 
             while (ruleSectionString.Length > 0)
             {
-                int leftBracket = LexYaccUtil.FindCharNotInLiteral(ruleSectionString, '{');
+                int leftBracket = LexYaccUtil.FindCharNotInLiteral(ruleSectionString, '{', false);
                 string regex = ruleSectionString.Substring(0, leftBracket).Trim();
 
+                // the case } in action:
+                // "}"  { return '}'; }
                 ruleSectionString = ruleSectionString.Substring(leftBracket + 1);
-                int rightBracket = LexYaccUtil.FindCharNotInLiteral(ruleSectionString, '}');
+                int rightBracket = LexYaccUtil.FindCharNotInLiteral(ruleSectionString, '}', true);
                 string action = LexYaccUtil.RemoveHeadAndTailEmptyLine(ruleSectionString.Substring(0, rightBracket));
 
                 ruleSectionString = ruleSectionString.Substring(rightBracket + 1).Trim();
@@ -597,27 +599,27 @@ namespace LexYaccNs
 {
     public class LexYaccUtil
     {
-        public static int FindCharNotInLiteral(string s, char c)
+        public static int FindCharNotInLiteral(string s, char c, bool includeSingleQuote)
         {
-            return FindCharNotInLiteral(s, new List<char>() { c });
+            return FindCharNotInLiteral(s, new List<char>() { c }, includeSingleQuote);
         }
 
-        public static int FindCharNotInLiteral(string s, List<char> chars)
+        public static int FindCharNotInLiteral(string s, List<char> chars, bool includeSingleQuote)
         {
             List<string> stringList = new List<string>();
 
             foreach (char c in chars)
                 stringList.Add(c.ToString());
 
-            return FindStringNotInLiteral(s, stringList);
+            return FindStringNotInLiteral(s, stringList, includeSingleQuote);
         }
 
-        public static int FindStringNotInLiteral(string s, string s2)
+        public static int FindStringNotInLiteral(string s, string s2, bool includeSingleQuote)
         {
-            return FindStringNotInLiteral(s, new List<string>() { s2 });
+            return FindStringNotInLiteral(s, new List<string>() { s2 }, includeSingleQuote);
         }
 
-        public static int FindStringNotInLiteral(string s, List<string> strings)
+        public static int FindStringNotInLiteral(string s, List<string> strings, bool includeSingleQuote)
         {
             bool singleQuote = false;
             bool doubleQuote = false;
@@ -625,7 +627,7 @@ namespace LexYaccNs
 
             for (int i = 0; i < s.Length; i++)
             {
-                if (s[i] == '\'')
+                if (includeSingleQuote && s[i] == '\'')
                     singleQuote = !singleQuote;
                 else if (s[i] == '"')
                     doubleQuote = !doubleQuote;
@@ -1763,7 +1765,7 @@ namespace LexYaccNs
             string productionString = null;
             string action = null;
 
-            int keyPos = LexYaccUtil.FindCharNotInLiteral(input, new List<char>() { '{', '|', ';' });
+            int keyPos = LexYaccUtil.FindCharNotInLiteral(input, new List<char>() { '{', '|', ';' }, true);
 
             if (keyPos == -1)
             {
@@ -1774,7 +1776,7 @@ namespace LexYaccNs
             else if (input[keyPos] == '{')
             {
                 productionString = input.Substring(0, keyPos).Trim();
-                int rightBrace = LexYaccUtil.FindCharNotInLiteral(input, '}');
+                int rightBrace = LexYaccUtil.FindCharNotInLiteral(input, '}', true);
                 if (rightBrace == -1)
                     throw new Exception("Syntax error");
                 action = input.Substring(keyPos + 1, rightBrace - keyPos - 1);
@@ -1818,7 +1820,7 @@ namespace LexYaccNs
             }
             else if (input[0] == '{')
             {
-                int rightCurlyPos = LexYaccUtil.FindCharNotInLiteral(input, '}');
+                int rightCurlyPos = LexYaccUtil.FindCharNotInLiteral(input, '}', true);
                 string action = input.Substring(1, rightCurlyPos - 1).Trim();
                 input = input.Substring(rightCurlyPos + 1);
                 rule.productions.Add(new Production(rule.lhs, new List<Symbol> { Terminal.BuildEmptyTerminal() }, lexTokenDef, ruleNonterminalType, action, ProductionType.Plain));
@@ -1909,7 +1911,7 @@ namespace LexYaccNs
     {
         public static void Parse(string input, out Section sections, out List<YaccRule> productionRules, out List<LexTokenDef> lexTokenDef, out Dictionary<string, string> ruleNonterminalType)
         {
-            sections = SplitSecction(input);
+            sections = SplitSecction(input, true);
             productionRules = new List<YaccRule>();
 
             Tuple<List<LexTokenDef>, Dictionary<string, string>> types = TypeSectionParser.Parse(sections.typeSection);
@@ -1933,22 +1935,22 @@ namespace LexYaccNs
             productionRules.Insert(0, pr);
         }
 
-        public static Section SplitSecction(string input)
+        public static Section SplitSecction(string input, bool singleQuoteAsString)
         {
             Section s = new Section();
 
-            int definitionStart = LexYaccUtil.FindStringNotInLiteral(input, "%{");
+            int definitionStart = LexYaccUtil.FindStringNotInLiteral(input, "%{", singleQuoteAsString);
             if (definitionStart != -1)
             {
-                int definitionEnd = LexYaccUtil.FindStringNotInLiteral(input, "%}");
+                int definitionEnd = LexYaccUtil.FindStringNotInLiteral(input, "%}", singleQuoteAsString);
                 s.definitionSection = input.Substring(definitionStart + 2, definitionEnd - definitionStart - 2).Trim();
                 input = input.Substring(definitionEnd + 2);
 
-                int ruleStart = LexYaccUtil.FindStringNotInLiteral(input, "%%");
+                int ruleStart = LexYaccUtil.FindStringNotInLiteral(input, "%%", singleQuoteAsString);
                 s.typeSection = input.Substring(0, ruleStart).Trim();
                 input = input.Substring(ruleStart + 2);
 
-                int ruleEnd = LexYaccUtil.FindStringNotInLiteral(input, "%%");
+                int ruleEnd = LexYaccUtil.FindStringNotInLiteral(input, "%%", singleQuoteAsString);
                 s.ruleSection = input.Substring(0, ruleEnd).Trim();
             }
             else
@@ -2450,7 +2452,6 @@ namespace RegexNs
                             patternChar.not = true;
 
                         newPatternChars.Add(patternChar);
-                        i++;
                     }
                     else if (pc.c == 'w' || pc.c == 'W')
                     {
@@ -2465,7 +2466,6 @@ namespace RegexNs
                             patternChar.not = true;
 
                         newPatternChars.Add(patternChar);
-                        i++;
                     }
                     else if (pc.c == 's' || pc.c == 'S')
                     {
@@ -2478,7 +2478,6 @@ namespace RegexNs
                             patternChar.not = true;
 
                         newPatternChars.Add(patternChar);
-                        i++;
                     }
                 }
                 else

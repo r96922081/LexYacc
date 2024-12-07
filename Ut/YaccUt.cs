@@ -853,7 +853,7 @@ using abc;
 a : 'A'
 %%
 ";
-        Section s = YaccRuleReader.SplitSecction(input);
+        Section s = YaccRuleReader.SplitSecction(input, true);
         Check(s.definitionSection.Trim() == "using abc;");
         Check(s.typeSection.Trim() == "%token <strVal> a b\r\n%type <astVal>  d");
         Check(s.ruleSection.Trim() == "a : 'A'");
@@ -864,7 +864,7 @@ a : 'A'
         string input = @"
 a : 'A'
 ";
-        Section s = YaccRuleReader.SplitSecction(input);
+        Section s = YaccRuleReader.SplitSecction(input, true);
         Check(s.definitionSection == null);
         Check(s.typeSection == null);
         Check(s.ruleSection.Trim() == "a : 'A'");
@@ -882,7 +882,7 @@ def;  %}
 %% a : 'A' { // %{ %} %%
 }  %%
 ";
-        Section s = YaccRuleReader.SplitSecction(input);
+        Section s = YaccRuleReader.SplitSecction(input, true);
         Check(s.definitionSection.Trim() == "abc;// %{ %} %%\r\ndef;");
         Check(s.typeSection.Trim() == "%token <strVal> a b\r\n%type <astVal>  d");
         Check(s.ruleSection.Trim() == "a : 'A' { // %{ %} %%\r\n}");

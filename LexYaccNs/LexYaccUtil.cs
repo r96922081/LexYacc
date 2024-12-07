@@ -4,27 +4,27 @@ namespace LexYaccNs
 {
     public class LexYaccUtil
     {
-        public static int FindCharNotInLiteral(string s, char c)
+        public static int FindCharNotInLiteral(string s, char c, bool includeSingleQuote)
         {
-            return FindCharNotInLiteral(s, new List<char>() { c });
+            return FindCharNotInLiteral(s, new List<char>() { c }, includeSingleQuote);
         }
 
-        public static int FindCharNotInLiteral(string s, List<char> chars)
+        public static int FindCharNotInLiteral(string s, List<char> chars, bool includeSingleQuote)
         {
             List<string> stringList = new List<string>();
 
             foreach (char c in chars)
                 stringList.Add(c.ToString());
 
-            return FindStringNotInLiteral(s, stringList);
+            return FindStringNotInLiteral(s, stringList, includeSingleQuote);
         }
 
-        public static int FindStringNotInLiteral(string s, string s2)
+        public static int FindStringNotInLiteral(string s, string s2, bool includeSingleQuote)
         {
-            return FindStringNotInLiteral(s, new List<string>() { s2 });
+            return FindStringNotInLiteral(s, new List<string>() { s2 }, includeSingleQuote);
         }
 
-        public static int FindStringNotInLiteral(string s, List<string> strings)
+        public static int FindStringNotInLiteral(string s, List<string> strings, bool includeSingleQuote)
         {
             bool singleQuote = false;
             bool doubleQuote = false;
@@ -32,7 +32,7 @@ namespace LexYaccNs
 
             for (int i = 0; i < s.Length; i++)
             {
-                if (s[i] == '\'')
+                if (includeSingleQuote && s[i] == '\'')
                     singleQuote = !singleQuote;
                 else if (s[i] == '"')
                     doubleQuote = !doubleQuote;

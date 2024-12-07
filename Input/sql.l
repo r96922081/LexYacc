@@ -17,7 +17,7 @@
 "AND"                     { return AND; }
 "OR"                     { return OR; }
 "NOT"                     { return NOT; }
-"NUMBER"                     { value = "NUMBER"; return NUMBER; }
+"NUMBER"                     { value = "NUMBER_TYPE"; return NUMBER_TYPE; }
 "VARCHAR"                     { value = "VARCHAR"; return VARCHAR; }
 "!="                     { return NOT_EQUAL; }
 "<="                     { return LESS_OR_EQUAL; }
@@ -32,6 +32,9 @@
 ">"  { return '>'; }
 "*"  { return '*'; }
 
-[a-zA-Z0-9_]*      { value = yytext; return STRING; }
+-?\d+(\.\d+)?           { value = yytext; return NUMBER; }
+'([^']|'')*'               { value = yytext; return STRING; }
+[a-zA-Z0-9_]*      { value = yytext; return ID; }
 [ \t\n]                      {}
+
 %%

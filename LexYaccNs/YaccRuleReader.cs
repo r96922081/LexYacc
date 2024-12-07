@@ -197,7 +197,7 @@ namespace LexYaccNs
             string productionString = null;
             string action = null;
 
-            int keyPos = LexYaccUtil.FindCharNotInLiteral(input, new List<char>() { '{', '|', ';' });
+            int keyPos = LexYaccUtil.FindCharNotInLiteral(input, new List<char>() { '{', '|', ';' }, true);
 
             if (keyPos == -1)
             {
@@ -208,7 +208,7 @@ namespace LexYaccNs
             else if (input[keyPos] == '{')
             {
                 productionString = input.Substring(0, keyPos).Trim();
-                int rightBrace = LexYaccUtil.FindCharNotInLiteral(input, '}');
+                int rightBrace = LexYaccUtil.FindCharNotInLiteral(input, '}', true);
                 if (rightBrace == -1)
                     throw new Exception("Syntax error");
                 action = input.Substring(keyPos + 1, rightBrace - keyPos - 1);
@@ -252,7 +252,7 @@ namespace LexYaccNs
             }
             else if (input[0] == '{')
             {
-                int rightCurlyPos = LexYaccUtil.FindCharNotInLiteral(input, '}');
+                int rightCurlyPos = LexYaccUtil.FindCharNotInLiteral(input, '}', true);
                 string action = input.Substring(1, rightCurlyPos - 1).Trim();
                 input = input.Substring(rightCurlyPos + 1);
                 rule.productions.Add(new Production(rule.lhs, new List<Symbol> { Terminal.BuildEmptyTerminal() }, lexTokenDef, ruleNonterminalType, action, ProductionType.Plain));
@@ -343,7 +343,7 @@ namespace LexYaccNs
     {
         public static void Parse(string input, out Section sections, out List<YaccRule> productionRules, out List<LexTokenDef> lexTokenDef, out Dictionary<string, string> ruleNonterminalType)
         {
-            sections = SplitSecction(input);
+            sections = SplitSecction(input, true);
             productionRules = new List<YaccRule>();
 
             Tuple<List<LexTokenDef>, Dictionary<string, string>> types = TypeSectionParser.Parse(sections.typeSection);
@@ -367,22 +367,22 @@ namespace LexYaccNs
             productionRules.Insert(0, pr);
         }
 
-        public static Section SplitSecction(string input)
+        public static Section SplitSecction(string input, bool singleQuoteAsString)
         {
             Section s = new Section();
 
-            int definitionStart = LexYaccUtil.FindStringNotInLiteral(input, "%{");
+            int definitionStart = LexYaccUtil.FindStringNotInLiteral(input, "%{", singleQuoteAsString);
             if (definitionStart != -1)
             {
-                int definitionEnd = LexYaccUtil.FindStringNotInLiteral(input, "%}");
+                int definitionEnd = LexYaccUtil.FindStringNotInLiteral(input, "%}", singleQuoteAsString);
                 s.definitionSection = input.Substring(definitionStart + 2, definitionEnd - definitionStart - 2).Trim();
                 input = input.Substring(definitionEnd + 2);
 
-                int ruleStart = LexYaccUtil.FindStringNotInLiteral(input, "%%");
+                int ruleStart = LexYaccUtil.FindStringNotInLiteral(input, "%%", singleQuoteAsString);
                 s.typeSection = input.Substring(0, ruleStart).Trim();
                 input = input.Substring(ruleStart + 2);
 
-                int ruleEnd = LexYaccUtil.FindStringNotInLiteral(input, "%%");
+                int ruleEnd = LexYaccUtil.FindStringNotInLiteral(input, "%%", singleQuoteAsString);
                 s.ruleSection = input.Substring(0, ruleEnd).Trim();
             }
             else

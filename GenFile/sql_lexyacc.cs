@@ -20,112 +20,181 @@ public class YaccActions{
 
 %}
 
-%token <string> SELECT STRING CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL
-%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement
-%type <List<string>> comma_sep_string comma_sep_string_include_star
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement boolean_expression string_number_id string_number
+%type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
-%type <bool> boolean_expression
 %%
 
 statement: create_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement;
 
-create_table_statement: CREATE TABLE STRING '(' column_declare ')' 
+create_table_statement: CREATE TABLE ID '(' column_declare ')' 
 {
-    SqlLexYaccCallback.CreateTable($3, $5);
+    SqlNs.SqlLexYaccCallback.CreateTable($3, $5);
 };
 
-column_declare: STRING column_type 
+column_declare: ID column_type 
 {
-    SqlLexYaccCallback.ColumnDeclare($$, $1, $2);
+    SqlNs.SqlLexYaccCallback.ColumnDeclare($$, $1, $2);
 } 
 | 
-STRING column_type ',' column_declare 
+ID column_type ',' column_declare 
 {
-    SqlLexYaccCallback.ColumnDeclare($$, $1, $2, $4);
+    SqlNs.SqlLexYaccCallback.ColumnDeclare($$, $1, $2, $4);
 };
 
 insert_statement: 
-INSERT INTO STRING VALUES '(' comma_sep_string ')'
+INSERT INTO ID VALUES '(' comma_sep_value ')'
 {
-    SqlLexYaccCallback.InsertRow($3, null, $6);
+    SqlNs.SqlLexYaccCallback.Insert($3, null, $6);
 }
 |
-INSERT INTO STRING '(' comma_sep_string ')' VALUES '(' comma_sep_string ')'
+INSERT INTO ID '(' comma_sep_id ')' VALUES '(' comma_sep_value ')'
 {
-    SqlLexYaccCallback.InsertRow($3, $5, $9);
+    SqlNs.SqlLexYaccCallback.Insert($3, $5, $9);
 };
 
 delete_statement:
-DELETE FROM STRING WHERE boolean_expression
+DELETE FROM ID WHERE boolean_expression
+{
+    SqlNs.SqlLexYaccCallback.Delete($3, $5);
+}
 ;
 
 show_tables_statement:
 SHOW TABLES
 {
-    SqlLexYaccCallback.ShowTables();
+    SqlNs.SqlLexYaccCallback.ShowTables();
 }
 ;
 
 select_statement:
-SELECT comma_sep_string_include_star FROM STRING
+SELECT comma_sep_id_include_star FROM ID WHERE boolean_expression
 {
-    SqlLexYaccCallback.Select($2, $4);
+    SqlNs.SqlLexYaccCallback.Select($2, $4, $6);
 }
 ;
 
 boolean_expression:
 boolean_expression AND boolean_expression
+{
+    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""AND"", $3);
+}
 |
 boolean_expression OR boolean_expression
+{
+    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""OR"", $3);
+}
 | 
 '(' boolean_expression ')'
+{
+    SqlNs.SqlLexYaccCallback.BooleanExpression1(ref $$, $2);
+}
 | 
-STRING '=' STRING
+string_number_id '=' string_number_id
+{
+    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""="", $3);
+}
 | 
-STRING '<' STRING
+string_number_id '<' string_number_id
+{
+    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""<"", $3);
+}
 | 
-STRING '>' STRING
+string_number_id '>' string_number_id
+{
+    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "">"", $3);
+}
 | 
-STRING NOT_EQUAL STRING
+string_number_id NOT_EQUAL string_number_id
+{
+    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""!="", $3);
+}
 | 
-STRING LESS_OR_EQUAL STRING
+string_number_id LESS_OR_EQUAL string_number_id
+{
+    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""<="", $3);
+}
 | 
-STRING GREATER_OR_EQUAL STRING
+string_number_id GREATER_OR_EQUAL string_number_id
+{
+    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "">="", $3);
+}
 ;
 
-comma_sep_string: 
-STRING 
+comma_sep_id: 
+ID 
 {
-    SqlLexYaccCallback.CommaSepString($$, $1);
+    SqlNs.SqlLexYaccCallback.CommaSepID($$, $1);
 }
-| STRING ',' comma_sep_string
+| ID ',' comma_sep_id
 {
-    SqlLexYaccCallback.CommaSepString($$, $1, $3);
+    SqlNs.SqlLexYaccCallback.CommaSepID($$, $1, $3);
 }
 ;
 
-comma_sep_string_include_star: 
-STRING 
+comma_sep_value: 
+string_number 
 {
-    SqlLexYaccCallback.CommaSepStringIncludeStar($$, $1);
+    SqlNs.SqlLexYaccCallback.CommaSepID($$, $1);
 }
-| STRING ',' comma_sep_string_include_star
+| string_number ',' comma_sep_value
 {
-    SqlLexYaccCallback.CommaSepStringIncludeStar($$, $1, $3);
+    SqlNs.SqlLexYaccCallback.CommaSepID($$, $1, $3);
+}
+;
+
+comma_sep_id_include_star: 
+ID 
+{
+    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1);
+}
+| ID ',' comma_sep_id_include_star
+{
+    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1, $3);
 }
 | '*'
 {
-    SqlLexYaccCallback.CommaSepStringIncludeStar($$, ""*"");
+    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, ""*"");
 }
-| '*' ',' comma_sep_string_include_star
+| '*' ',' comma_sep_id_include_star
 {
-    SqlLexYaccCallback.CommaSepStringIncludeStar($$, ""*"", $3);
+    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, ""*"", $3);
+}
+;
+
+string_number_id:
+ID
+{
+    $$ = $1;
+}
+| 
+STRING
+{
+    $$ = $1;
+}
+| 
+NUMBER
+{
+    $$ = $1;
+}
+;
+
+string_number:
+STRING
+{
+    $$ = $1;
+}
+| 
+NUMBER
+{
+    $$ = $1;
 }
 ;
 
 logical_operator: AND | OR;
 
-column_type: VARCHAR '(' STRING ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER {$$ = $1;};
+column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYPE {$$ = $1;};
 %%";
 
 
@@ -148,15 +217,32 @@ column_type: VARCHAR '(' STRING ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER {$$
         actions.Add("Rule_column_declare_Producton_1", Rule_column_declare_Producton_1);
         actions.Add("Rule_insert_statement_Producton_0", Rule_insert_statement_Producton_0);
         actions.Add("Rule_insert_statement_Producton_1", Rule_insert_statement_Producton_1);
+        actions.Add("Rule_delete_statement_Producton_0", Rule_delete_statement_Producton_0);
         actions.Add("Rule_show_tables_statement_Producton_0", Rule_show_tables_statement_Producton_0);
         actions.Add("Rule_select_statement_Producton_0", Rule_select_statement_Producton_0);
+        actions.Add("Rule_boolean_expression_Producton_0", Rule_boolean_expression_Producton_0);
+        actions.Add("Rule_boolean_expression_Producton_1", Rule_boolean_expression_Producton_1);
+        actions.Add("Rule_boolean_expression_Producton_2", Rule_boolean_expression_Producton_2);
+        actions.Add("Rule_boolean_expression_Producton_3", Rule_boolean_expression_Producton_3);
+        actions.Add("Rule_boolean_expression_Producton_4", Rule_boolean_expression_Producton_4);
+        actions.Add("Rule_boolean_expression_Producton_5", Rule_boolean_expression_Producton_5);
+        actions.Add("Rule_boolean_expression_Producton_6", Rule_boolean_expression_Producton_6);
+        actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_0", Rule_boolean_expression_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_1", Rule_boolean_expression_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_2", Rule_boolean_expression_LeftRecursionExpand_Producton_2);
-        actions.Add("Rule_comma_sep_string_Producton_0", Rule_comma_sep_string_Producton_0);
-        actions.Add("Rule_comma_sep_string_Producton_1", Rule_comma_sep_string_Producton_1);
-        actions.Add("Rule_comma_sep_string_include_star_Producton_0", Rule_comma_sep_string_include_star_Producton_0);
-        actions.Add("Rule_comma_sep_string_include_star_Producton_1", Rule_comma_sep_string_include_star_Producton_1);
-        actions.Add("Rule_comma_sep_string_include_star_Producton_2", Rule_comma_sep_string_include_star_Producton_2);
-        actions.Add("Rule_comma_sep_string_include_star_Producton_3", Rule_comma_sep_string_include_star_Producton_3);
+        actions.Add("Rule_comma_sep_id_Producton_0", Rule_comma_sep_id_Producton_0);
+        actions.Add("Rule_comma_sep_id_Producton_1", Rule_comma_sep_id_Producton_1);
+        actions.Add("Rule_comma_sep_value_Producton_0", Rule_comma_sep_value_Producton_0);
+        actions.Add("Rule_comma_sep_value_Producton_1", Rule_comma_sep_value_Producton_1);
+        actions.Add("Rule_comma_sep_id_include_star_Producton_0", Rule_comma_sep_id_include_star_Producton_0);
+        actions.Add("Rule_comma_sep_id_include_star_Producton_1", Rule_comma_sep_id_include_star_Producton_1);
+        actions.Add("Rule_comma_sep_id_include_star_Producton_2", Rule_comma_sep_id_include_star_Producton_2);
+        actions.Add("Rule_comma_sep_id_include_star_Producton_3", Rule_comma_sep_id_include_star_Producton_3);
+        actions.Add("Rule_string_number_id_Producton_0", Rule_string_number_id_Producton_0);
+        actions.Add("Rule_string_number_id_Producton_1", Rule_string_number_id_Producton_1);
+        actions.Add("Rule_string_number_id_Producton_2", Rule_string_number_id_Producton_2);
+        actions.Add("Rule_string_number_Producton_0", Rule_string_number_Producton_0);
+        actions.Add("Rule_string_number_Producton_1", Rule_string_number_Producton_1);
         actions.Add("Rule_column_type_Producton_0", Rule_column_type_Producton_0);
         actions.Add("Rule_column_type_Producton_1", Rule_column_type_Producton_1);
     }
@@ -179,7 +265,7 @@ column_type: VARCHAR '(' STRING ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER {$$
         List<(string, string)> _5 = (List<(string, string)>)objects[5];
 
         // user-defined action
-        SqlLexYaccCallback.CreateTable(_3, _5);
+        SqlNs.SqlLexYaccCallback.CreateTable(_3, _5);
 
         return _0;
     }
@@ -190,7 +276,7 @@ column_type: VARCHAR '(' STRING ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER {$$
         string _2 = (string)objects[2];
 
         // user-defined action
-        SqlLexYaccCallback.ColumnDeclare(_0, _1, _2);
+        SqlNs.SqlLexYaccCallback.ColumnDeclare(_0, _1, _2);
 
         return _0;
     }
@@ -202,7 +288,7 @@ column_type: VARCHAR '(' STRING ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER {$$
         List<(string, string)> _4 = (List<(string, string)>)objects[4];
 
         // user-defined action
-        SqlLexYaccCallback.ColumnDeclare(_0, _1, _2, _4);
+        SqlNs.SqlLexYaccCallback.ColumnDeclare(_0, _1, _2, _4);
 
         return _0;
     }
@@ -216,7 +302,7 @@ column_type: VARCHAR '(' STRING ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER {$$
         List<string> _6 = (List<string>)objects[6];
 
         // user-defined action
-        SqlLexYaccCallback.InsertRow(_3, null, _6);
+        SqlNs.SqlLexYaccCallback.Insert(_3, null, _6);
 
         return _0;
     }
@@ -231,7 +317,21 @@ column_type: VARCHAR '(' STRING ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER {$$
         List<string> _9 = (List<string>)objects[9];
 
         // user-defined action
-        SqlLexYaccCallback.InsertRow(_3, _5, _9);
+        SqlNs.SqlLexYaccCallback.Insert(_3, _5, _9);
+
+        return _0;
+    }
+
+    public static object Rule_delete_statement_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+        string _4 = (string)objects[4];
+        string _5 = (string)objects[5];
+
+        // user-defined action
+        SqlNs.SqlLexYaccCallback.Delete(_3, _5);
 
         return _0;
     }
@@ -242,7 +342,7 @@ column_type: VARCHAR '(' STRING ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER {$$
         string _2 = (string)objects[2];
 
         // user-defined action
-        SqlLexYaccCallback.ShowTables();
+        SqlNs.SqlLexYaccCallback.ShowTables();
 
         return _0;
     }
@@ -253,76 +353,252 @@ column_type: VARCHAR '(' STRING ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER {$$
         List<string> _2 = (List<string>)objects[2];
         string _3 = (string)objects[3];
         string _4 = (string)objects[4];
+        string _5 = (string)objects[5];
+        string _6 = (string)objects[6];
 
         // user-defined action
-        SqlLexYaccCallback.Select(_2, _4);
+        SqlNs.SqlLexYaccCallback.Select(_2, _4, _6);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _2 = (string)objects[2];
+
+        // user-defined action
+        SqlNs.SqlLexYaccCallback.BooleanExpression1(ref _0, _2);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        SqlNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_2(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        SqlNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "<", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_3(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        SqlNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, ">", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_4(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        SqlNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "!=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_5(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        SqlNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "<=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_6(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        SqlNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, ">=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 =(string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        SqlNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "AND", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 =(string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        SqlNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "OR", _3);
 
         return _0;
     }
 
     public static object Rule_boolean_expression_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
-        bool _0 = new bool();
+        string _0 = new string("");
 
         return _0;
     }
 
-    public static object Rule_comma_sep_string_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_comma_sep_id_Producton_0(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         string _1 = (string)objects[1];
 
         // user-defined action
-        SqlLexYaccCallback.CommaSepString(_0, _1);
+        SqlNs.SqlLexYaccCallback.CommaSepID(_0, _1);
 
         return _0;
     }
 
-    public static object Rule_comma_sep_string_Producton_1(Dictionary<int, object> objects) { 
-        List<string> _0 = new List<string>();
-        string _1 = (string)objects[1];
-        List<string> _3 = (List<string>)objects[3];
-
-        // user-defined action
-        SqlLexYaccCallback.CommaSepString(_0, _1, _3);
-
-        return _0;
-    }
-
-    public static object Rule_comma_sep_string_include_star_Producton_0(Dictionary<int, object> objects) { 
-        List<string> _0 = new List<string>();
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        SqlLexYaccCallback.CommaSepStringIncludeStar(_0, _1);
-
-        return _0;
-    }
-
-    public static object Rule_comma_sep_string_include_star_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_comma_sep_id_Producton_1(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         string _1 = (string)objects[1];
         List<string> _3 = (List<string>)objects[3];
 
         // user-defined action
-        SqlLexYaccCallback.CommaSepStringIncludeStar(_0, _1, _3);
+        SqlNs.SqlLexYaccCallback.CommaSepID(_0, _1, _3);
 
         return _0;
     }
 
-    public static object Rule_comma_sep_string_include_star_Producton_2(Dictionary<int, object> objects) { 
+    public static object Rule_comma_sep_value_Producton_0(Dictionary<int, object> objects) { 
+        List<string> _0 = new List<string>();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        SqlNs.SqlLexYaccCallback.CommaSepID(_0, _1);
+
+        return _0;
+    }
+
+    public static object Rule_comma_sep_value_Producton_1(Dictionary<int, object> objects) { 
+        List<string> _0 = new List<string>();
+        string _1 = (string)objects[1];
+        List<string> _3 = (List<string>)objects[3];
+
+        // user-defined action
+        SqlNs.SqlLexYaccCallback.CommaSepID(_0, _1, _3);
+
+        return _0;
+    }
+
+    public static object Rule_comma_sep_id_include_star_Producton_0(Dictionary<int, object> objects) { 
+        List<string> _0 = new List<string>();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, _1);
+
+        return _0;
+    }
+
+    public static object Rule_comma_sep_id_include_star_Producton_1(Dictionary<int, object> objects) { 
+        List<string> _0 = new List<string>();
+        string _1 = (string)objects[1];
+        List<string> _3 = (List<string>)objects[3];
+
+        // user-defined action
+        SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, _1, _3);
+
+        return _0;
+    }
+
+    public static object Rule_comma_sep_id_include_star_Producton_2(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
 
         // user-defined action
-        SqlLexYaccCallback.CommaSepStringIncludeStar(_0, "*");
+        SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, "*");
 
         return _0;
     }
 
-    public static object Rule_comma_sep_string_include_star_Producton_3(Dictionary<int, object> objects) { 
+    public static object Rule_comma_sep_id_include_star_Producton_3(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         List<string> _3 = (List<string>)objects[3];
 
         // user-defined action
-        SqlLexYaccCallback.CommaSepStringIncludeStar(_0, "*", _3);
+        SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, "*", _3);
+
+        return _0;
+    }
+
+    public static object Rule_string_number_id_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_string_number_id_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_string_number_id_Producton_2(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_string_number_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_string_number_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
 
         return _0;
     }
@@ -367,10 +643,10 @@ namespace sql_lexyaccNs
         public static Dictionary<int, string> tokenDict = new Dictionary<int, string>
         {
             { 256, "SELECT"},
-            { 257, "STRING"},
+            { 257, "ID"},
             { 258, "CREATE"},
             { 259, "TABLE"},
-            { 260, "NUMBER"},
+            { 260, "NUMBER_TYPE"},
             { 261, "VARCHAR"},
             { 262, "INSERT"},
             { 263, "INTO"},
@@ -386,13 +662,15 @@ namespace sql_lexyaccNs
             { 273, "NOT_EQUAL"},
             { 274, "LESS_OR_EQUAL"},
             { 275, "GREATER_OR_EQUAL"},
+            { 276, "STRING"},
+            { 277, "NUMBER"},
         };
 
         public static int SELECT = 256;
-        public static int STRING = 257;
+        public static int ID = 257;
         public static int CREATE = 258;
         public static int TABLE = 259;
-        public static int NUMBER = 260;
+        public static int NUMBER_TYPE = 260;
         public static int VARCHAR = 261;
         public static int INSERT = 262;
         public static int INTO = 263;
@@ -408,6 +686,8 @@ namespace sql_lexyaccNs
         public static int NOT_EQUAL = 273;
         public static int LESS_OR_EQUAL = 274;
         public static int GREATER_OR_EQUAL = 275;
+        public static int STRING = 276;
+        public static int NUMBER = 277;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -446,7 +726,7 @@ namespace sql_lexyaccNs
 ""AND""                     { return AND; }
 ""OR""                     { return OR; }
 ""NOT""                     { return NOT; }
-""NUMBER""                     { value = ""NUMBER""; return NUMBER; }
+""NUMBER""                     { value = ""NUMBER_TYPE""; return NUMBER_TYPE; }
 ""VARCHAR""                     { value = ""VARCHAR""; return VARCHAR; }
 ""!=""                     { return NOT_EQUAL; }
 ""<=""                     { return LESS_OR_EQUAL; }
@@ -461,9 +741,13 @@ namespace sql_lexyaccNs
 "">""  { return '>'; }
 ""*""  { return '*'; }
 
-[a-zA-Z0-9_]*      { value = yytext; return STRING; }
+-?\d+(\.\d+)?           { value = yytext; return NUMBER; }
+'([^']|'')*'               { value = yytext; return STRING; }
+[a-zA-Z0-9_]*      { value = yytext; return ID; }
 [ \t\n]                      {}
-%%";
+
+%%
+";
 
 
         public static void Init()
@@ -501,6 +785,8 @@ namespace sql_lexyaccNs
             actions.Add("LexRule28", LexAction28);
             actions.Add("LexRule29", LexAction29);
             actions.Add("LexRule30", LexAction30);
+            actions.Add("LexRule31", LexAction31);
+            actions.Add("LexRule32", LexAction32);
         }
         public static object LexAction0(string yytext)
         {
@@ -642,7 +928,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = "NUMBER"; return NUMBER; 
+            value = "NUMBER_TYPE"; return NUMBER_TYPE; 
 
             return 0;
         }
@@ -768,11 +1054,29 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return STRING; 
+            value = yytext; return NUMBER; 
 
             return 0;
         }
         public static object LexAction30(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return STRING; 
+
+            return 0;
+        }
+        public static object LexAction31(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return ID; 
+
+            return 0;
+        }
+        public static object LexAction32(string yytext)
         {
             value = null;
 
@@ -1042,16 +1346,18 @@ namespace LexYaccNs
         {
             rules = new List<LexRule>();
 
-            sections = YaccRuleReader.SplitSecction(input);
+            sections = YaccRuleReader.SplitSecction(input, false);
             string ruleSectionString = sections.ruleSection.Trim();
 
             while (ruleSectionString.Length > 0)
             {
-                int leftBracket = LexYaccUtil.FindCharNotInLiteral(ruleSectionString, '{');
+                int leftBracket = LexYaccUtil.FindCharNotInLiteral(ruleSectionString, '{', false);
                 string regex = ruleSectionString.Substring(0, leftBracket).Trim();
 
+                // the case } in action:
+                // "}"  { return '}'; }
                 ruleSectionString = ruleSectionString.Substring(leftBracket + 1);
-                int rightBracket = LexYaccUtil.FindCharNotInLiteral(ruleSectionString, '}');
+                int rightBracket = LexYaccUtil.FindCharNotInLiteral(ruleSectionString, '}', true);
                 string action = LexYaccUtil.RemoveHeadAndTailEmptyLine(ruleSectionString.Substring(0, rightBracket));
 
                 ruleSectionString = ruleSectionString.Substring(rightBracket + 1).Trim();
@@ -1163,27 +1469,27 @@ namespace LexYaccNs
 {
     public class LexYaccUtil
     {
-        public static int FindCharNotInLiteral(string s, char c)
+        public static int FindCharNotInLiteral(string s, char c, bool includeSingleQuote)
         {
-            return FindCharNotInLiteral(s, new List<char>() { c });
+            return FindCharNotInLiteral(s, new List<char>() { c }, includeSingleQuote);
         }
 
-        public static int FindCharNotInLiteral(string s, List<char> chars)
+        public static int FindCharNotInLiteral(string s, List<char> chars, bool includeSingleQuote)
         {
             List<string> stringList = new List<string>();
 
             foreach (char c in chars)
                 stringList.Add(c.ToString());
 
-            return FindStringNotInLiteral(s, stringList);
+            return FindStringNotInLiteral(s, stringList, includeSingleQuote);
         }
 
-        public static int FindStringNotInLiteral(string s, string s2)
+        public static int FindStringNotInLiteral(string s, string s2, bool includeSingleQuote)
         {
-            return FindStringNotInLiteral(s, new List<string>() { s2 });
+            return FindStringNotInLiteral(s, new List<string>() { s2 }, includeSingleQuote);
         }
 
-        public static int FindStringNotInLiteral(string s, List<string> strings)
+        public static int FindStringNotInLiteral(string s, List<string> strings, bool includeSingleQuote)
         {
             bool singleQuote = false;
             bool doubleQuote = false;
@@ -1191,7 +1497,7 @@ namespace LexYaccNs
 
             for (int i = 0; i < s.Length; i++)
             {
-                if (s[i] == '\'')
+                if (includeSingleQuote && s[i] == '\'')
                     singleQuote = !singleQuote;
                 else if (s[i] == '"')
                     doubleQuote = !doubleQuote;
@@ -2329,7 +2635,7 @@ namespace LexYaccNs
             string productionString = null;
             string action = null;
 
-            int keyPos = LexYaccUtil.FindCharNotInLiteral(input, new List<char>() { '{', '|', ';' });
+            int keyPos = LexYaccUtil.FindCharNotInLiteral(input, new List<char>() { '{', '|', ';' }, true);
 
             if (keyPos == -1)
             {
@@ -2340,7 +2646,7 @@ namespace LexYaccNs
             else if (input[keyPos] == '{')
             {
                 productionString = input.Substring(0, keyPos).Trim();
-                int rightBrace = LexYaccUtil.FindCharNotInLiteral(input, '}');
+                int rightBrace = LexYaccUtil.FindCharNotInLiteral(input, '}', true);
                 if (rightBrace == -1)
                     throw new Exception("Syntax error");
                 action = input.Substring(keyPos + 1, rightBrace - keyPos - 1);
@@ -2384,7 +2690,7 @@ namespace LexYaccNs
             }
             else if (input[0] == '{')
             {
-                int rightCurlyPos = LexYaccUtil.FindCharNotInLiteral(input, '}');
+                int rightCurlyPos = LexYaccUtil.FindCharNotInLiteral(input, '}', true);
                 string action = input.Substring(1, rightCurlyPos - 1).Trim();
                 input = input.Substring(rightCurlyPos + 1);
                 rule.productions.Add(new Production(rule.lhs, new List<Symbol> { Terminal.BuildEmptyTerminal() }, lexTokenDef, ruleNonterminalType, action, ProductionType.Plain));
@@ -2475,7 +2781,7 @@ namespace LexYaccNs
     {
         public static void Parse(string input, out Section sections, out List<YaccRule> productionRules, out List<LexTokenDef> lexTokenDef, out Dictionary<string, string> ruleNonterminalType)
         {
-            sections = SplitSecction(input);
+            sections = SplitSecction(input, true);
             productionRules = new List<YaccRule>();
 
             Tuple<List<LexTokenDef>, Dictionary<string, string>> types = TypeSectionParser.Parse(sections.typeSection);
@@ -2499,22 +2805,22 @@ namespace LexYaccNs
             productionRules.Insert(0, pr);
         }
 
-        public static Section SplitSecction(string input)
+        public static Section SplitSecction(string input, bool singleQuoteAsString)
         {
             Section s = new Section();
 
-            int definitionStart = LexYaccUtil.FindStringNotInLiteral(input, "%{");
+            int definitionStart = LexYaccUtil.FindStringNotInLiteral(input, "%{", singleQuoteAsString);
             if (definitionStart != -1)
             {
-                int definitionEnd = LexYaccUtil.FindStringNotInLiteral(input, "%}");
+                int definitionEnd = LexYaccUtil.FindStringNotInLiteral(input, "%}", singleQuoteAsString);
                 s.definitionSection = input.Substring(definitionStart + 2, definitionEnd - definitionStart - 2).Trim();
                 input = input.Substring(definitionEnd + 2);
 
-                int ruleStart = LexYaccUtil.FindStringNotInLiteral(input, "%%");
+                int ruleStart = LexYaccUtil.FindStringNotInLiteral(input, "%%", singleQuoteAsString);
                 s.typeSection = input.Substring(0, ruleStart).Trim();
                 input = input.Substring(ruleStart + 2);
 
-                int ruleEnd = LexYaccUtil.FindStringNotInLiteral(input, "%%");
+                int ruleEnd = LexYaccUtil.FindStringNotInLiteral(input, "%%", singleQuoteAsString);
                 s.ruleSection = input.Substring(0, ruleEnd).Trim();
             }
             else
@@ -3016,7 +3322,6 @@ namespace RegexNs
                             patternChar.not = true;
 
                         newPatternChars.Add(patternChar);
-                        i++;
                     }
                     else if (pc.c == 'w' || pc.c == 'W')
                     {
@@ -3031,7 +3336,6 @@ namespace RegexNs
                             patternChar.not = true;
 
                         newPatternChars.Add(patternChar);
-                        i++;
                     }
                     else if (pc.c == 's' || pc.c == 'S')
                     {
@@ -3044,7 +3348,6 @@ namespace RegexNs
                             patternChar.not = true;
 
                         newPatternChars.Add(patternChar);
-                        i++;
                     }
                 }
                 else

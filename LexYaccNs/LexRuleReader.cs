@@ -8,16 +8,18 @@ namespace LexYaccNs
         {
             rules = new List<LexRule>();
 
-            sections = YaccRuleReader.SplitSecction(input);
+            sections = YaccRuleReader.SplitSecction(input, false);
             string ruleSectionString = sections.ruleSection.Trim();
 
             while (ruleSectionString.Length > 0)
             {
-                int leftBracket = LexYaccUtil.FindCharNotInLiteral(ruleSectionString, '{');
+                int leftBracket = LexYaccUtil.FindCharNotInLiteral(ruleSectionString, '{', false);
                 string regex = ruleSectionString.Substring(0, leftBracket).Trim();
 
+                // the case } in action:
+                // "}"  { return '}'; }
                 ruleSectionString = ruleSectionString.Substring(leftBracket + 1);
-                int rightBracket = LexYaccUtil.FindCharNotInLiteral(ruleSectionString, '}');
+                int rightBracket = LexYaccUtil.FindCharNotInLiteral(ruleSectionString, '}', true);
                 string action = LexYaccUtil.RemoveHeadAndTailEmptyLine(ruleSectionString.Substring(0, rightBracket));
 
                 ruleSectionString = ruleSectionString.Substring(rightBracket + 1).Trim();

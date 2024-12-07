@@ -5,5 +5,8 @@
         YaccUt.RunAllUt();
         LexUt.RunAllUt();
         LexYaccUt.RunAllUt();
+
+
+        SqlNs.SqlUt.Ut();
     }
 }

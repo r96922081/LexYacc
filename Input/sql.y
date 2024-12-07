@@ -2,110 +2,179 @@
 
 %}
 
-%token <string> SELECT STRING CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL
-%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement
-%type <List<string>> comma_sep_string comma_sep_string_include_star
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement boolean_expression string_number_id string_number
+%type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
-%type <bool> boolean_expression
 %%
 
 statement: create_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement;
 
-create_table_statement: CREATE TABLE STRING '(' column_declare ')' 
+create_table_statement: CREATE TABLE ID '(' column_declare ')' 
 {
-    SqlLexYaccCallback.CreateTable($3, $5);
+    SqlNs.SqlLexYaccCallback.CreateTable($3, $5);
 };
 
-column_declare: STRING column_type 
+column_declare: ID column_type 
 {
-    SqlLexYaccCallback.ColumnDeclare($$, $1, $2);
+    SqlNs.SqlLexYaccCallback.ColumnDeclare($$, $1, $2);
 } 
 | 
-STRING column_type ',' column_declare 
+ID column_type ',' column_declare 
 {
-    SqlLexYaccCallback.ColumnDeclare($$, $1, $2, $4);
+    SqlNs.SqlLexYaccCallback.ColumnDeclare($$, $1, $2, $4);
 };
 
 insert_statement: 
-INSERT INTO STRING VALUES '(' comma_sep_string ')'
+INSERT INTO ID VALUES '(' comma_sep_value ')'
 {
-    SqlLexYaccCallback.InsertRow($3, null, $6);
+    SqlNs.SqlLexYaccCallback.Insert($3, null, $6);
 }
 |
-INSERT INTO STRING '(' comma_sep_string ')' VALUES '(' comma_sep_string ')'
+INSERT INTO ID '(' comma_sep_id ')' VALUES '(' comma_sep_value ')'
 {
-    SqlLexYaccCallback.InsertRow($3, $5, $9);
+    SqlNs.SqlLexYaccCallback.Insert($3, $5, $9);
 };
 
 delete_statement:
-DELETE FROM STRING WHERE boolean_expression
+DELETE FROM ID WHERE boolean_expression
+{
+    SqlNs.SqlLexYaccCallback.Delete($3, $5);
+}
 ;
 
 show_tables_statement:
 SHOW TABLES
 {
-    SqlLexYaccCallback.ShowTables();
+    SqlNs.SqlLexYaccCallback.ShowTables();
 }
 ;
 
 select_statement:
-SELECT comma_sep_string_include_star FROM STRING
+SELECT comma_sep_id_include_star FROM ID WHERE boolean_expression
 {
-    SqlLexYaccCallback.Select($2, $4);
+    SqlNs.SqlLexYaccCallback.Select($2, $4, $6);
 }
 ;
 
 boolean_expression:
 boolean_expression AND boolean_expression
+{
+    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "AND", $3);
+}
 |
 boolean_expression OR boolean_expression
+{
+    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "OR", $3);
+}
 | 
 '(' boolean_expression ')'
+{
+    SqlNs.SqlLexYaccCallback.BooleanExpression1(ref $$, $2);
+}
 | 
-STRING '=' STRING
+string_number_id '=' string_number_id
+{
+    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "=", $3);
+}
 | 
-STRING '<' STRING
+string_number_id '<' string_number_id
+{
+    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "<", $3);
+}
 | 
-STRING '>' STRING
+string_number_id '>' string_number_id
+{
+    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ">", $3);
+}
 | 
-STRING NOT_EQUAL STRING
+string_number_id NOT_EQUAL string_number_id
+{
+    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "!=", $3);
+}
 | 
-STRING LESS_OR_EQUAL STRING
+string_number_id LESS_OR_EQUAL string_number_id
+{
+    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "<=", $3);
+}
 | 
-STRING GREATER_OR_EQUAL STRING
+string_number_id GREATER_OR_EQUAL string_number_id
+{
+    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ">=", $3);
+}
 ;
 
-comma_sep_string: 
-STRING 
+comma_sep_id: 
+ID 
 {
-    SqlLexYaccCallback.CommaSepString($$, $1);
+    SqlNs.SqlLexYaccCallback.CommaSepID($$, $1);
 }
-| STRING ',' comma_sep_string
+| ID ',' comma_sep_id
 {
-    SqlLexYaccCallback.CommaSepString($$, $1, $3);
+    SqlNs.SqlLexYaccCallback.CommaSepID($$, $1, $3);
 }
 ;
 
-comma_sep_string_include_star: 
-STRING 
+comma_sep_value: 
+string_number 
 {
-    SqlLexYaccCallback.CommaSepStringIncludeStar($$, $1);
+    SqlNs.SqlLexYaccCallback.CommaSepID($$, $1);
 }
-| STRING ',' comma_sep_string_include_star
+| string_number ',' comma_sep_value
 {
-    SqlLexYaccCallback.CommaSepStringIncludeStar($$, $1, $3);
+    SqlNs.SqlLexYaccCallback.CommaSepID($$, $1, $3);
+}
+;
+
+comma_sep_id_include_star: 
+ID 
+{
+    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1);
+}
+| ID ',' comma_sep_id_include_star
+{
+    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1, $3);
 }
 | '*'
 {
-    SqlLexYaccCallback.CommaSepStringIncludeStar($$, "*");
+    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, "*");
 }
-| '*' ',' comma_sep_string_include_star
+| '*' ',' comma_sep_id_include_star
 {
-    SqlLexYaccCallback.CommaSepStringIncludeStar($$, "*", $3);
+    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, "*", $3);
+}
+;
+
+string_number_id:
+ID
+{
+    $$ = $1;
+}
+| 
+STRING
+{
+    $$ = $1;
+}
+| 
+NUMBER
+{
+    $$ = $1;
+}
+;
+
+string_number:
+STRING
+{
+    $$ = $1;
+}
+| 
+NUMBER
+{
+    $$ = $1;
 }
 ;
 
 logical_operator: AND | OR;
 
-column_type: VARCHAR '(' STRING ')' {$$ = $1 + "(" + $3 + ")";} | NUMBER {$$ = $1;};
+column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + "(" + $3 + ")";} | NUMBER_TYPE {$$ = $1;};
 %%
