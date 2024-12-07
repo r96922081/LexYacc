@@ -145,21 +145,22 @@ string_number
 ;
 
 comma_sep_id_include_star: 
+ID ',' comma_sep_id_include_star
+{
+    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1, $3);
+}
+|
 ID 
 {
     SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1);
 }
-| ID ',' comma_sep_id_include_star
+| '*' ',' comma_sep_id_include_star
 {
-    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1, $3);
+    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, ""*"", $3);
 }
 | '*'
 {
     SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, ""*"");
-}
-| '*' ',' comma_sep_id_include_star
-{
-    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, ""*"", $3);
 }
 ;
 
@@ -516,16 +517,6 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
     public static object Rule_comma_sep_id_include_star_Producton_0(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         string _1 = (string)objects[1];
-
-        // user-defined action
-        SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, _1);
-
-        return _0;
-    }
-
-    public static object Rule_comma_sep_id_include_star_Producton_1(Dictionary<int, object> objects) { 
-        List<string> _0 = new List<string>();
-        string _1 = (string)objects[1];
         List<string> _3 = (List<string>)objects[3];
 
         // user-defined action
@@ -534,21 +525,31 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         return _0;
     }
 
-    public static object Rule_comma_sep_id_include_star_Producton_2(Dictionary<int, object> objects) { 
+    public static object Rule_comma_sep_id_include_star_Producton_1(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
+        string _1 = (string)objects[1];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, "*");
+        SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, _1);
+
+        return _0;
+    }
+
+    public static object Rule_comma_sep_id_include_star_Producton_2(Dictionary<int, object> objects) { 
+        List<string> _0 = new List<string>();
+        List<string> _3 = (List<string>)objects[3];
+
+        // user-defined action
+        SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, "*", _3);
 
         return _0;
     }
 
     public static object Rule_comma_sep_id_include_star_Producton_3(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
-        List<string> _3 = (List<string>)objects[3];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, "*", _3);
+        SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, "*");
 
         return _0;
     }

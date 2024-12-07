@@ -127,21 +127,22 @@ string_number
 ;
 
 comma_sep_id_include_star: 
+ID ',' comma_sep_id_include_star
+{
+    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1, $3);
+}
+|
 ID 
 {
     SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1);
 }
-| ID ',' comma_sep_id_include_star
+| '*' ',' comma_sep_id_include_star
 {
-    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1, $3);
+    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, "*", $3);
 }
 | '*'
 {
     SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, "*");
-}
-| '*' ',' comma_sep_id_include_star
-{
-    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, "*", $3);
 }
 ;
 
