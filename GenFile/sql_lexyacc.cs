@@ -25,9 +25,10 @@ public class YaccActions{
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
 %type <List<Tuple<string, string>>> set_expression
+%type <object> expression term
 %%
 
-statement: create_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement;
+statement: create_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement | expression;
 
 create_table_statement: CREATE TABLE ID '(' column_declare ')' 
 {
@@ -184,6 +185,42 @@ ID ',' comma_sep_id_include_star
 }
 ;
 
+expression:
+expression '+' expression 
+{
+
+}
+| expression '-' expression 
+{
+
+}
+|
+'(' expression ')'
+{
+
+}
+| 
+term 
+{
+
+}
+;
+
+term:
+term '*' string_number_id 
+{
+
+}
+| term '/' string_number_id 
+{
+
+}
+| string_number_id 
+{
+
+}
+;
+
 string_number_id:
 ID
 {
@@ -262,6 +299,15 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         actions.Add("Rule_comma_sep_id_include_star_Producton_1", Rule_comma_sep_id_include_star_Producton_1);
         actions.Add("Rule_comma_sep_id_include_star_Producton_2", Rule_comma_sep_id_include_star_Producton_2);
         actions.Add("Rule_comma_sep_id_include_star_Producton_3", Rule_comma_sep_id_include_star_Producton_3);
+        actions.Add("Rule_expression_Producton_0", Rule_expression_Producton_0);
+        actions.Add("Rule_expression_Producton_1", Rule_expression_Producton_1);
+        actions.Add("Rule_expression_LeftRecursionExpand_Producton_0", Rule_expression_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_expression_LeftRecursionExpand_Producton_1", Rule_expression_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_expression_LeftRecursionExpand_Producton_2", Rule_expression_LeftRecursionExpand_Producton_2);
+        actions.Add("Rule_term_Producton_0", Rule_term_Producton_0);
+        actions.Add("Rule_term_LeftRecursionExpand_Producton_0", Rule_term_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_term_LeftRecursionExpand_Producton_1", Rule_term_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_term_LeftRecursionExpand_Producton_2", Rule_term_LeftRecursionExpand_Producton_2);
         actions.Add("Rule_string_number_id_Producton_0", Rule_string_number_id_Producton_0);
         actions.Add("Rule_string_number_id_Producton_1", Rule_string_number_id_Producton_1);
         actions.Add("Rule_string_number_id_Producton_2", Rule_string_number_id_Producton_2);
@@ -615,6 +661,71 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         return _0;
     }
 
+    public static object Rule_expression_Producton_0(Dictionary<int, object> objects) { 
+        object _0 = new object();
+        object _2 = (object)objects[2];
+
+        return _0;
+    }
+
+    public static object Rule_expression_Producton_1(Dictionary<int, object> objects) { 
+        object _0 = new object();
+        object _1 = (object)objects[1];
+
+        return _0;
+    }
+
+    public static object Rule_expression_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        object _0 = new object();
+        object _1 =(object)objects[1];
+        object _3 = (object)objects[3];
+
+        return _0;
+    }
+
+    public static object Rule_expression_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        object _0 = new object();
+        object _1 =(object)objects[1];
+        object _3 = (object)objects[3];
+
+        return _0;
+    }
+
+    public static object Rule_expression_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
+        object _0 = new object();
+
+        return _0;
+    }
+
+    public static object Rule_term_Producton_0(Dictionary<int, object> objects) { 
+        object _0 = new object();
+        string _1 = (string)objects[1];
+
+        return _0;
+    }
+
+    public static object Rule_term_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        object _0 = new object();
+        object _1 =(object)objects[1];
+        string _3 = (string)objects[3];
+
+        return _0;
+    }
+
+    public static object Rule_term_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        object _0 = new object();
+        object _1 =(object)objects[1];
+        string _3 = (string)objects[3];
+
+        return _0;
+    }
+
+    public static object Rule_term_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
+        object _0 = new object();
+
+        return _0;
+    }
+
     public static object Rule_string_number_id_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
@@ -807,6 +918,9 @@ namespace sql_lexyaccNs
 ""<""  { return '<'; }
 "">""  { return '>'; }
 ""*""  { return '*'; }
+""+""  { return '+'; }
+""-""  { return '-'; }
+""/""  { return '/'; }
 
 -?\d+(\.\d+)?           { value = yytext; return NUMBER; }
 '([^']|'')*'               { value = yytext; return STRING; }
@@ -855,6 +969,9 @@ namespace sql_lexyaccNs
             actions.Add("LexRule31", LexAction31);
             actions.Add("LexRule32", LexAction32);
             actions.Add("LexRule33", LexAction33);
+            actions.Add("LexRule34", LexAction34);
+            actions.Add("LexRule35", LexAction35);
+            actions.Add("LexRule36", LexAction36);
         }
         public static object LexAction0(string yytext)
         {
@@ -1131,7 +1248,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return NUMBER; 
+            return '+'; 
 
             return 0;
         }
@@ -1140,7 +1257,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return STRING; 
+            return '-'; 
 
             return 0;
         }
@@ -1149,11 +1266,38 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            return '/'; 
 
             return 0;
         }
         public static object LexAction33(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return NUMBER; 
+
+            return 0;
+        }
+        public static object LexAction34(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return STRING; 
+
+            return 0;
+        }
+        public static object LexAction35(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return ID; 
+
+            return 0;
+        }
+        public static object LexAction36(string yytext)
         {
             value = null;
 

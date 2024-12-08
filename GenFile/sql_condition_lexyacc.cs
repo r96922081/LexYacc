@@ -396,6 +396,9 @@ namespace sql_condition_lexyaccNs
 ""<""  { return '<'; }
 "">""  { return '>'; }
 ""*""  { return '*'; }
+""+""  { return '+'; }
+""-""  { return '-'; }
+""/""  { return '/'; }
 
 -?\d+(\.\d+)?           { value = yytext; return NUMBER; }
 '([^']|'')*'               { value = yytext; return STRING; }
@@ -444,6 +447,9 @@ namespace sql_condition_lexyaccNs
             actions.Add("LexRule31", LexAction31);
             actions.Add("LexRule32", LexAction32);
             actions.Add("LexRule33", LexAction33);
+            actions.Add("LexRule34", LexAction34);
+            actions.Add("LexRule35", LexAction35);
+            actions.Add("LexRule36", LexAction36);
         }
         public static object LexAction0(string yytext)
         {
@@ -720,7 +726,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return NUMBER; 
+            return '+'; 
 
             return 0;
         }
@@ -729,7 +735,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return STRING; 
+            return '-'; 
 
             return 0;
         }
@@ -738,11 +744,38 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            return '/'; 
 
             return 0;
         }
         public static object LexAction33(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return NUMBER; 
+
+            return 0;
+        }
+        public static object LexAction34(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return STRING; 
+
+            return 0;
+        }
+        public static object LexAction35(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return ID; 
+
+            return 0;
+        }
+        public static object LexAction36(string yytext)
         {
             value = null;
 

@@ -7,9 +7,10 @@
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
 %type <List<Tuple<string, string>>> set_expression
+%type <object> expression term
 %%
 
-statement: create_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement;
+statement: create_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement | expression;
 
 create_table_statement: CREATE TABLE ID '(' column_declare ')' 
 {
@@ -163,6 +164,42 @@ ID ',' comma_sep_id_include_star
 | '*' ',' comma_sep_id_include_star
 {
     MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, "*", $3);
+}
+;
+
+expression:
+expression '+' expression 
+{
+
+}
+| expression '-' expression 
+{
+
+}
+|
+'(' expression ')'
+{
+
+}
+| 
+term 
+{
+
+}
+;
+
+term:
+term '*' string_number_id 
+{
+
+}
+| term '/' string_number_id 
+{
+
+}
+| string_number_id 
+{
+
 }
 ;
 

@@ -32,6 +32,9 @@
 "<"  { return '<'; }
 ">"  { return '>'; }
 "*"  { return '*'; }
+"+"  { return '+'; }
+"-"  { return '-'; }
+"/"  { return '/'; }
 
 -?\d+(\.\d+)?           { value = yytext; return NUMBER; }
 '([^']|'')*'               { value = yytext; return STRING; }
