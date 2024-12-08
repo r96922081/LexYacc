@@ -1034,13 +1034,13 @@ namespace LexYaccNs
         public static object Parse(string input, string lexRule, string yaccRule, Lex.CallActionDelegate lexCallActionDelegate, Yacc.CallActionDelegate yaccActionDelegate)
         {
             List<Terminal> tokens = Lex.Parse(input, lexRule, lexCallActionDelegate);
+            List<Symbol> symbols = new List<Symbol>();
+            symbols.AddRange(tokens);
 
             Yacc yacc = new Yacc(yaccRule);
-            for (int i = 0; i < tokens.Count; i++)
-                yacc.Feed(tokens[i]);
-            yacc.EndFeeding();
+            bool result = yacc.Feed(symbols);
 
-            if (yacc.result != FeedResult.Accept)
+            if (!result)
                 return "syntax error";
 
             return yacc.startDFA.CallAction(yaccActionDelegate);
@@ -1280,7 +1280,7 @@ namespace LexYaccNs
         public List<Symbol> symbols = new List<Symbol>();
         private int symbolIndex = 0;
 
-        public FeedResult result = FeedResult.Alive;
+        public bool result = false;
 
         public delegate object CallActionDelegate(string functionName, Dictionary<int, object> param);
 
@@ -1301,9 +1301,8 @@ namespace LexYaccNs
             dfaStack.Clear();
             startDFA = new DFA(this, productionRules[0].productions[0], lexTokenDef, ruleNonterminalType);
             dfaStack.Push(startDFA);
-            symbols.Clear();
             symbolIndex = 0;
-            result = FeedResult.Alive;
+            result = false;
         }
 
         public void ExpandNontermianl(int symbolIndex)
@@ -1354,39 +1353,40 @@ namespace LexYaccNs
             }
         }
 
-        public void FeedInternal()
+        public bool Feed(List<Symbol> s)
         {
-            ExpandAndFeedEmpty(symbolIndex);
+            symbols = s;
 
-            while (symbolIndex < symbols.Count)
+            while (dfaStack.Count != 0)
             {
-                int tempSymbolIndex = symbolIndex++;
+                ExpandAndFeedEmpty(symbolIndex);
 
-                if (dfaStack.Count == 0)
+                while (symbolIndex < symbols.Count)
                 {
-                    if (tempSymbolIndex < symbols.Count)
-                        result = FeedResult.Reject;
-                    return;
+                    if (dfaStack.Count == 0)
+                        return false;
+
+                    int tempSymbolIndex = symbolIndex++;
+
+                    dfaStack.Peek().Feed(this, tempSymbolIndex, false);
+
+                    ExpandAndFeedEmpty(tempSymbolIndex + 1);
                 }
 
-                result = FeedResult.Alive;
-                dfaStack.Peek().Feed(this, tempSymbolIndex, false);
-
-                ExpandAndFeedEmpty(tempSymbolIndex + 1);
+                if (dfaStack.Count == 0)
+                    return result;
+                else
+                    BackToPrevNonterminal();
             }
-        }
 
-        public void Feed(Symbol s)
-        {
-            symbols.Add(s);
-            FeedInternal();
+            return result;
         }
 
         public void BackToPrevNonterminal()
         {
             if (dfaStack.Count == 0)
             {
-                result = FeedResult.Reject;
+                result = false;
                 return;
             }
 
@@ -1412,7 +1412,7 @@ namespace LexYaccNs
             dfaStack.Pop();
             if (dfaStack.Count == 0)
             {
-                result = FeedResult.Accept;
+                result = true;
                 return;
             }
 
@@ -1420,17 +1420,6 @@ namespace LexYaccNs
             dfa.currentState++;
             if (dfa.currentState == dfa.acceptedState)
                 AdvanceToNextState();
-        }
-
-        public bool EndFeeding()
-        {
-            while (result == FeedResult.Alive)
-            {
-                BackToPrevNonterminal();
-                FeedInternal();
-            }
-
-            return result == FeedResult.Accept;
         }
 
         public List<Production> GetProductions(string name)

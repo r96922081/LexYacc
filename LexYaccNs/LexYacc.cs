@@ -6,13 +6,13 @@
         public static object Parse(string input, string lexRule, string yaccRule, Lex.CallActionDelegate lexCallActionDelegate, Yacc.CallActionDelegate yaccActionDelegate)
         {
             List<Terminal> tokens = Lex.Parse(input, lexRule, lexCallActionDelegate);
+            List<Symbol> symbols = new List<Symbol>();
+            symbols.AddRange(tokens);
 
             Yacc yacc = new Yacc(yaccRule);
-            for (int i = 0; i < tokens.Count; i++)
-                yacc.Feed(tokens[i]);
-            yacc.EndFeeding();
+            bool result = yacc.Feed(symbols);
 
-            if (yacc.result != FeedResult.Accept)
+            if (!result)
                 return "syntax error";
 
             return yacc.startDFA.CallAction(yaccActionDelegate);

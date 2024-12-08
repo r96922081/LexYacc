@@ -4,6 +4,8 @@ using System.Diagnostics;
 
 public class YaccUt
 {
+    public static List<Symbol> symbols = new List<Symbol>();
+
     public static void Check(bool b)
     {
         if (!b)
@@ -15,26 +17,31 @@ public class YaccUt
         string line1 = "a: 'A' 'B'";
         Yacc yacc = new Yacc(line1);
 
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        Check(yacc.EndFeeding() == true);
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        Check(yacc.Feed(symbols) == true);
 
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('C'));
-        Check(yacc.EndFeeding() == false);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('C'));
+        Check(yacc.Feed(symbols) == false);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        Check(yacc.EndFeeding() == false);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        Check(yacc.Feed(symbols) == false);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        Check(yacc.EndFeeding() == false);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        Check(yacc.Feed(symbols) == false);
     }
 
 
@@ -43,13 +50,16 @@ public class YaccUt
         string line1 = "a: 'A' 'B' | 'A' 'C' ";
         Yacc yacc = new Yacc(line1);
 
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('C'));
-        Check(yacc.EndFeeding() == true);
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('C'));
+        Check(yacc.Feed(symbols) == true);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('D'));
-        Check(yacc.EndFeeding() == false);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('D'));
+        Check(yacc.Feed(symbols) == false);
     }
 
 
@@ -60,9 +70,11 @@ public class YaccUt
 
         Yacc yacc = new Yacc(line1 + line2);
 
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        Check(yacc.EndFeeding() == true);
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        Check(yacc.Feed(symbols) == true);
     }
 
 
@@ -74,9 +86,11 @@ public class YaccUt
 
         Yacc yacc = new Yacc(line1 + line2 + line3);
 
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('C'));
-        Check(yacc.EndFeeding() == true);
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('C'));
+        Check(yacc.Feed(symbols) == true);
     }
 
 
@@ -86,8 +100,10 @@ public class YaccUt
 
         Yacc yacc = new Yacc(line1);
 
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        Check(yacc.EndFeeding() == true);
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        Check(yacc.Feed(symbols) == true);
     }
 
 
@@ -98,12 +114,15 @@ public class YaccUt
 
         Yacc yacc = new Yacc(line1 + line2);
 
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        Check(yacc.EndFeeding() == true);
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        Check(yacc.Feed(symbols) == true);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('C'));
-        Check(yacc.EndFeeding() == false);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('C'));
+        Check(yacc.Feed(symbols) == false);
     }
 
 
@@ -114,32 +133,39 @@ public class YaccUt
         string line3 = "c: 'C';";
         string line4 = "d: 'D' 'F'";
 
+
         Yacc yacc = new Yacc(line1 + line2 + line3 + line4);
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('C'));
-        Check(yacc.EndFeeding() == false);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('C'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('E'));
-        Check(yacc.EndFeeding() == true);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('C'));
+        Check(yacc.Feed(symbols) == false);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('D'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('F'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('E'));
-        Check(yacc.EndFeeding() == true);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('C'));
+        symbols.Add(Terminal.BuildConstCharTerminal('E'));
+        Check(yacc.Feed(symbols) == true);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('G'));
-        Check(yacc.EndFeeding() == false);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('D'));
+        symbols.Add(Terminal.BuildConstCharTerminal('F'));
+        symbols.Add(Terminal.BuildConstCharTerminal('E'));
+        Check(yacc.Feed(symbols) == true);
+
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('G'));
+        Check(yacc.Feed(symbols) == false);
     }
 
     public static void UtFeed8()
@@ -147,20 +173,25 @@ public class YaccUt
         string line1 = "a: 'A' a | 'A'";
 
         Yacc yacc = new Yacc(line1);
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        Check(yacc.EndFeeding() == true);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        Check(yacc.EndFeeding() == true);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.Feed(symbols) == true);
+
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.Feed(symbols) == true);
 
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        Check(yacc.EndFeeding() == false);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        Check(yacc.Feed(symbols) == false);
     }
 
 
@@ -169,23 +200,27 @@ public class YaccUt
         string line1 = "a: 'A' a 'B' | 'C' ";
 
         Yacc yacc = new Yacc(line1);
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('C'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        Check(yacc.EndFeeding() == false);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('C'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        Check(yacc.EndFeeding() == true);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('C'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        Check(yacc.Feed(symbols) == false);
+
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('C'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        Check(yacc.Feed(symbols) == true);
     }
 
 
@@ -195,26 +230,32 @@ public class YaccUt
         string line1 = "a: a 'A' | 'A' ";
 
         Yacc yacc = new Yacc(line1);
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        Check(yacc.EndFeeding() == true);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        Check(yacc.EndFeeding() == true);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.Feed(symbols) == true);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        Check(yacc.EndFeeding() == true);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.Feed(symbols) == true);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        Check(yacc.EndFeeding() == false);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.Feed(symbols) == true);
+
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        Check(yacc.Feed(symbols) == false);
     }
 
 
@@ -223,21 +264,26 @@ public class YaccUt
         string line1 = "a: a 'A' | 'B' ";
 
         Yacc yacc = new Yacc(line1);
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        Check(yacc.EndFeeding() == true);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('B')); ;
-        Check(yacc.EndFeeding() == true);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.Feed(symbols) == true);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('C'));
-        Check(yacc.EndFeeding() == false);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('B')); ;
+        Check(yacc.Feed(symbols) == true);
+
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('C'));
+        Check(yacc.Feed(symbols) == false);
     }
 
     public static void UtFeed12()
@@ -246,15 +292,19 @@ public class YaccUt
         string line2 = "b: | 'B'";
 
         Yacc yacc = new Yacc(line1 + line2);
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('C'));
-        Check(yacc.EndFeeding() == true);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('C'));
-        Check(yacc.EndFeeding() == true);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('C'));
+        Check(yacc.Feed(symbols) == true);
+
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('C'));
+        Check(yacc.Feed(symbols) == true);
     }
 
     public static void UtFeed13()
@@ -262,27 +312,33 @@ public class YaccUt
         string line1 = "a: a 'A' | a 'B' | 'C' | 'D'";
 
         Yacc yacc = new Yacc(line1);
-        yacc.Feed(Terminal.BuildConstCharTerminal('C'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        Check(yacc.EndFeeding() == true);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('D'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        Check(yacc.EndFeeding() == true);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('C'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        Check(yacc.Feed(symbols) == true);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('D'));
-        Check(yacc.EndFeeding() == true);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('D'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.Feed(symbols) == true);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('D'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('C'));
-        Check(yacc.EndFeeding() == false);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('D'));
+        Check(yacc.Feed(symbols) == true);
+
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('D'));
+        symbols.Add(Terminal.BuildConstCharTerminal('C'));
+        Check(yacc.Feed(symbols) == false);
     }
 
     public static void UtFeed14()
@@ -291,19 +347,24 @@ public class YaccUt
         string line2 = "b:  | 'B'";
 
         Yacc yacc = new Yacc(line1 + line2);
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        Check(yacc.EndFeeding() == true);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        Check(yacc.EndFeeding() == true);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.Feed(symbols) == true);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        Check(yacc.EndFeeding() == false);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.Feed(symbols) == true);
+
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.Feed(symbols) == false);
     }
 
     public static void UtFeed15()
@@ -312,20 +373,25 @@ public class YaccUt
         string line2 = "b:  | 'B'";
 
         Yacc yacc = new Yacc(line1 + line2);
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('C'));
-        Check(yacc.EndFeeding() == true);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('C'));
-        Check(yacc.EndFeeding() == true);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('C'));
+        Check(yacc.Feed(symbols) == true);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        Check(yacc.EndFeeding() == false);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('C'));
+        Check(yacc.Feed(symbols) == true);
+
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        Check(yacc.Feed(symbols) == false);
     }
 
     public static void UtFeed16()
@@ -336,8 +402,11 @@ public class YaccUt
         string line4 = "d:  | 'D';";
 
         Yacc yacc = new Yacc(line1 + line2 + line3 + line4);
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        Check(yacc.EndFeeding() == true);
+
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.Feed(symbols) == true);
     }
 
     public static void UtFeed17()
@@ -354,7 +423,7 @@ a: VOID
 ";
 
         Yacc yacc = new Yacc(s);
-        yacc.Feed(Terminal.BuildToken("VOID"));
+        symbols.Add(Terminal.BuildToken("VOID"));
     }
 
     public static void UtFeed18()
@@ -371,9 +440,9 @@ a: VOID INT 'a'
 ";
 
         Yacc yacc = new Yacc(s);
-        yacc.Feed(Terminal.BuildToken("VOID"));
-        yacc.Feed(Terminal.BuildToken("INT"));
-        yacc.Feed(Terminal.BuildConstCharTerminal('a'));
+        symbols.Add(Terminal.BuildToken("VOID"));
+        symbols.Add(Terminal.BuildToken("INT"));
+        symbols.Add(Terminal.BuildConstCharTerminal('a'));
     }
 
     public static void UtFeed19()
@@ -396,16 +465,19 @@ term: NUMBER;
 ";
 
         Yacc yacc = new Yacc(s);
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('D'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('G'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('I'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('J'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('H'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('F'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('C'));
 
-        Check(yacc.EndFeeding() == true);
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('D'));
+        symbols.Add(Terminal.BuildConstCharTerminal('G'));
+        symbols.Add(Terminal.BuildConstCharTerminal('I'));
+        symbols.Add(Terminal.BuildConstCharTerminal('J'));
+        symbols.Add(Terminal.BuildConstCharTerminal('H'));
+        symbols.Add(Terminal.BuildConstCharTerminal('F'));
+        symbols.Add(Terminal.BuildConstCharTerminal('C'));
+
+        Check(yacc.Feed(symbols) == true);
     }
 
     public static void UtFeed20()
@@ -431,16 +503,20 @@ term:
 ";
 
         Yacc yacc = new Yacc(s);
-        yacc.Feed(Terminal.BuildToken("NUMBER"));
-        Check(yacc.EndFeeding() == true);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildToken("NUMBER"));
-        yacc.Feed(Terminal.BuildConstCharTerminal('+'));
-        yacc.Feed(Terminal.BuildToken("NUMBER"));
-        yacc.Feed(Terminal.BuildConstCharTerminal('*'));
-        yacc.Feed(Terminal.BuildToken("NUMBER"));
-        Check(yacc.EndFeeding() == true);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildToken("NUMBER"));
+        Check(yacc.Feed(symbols) == true);
+
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildToken("NUMBER"));
+        symbols.Add(Terminal.BuildConstCharTerminal('+'));
+        symbols.Add(Terminal.BuildToken("NUMBER"));
+        symbols.Add(Terminal.BuildConstCharTerminal('*'));
+        symbols.Add(Terminal.BuildToken("NUMBER"));
+        Check(yacc.Feed(symbols) == true);
     }
 
     public static void UtFeed21()
@@ -472,42 +548,48 @@ term:
 ";
 
         Yacc yacc = new Yacc(s);
-        yacc.Feed(Terminal.BuildToken("NUMBER"));
-        yacc.Feed(Terminal.BuildConstCharTerminal('-'));
-        yacc.Feed(Terminal.BuildToken("NUMBER"));
-        yacc.Feed(Terminal.BuildToken("NUMBER"));
-        Check(yacc.EndFeeding() == false);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildToken("NUMBER"));
-        yacc.Feed(Terminal.BuildConstCharTerminal('-'));
-        yacc.Feed(Terminal.BuildToken("NUMBER"));
-        yacc.Feed(Terminal.BuildConstCharTerminal('+'));
-        Check(yacc.EndFeeding() == false);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildToken("NUMBER"));
+        symbols.Add(Terminal.BuildConstCharTerminal('-'));
+        symbols.Add(Terminal.BuildToken("NUMBER"));
+        symbols.Add(Terminal.BuildToken("NUMBER"));
+        Check(yacc.Feed(symbols) == false);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildToken("NUMBER"));
-        yacc.Feed(Terminal.BuildConstCharTerminal('-'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('/'));
-        Check(yacc.EndFeeding() == false);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildToken("NUMBER"));
+        symbols.Add(Terminal.BuildConstCharTerminal('-'));
+        symbols.Add(Terminal.BuildToken("NUMBER"));
+        symbols.Add(Terminal.BuildConstCharTerminal('+'));
+        Check(yacc.Feed(symbols) == false);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildToken("NUMBER"));
-        yacc.Feed(Terminal.BuildConstCharTerminal('-'));
-        yacc.Feed(Terminal.BuildToken("NUMBER"));
-        yacc.Feed(Terminal.BuildConstCharTerminal('*'));
-        yacc.Feed(Terminal.BuildToken("NUMBER"));
-        yacc.Feed(Terminal.BuildConstCharTerminal('+'));
-        yacc.Feed(Terminal.BuildToken("NUMBER"));
-        yacc.Feed(Terminal.BuildConstCharTerminal('/'));
-        yacc.Feed(Terminal.BuildToken("NUMBER"));
-        yacc.Feed(Terminal.BuildConstCharTerminal('/'));
-        yacc.Feed(Terminal.BuildToken("NUMBER"));
-        yacc.Feed(Terminal.BuildConstCharTerminal('-'));
-        yacc.Feed(Terminal.BuildToken("NUMBER"));
-        yacc.Feed(Terminal.BuildConstCharTerminal('-'));
-        yacc.Feed(Terminal.BuildToken("NUMBER"));
-        Check(yacc.EndFeeding() == true);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildToken("NUMBER"));
+        symbols.Add(Terminal.BuildConstCharTerminal('-'));
+        symbols.Add(Terminal.BuildConstCharTerminal('/'));
+        Check(yacc.Feed(symbols) == false);
+
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildToken("NUMBER"));
+        symbols.Add(Terminal.BuildConstCharTerminal('-'));
+        symbols.Add(Terminal.BuildToken("NUMBER"));
+        symbols.Add(Terminal.BuildConstCharTerminal('*'));
+        symbols.Add(Terminal.BuildToken("NUMBER"));
+        symbols.Add(Terminal.BuildConstCharTerminal('+'));
+        symbols.Add(Terminal.BuildToken("NUMBER"));
+        symbols.Add(Terminal.BuildConstCharTerminal('/'));
+        symbols.Add(Terminal.BuildToken("NUMBER"));
+        symbols.Add(Terminal.BuildConstCharTerminal('/'));
+        symbols.Add(Terminal.BuildToken("NUMBER"));
+        symbols.Add(Terminal.BuildConstCharTerminal('-'));
+        symbols.Add(Terminal.BuildToken("NUMBER"));
+        symbols.Add(Terminal.BuildConstCharTerminal('-'));
+        symbols.Add(Terminal.BuildToken("NUMBER"));
+        Check(yacc.Feed(symbols) == true);
     }
 
     public static void UtFeed22()
@@ -528,14 +610,17 @@ a '&' a
 ";
 
         Yacc yacc = new Yacc(s);
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('&'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('&'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('&'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        Check(yacc.EndFeeding() == true);
+
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('&'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('&'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('&'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.Feed(symbols) == true);
     }
 
     public static void UtFeed23()
@@ -543,13 +628,17 @@ a '&' a
         string line1 = "a: 'A' | 'A' 'B';";
 
         Yacc yacc = new Yacc(line1);
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        Check(yacc.EndFeeding() == true);
 
         yacc.Rebuild();
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        Check(yacc.EndFeeding() == true);
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.Feed(symbols) == true);
+
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        Check(yacc.Feed(symbols) == true);
     }
 
     private static void UtFeed()
@@ -943,12 +1032,12 @@ c: 'C' { Console.WriteLine(""it is c"");}
         YaccCodeGen.GenCode(s, "UtYacc1", LexYaccUtil.GetGenFileFolder(), false);
 
 #if GenCodeUt
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('C'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('X'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('C'));
+        symbols.Add(Terminal.BuildConstCharTerminal('X'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
 
-        yacc.Feed(Terminal.BuildToken("VOID", new UtYacc1Ns.MyStr("void str 222")));
+        symbols.Add(Terminal.BuildToken("VOID", new UtYacc1Ns.MyStr("void str 222")));
         yacc.EndFeeding();
 
         Console.WriteLine("\n\nUtAction1 output");
@@ -971,8 +1060,8 @@ a: 'A' a {Console.WriteLine(""A with a"");} | 'A' {Console.WriteLine(""single A"
         YaccCodeGen.GenCode(s, "UtYacc2", LexYaccUtil.GetGenFileFolder(), false);
 
 #if GenCodeUt
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
         yacc.EndFeeding();
 
         Console.WriteLine("\n\nUtAction2 output");
@@ -994,10 +1083,10 @@ a: a 'A' {Console.WriteLine(""A with a"");} | 'A' {Console.WriteLine(""single A"
         YaccCodeGen.GenCode(s, "UtYacc3", LexYaccUtil.GetGenFileFolder(), false);
 
 #if GenCodeUt
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
         yacc.EndFeeding();
 
         Console.WriteLine("\n\nUtAction3 output");
@@ -1023,11 +1112,11 @@ a: a 'A' {Console.WriteLine(""a with A"");}
         YaccCodeGen.GenCode(s, "UtYacc4", LexYaccUtil.GetGenFileFolder(), false);
 
 #if GenCodeUt
-        yacc.Feed(Terminal.BuildConstCharTerminal('C'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('A'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
-        yacc.Feed(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('C'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
         yacc.EndFeeding();
 
         Console.WriteLine("\n\nUtAction4 output");
@@ -1060,13 +1149,13 @@ exp: exp '-' NUMBER {$$ = $1 - $3;} | exp '+' NUMBER {$$ = $1 + $3;} | NUMBER {$
         YaccCodeGen.GenCode(s, "UtYacc5", LexYaccUtil.GetGenFileFolder(), false);
 
 #if GenCodeUt
-        yacc.Feed(Terminal.BuildToken("NUMBER", 2));
-        yacc.Feed(Terminal.BuildConstCharTerminal('+'));
-        yacc.Feed(Terminal.BuildToken("NUMBER", 3));
-        yacc.Feed(Terminal.BuildConstCharTerminal('+'));
-        yacc.Feed(Terminal.BuildToken("NUMBER", 4));
-        yacc.Feed(Terminal.BuildConstCharTerminal('-'));
-        yacc.Feed(Terminal.BuildToken("NUMBER", 1));
+        symbols.Add(Terminal.BuildToken("NUMBER", 2));
+        symbols.Add(Terminal.BuildConstCharTerminal('+'));
+        symbols.Add(Terminal.BuildToken("NUMBER", 3));
+        symbols.Add(Terminal.BuildConstCharTerminal('+'));
+        symbols.Add(Terminal.BuildToken("NUMBER", 4));
+        symbols.Add(Terminal.BuildConstCharTerminal('-'));
+        symbols.Add(Terminal.BuildToken("NUMBER", 1));
         yacc.EndFeeding();
 
         Console.WriteLine("\n\nUtAction5 output");
@@ -1098,11 +1187,11 @@ term: NUMBER {$$ = $1;}
         YaccCodeGen.GenCode(s, "UtYacc6", LexYaccUtil.GetGenFileFolder(), false);
 
 #if GenCodeUt
-        yacc.Feed(Terminal.BuildToken("NUMBER", 1));
-        yacc.Feed(Terminal.BuildConstCharTerminal('+'));
-        yacc.Feed(Terminal.BuildToken("NUMBER", 2));
-        yacc.Feed(Terminal.BuildConstCharTerminal('+'));
-        yacc.Feed(Terminal.BuildToken("NUMBER", 4));
+        symbols.Add(Terminal.BuildToken("NUMBER", 1));
+        symbols.Add(Terminal.BuildConstCharTerminal('+'));
+        symbols.Add(Terminal.BuildToken("NUMBER", 2));
+        symbols.Add(Terminal.BuildConstCharTerminal('+'));
+        symbols.Add(Terminal.BuildToken("NUMBER", 4));
         yacc.EndFeeding();
 
         Console.WriteLine("\n\nUtAction6 output");
@@ -1138,17 +1227,17 @@ term:
         YaccCodeGen.GenCode(s, "UtYacc7", LexYaccUtil.GetGenFileFolder(), false);
 
 #if GenCodeUt
-        yacc.Feed(Terminal.BuildToken("NUMBER", 2));
-        yacc.Feed(Terminal.BuildConstCharTerminal('*'));
-        yacc.Feed(Terminal.BuildToken("NUMBER", 3));
-        yacc.Feed(Terminal.BuildConstCharTerminal('-'));
-        yacc.Feed(Terminal.BuildToken("NUMBER", 4));
-        yacc.Feed(Terminal.BuildConstCharTerminal('/'));
-        yacc.Feed(Terminal.BuildToken("NUMBER", 2));
-        yacc.Feed(Terminal.BuildConstCharTerminal('+'));
-        yacc.Feed(Terminal.BuildToken("NUMBER", 10));
-        yacc.Feed(Terminal.BuildConstCharTerminal('*'));
-        yacc.Feed(Terminal.BuildToken("NUMBER", 100));
+        symbols.Add(Terminal.BuildToken("NUMBER", 2));
+        symbols.Add(Terminal.BuildConstCharTerminal('*'));
+        symbols.Add(Terminal.BuildToken("NUMBER", 3));
+        symbols.Add(Terminal.BuildConstCharTerminal('-'));
+        symbols.Add(Terminal.BuildToken("NUMBER", 4));
+        symbols.Add(Terminal.BuildConstCharTerminal('/'));
+        symbols.Add(Terminal.BuildToken("NUMBER", 2));
+        symbols.Add(Terminal.BuildConstCharTerminal('+'));
+        symbols.Add(Terminal.BuildToken("NUMBER", 10));
+        symbols.Add(Terminal.BuildConstCharTerminal('*'));
+        symbols.Add(Terminal.BuildToken("NUMBER", 100));
         yacc.EndFeeding();
 
         Console.WriteLine("\n\nUtAction7 output");
