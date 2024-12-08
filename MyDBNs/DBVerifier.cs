@@ -57,5 +57,19 @@
                 }
             }
         }
+
+        public static void VerifyUpdate(string tableName, List<Tuple<string, string>> setExpression)
+        {
+            Table table = MyDBNs.DB.GetTable(tableName);
+            if (table == null)
+                throw new Exception("no table named: " + tableName);
+
+            foreach (var kv in setExpression)
+            {
+                string columnName = kv.Item1;
+                if (!table.columnNames.Contains(columnName))
+                    throw new Exception("column " + columnName + " not in table " + tableName);
+            }
+        }
     }
 }

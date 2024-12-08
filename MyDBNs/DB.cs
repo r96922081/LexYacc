@@ -16,15 +16,18 @@ namespace MyDBNs
             DBVerifier.VerifyCreateTable(name, columnDeclare);
 
             Table table = new Table();
-            table.tableName = name;
+            table.originalTableName = name;
+            table.tableName = name.ToUpper();
             table.columnNames = new string[columnDeclare.Count];
+            table.originalColumnNames = new string[columnDeclare.Count];
             table.columnTypes = new ColumnType[columnDeclare.Count];
             table.columnSizes = new int[columnDeclare.Count];
 
             for (int i = 0; i < columnDeclare.Count; i++)
             {
-                table.columnNames[i] = columnDeclare[i].Item1;
-                string columnType = columnDeclare[i].Item2;
+                table.originalColumnNames[i] = columnDeclare[i].Item1;
+                table.columnNames[i] = columnDeclare[i].Item1.ToUpper();
+                string columnType = columnDeclare[i].Item2.ToUpper();
                 if (columnType == "NUMBER")
                 {
                     table.columnTypes[i] = ColumnType.NUMBER;
@@ -52,7 +55,6 @@ namespace MyDBNs
                 table.columnNameToTypesMap.Add(table.columnNames[i], table.columnTypes[i]);
             }
 
-            SetUpperCase(table);
             tables.Add(table);
         }
 
@@ -64,6 +66,11 @@ namespace MyDBNs
 
         public static void Insert(string tableName, List<string> columnNames, List<string> values)
         {
+            tableName = tableName.ToUpper();
+
+            if (columnNames != null)
+                columnNames = columnNames.Select(name => name.ToUpper()).ToList();
+
             DBVerifier.VerifyInsert(tableName, columnNames, values);
 
             Table table = GetTable(tableName);
@@ -106,6 +113,8 @@ namespace MyDBNs
 
         public static void Delete(string tableName, string condition)
         {
+            tableName = tableName.ToUpper();
+
 #if !MarkUserOfSqlCodeGen
             SqlConditionLexYaccCallback.tableName = tableName;
             object ret = sql_condition_lexyacc.Parse(condition);
@@ -122,13 +131,16 @@ namespace MyDBNs
 
         public static void Update(string tableName, List<Tuple<string, string>> setExpression, string condition)
         {
+            tableName = tableName.ToUpper();
+            setExpression = setExpression.Select(tuple => Tuple.Create(tuple.Item1.ToUpper(), tuple.Item2)).ToList();
+
 #if !MarkUserOfSqlCodeGen
             SqlConditionLexYaccCallback.tableName = tableName;
             object ret = sql_condition_lexyacc.Parse(condition);
             HashSet<int> rows = (HashSet<int>)ret;
 
             Table table = GetTable(tableName);
-            for (int i = table.rows.Count - 1; i >= 0; i--)
+            for (int i = 0; i < table.rows.Count - 1; i++)
             {
 
             }
@@ -137,6 +149,8 @@ namespace MyDBNs
 
         public static void Select(List<string> columns, string tableName, string condition)
         {
+            tableName = tableName.ToUpper();
+
 #if !MarkUserOfSqlCodeGen
             Table table = GetTable(tableName);
 
@@ -219,23 +233,6 @@ namespace MyDBNs
             }
 #endif
         }
-
-        private static void SetUpperCase(Table table)
-        {
-            table.upperCaseTableName = table.tableName.ToUpper();
-            table.upperCaseColumnNames = new string[table.columnNames.Length];
-
-            for (int i = 0; i < table.columnNames.Length; i++)
-                table.upperCaseColumnNames[i] = table.columnNames[i].ToUpper();
-
-            foreach (var kv in table.columnNameToIndexMap)
-                if (!table.columnNameToIndexMap.ContainsKey(kv.Key.ToUpper()))
-                    table.columnNameToIndexMap.Add(kv.Key.ToUpper(), kv.Value);
-
-            foreach (var kv in table.columnNameToTypesMap)
-                if (!table.columnNameToTypesMap.ContainsKey(kv.Key.ToUpper()))
-                    table.columnNameToTypesMap.Add(kv.Key.ToUpper(), kv.Value);
-        }
     }
 
     public enum ColumnType
@@ -254,8 +251,8 @@ namespace MyDBNs
         public Dictionary<string, int> columnNameToIndexMap;
         public Dictionary<string, ColumnType> columnNameToTypesMap;
 
-        public string upperCaseTableName;
-        public string[] upperCaseColumnNames;
+        public string originalTableName;
+        public string[] originalColumnNames;
 
         public List<object[]> rows = new List<object[]>();
 
@@ -267,16 +264,16 @@ namespace MyDBNs
         public string GetSchema()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("table: " + tableName);
-            for (int i = 0; i < columnNames.Length; i++)
+            sb.AppendLine("table: " + originalTableName);
+            for (int i = 0; i < originalColumnNames.Length; i++)
             {
-                sb.Append(columnNames[i] + " " + columnTypes[i]);
+                sb.Append(originalColumnNames[i] + " " + columnTypes[i]);
                 if (columnTypes[i] == ColumnType.VARCHAR)
                 {
                     sb.Append("(" + columnSizes[i] + ")");
                 }
 
-                if (i != columnNames.Length - 1)
+                if (i != originalColumnNames.Length - 1)
                     sb.AppendLine(",");
                 else
                     sb.AppendLine();
