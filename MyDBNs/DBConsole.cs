@@ -1,8 +1,8 @@
 ﻿namespace MyDBNs
 {
-    public class Console
+    public class DBConsole
     {
-        public static void Play()
+        public static void Interactive()
         {
 #if !MarkUserOfSqlCodeGen
             System.Console.WriteLine("input sql:\n\n");

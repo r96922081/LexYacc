@@ -20,13 +20,14 @@ public class YaccActions{
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER
-%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement boolean_expression string_number_id string_number
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER UPDATE SET
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
+%type <List<Tuple<string, string>>> set_expression
 %%
 
-statement: create_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement;
+statement: create_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement;
 
 create_table_statement: CREATE TABLE ID '(' column_declare ')' 
 {
@@ -58,6 +59,13 @@ delete_statement:
 DELETE FROM ID WHERE boolean_expression
 {
     MyDBNs.SqlLexYaccCallback.Delete($3, $5);
+}
+;
+
+update_statement:
+UPDATE ID SET set_expression WHERE boolean_expression
+{
+    MyDBNs.SqlLexYaccCallback.Update($2, $4, $6);
 }
 ;
 
@@ -119,6 +127,18 @@ string_number_id LESS_OR_EQUAL string_number_id
 string_number_id GREATER_OR_EQUAL string_number_id
 {
     MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "">="", $3);
+}
+;
+
+set_expression:
+ID '=' string_number_id ',' set_expression
+{
+    $$ = MyDBNs.SqlLexYaccCallback.SetExpression($1, $3, $5);
+}
+|
+ID '=' string_number_id
+{
+    $$ = MyDBNs.SqlLexYaccCallback.SetExpression($1, $3);
 }
 ;
 
@@ -219,6 +239,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         actions.Add("Rule_insert_statement_Producton_0", Rule_insert_statement_Producton_0);
         actions.Add("Rule_insert_statement_Producton_1", Rule_insert_statement_Producton_1);
         actions.Add("Rule_delete_statement_Producton_0", Rule_delete_statement_Producton_0);
+        actions.Add("Rule_update_statement_Producton_0", Rule_update_statement_Producton_0);
         actions.Add("Rule_show_tables_statement_Producton_0", Rule_show_tables_statement_Producton_0);
         actions.Add("Rule_select_statement_Producton_0", Rule_select_statement_Producton_0);
         actions.Add("Rule_boolean_expression_Producton_0", Rule_boolean_expression_Producton_0);
@@ -231,6 +252,8 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_0", Rule_boolean_expression_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_1", Rule_boolean_expression_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_2", Rule_boolean_expression_LeftRecursionExpand_Producton_2);
+        actions.Add("Rule_set_expression_Producton_0", Rule_set_expression_Producton_0);
+        actions.Add("Rule_set_expression_Producton_1", Rule_set_expression_Producton_1);
         actions.Add("Rule_comma_sep_id_Producton_0", Rule_comma_sep_id_Producton_0);
         actions.Add("Rule_comma_sep_id_Producton_1", Rule_comma_sep_id_Producton_1);
         actions.Add("Rule_comma_sep_value_Producton_0", Rule_comma_sep_value_Producton_0);
@@ -333,6 +356,21 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
 
         // user-defined action
         MyDBNs.SqlLexYaccCallback.Delete(_3, _5);
+
+        return _0;
+    }
+
+    public static object Rule_update_statement_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+        List<Tuple<string, string>> _4 = (List<Tuple<string, string>>)objects[4];
+        string _5 = (string)objects[5];
+        string _6 = (string)objects[6];
+
+        // user-defined action
+        MyDBNs.SqlLexYaccCallback.Update(_2, _4, _6);
 
         return _0;
     }
@@ -468,6 +506,29 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
 
     public static object Rule_boolean_expression_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
         string _0 = new string("");
+
+        return _0;
+    }
+
+    public static object Rule_set_expression_Producton_0(Dictionary<int, object> objects) { 
+        List<Tuple<string, string>> _0 = new List<Tuple<string, string>>();
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+        List<Tuple<string, string>> _5 = (List<Tuple<string, string>>)objects[5];
+
+        // user-defined action
+        _0 = MyDBNs.SqlLexYaccCallback.SetExpression(_1, _3, _5);
+
+        return _0;
+    }
+
+    public static object Rule_set_expression_Producton_1(Dictionary<int, object> objects) { 
+        List<Tuple<string, string>> _0 = new List<Tuple<string, string>>();
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlLexYaccCallback.SetExpression(_1, _3);
 
         return _0;
     }
@@ -665,6 +726,8 @@ namespace sql_lexyaccNs
             { 275, "GREATER_OR_EQUAL"},
             { 276, "STRING"},
             { 277, "NUMBER"},
+            { 278, "UPDATE"},
+            { 279, "SET"},
         };
 
         public static int SELECT = 256;
@@ -689,6 +752,8 @@ namespace sql_lexyaccNs
         public static int GREATER_OR_EQUAL = 275;
         public static int STRING = 276;
         public static int NUMBER = 277;
+        public static int UPDATE = 278;
+        public static int SET = 279;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -717,10 +782,12 @@ namespace sql_lexyaccNs
 [tT][aA][bB][lL][eE]          { return TABLE; }
 [iI][nN][sS][eE][rR][tT]      { return INSERT; }
 [dD][eE][lL][eE][tT][eE]      { return DELETE; }
+[uU][pP][dD][aA][tT][eE]      { return UPDATE; }
 [fF][rR][oO][mM]              { return FROM; }
 [iI][nN][tT][oO]              { return INTO; }
 [wW][hH][eE][rR][eE]          { return WHERE; }
 [vV][aA][lL][uU][eE][sS]      { return VALUES; }
+[sS][eE][tT]                  { return SET; }
 [sS][hH][oO][wW]              { return SHOW; }
 [tT][aA][bB][lL][eE][sS]      { return TABLES; }
 [aA][nN][dD]                  { return AND; }
@@ -786,6 +853,8 @@ namespace sql_lexyaccNs
             actions.Add("LexRule29", LexAction29);
             actions.Add("LexRule30", LexAction30);
             actions.Add("LexRule31", LexAction31);
+            actions.Add("LexRule32", LexAction32);
+            actions.Add("LexRule33", LexAction33);
         }
         public static object LexAction0(string yytext)
         {
@@ -837,7 +906,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return FROM; 
+            return UPDATE; 
 
             return 0;
         }
@@ -846,7 +915,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return INTO; 
+            return FROM; 
 
             return 0;
         }
@@ -855,7 +924,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return WHERE; 
+            return INTO; 
 
             return 0;
         }
@@ -864,7 +933,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return VALUES; 
+            return WHERE; 
 
             return 0;
         }
@@ -873,7 +942,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return SHOW; 
+            return VALUES; 
 
             return 0;
         }
@@ -882,7 +951,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return TABLES; 
+            return SET; 
 
             return 0;
         }
@@ -891,7 +960,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return AND; 
+            return SHOW; 
 
             return 0;
         }
@@ -900,7 +969,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return OR; 
+            return TABLES; 
 
             return 0;
         }
@@ -909,7 +978,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return NOT; 
+            return AND; 
 
             return 0;
         }
@@ -918,7 +987,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = "NUMBER_TYPE"; return NUMBER_TYPE; 
+            return OR; 
 
             return 0;
         }
@@ -927,7 +996,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = "VARCHAR"; return VARCHAR; 
+            return NOT; 
 
             return 0;
         }
@@ -936,7 +1005,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return NOT_EQUAL; 
+            value = "NUMBER_TYPE"; return NUMBER_TYPE; 
 
             return 0;
         }
@@ -945,7 +1014,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return LESS_OR_EQUAL; 
+            value = "VARCHAR"; return VARCHAR; 
 
             return 0;
         }
@@ -954,7 +1023,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return GREATER_OR_EQUAL; 
+            return NOT_EQUAL; 
 
             return 0;
         }
@@ -963,7 +1032,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return '{'; 
+            return LESS_OR_EQUAL; 
 
             return 0;
         }
@@ -972,7 +1041,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return '}'; 
+            return GREATER_OR_EQUAL; 
 
             return 0;
         }
@@ -981,7 +1050,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return '('; 
+            return '{'; 
 
             return 0;
         }
@@ -990,7 +1059,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return ')'; 
+            return '}'; 
 
             return 0;
         }
@@ -999,7 +1068,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return ','; 
+            return '('; 
 
             return 0;
         }
@@ -1008,7 +1077,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return '='; 
+            return ')'; 
 
             return 0;
         }
@@ -1017,7 +1086,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return '<'; 
+            return ','; 
 
             return 0;
         }
@@ -1026,7 +1095,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return '>'; 
+            return '='; 
 
             return 0;
         }
@@ -1035,7 +1104,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return '*'; 
+            return '<'; 
 
             return 0;
         }
@@ -1044,7 +1113,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return NUMBER; 
+            return '>'; 
 
             return 0;
         }
@@ -1053,7 +1122,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return STRING; 
+            return '*'; 
 
             return 0;
         }
@@ -1062,11 +1131,29 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            value = yytext; return NUMBER; 
 
             return 0;
         }
         public static object LexAction31(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return STRING; 
+
+            return 0;
+        }
+        public static object LexAction32(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return ID; 
+
+            return 0;
+        }
+        public static object LexAction33(string yytext)
         {
             value = null;
 

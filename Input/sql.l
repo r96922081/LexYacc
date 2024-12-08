@@ -7,10 +7,12 @@
 [tT][aA][bB][lL][eE]          { return TABLE; }
 [iI][nN][sS][eE][rR][tT]      { return INSERT; }
 [dD][eE][lL][eE][tT][eE]      { return DELETE; }
+[uU][pP][dD][aA][tT][eE]      { return UPDATE; }
 [fF][rR][oO][mM]              { return FROM; }
 [iI][nN][tT][oO]              { return INTO; }
 [wW][hH][eE][rR][eE]          { return WHERE; }
 [vV][aA][lL][uU][eE][sS]      { return VALUES; }
+[sS][eE][tT]                  { return SET; }
 [sS][hH][oO][wW]              { return SHOW; }
 [tT][aA][bB][lL][eE][sS]      { return TABLES; }
 [aA][nN][dD]                  { return AND; }

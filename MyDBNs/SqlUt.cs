@@ -47,6 +47,9 @@ namespace MyDBNs
             ret = sql_lexyacc.Parse("SELECT * FROM A WHERE 1 = 1");
             Check(ret == null || ret.ToString() == "");
 
+            ret = sql_lexyacc.Parse("UPDATE A SET AGE = 11, NAME = 'NNNN' WHERE 1 = 1");
+            Check(ret == null || ret.ToString() == "");
+
             //ret = sql_lexyacc.Parse("SELECT AGE, NAME, * FROM A WHERE 1 = 1");
             //Check(ret == null || ret.ToString() == "");
 #endif
@@ -55,7 +58,7 @@ namespace MyDBNs
         public static void Ut()
         {
             AdhocUt();
-            Console.Play();
+            DBConsole.Interactive();
         }
 
     }

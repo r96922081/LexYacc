@@ -13,6 +13,8 @@ namespace MyDBNs
 
         public static void CreateTable(string name, List<(string, string)> columnDeclare)
         {
+            DBVerifier.VerifyCreateTable(name, columnDeclare);
+
             Table table = new Table();
             table.tableName = name;
             table.columnNames = new string[columnDeclare.Count];
@@ -54,6 +56,169 @@ namespace MyDBNs
             tables.Add(table);
         }
 
+        public static void ShowTables()
+        {
+            foreach (Table table in DB.tables)
+                System.Console.WriteLine(table.GetSchema());
+        }
+
+        public static void Insert(string tableName, List<string> columnNames, List<string> values)
+        {
+            DBVerifier.VerifyInsert(tableName, columnNames, values);
+
+            Table table = GetTable(tableName);
+
+            if (columnNames == null || columnNames.Count == 0)
+                columnNames = table.columnNames.ToList();
+
+            object[] rows = new object[table.columnNames.Length];
+
+            for (int i = 0; i < values.Count; i++)
+            {
+                string columnName = columnNames[i];
+                int columnIndex = table.columnNameToIndexMap[columnName];
+                ColumnType columnType = table.columnNameToTypesMap[columnName];
+                string value = values[i];
+                if (value == null)
+                {
+                    rows[columnIndex] = null;
+                }
+                else
+                {
+                    if (columnType == ColumnType.NUMBER)
+                    {
+                        rows[columnIndex] = double.Parse(value.ToString());
+                    }
+                    else if (columnType == ColumnType.VARCHAR)
+                    {
+                        // remove ' ' 
+                        string s = value.ToString();
+                        if (s.StartsWith("'") && s.EndsWith("'"))
+                            s = s.Substring(1, value.Length - 2);
+
+                        rows[columnIndex] = s;
+                    }
+                }
+            }
+
+            table.rows.Add(rows);
+        }
+
+        public static void Delete(string tableName, string condition)
+        {
+#if !MarkUserOfSqlCodeGen
+            SqlConditionLexYaccCallback.tableName = tableName;
+            object ret = sql_condition_lexyacc.Parse(condition);
+            HashSet<int> rows = (HashSet<int>)ret;
+
+            Table table = MyDBNs.DB.GetTable(tableName);
+            for (int i = table.rows.Count - 1; i >= 0; i--)
+            {
+                if (rows.Contains(i))
+                    table.rows.RemoveAt(i);
+            }
+#endif
+        }
+
+        public static void Update(string tableName, List<Tuple<string, string>> setExpression, string condition)
+        {
+#if !MarkUserOfSqlCodeGen
+            SqlConditionLexYaccCallback.tableName = tableName;
+            object ret = sql_condition_lexyacc.Parse(condition);
+            HashSet<int> rows = (HashSet<int>)ret;
+
+            Table table = GetTable(tableName);
+            for (int i = table.rows.Count - 1; i >= 0; i--)
+            {
+
+            }
+#endif
+        }
+
+        public static void Select(List<string> columns, string tableName, string condition)
+        {
+#if !MarkUserOfSqlCodeGen
+            Table table = GetTable(tableName);
+
+            SqlConditionLexYaccCallback.tableName = tableName;
+            object ret = sql_condition_lexyacc.Parse(condition);
+            HashSet<int> selectedRows = (HashSet<int>)ret;
+
+            List<string> columnNames = new List<string>();
+            List<int> columnIndex = new List<int>();
+            foreach (string column in columns)
+            {
+                if (column == "*")
+                {
+                    foreach (string column2 in table.columnNames)
+                    {
+                        columnNames.Add(column2);
+                        columnIndex.Add(table.columnNameToIndexMap[column2]);
+                    }
+                }
+                else
+                {
+                    columnNames.Add(column);
+                    columnIndex.Add(table.columnNameToIndexMap[column]);
+                }
+            }
+
+            System.Console.WriteLine("table: " + table.tableName);
+
+            int[] columnWidths = new int[columnNames.Count];
+            for (int i = 0; i < columnIndex.Count; i++)
+            {
+                columnWidths[i] = columnNames[i].Length;
+            }
+
+            // get column width
+            foreach (object[] row in table.rows)
+            {
+                for (int i = 0; i < columnIndex.Count; i++)
+                {
+                    if (row[columnIndex[i]] == null)
+                        continue;
+
+                    int cellLength = row[columnIndex[i]].ToString().Length;
+                    if (cellLength > columnWidths[i])
+                    {
+                        columnWidths[i] = cellLength;
+                    }
+                }
+            }
+
+            // show column name
+            System.Console.Write("| ");
+            for (int i = 0; i < columnNames.Count; i++)
+            {
+                System.Console.Write(columnNames[i].PadRight(columnWidths[i]));
+                System.Console.Write(" | ");
+            }
+            System.Console.WriteLine();
+
+            // show cell
+            for (int rowIndex = 0; rowIndex < table.rows.Count; rowIndex++)
+            {
+                if (!selectedRows.Contains(rowIndex))
+                    continue;
+
+
+                object[] row = table.rows[rowIndex];
+                System.Console.Write("| ");
+                int j = 0;
+                foreach (int i in columnIndex)
+                {
+                    if (row[i] == null)
+                        System.Console.Write("".PadRight(columnWidths[j]));
+                    else
+                        System.Console.Write(row[i].ToString().PadRight(columnWidths[j]));
+                    j++;
+                    System.Console.Write(" | ");
+                }
+                System.Console.WriteLine();
+            }
+#endif
+        }
 
         private static void SetUpperCase(Table table)
         {
