@@ -12,137 +12,137 @@ statement: create_table_statement | insert_statement | delete_statement | show_t
 
 create_table_statement: CREATE TABLE ID '(' column_declare ')' 
 {
-    SqlNs.SqlLexYaccCallback.CreateTable($3, $5);
+    MyDBNs.SqlLexYaccCallback.CreateTable($3, $5);
 };
 
 column_declare: ID column_type 
 {
-    SqlNs.SqlLexYaccCallback.ColumnDeclare($$, $1, $2);
+    MyDBNs.SqlLexYaccCallback.ColumnDeclare($$, $1, $2);
 } 
 | 
 ID column_type ',' column_declare 
 {
-    SqlNs.SqlLexYaccCallback.ColumnDeclare($$, $1, $2, $4);
+    MyDBNs.SqlLexYaccCallback.ColumnDeclare($$, $1, $2, $4);
 };
 
 insert_statement: 
 INSERT INTO ID VALUES '(' comma_sep_value ')'
 {
-    SqlNs.SqlLexYaccCallback.Insert($3, null, $6);
+    MyDBNs.SqlLexYaccCallback.Insert($3, null, $6);
 }
 |
 INSERT INTO ID '(' comma_sep_id ')' VALUES '(' comma_sep_value ')'
 {
-    SqlNs.SqlLexYaccCallback.Insert($3, $5, $9);
+    MyDBNs.SqlLexYaccCallback.Insert($3, $5, $9);
 };
 
 delete_statement:
 DELETE FROM ID WHERE boolean_expression
 {
-    SqlNs.SqlLexYaccCallback.Delete($3, $5);
+    MyDBNs.SqlLexYaccCallback.Delete($3, $5);
 }
 ;
 
 show_tables_statement:
 SHOW TABLES
 {
-    SqlNs.SqlLexYaccCallback.ShowTables();
+    MyDBNs.SqlLexYaccCallback.ShowTables();
 }
 ;
 
 select_statement:
 SELECT comma_sep_id_include_star FROM ID WHERE boolean_expression
 {
-    SqlNs.SqlLexYaccCallback.Select($2, $4, $6);
+    MyDBNs.SqlLexYaccCallback.Select($2, $4, $6);
 }
 ;
 
 boolean_expression:
 boolean_expression AND boolean_expression
 {
-    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "AND", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "AND", $3);
 }
 |
 boolean_expression OR boolean_expression
 {
-    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "OR", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "OR", $3);
 }
 | 
 '(' boolean_expression ')'
 {
-    SqlNs.SqlLexYaccCallback.BooleanExpression1(ref $$, $2);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression1(ref $$, $2);
 }
 | 
 string_number_id '=' string_number_id
 {
-    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "=", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "=", $3);
 }
 | 
 string_number_id '<' string_number_id
 {
-    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "<", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "<", $3);
 }
 | 
 string_number_id '>' string_number_id
 {
-    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ">", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ">", $3);
 }
 | 
 string_number_id NOT_EQUAL string_number_id
 {
-    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "!=", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "!=", $3);
 }
 | 
 string_number_id LESS_OR_EQUAL string_number_id
 {
-    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "<=", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "<=", $3);
 }
 | 
 string_number_id GREATER_OR_EQUAL string_number_id
 {
-    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ">=", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ">=", $3);
 }
 ;
 
 comma_sep_id: 
 ID 
 {
-    SqlNs.SqlLexYaccCallback.CommaSepID($$, $1);
+    MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1);
 }
 | ID ',' comma_sep_id
 {
-    SqlNs.SqlLexYaccCallback.CommaSepID($$, $1, $3);
+    MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1, $3);
 }
 ;
 
 comma_sep_value: 
 string_number 
 {
-    SqlNs.SqlLexYaccCallback.CommaSepID($$, $1);
+    MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1);
 }
 | string_number ',' comma_sep_value
 {
-    SqlNs.SqlLexYaccCallback.CommaSepID($$, $1, $3);
+    MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1, $3);
 }
 ;
 
 comma_sep_id_include_star: 
-ID ',' comma_sep_id_include_star
-{
-    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1, $3);
-}
-|
 ID 
 {
-    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1);
+    MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1);
 }
-| '*' ',' comma_sep_id_include_star
+|
+ID ',' comma_sep_id_include_star
 {
-    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, "*", $3);
+    MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1, $3);
 }
 | '*'
 {
-    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, "*");
+    MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, "*");
+}
+| '*' ',' comma_sep_id_include_star
+{
+    MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, "*", $3);
 }
 ;
 

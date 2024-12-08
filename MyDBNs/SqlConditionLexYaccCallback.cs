@@ -1,4 +1,4 @@
-﻿namespace SqlNs
+﻿namespace MyDBNs
 {
     public class SqlConditionLexYaccCallback
     {
@@ -27,8 +27,8 @@
 
         public static void VerifyBooleanExpression(string lhs, string op, string rhs)
         {
-            List<Table> tables = SqlNs.DB.tables;
-            Table table = DB.tables.FirstOrDefault(t => t.tableName == tableName);
+            List<Table> tables = MyDBNs.DB.tables;
+            Table table = MyDBNs.DB.GetTable(tableName);
             if (table == null)
                 throw new Exception("Table does not exist: " + tableName);
 
@@ -38,7 +38,7 @@
             OpType lhsType2 = lhsType;
             if (lhsType2 == OpType.Column)
             {
-                ColumnType t = table.columnTypesMap[lhs];
+                ColumnType t = table.columnNameToTypesMap[lhs];
                 if (t == ColumnType.NUMBER)
                     lhsType2 = OpType.Number;
                 else
@@ -48,7 +48,7 @@
             OpType rhsType2 = rhsType;
             if (rhsType2 == OpType.Column)
             {
-                ColumnType t = table.columnTypesMap[rhs];
+                ColumnType t = table.columnNameToTypesMap[rhs];
                 if (t == ColumnType.NUMBER)
                     rhsType2 = OpType.Number;
                 else
@@ -65,8 +65,8 @@
 
             HashSet<int> rows = new HashSet<int>();
 
-            List<Table> tables = SqlNs.DB.tables;
-            Table table = DB.tables.FirstOrDefault(t => t.tableName == tableName);
+            List<Table> tables = MyDBNs.DB.tables;
+            Table table = MyDBNs.DB.GetTable(tableName);
 
             OpType lhsType = GetOpType(lhs);
             OpType rhsType = GetOpType(rhs);
@@ -76,25 +76,25 @@
             OpType lhsType2 = lhsType;
             if (lhsType2 == OpType.Column)
             {
-                ColumnType t = table.columnTypesMap[lhs];
+                ColumnType t = table.columnNameToTypesMap[lhs];
                 if (t == ColumnType.NUMBER)
                     lhsType2 = OpType.Number;
                 else
                     lhsType2 = OpType.String;
 
-                lhsColumnIndex = table.columnIndexMap[lhs];
+                lhsColumnIndex = table.columnNameToIndexMap[lhs];
             }
 
             OpType rhsType2 = rhsType;
             if (rhsType2 == OpType.Column)
             {
-                ColumnType t = table.columnTypesMap[rhs];
+                ColumnType t = table.columnNameToTypesMap[rhs];
                 if (t == ColumnType.NUMBER)
                     rhsType2 = OpType.Number;
                 else
                     rhsType2 = OpType.String;
 
-                rhsColumnIndex = table.columnIndexMap[rhs];
+                rhsColumnIndex = table.columnNameToIndexMap[rhs];
             }
 
 

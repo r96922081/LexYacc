@@ -30,137 +30,137 @@ statement: create_table_statement | insert_statement | delete_statement | show_t
 
 create_table_statement: CREATE TABLE ID '(' column_declare ')' 
 {
-    SqlNs.SqlLexYaccCallback.CreateTable($3, $5);
+    MyDBNs.SqlLexYaccCallback.CreateTable($3, $5);
 };
 
 column_declare: ID column_type 
 {
-    SqlNs.SqlLexYaccCallback.ColumnDeclare($$, $1, $2);
+    MyDBNs.SqlLexYaccCallback.ColumnDeclare($$, $1, $2);
 } 
 | 
 ID column_type ',' column_declare 
 {
-    SqlNs.SqlLexYaccCallback.ColumnDeclare($$, $1, $2, $4);
+    MyDBNs.SqlLexYaccCallback.ColumnDeclare($$, $1, $2, $4);
 };
 
 insert_statement: 
 INSERT INTO ID VALUES '(' comma_sep_value ')'
 {
-    SqlNs.SqlLexYaccCallback.Insert($3, null, $6);
+    MyDBNs.SqlLexYaccCallback.Insert($3, null, $6);
 }
 |
 INSERT INTO ID '(' comma_sep_id ')' VALUES '(' comma_sep_value ')'
 {
-    SqlNs.SqlLexYaccCallback.Insert($3, $5, $9);
+    MyDBNs.SqlLexYaccCallback.Insert($3, $5, $9);
 };
 
 delete_statement:
 DELETE FROM ID WHERE boolean_expression
 {
-    SqlNs.SqlLexYaccCallback.Delete($3, $5);
+    MyDBNs.SqlLexYaccCallback.Delete($3, $5);
 }
 ;
 
 show_tables_statement:
 SHOW TABLES
 {
-    SqlNs.SqlLexYaccCallback.ShowTables();
+    MyDBNs.SqlLexYaccCallback.ShowTables();
 }
 ;
 
 select_statement:
 SELECT comma_sep_id_include_star FROM ID WHERE boolean_expression
 {
-    SqlNs.SqlLexYaccCallback.Select($2, $4, $6);
+    MyDBNs.SqlLexYaccCallback.Select($2, $4, $6);
 }
 ;
 
 boolean_expression:
 boolean_expression AND boolean_expression
 {
-    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""AND"", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""AND"", $3);
 }
 |
 boolean_expression OR boolean_expression
 {
-    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""OR"", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""OR"", $3);
 }
 | 
 '(' boolean_expression ')'
 {
-    SqlNs.SqlLexYaccCallback.BooleanExpression1(ref $$, $2);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression1(ref $$, $2);
 }
 | 
 string_number_id '=' string_number_id
 {
-    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""="", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""="", $3);
 }
 | 
 string_number_id '<' string_number_id
 {
-    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""<"", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""<"", $3);
 }
 | 
 string_number_id '>' string_number_id
 {
-    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "">"", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "">"", $3);
 }
 | 
 string_number_id NOT_EQUAL string_number_id
 {
-    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""!="", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""!="", $3);
 }
 | 
 string_number_id LESS_OR_EQUAL string_number_id
 {
-    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""<="", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""<="", $3);
 }
 | 
 string_number_id GREATER_OR_EQUAL string_number_id
 {
-    SqlNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "">="", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "">="", $3);
 }
 ;
 
 comma_sep_id: 
 ID 
 {
-    SqlNs.SqlLexYaccCallback.CommaSepID($$, $1);
+    MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1);
 }
 | ID ',' comma_sep_id
 {
-    SqlNs.SqlLexYaccCallback.CommaSepID($$, $1, $3);
+    MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1, $3);
 }
 ;
 
 comma_sep_value: 
 string_number 
 {
-    SqlNs.SqlLexYaccCallback.CommaSepID($$, $1);
+    MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1);
 }
 | string_number ',' comma_sep_value
 {
-    SqlNs.SqlLexYaccCallback.CommaSepID($$, $1, $3);
+    MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1, $3);
 }
 ;
 
 comma_sep_id_include_star: 
-ID ',' comma_sep_id_include_star
-{
-    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1, $3);
-}
-|
 ID 
 {
-    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1);
+    MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1);
 }
-| '*' ',' comma_sep_id_include_star
+|
+ID ',' comma_sep_id_include_star
 {
-    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, ""*"", $3);
+    MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1, $3);
 }
 | '*'
 {
-    SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, ""*"");
+    MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, ""*"");
+}
+| '*' ',' comma_sep_id_include_star
+{
+    MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, ""*"", $3);
 }
 ;
 
@@ -266,7 +266,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         List<(string, string)> _5 = (List<(string, string)>)objects[5];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.CreateTable(_3, _5);
+        MyDBNs.SqlLexYaccCallback.CreateTable(_3, _5);
 
         return _0;
     }
@@ -277,7 +277,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         string _2 = (string)objects[2];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.ColumnDeclare(_0, _1, _2);
+        MyDBNs.SqlLexYaccCallback.ColumnDeclare(_0, _1, _2);
 
         return _0;
     }
@@ -289,7 +289,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         List<(string, string)> _4 = (List<(string, string)>)objects[4];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.ColumnDeclare(_0, _1, _2, _4);
+        MyDBNs.SqlLexYaccCallback.ColumnDeclare(_0, _1, _2, _4);
 
         return _0;
     }
@@ -303,7 +303,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         List<string> _6 = (List<string>)objects[6];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.Insert(_3, null, _6);
+        MyDBNs.SqlLexYaccCallback.Insert(_3, null, _6);
 
         return _0;
     }
@@ -318,7 +318,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         List<string> _9 = (List<string>)objects[9];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.Insert(_3, _5, _9);
+        MyDBNs.SqlLexYaccCallback.Insert(_3, _5, _9);
 
         return _0;
     }
@@ -332,7 +332,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         string _5 = (string)objects[5];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.Delete(_3, _5);
+        MyDBNs.SqlLexYaccCallback.Delete(_3, _5);
 
         return _0;
     }
@@ -343,7 +343,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         string _2 = (string)objects[2];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.ShowTables();
+        MyDBNs.SqlLexYaccCallback.ShowTables();
 
         return _0;
     }
@@ -358,7 +358,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         string _6 = (string)objects[6];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.Select(_2, _4, _6);
+        MyDBNs.SqlLexYaccCallback.Select(_2, _4, _6);
 
         return _0;
     }
@@ -368,7 +368,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         string _2 = (string)objects[2];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.BooleanExpression1(ref _0, _2);
+        MyDBNs.SqlLexYaccCallback.BooleanExpression1(ref _0, _2);
 
         return _0;
     }
@@ -379,7 +379,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         string _3 = (string)objects[3];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "=", _3);
+        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "=", _3);
 
         return _0;
     }
@@ -390,7 +390,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         string _3 = (string)objects[3];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "<", _3);
+        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "<", _3);
 
         return _0;
     }
@@ -401,7 +401,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         string _3 = (string)objects[3];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, ">", _3);
+        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, ">", _3);
 
         return _0;
     }
@@ -413,7 +413,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         string _3 = (string)objects[3];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "!=", _3);
+        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "!=", _3);
 
         return _0;
     }
@@ -425,7 +425,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         string _3 = (string)objects[3];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "<=", _3);
+        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "<=", _3);
 
         return _0;
     }
@@ -437,7 +437,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         string _3 = (string)objects[3];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, ">=", _3);
+        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, ">=", _3);
 
         return _0;
     }
@@ -449,7 +449,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         string _3 = (string)objects[3];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "AND", _3);
+        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "AND", _3);
 
         return _0;
     }
@@ -461,7 +461,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         string _3 = (string)objects[3];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "OR", _3);
+        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "OR", _3);
 
         return _0;
     }
@@ -477,7 +477,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         string _1 = (string)objects[1];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.CommaSepID(_0, _1);
+        MyDBNs.SqlLexYaccCallback.CommaSepID(_0, _1);
 
         return _0;
     }
@@ -488,7 +488,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         List<string> _3 = (List<string>)objects[3];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.CommaSepID(_0, _1, _3);
+        MyDBNs.SqlLexYaccCallback.CommaSepID(_0, _1, _3);
 
         return _0;
     }
@@ -498,7 +498,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         string _1 = (string)objects[1];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.CommaSepID(_0, _1);
+        MyDBNs.SqlLexYaccCallback.CommaSepID(_0, _1);
 
         return _0;
     }
@@ -509,7 +509,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         List<string> _3 = (List<string>)objects[3];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.CommaSepID(_0, _1, _3);
+        MyDBNs.SqlLexYaccCallback.CommaSepID(_0, _1, _3);
 
         return _0;
     }
@@ -517,10 +517,9 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
     public static object Rule_comma_sep_id_include_star_Producton_0(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         string _1 = (string)objects[1];
-        List<string> _3 = (List<string>)objects[3];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, _1, _3);
+        MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, _1);
 
         return _0;
     }
@@ -528,28 +527,29 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
     public static object Rule_comma_sep_id_include_star_Producton_1(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         string _1 = (string)objects[1];
+        List<string> _3 = (List<string>)objects[3];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, _1);
+        MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, _1, _3);
 
         return _0;
     }
 
     public static object Rule_comma_sep_id_include_star_Producton_2(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
-        List<string> _3 = (List<string>)objects[3];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, "*", _3);
+        MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, "*");
 
         return _0;
     }
 
     public static object Rule_comma_sep_id_include_star_Producton_3(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
+        List<string> _3 = (List<string>)objects[3];
 
         // user-defined action
-        SqlNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, "*");
+        MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, "*", _3);
 
         return _0;
     }
@@ -712,23 +712,22 @@ namespace sql_lexyaccNs
 %}
 
 %%
-""SELECT""                     { return SELECT; }
-""CREATE""                     { return CREATE; }
-""TABLE""                     { return TABLE; }
-""INSERT""                     { return INSERT; }
-""DELETE""                     { return DELETE; }
-""FROM""                     { return FROM; }
-""INTO""                     { return INTO; }
-""WHERE""                     { return WHERE; }
-""VALUES""                     { return VALUES; }
-""SHOW""                     { return SHOW; }
-""TABLES""                     { return TABLES; }
-""TABLE""                     { return TABLE; }
-""AND""                     { return AND; }
-""OR""                     { return OR; }
-""NOT""                     { return NOT; }
-""NUMBER""                     { value = ""NUMBER_TYPE""; return NUMBER_TYPE; }
-""VARCHAR""                     { value = ""VARCHAR""; return VARCHAR; }
+[sS][eE][lL][eE][cC][tT]      { return SELECT; }
+[cC][rR][eE][aA][tT][eE]      { return CREATE; }
+[tT][aA][bB][lL][eE]          { return TABLE; }
+[iI][nN][sS][eE][rR][tT]      { return INSERT; }
+[dD][eE][lL][eE][tT][eE]      { return DELETE; }
+[fF][rR][oO][mM]              { return FROM; }
+[iI][nN][tT][oO]              { return INTO; }
+[wW][hH][eE][rR][eE]          { return WHERE; }
+[vV][aA][lL][uU][eE][sS]      { return VALUES; }
+[sS][hH][oO][wW]              { return SHOW; }
+[tT][aA][bB][lL][eE][sS]      { return TABLES; }
+[aA][nN][dD]                  { return AND; }
+[oO][rR]                      { return OR; }
+[nN][oO][tT]                  { return NOT; }
+[nN][uU][mM][bB][eE][rR]      { value = ""NUMBER_TYPE""; return NUMBER_TYPE; }
+[vV][aA][rR][cC][hH][aA][rR]  { value = ""VARCHAR""; return VARCHAR; }
 ""!=""                     { return NOT_EQUAL; }
 ""<=""                     { return LESS_OR_EQUAL; }
 "">=""                     { return GREATER_OR_EQUAL; }
@@ -787,7 +786,6 @@ namespace sql_lexyaccNs
             actions.Add("LexRule29", LexAction29);
             actions.Add("LexRule30", LexAction30);
             actions.Add("LexRule31", LexAction31);
-            actions.Add("LexRule32", LexAction32);
         }
         public static object LexAction0(string yytext)
         {
@@ -893,7 +891,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return TABLE; 
+            return AND; 
 
             return 0;
         }
@@ -902,7 +900,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return AND; 
+            return OR; 
 
             return 0;
         }
@@ -911,7 +909,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return OR; 
+            return NOT; 
 
             return 0;
         }
@@ -920,7 +918,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return NOT; 
+            value = "NUMBER_TYPE"; return NUMBER_TYPE; 
 
             return 0;
         }
@@ -929,7 +927,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = "NUMBER_TYPE"; return NUMBER_TYPE; 
+            value = "VARCHAR"; return VARCHAR; 
 
             return 0;
         }
@@ -938,7 +936,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = "VARCHAR"; return VARCHAR; 
+            return NOT_EQUAL; 
 
             return 0;
         }
@@ -947,7 +945,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return NOT_EQUAL; 
+            return LESS_OR_EQUAL; 
 
             return 0;
         }
@@ -956,7 +954,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return LESS_OR_EQUAL; 
+            return GREATER_OR_EQUAL; 
 
             return 0;
         }
@@ -965,7 +963,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return GREATER_OR_EQUAL; 
+            return '{'; 
 
             return 0;
         }
@@ -974,7 +972,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return '{'; 
+            return '}'; 
 
             return 0;
         }
@@ -983,7 +981,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return '}'; 
+            return '('; 
 
             return 0;
         }
@@ -992,7 +990,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return '('; 
+            return ')'; 
 
             return 0;
         }
@@ -1001,7 +999,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return ')'; 
+            return ','; 
 
             return 0;
         }
@@ -1010,7 +1008,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return ','; 
+            return '='; 
 
             return 0;
         }
@@ -1019,7 +1017,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return '='; 
+            return '<'; 
 
             return 0;
         }
@@ -1028,7 +1026,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return '<'; 
+            return '>'; 
 
             return 0;
         }
@@ -1037,7 +1035,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return '>'; 
+            return '*'; 
 
             return 0;
         }
@@ -1046,7 +1044,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            return '*'; 
+            value = yytext; return NUMBER; 
 
             return 0;
         }
@@ -1055,7 +1053,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return NUMBER; 
+            value = yytext; return STRING; 
 
             return 0;
         }
@@ -1064,20 +1062,11 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return STRING; 
-
-            return 0;
-        }
-        public static object LexAction31(string yytext)
-        {
-            value = null;
-
-            // user-defined action
             value = yytext; return ID; 
 
             return 0;
         }
-        public static object LexAction32(string yytext)
+        public static object LexAction31(string yytext)
         {
             value = null;
 
@@ -1646,6 +1635,21 @@ namespace LexYaccNs
             Rebuild();
         }
 
+        public bool IsAccept()
+        {
+            List<DFA> dfas = new List<DFA>(dfaStack);
+
+            // skip first dfa
+            for (int i = 1; i < dfas.Count; i++)
+            {
+                DFA dfa = dfas[i];
+                if (dfa.currentState + 1 != dfa.acceptedState)
+                    return false;
+            }
+
+            return true;
+        }
+
         public void Rebuild()
         {
             dfaStack.Clear();
@@ -2030,6 +2034,17 @@ namespace LexYaccNs
             }
         }
 
+        private bool IsFalseAccept(int symbolIndex)
+        {
+            if (!yacc.IsAccept())
+                return false;
+
+            if (symbolIndex + 1 == yacc.symbols.Count)
+                return false;
+            else
+                return true;
+        }
+
         public void Feed(Yacc yacc, int symbolIndex, bool empty)
         {
             symbolIndexDict[currentState] = symbolIndex;
@@ -2084,7 +2099,10 @@ namespace LexYaccNs
                                     currentState++;
                                     if (currentState == acceptedState)
                                     {
-                                        yacc.AdvanceToNextState();
+                                        if (IsFalseAccept(symbolIndex))
+                                            yacc.BackToPrevNonterminal();
+                                        else
+                                            yacc.AdvanceToNextState();
                                         return;
                                     }
                                 }
@@ -2103,7 +2121,10 @@ namespace LexYaccNs
                                     currentState++;
                                     if (currentState == acceptedState)
                                     {
-                                        yacc.AdvanceToNextState();
+                                        if (IsFalseAccept(symbolIndex))
+                                            yacc.BackToPrevNonterminal();
+                                        else
+                                            yacc.AdvanceToNextState();
                                         return;
                                     }
                                 }

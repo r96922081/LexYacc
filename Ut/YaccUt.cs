@@ -641,6 +641,33 @@ a '&' a
         Check(yacc.Feed(symbols) == true);
     }
 
+    public static void UtFeed24()
+    {
+
+
+
+        string line1 = @"
+a:
+b 'A'
+;
+b: 
+'B' 
+|
+'B' b
+;
+";
+
+        Yacc yacc = new Yacc(line1);
+
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.Feed(symbols) == true);
+    }
+
     private static void UtFeed()
     {
         UtFeed1();
@@ -665,7 +692,8 @@ a '&' a
         UtFeed20();
         UtFeed21();
         UtFeed22();
-        //UtFeed23();
+        UtFeed23();
+        //UtFeed24();
     }
 
     private static void UtBuild1()

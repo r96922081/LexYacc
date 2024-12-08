@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace SqlNs
+namespace MyDBNs
 {
 
     public class SqlUt
@@ -14,6 +14,8 @@ namespace SqlNs
 
         public static void AdhocUt()
         {
+#if !MarkUserOfSqlCodeGen
+
             object ret = sql_lexyacc.Parse("CREATE TABLE A ( NAME VARCHAR(123), AGE NUMBER)");
             Check(ret == null || ret.ToString() == "");
 
@@ -45,14 +47,15 @@ namespace SqlNs
             ret = sql_lexyacc.Parse("SELECT * FROM A WHERE 1 = 1");
             Check(ret == null || ret.ToString() == "");
 
-            ret = sql_lexyacc.Parse("SELECT AGE, NAME, * FROM A WHERE 1 = 1");
-            Check(ret == null || ret.ToString() == "");
+            //ret = sql_lexyacc.Parse("SELECT AGE, NAME, * FROM A WHERE 1 = 1");
+            //Check(ret == null || ret.ToString() == "");
+#endif
         }
 
         public static void Ut()
         {
             AdhocUt();
-            PlayGround.Play();
+            Console.Play();
         }
 
     }

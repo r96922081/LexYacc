@@ -43,6 +43,21 @@
             Rebuild();
         }
 
+        public bool IsAccept()
+        {
+            List<DFA> dfas = new List<DFA>(dfaStack);
+
+            // skip first dfa
+            for (int i = 1; i < dfas.Count; i++)
+            {
+                DFA dfa = dfas[i];
+                if (dfa.currentState + 1 != dfa.acceptedState)
+                    return false;
+            }
+
+            return true;
+        }
+
         public void Rebuild()
         {
             dfaStack.Clear();

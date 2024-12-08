@@ -2,23 +2,22 @@
 %}
 
 %%
-"SELECT"                     { return SELECT; }
-"CREATE"                     { return CREATE; }
-"TABLE"                     { return TABLE; }
-"INSERT"                     { return INSERT; }
-"DELETE"                     { return DELETE; }
-"FROM"                     { return FROM; }
-"INTO"                     { return INTO; }
-"WHERE"                     { return WHERE; }
-"VALUES"                     { return VALUES; }
-"SHOW"                     { return SHOW; }
-"TABLES"                     { return TABLES; }
-"TABLE"                     { return TABLE; }
-"AND"                     { return AND; }
-"OR"                     { return OR; }
-"NOT"                     { return NOT; }
-"NUMBER"                     { value = "NUMBER_TYPE"; return NUMBER_TYPE; }
-"VARCHAR"                     { value = "VARCHAR"; return VARCHAR; }
+[sS][eE][lL][eE][cC][tT]      { return SELECT; }
+[cC][rR][eE][aA][tT][eE]      { return CREATE; }
+[tT][aA][bB][lL][eE]          { return TABLE; }
+[iI][nN][sS][eE][rR][tT]      { return INSERT; }
+[dD][eE][lL][eE][tT][eE]      { return DELETE; }
+[fF][rR][oO][mM]              { return FROM; }
+[iI][nN][tT][oO]              { return INTO; }
+[wW][hH][eE][rR][eE]          { return WHERE; }
+[vV][aA][lL][uU][eE][sS]      { return VALUES; }
+[sS][hH][oO][wW]              { return SHOW; }
+[tT][aA][bB][lL][eE][sS]      { return TABLES; }
+[aA][nN][dD]                  { return AND; }
+[oO][rR]                      { return OR; }
+[nN][oO][tT]                  { return NOT; }
+[nN][uU][mM][bB][eE][rR]      { value = "NUMBER_TYPE"; return NUMBER_TYPE; }
+[vV][aA][rR][cC][hH][aA][rR]  { value = "VARCHAR"; return VARCHAR; }
 "!="                     { return NOT_EQUAL; }
 "<="                     { return LESS_OR_EQUAL; }
 ">="                     { return GREATER_OR_EQUAL; }

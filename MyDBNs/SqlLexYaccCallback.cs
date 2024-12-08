@@ -1,4 +1,4 @@
-﻿namespace SqlNs
+﻿namespace MyDBNs
 {
     public class SqlLexYaccCallback
     {
@@ -24,51 +24,13 @@
         public static void CreateTable(string name, List<(string, string)> columnDeclare)
         {
             VerifyCreateTable(name, columnDeclare);
-
-            Table table = new Table();
-            table.tableName = name;
-            table.columnNames = new string[columnDeclare.Count];
-            table.columnTypes = new ColumnType[columnDeclare.Count];
-            table.columnSizes = new int[columnDeclare.Count];
-
-            for (int i = 0; i < columnDeclare.Count; i++)
-            {
-                table.columnNames[i] = columnDeclare[i].Item1;
-                string columnType = columnDeclare[i].Item2;
-                if (columnType == "NUMBER")
-                {
-                    table.columnTypes[i] = ColumnType.NUMBER;
-                }
-                else if (columnType.StartsWith("VARCHAR"))
-                {
-                    table.columnTypes[i] = ColumnType.VARCHAR;
-                    int left = columnType.IndexOf('(');
-                    int right = columnType.LastIndexOf(')');
-
-                    int lengthInt;
-                    string length = columnType.Substring(left + 1, right - left - 1);
-                    int.TryParse(length, out lengthInt);
-                    table.columnSizes[i] = lengthInt;
-                }
-            }
-
-
-            table.columnIndexMap = new Dictionary<string, int>();
-            table.columnTypesMap = new Dictionary<string, ColumnType>();
-
-            for (int i = 0; i < table.columnNames.Length; i++)
-            {
-                table.columnIndexMap.Add(table.columnNames[i], i);
-                table.columnTypesMap.Add(table.columnNames[i], table.columnTypes[i]);
-            }
-
-            DB.tables.Add(table);
+            MyDBNs.DB.CreateTable(name, columnDeclare);
         }
 
         public static void ShowTables()
         {
             foreach (Table table in DB.tables)
-                Console.WriteLine(table.GetSchema());
+                System.Console.WriteLine(table.GetSchema());
         }
 
         public static void VerifyShowTable(string table)
@@ -95,7 +57,7 @@
                 }
             }
 
-            Console.WriteLine(t.GetData());
+            System.Console.WriteLine(t.GetData());
         }
 
         public enum BooleanOperator
@@ -150,7 +112,7 @@
         // INSERT INTO A VALUES (AAA, BB)
         public static void VerifyInsert(string tableName, List<string> columnNames, List<string> values)
         {
-            Table table = DB.tables.FirstOrDefault(t => t.tableName == tableName);
+            Table table = MyDBNs.DB.GetTable(tableName);
             if (table == null)
                 throw new Exception("no table named: " + tableName);
 
@@ -162,14 +124,14 @@
 
             foreach (string columnName in columnNames)
             {
-                if (!table.columnIndexMap.ContainsKey(columnName))
+                if (!table.columnNameToIndexMap.ContainsKey(columnName))
                     throw new Exception("no column named: " + columnName);
             }
 
             for (int i = 0; i < values.Count; i++)
             {
                 string columnName = columnNames[i];
-                ColumnType columnType = table.columnTypesMap[columnName];
+                ColumnType columnType = table.columnNameToTypesMap[columnName];
                 string value = values[i];
                 if (value == null)
                     continue;
@@ -187,7 +149,7 @@
         {
             VerifyInsert(tableName, columnNames, values);
 
-            Table table = DB.tables.FirstOrDefault(t => t.tableName == tableName);
+            Table table = MyDBNs.DB.GetTable(tableName);
 
             if (columnNames == null || columnNames.Count == 0)
                 columnNames = table.columnNames.ToList();
@@ -197,8 +159,8 @@
             for (int i = 0; i < values.Count; i++)
             {
                 string columnName = columnNames[i];
-                int columnIndex = table.columnIndexMap[columnName];
-                ColumnType columnType = table.columnTypesMap[columnName];
+                int columnIndex = table.columnNameToIndexMap[columnName];
+                ColumnType columnType = table.columnNameToTypesMap[columnName];
                 string value = values[i];
                 if (value == null)
                 {
@@ -227,16 +189,18 @@
 
         public static void Delete(string tableName, string condition)
         {
+#if !MarkUserOfSqlCodeGen
             SqlConditionLexYaccCallback.tableName = tableName;
             object ret = sql_condition_lexyacc.Parse(condition);
             HashSet<int> rows = (HashSet<int>)ret;
 
-            Table table = DB.tables.FirstOrDefault(t => t.tableName == tableName);
+            Table table = MyDBNs.DB.GetTable(tableName);
             for (int i = table.rows.Count - 1; i >= 0; i--)
             {
                 if (rows.Contains(i))
                     table.rows.RemoveAt(i);
             }
+#endif
         }
 
         public static void CommaSepID(List<string> l, string s)
@@ -273,7 +237,8 @@
 
         public static void Select(List<string> columns, string tableName, string condition)
         {
-            Table table = DB.tables.FirstOrDefault(t => t.tableName == tableName);
+#if !MarkUserOfSqlCodeGen
+            Table table = MyDBNs.DB.GetTable(tableName);
 
             SqlConditionLexYaccCallback.tableName = tableName;
             object ret = sql_condition_lexyacc.Parse(condition);
@@ -288,17 +253,17 @@
                     foreach (string column2 in table.columnNames)
                     {
                         columnNames.Add(column2);
-                        columnIndex.Add(table.columnIndexMap[column2]);
+                        columnIndex.Add(table.columnNameToIndexMap[column2]);
                     }
                 }
                 else
                 {
                     columnNames.Add(column);
-                    columnIndex.Add(table.columnIndexMap[column]);
+                    columnIndex.Add(table.columnNameToIndexMap[column]);
                 }
             }
 
-            Console.WriteLine("table: " + table.tableName);
+            System.Console.WriteLine("table: " + table.tableName);
 
             int[] columnWidths = new int[columnNames.Count];
             for (int i = 0; i < columnIndex.Count; i++)
@@ -323,13 +288,13 @@
             }
 
             // show column name
-            Console.Write("| ");
+            System.Console.Write("| ");
             for (int i = 0; i < columnNames.Count; i++)
             {
-                Console.Write(columnNames[i].PadRight(columnWidths[i]));
-                Console.Write(" | ");
+                System.Console.Write(columnNames[i].PadRight(columnWidths[i]));
+                System.Console.Write(" | ");
             }
-            Console.WriteLine();
+            System.Console.WriteLine();
 
             // show cell
             for (int rowIndex = 0; rowIndex < table.rows.Count; rowIndex++)
@@ -339,19 +304,20 @@
 
 
                 object[] row = table.rows[rowIndex];
-                Console.Write("| ");
+                System.Console.Write("| ");
                 int j = 0;
                 foreach (int i in columnIndex)
                 {
                     if (row[i] == null)
-                        Console.Write("".PadRight(columnWidths[j]));
+                        System.Console.Write("".PadRight(columnWidths[j]));
                     else
-                        Console.Write(row[i].ToString().PadRight(columnWidths[j]));
+                        System.Console.Write(row[i].ToString().PadRight(columnWidths[j]));
                     j++;
-                    Console.Write(" | ");
+                    System.Console.Write(" | ");
                 }
-                Console.WriteLine();
+                System.Console.WriteLine();
             }
+#endif
         }
 
         public static void BooleanExpression1(ref string booleanExpression, string rhs)

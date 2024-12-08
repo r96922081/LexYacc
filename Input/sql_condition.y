@@ -29,32 +29,32 @@ boolean_expression OR boolean_expression
 | 
 string_number_id '=' string_number_id
 {
-    $$ = SqlNs.SqlConditionLexYaccCallback.BooleanExpression($1, "=", $3);
+    $$ = MyDBNs.SqlConditionLexYaccCallback.BooleanExpression($1, "=", $3);
 }
 | 
 string_number_id '<' string_number_id
 {
-    $$ = SqlNs.SqlConditionLexYaccCallback.BooleanExpression($1, "<", $3);
+    $$ = MyDBNs.SqlConditionLexYaccCallback.BooleanExpression($1, "<", $3);
 }
 | 
 string_number_id '>' string_number_id
 {
-    $$ = SqlNs.SqlConditionLexYaccCallback.BooleanExpression($1, ">", $3);
+    $$ = MyDBNs.SqlConditionLexYaccCallback.BooleanExpression($1, ">", $3);
 }
 | 
 string_number_id NOT_EQUAL string_number_id
 {
-    $$ = SqlNs.SqlConditionLexYaccCallback.BooleanExpression($1, "!=", $3);
+    $$ = MyDBNs.SqlConditionLexYaccCallback.BooleanExpression($1, "!=", $3);
 }
 | 
 string_number_id LESS_OR_EQUAL string_number_id
 {
-    $$ = SqlNs.SqlConditionLexYaccCallback.BooleanExpression($1, "<=", $3);
+    $$ = MyDBNs.SqlConditionLexYaccCallback.BooleanExpression($1, "<=", $3);
 }
 | 
 string_number_id GREATER_OR_EQUAL string_number_id
 {
-    $$ = SqlNs.SqlConditionLexYaccCallback.BooleanExpression($1, ">=", $3);
+    $$ = MyDBNs.SqlConditionLexYaccCallback.BooleanExpression($1, ">=", $3);
 }
 ;
 
