@@ -69,6 +69,32 @@
                 string columnName = kv.Item1;
                 if (!table.columnNames.Contains(columnName))
                     throw new Exception("column " + columnName + " not in table " + tableName);
+
+                ColumnType type = table.columnNameToTypesMap[columnName];
+
+                StringType type2 = DBUtil.GetStringType(kv.Item2);
+
+                if (type2 == StringType.String)
+                {
+                    if (type != ColumnType.VARCHAR)
+                        throw new Exception("column " + columnName + "'s type = " + type + " not compatible with " + kv.Item2);
+                }
+                else if (type2 == StringType.Number)
+                {
+                    if (type != ColumnType.NUMBER)
+                        throw new Exception("column " + columnName + "'s type = " + type + " not compatible with " + kv.Item2);
+                }
+                else if (type2 == StringType.Column)
+                {
+                    string columnName2 = kv.Item2.ToUpper();
+                    if (!table.columnNames.Contains(columnName2))
+                        throw new Exception("column " + columnName2 + " not in table " + tableName);
+
+                    ColumnType type3 = table.columnNameToTypesMap[columnName2];
+                    if (type != type3)
+                        throw new Exception("column " + columnName + "'s type = " + type + " not compatible with column " + columnName2 + "'s type = " + type3);
+                }
+
             }
         }
     }

@@ -2,28 +2,7 @@
 {
     public class SqlConditionLexYaccCallback
     {
-        public enum OpType
-        {
-            Column,
-            String,
-            Number
-        }
-
         public static string tableName = "";
-
-        private static OpType GetOpType(string s)
-        {
-            if (s.StartsWith("'") && s.EndsWith("'"))
-                return OpType.String;
-
-            double n = 0;
-            bool ret = double.TryParse(s, out n);
-
-            if (ret)
-                return OpType.Number;
-
-            return OpType.Column;
-        }
 
         public static void VerifyBooleanExpression(string lhs, string op, string rhs)
         {
@@ -32,27 +11,27 @@
             if (table == null)
                 throw new Exception("Table does not exist: " + tableName);
 
-            OpType lhsType = GetOpType(lhs);
-            OpType rhsType = GetOpType(rhs);
+            StringType lhsType = DBUtil.GetStringType(lhs);
+            StringType rhsType = DBUtil.GetStringType(rhs);
 
-            OpType lhsType2 = lhsType;
-            if (lhsType2 == OpType.Column)
+            StringType lhsType2 = lhsType;
+            if (lhsType2 == StringType.Column)
             {
-                ColumnType t = table.columnNameToTypesMap[lhs];
+                ColumnType t = table.columnNameToTypesMap[lhs.ToUpper()];
                 if (t == ColumnType.NUMBER)
-                    lhsType2 = OpType.Number;
+                    lhsType2 = StringType.Number;
                 else
-                    lhsType2 = OpType.String;
+                    lhsType2 = StringType.String;
             }
 
-            OpType rhsType2 = rhsType;
-            if (rhsType2 == OpType.Column)
+            StringType rhsType2 = rhsType;
+            if (rhsType2 == StringType.Column)
             {
-                ColumnType t = table.columnNameToTypesMap[rhs];
+                ColumnType t = table.columnNameToTypesMap[rhs.ToUpper()];
                 if (t == ColumnType.NUMBER)
-                    rhsType2 = OpType.Number;
+                    rhsType2 = StringType.Number;
                 else
-                    rhsType2 = OpType.String;
+                    rhsType2 = StringType.String;
             }
 
             if (lhsType2 != rhsType2)
@@ -68,33 +47,33 @@
             List<Table> tables = MyDBNs.DB.tables;
             Table table = MyDBNs.DB.GetTable(tableName);
 
-            OpType lhsType = GetOpType(lhs);
-            OpType rhsType = GetOpType(rhs);
+            StringType lhsType = DBUtil.GetStringType(lhs);
+            StringType rhsType = DBUtil.GetStringType(rhs);
             int lhsColumnIndex = -1;
             int rhsColumnIndex = -1;
 
-            OpType lhsType2 = lhsType;
-            if (lhsType2 == OpType.Column)
+            StringType lhsType2 = lhsType;
+            if (lhsType2 == StringType.Column)
             {
-                ColumnType t = table.columnNameToTypesMap[lhs];
+                ColumnType t = table.columnNameToTypesMap[lhs.ToUpper()];
                 if (t == ColumnType.NUMBER)
-                    lhsType2 = OpType.Number;
+                    lhsType2 = StringType.Number;
                 else
-                    lhsType2 = OpType.String;
+                    lhsType2 = StringType.String;
 
-                lhsColumnIndex = table.columnNameToIndexMap[lhs];
+                lhsColumnIndex = table.columnNameToIndexMap[lhs.ToUpper()];
             }
 
-            OpType rhsType2 = rhsType;
-            if (rhsType2 == OpType.Column)
+            StringType rhsType2 = rhsType;
+            if (rhsType2 == StringType.Column)
             {
-                ColumnType t = table.columnNameToTypesMap[rhs];
+                ColumnType t = table.columnNameToTypesMap[rhs.ToUpper()];
                 if (t == ColumnType.NUMBER)
-                    rhsType2 = OpType.Number;
+                    rhsType2 = StringType.Number;
                 else
-                    rhsType2 = OpType.String;
+                    rhsType2 = StringType.String;
 
-                rhsColumnIndex = table.columnNameToIndexMap[rhs];
+                rhsColumnIndex = table.columnNameToIndexMap[rhs.ToUpper()];
             }
 
 
@@ -105,31 +84,31 @@
                 object lhsValue = null;
                 object rhsValue = null;
 
-                if (lhsType == OpType.Column)
+                if (lhsType == StringType.Column)
                 {
                     lhsValue = row[lhsColumnIndex];
                 }
-                else if (lhsType2 == OpType.Number)
+                else if (lhsType2 == StringType.Number)
                 {
                     if (lhs != null)
                         lhsValue = double.Parse(lhs);
                 }
-                else if (lhsType2 == OpType.String)
+                else if (lhsType2 == StringType.String)
                 {
                     if (lhs != null)
                         lhsValue = lhs.Substring(1, lhs.Length - 2);
                 }
 
-                if (rhsType == OpType.Column)
+                if (rhsType == StringType.Column)
                 {
                     rhsValue = row[rhsColumnIndex];
                 }
-                else if (rhsType2 == OpType.Number)
+                else if (rhsType2 == StringType.Number)
                 {
                     if (rhs != null)
                         rhsValue = double.Parse(rhs);
                 }
-                else if (rhsType2 == OpType.String)
+                else if (rhsType2 == StringType.String)
                 {
                     if (rhs != null)
                         rhsValue = rhs.Substring(1, rhs.Length - 2);
@@ -145,12 +124,12 @@
                         }
                         else
                         {
-                            if (lhsType2 == OpType.String)
+                            if (lhsType2 == StringType.String)
                             {
                                 if (((string)lhsValue).CompareTo(rhsValue) == 0)
                                     rows.Add(i);
                             }
-                            else if (lhsType2 == OpType.Number)
+                            else if (lhsType2 == StringType.Number)
                             {
                                 if (((double)lhsValue).CompareTo(rhsValue) == 0)
                                     rows.Add(i);
@@ -165,12 +144,12 @@
                         }
                         else
                         {
-                            if (lhsType2 == OpType.String)
+                            if (lhsType2 == StringType.String)
                             {
                                 if (((string)lhsValue).CompareTo(rhsValue) != 0)
                                     rows.Add(i);
                             }
-                            else if (lhsType2 == OpType.Number)
+                            else if (lhsType2 == StringType.Number)
                             {
                                 if (((double)lhsValue).CompareTo(rhsValue) != 0)
                                     rows.Add(i);
@@ -180,12 +159,12 @@
                     case "<":
                         if (lhsValue != null && rhsValue != null)
                         {
-                            if (lhsType2 == OpType.String)
+                            if (lhsType2 == StringType.String)
                             {
                                 if (((string)lhsValue).CompareTo(rhsValue) < 0)
                                     rows.Add(i);
                             }
-                            else if (lhsType2 == OpType.Number)
+                            else if (lhsType2 == StringType.Number)
                             {
                                 if (((double)lhsValue).CompareTo(rhsValue) < 0)
                                     rows.Add(i);
@@ -195,12 +174,12 @@
                     case "<=":
                         if (lhsValue != null && rhsValue != null)
                         {
-                            if (lhsType2 == OpType.String)
+                            if (lhsType2 == StringType.String)
                             {
                                 if (((string)lhsValue).CompareTo(rhsValue) <= 0)
                                     rows.Add(i);
                             }
-                            else if (lhsType2 == OpType.Number)
+                            else if (lhsType2 == StringType.Number)
                             {
                                 if (((double)lhsValue).CompareTo(rhsValue) <= 0)
                                     rows.Add(i);
@@ -210,12 +189,12 @@
                     case ">":
                         if (lhsValue != null && rhsValue != null)
                         {
-                            if (lhsType2 == OpType.String)
+                            if (lhsType2 == StringType.String)
                             {
                                 if (((string)lhsValue).CompareTo(rhsValue) > 0)
                                     rows.Add(i);
                             }
-                            else if (lhsType2 == OpType.Number)
+                            else if (lhsType2 == StringType.Number)
                             {
                                 if (((double)lhsValue).CompareTo(rhsValue) > 0)
                                     rows.Add(i);
@@ -225,12 +204,12 @@
                     case ">=":
                         if (lhsValue != null && rhsValue != null)
                         {
-                            if (lhsType2 == OpType.String)
+                            if (lhsType2 == StringType.String)
                             {
                                 if (((string)lhsValue).CompareTo(rhsValue) >= 0)
                                     rows.Add(i);
                             }
-                            else if (lhsType2 == OpType.Number)
+                            else if (lhsType2 == StringType.Number)
                             {
                                 if (((double)lhsValue).CompareTo(rhsValue) >= 0)
                                     rows.Add(i);

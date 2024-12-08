@@ -643,9 +643,6 @@ a '&' a
 
     public static void UtFeed24()
     {
-
-
-
         string line1 = @"
 a:
 b 'A'

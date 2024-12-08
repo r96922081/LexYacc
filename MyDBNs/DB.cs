@@ -2,6 +2,14 @@
 
 namespace MyDBNs
 {
+
+    public enum StringType
+    {
+        Column,
+        String,
+        Number
+    }
+
     public class DB
     {
         public static List<Table> tables = new List<Table>();
@@ -94,16 +102,11 @@ namespace MyDBNs
                 {
                     if (columnType == ColumnType.NUMBER)
                     {
-                        rows[columnIndex] = double.Parse(value.ToString());
+                        rows[columnIndex] = DBUtil.GetNumber(value);
                     }
                     else if (columnType == ColumnType.VARCHAR)
                     {
-                        // remove ' ' 
-                        string s = value.ToString();
-                        if (s.StartsWith("'") && s.EndsWith("'"))
-                            s = s.Substring(1, value.Length - 2);
-
-                        rows[columnIndex] = s;
+                        rows[columnIndex] = DBUtil.GetString(value);
                     }
                 }
             }
@@ -134,15 +137,46 @@ namespace MyDBNs
             tableName = tableName.ToUpper();
             setExpression = setExpression.Select(tuple => Tuple.Create(tuple.Item1.ToUpper(), tuple.Item2)).ToList();
 
+            DBVerifier.VerifyUpdate(tableName, setExpression);
+
 #if !MarkUserOfSqlCodeGen
             SqlConditionLexYaccCallback.tableName = tableName;
             object ret = sql_condition_lexyacc.Parse(condition);
             HashSet<int> rows = (HashSet<int>)ret;
 
             Table table = GetTable(tableName);
-            for (int i = 0; i < table.rows.Count - 1; i++)
+            for (int i = 0; i < table.rows.Count; i++)
             {
+                if (!rows.Contains(i))
+                    continue;
 
+                object[] row = table.rows[i];
+                foreach (var kv in setExpression)
+                {
+                    string columnName = kv.Item1;
+                    int columnIndex = table.columnNameToIndexMap[columnName];
+
+                    ColumnType type = table.columnNameToTypesMap[columnName];
+
+                    StringType valueType = DBUtil.GetStringType(kv.Item2);
+                    object value = null;
+
+
+                    if (valueType == StringType.String)
+                    {
+                        value = DBUtil.GetString(kv.Item2);
+                    }
+                    else if (valueType == StringType.Number)
+                    {
+                        value = DBUtil.GetNumber(kv.Item2);
+                    }
+                    else if (valueType == StringType.Column)
+                    {
+                        value = row[table.columnNameToIndexMap[kv.Item2.ToUpper()]];
+                    }
+
+                    row[columnIndex] = value;
+                }
             }
 #endif
         }
