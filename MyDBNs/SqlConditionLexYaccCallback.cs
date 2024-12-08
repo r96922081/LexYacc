@@ -17,7 +17,7 @@
             StringType lhsType2 = lhsType;
             if (lhsType2 == StringType.Column)
             {
-                ColumnType t = table.columnNameToTypesMap[lhs.ToUpper()];
+                ColumnType t = table.columnNameToTypesMap[lhs];
                 if (t == ColumnType.NUMBER)
                     lhsType2 = StringType.Number;
                 else
@@ -27,7 +27,7 @@
             StringType rhsType2 = rhsType;
             if (rhsType2 == StringType.Column)
             {
-                ColumnType t = table.columnNameToTypesMap[rhs.ToUpper()];
+                ColumnType t = table.columnNameToTypesMap[rhs];
                 if (t == ColumnType.NUMBER)
                     rhsType2 = StringType.Number;
                 else
@@ -40,6 +40,13 @@
 
         public static HashSet<int> BooleanExpression(string lhs, string op, string rhs)
         {
+            StringType lhsType = DBUtil.GetStringType(lhs);
+            StringType rhsType = DBUtil.GetStringType(rhs);
+            if (lhsType == StringType.Column)
+                lhs = lhs.ToUpper();
+            if (rhsType == StringType.Column)
+                rhs = rhs.ToUpper();
+
             VerifyBooleanExpression(lhs, op, rhs);
 
             HashSet<int> rows = new HashSet<int>();
@@ -47,33 +54,31 @@
             List<Table> tables = MyDBNs.DB.tables;
             Table table = MyDBNs.DB.GetTable(tableName);
 
-            StringType lhsType = DBUtil.GetStringType(lhs);
-            StringType rhsType = DBUtil.GetStringType(rhs);
             int lhsColumnIndex = -1;
             int rhsColumnIndex = -1;
 
             StringType lhsType2 = lhsType;
             if (lhsType2 == StringType.Column)
             {
-                ColumnType t = table.columnNameToTypesMap[lhs.ToUpper()];
+                ColumnType t = table.columnNameToTypesMap[lhs];
                 if (t == ColumnType.NUMBER)
                     lhsType2 = StringType.Number;
                 else
                     lhsType2 = StringType.String;
 
-                lhsColumnIndex = table.columnNameToIndexMap[lhs.ToUpper()];
+                lhsColumnIndex = table.columnNameToIndexMap[lhs];
             }
 
             StringType rhsType2 = rhsType;
             if (rhsType2 == StringType.Column)
             {
-                ColumnType t = table.columnNameToTypesMap[rhs.ToUpper()];
+                ColumnType t = table.columnNameToTypesMap[rhs];
                 if (t == ColumnType.NUMBER)
                     rhsType2 = StringType.Number;
                 else
                     rhsType2 = StringType.String;
 
-                rhsColumnIndex = table.columnNameToIndexMap[rhs.ToUpper()];
+                rhsColumnIndex = table.columnNameToIndexMap[rhs];
             }
 
 
