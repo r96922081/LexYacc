@@ -73,10 +73,10 @@
 
             if (states[currentState].symbol is Nonterminal)
             {
-                if (yacc.dfaStack.Count == 0 || yacc.dfaStack.Peek() != subDFAs[currentState][0])
-                    yacc.dfaStack.Push(subDFAs[currentState][0]);
+                if (yacc.route.dfaStack.Count == 0 || yacc.route.dfaStack.Peek() != subDFAs[currentState][0])
+                    yacc.route.dfaStack.Push(subDFAs[currentState][0]);
 
-                yacc.dfaStack.Peek().Feed(yacc, symbolIndex, empty);
+                yacc.route.dfaStack.Peek().Feed(yacc, symbolIndex, empty);
             }
             else
             {

@@ -15,7 +15,7 @@
             if (!result)
                 return "syntax error";
 
-            return yacc.startDFA.CallAction(yaccActionDelegate);
+            return yacc.route.startDFA.CallAction(yaccActionDelegate);
         }
     }
 
