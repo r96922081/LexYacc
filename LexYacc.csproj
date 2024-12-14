@@ -7,7 +7,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);GenCodeUt</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup>
     <Folder Include="GenFile\" />

@@ -17,7 +17,7 @@
     public class Route
     {
         public DFA startDFA = null;
-        public int symbolIndex = -1;
+        public int lexTokenIndex = -1;
         public Stack<DFA> dfaStack = new Stack<DFA>();
         public Result result = Result.Alive;
     }
@@ -29,7 +29,7 @@
         public List<YaccRule> productionRules = null;
         public List<LexTokenDef> lexTokenDef = null;
         public Dictionary<string, string> ruleNonterminalType = null;
-        public List<Symbol> symbols = new List<Symbol>();
+        public List<Terminal> lexTokens = new List<Terminal>();
 
         public List<Route> routes = new List<Route>();
         public Route route = null;
@@ -51,9 +51,9 @@
         public void Rebuild()
         {
             Route route = new Route();
-            route.startDFA = new DFA(this, productionRules[0].productions[0], lexTokenDef, ruleNonterminalType);
+            route.startDFA = new DFA(this, productionRules[0].productions[0]);
             route.dfaStack.Push(route.startDFA);
-            route.symbolIndex = 0;
+            route.lexTokenIndex = 0;
             route.result = Result.Alive;
 
             this.route = route;
@@ -61,14 +61,14 @@
             routes.Add(route);
         }
 
-        public Route CloneRoute(int symbolIndex)
+        public Route CloneRoute(int lexTokenIndex)
         {
             Dictionary<DFA, DFA> oldDFAtoNewDFAMapping = new Dictionary<DFA, DFA>();
 
             DFA newStartDFA = route.startDFA.clone(oldDFAtoNewDFAMapping);
             Route newRoute = new Route();
             newRoute.startDFA = newStartDFA;
-            newRoute.symbolIndex = symbolIndex;
+            newRoute.lexTokenIndex = lexTokenIndex;
             newRoute.result = Result.Alive;
 
             // restore stack
@@ -82,12 +82,12 @@
             return newRoute;
         }
 
-        public void ExpandNonterminal(int symbolIndex)
+        public void ExpandNonterminal(int lexTokenIndex)
         {
             DFA dfa = route.dfaStack.Peek();
             while (dfa.states[dfa.currentState].symbol is Nonterminal)
             {
-                if (!dfa.subDFAs.ContainsKey(dfa.currentState))
+                if (!dfa.nonterminalDFA.ContainsKey(dfa.currentState))
                 {
                     Nonterminal nt = (Nonterminal)dfa.states[dfa.currentState].symbol;
                     List<Production> productions = GetProductions(nt.name);
@@ -95,24 +95,24 @@
                     // create new route
                     for (int i = 1; i < productions.Count; i++)
                     {
-                        Route newRoute = CloneRoute(symbolIndex);
+                        Route newRoute = CloneRoute(lexTokenIndex);
 
-                        DFA newDFA = new DFA(this, productions[i], lexTokenDef, ruleNonterminalType);
-                        newRoute.dfaStack.Peek().subDFAs[dfa.currentState] = newDFA;
+                        DFA newDFA = new DFA(this, productions[i]);
+                        newRoute.dfaStack.Peek().nonterminalDFA[dfa.currentState] = newDFA;
                         newRoute.dfaStack.Push(newDFA);
 
                         routes.Add(newRoute);
                     }
 
-                    DFA newDFA2 = new DFA(this, productions[0], lexTokenDef, ruleNonterminalType);
-                    dfa.subDFAs[dfa.currentState] = newDFA2;
+                    DFA newDFA2 = new DFA(this, productions[0]);
+                    dfa.nonterminalDFA[dfa.currentState] = newDFA2;
                     route.dfaStack.Push(newDFA2);
                 }
-                dfa = dfa.subDFAs[dfa.currentState];
+                dfa = dfa.nonterminalDFA[dfa.currentState];
             }
         }
 
-        public void ExpandAndFeedEmpty(int symbolIndex)
+        public void ExpandAndFeedEmpty(int lexTokenIndex)
         {
             bool continueFeed = true;
 
@@ -121,7 +121,7 @@
                 if (route.dfaStack.Count == 0)
                     break;
 
-                ExpandNonterminal(symbolIndex);
+                ExpandNonterminal(lexTokenIndex);
 
                 DFA dfa = route.dfaStack.Peek();
                 continueFeed = false;
@@ -130,13 +130,13 @@
                 {
                     if (dfa.production.IsEmptyProduction())
                     {
-                        route.dfaStack.Peek().Feed(this, symbolIndex, true);
+                        route.dfaStack.Peek().Feed(this, lexTokenIndex, true);
                         continueFeed = true;
                         break;
                     }
 
-                    if (dfa.subDFAs.ContainsKey(dfa.currentState))
-                        dfa = dfa.subDFAs[dfa.currentState];
+                    if (dfa.nonterminalDFA.ContainsKey(dfa.currentState))
+                        dfa = dfa.nonterminalDFA[dfa.currentState];
                     else
                         break;
                 }
@@ -145,18 +145,18 @@
 
         public bool FeedInternal()
         {
-            ExpandAndFeedEmpty(route.symbolIndex);
+            ExpandAndFeedEmpty(route.lexTokenIndex);
 
-            for (; route.symbolIndex < symbols.Count; route.symbolIndex++)
+            for (; route.lexTokenIndex < lexTokens.Count; route.lexTokenIndex++)
             {
                 if (route.dfaStack.Count == 0)
                     return false;
 
-                route.dfaStack.Peek().Feed(this, route.symbolIndex, false);
+                route.dfaStack.Peek().Feed(this, route.lexTokenIndex, false);
                 if (route.result == Result.Rejected)
                     return false;
 
-                ExpandAndFeedEmpty(route.symbolIndex + 1);
+                ExpandAndFeedEmpty(route.lexTokenIndex + 1);
             }
 
             if (route.result == Result.Accepted)
@@ -165,9 +165,9 @@
                 return false;
         }
 
-        public bool Feed(List<Symbol> s)
+        public bool Feed(List<Terminal> lexTokens)
         {
-            symbols = s;
+            this.lexTokens = lexTokens;
 
             while (routes.Count > 0)
             {
