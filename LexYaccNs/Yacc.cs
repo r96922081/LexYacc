@@ -82,7 +82,7 @@
             return newRoute;
         }
 
-        public void ExpandNontermianl(int symbolIndex)
+        public void ExpandNonterminal(int symbolIndex)
         {
             DFA dfa = route.dfaStack.Peek();
             while (dfa.states[dfa.currentState].symbol is Nonterminal)
@@ -121,7 +121,7 @@
                 if (route.dfaStack.Count == 0)
                     break;
 
-                ExpandNontermianl(symbolIndex);
+                ExpandNonterminal(symbolIndex);
 
                 DFA dfa = route.dfaStack.Peek();
                 continueFeed = false;
