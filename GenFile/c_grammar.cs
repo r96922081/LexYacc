@@ -1691,7 +1691,7 @@ namespace LexYaccNs
             DFA dfa = route.dfaStack.Peek();
             while (dfa.states[dfa.currentState].symbol is Nonterminal)
             {
-                if (!dfa.nonterminalDFA.ContainsKey(dfa.currentState))
+                if (dfa.states[dfa.currentState].nonterminalDFA == null)
                 {
                     Nonterminal nt = (Nonterminal)dfa.states[dfa.currentState].symbol;
                     List<Production> productions = GetProductions(nt.name);
@@ -1702,17 +1702,17 @@ namespace LexYaccNs
                         Route newRoute = CloneRoute(lexTokenIndex);
 
                         DFA newDFA = new DFA(this, productions[i]);
-                        newRoute.dfaStack.Peek().nonterminalDFA[dfa.currentState] = newDFA;
+                        newRoute.dfaStack.Peek().states[dfa.currentState].nonterminalDFA = newDFA;
                         newRoute.dfaStack.Push(newDFA);
 
                         routes.Add(newRoute);
                     }
 
                     DFA newDFA2 = new DFA(this, productions[0]);
-                    dfa.nonterminalDFA[dfa.currentState] = newDFA2;
+                    dfa.states[dfa.currentState].nonterminalDFA = newDFA2;
                     route.dfaStack.Push(newDFA2);
                 }
-                dfa = dfa.nonterminalDFA[dfa.currentState];
+                dfa = dfa.states[dfa.currentState].nonterminalDFA;
             }
         }
 
@@ -1739,8 +1739,8 @@ namespace LexYaccNs
                         break;
                     }
 
-                    if (dfa.nonterminalDFA.ContainsKey(dfa.currentState))
-                        dfa = dfa.nonterminalDFA[dfa.currentState];
+                    if (dfa.states[dfa.currentState].nonterminalDFA != null)
+                        dfa = dfa.states[dfa.currentState].nonterminalDFA;
                     else
                         break;
                 }
@@ -1997,7 +1997,7 @@ namespace LexYaccNs
 
     public class State
     {
-        public DFA nontermnimalDFA = null;
+        public DFA nonterminalDFA = null;
         public Symbol symbol;
 
         public State()
@@ -2016,7 +2016,6 @@ namespace LexYaccNs
         public int currentState = 0;
 
         public List<State> states = new List<State>();
-        public Dictionary<int, DFA> nonterminalDFA = new Dictionary<int, DFA>();
 
         public Dictionary<int, object> tokenObjects = new Dictionary<int, object>();
         Dictionary<int, object> param = new Dictionary<int, object>();
@@ -2062,8 +2061,8 @@ namespace LexYaccNs
         {
             if (states[currentState].symbol is Nonterminal)
             {
-                if (yacc.route.dfaStack.Count == 0 || yacc.route.dfaStack.Peek() != nonterminalDFA[currentState])
-                    yacc.route.dfaStack.Push(nonterminalDFA[currentState]);
+                if (yacc.route.dfaStack.Count == 0 || yacc.route.dfaStack.Peek() != states[currentState].nonterminalDFA)
+                    yacc.route.dfaStack.Push(states[currentState].nonterminalDFA);
 
                 yacc.route.dfaStack.Peek().Feed(yacc, lexTokenIndex, empty);
             }
@@ -2175,9 +2174,9 @@ namespace LexYaccNs
                 else
                 {
                     if (production.type == ProductionType.LeftRecursiveSecond)
-                        param[i + 2] = nonterminalDFA[i].CallAction(invokeFunction);
+                        param[i + 2] = states[i].nonterminalDFA.CallAction(invokeFunction);
                     else
-                        param[i + 1] = nonterminalDFA[i].CallAction(invokeFunction);
+                        param[i + 1] = states[i].nonterminalDFA.CallAction(invokeFunction);
                 }
             }
 
@@ -2207,16 +2206,16 @@ namespace LexYaccNs
                 else
                 {
                     if (production.type == ProductionType.LeftRecursiveSecond)
-                        param[i + 2] = nonterminalDFA[i].CallAction(invokeFunction);
+                        param[i + 2] = states[i].nonterminalDFA.CallAction(invokeFunction);
                     else
-                        param[i + 1] = nonterminalDFA[i].CallAction(invokeFunction);
+                        param[i + 1] = states[i].nonterminalDFA.CallAction(invokeFunction);
                 }
             }
 
             object o = invokeFunction(production.GetFunctionName(), param);
-            nonterminalDFA[production.symbols.Count - 1].param[1] = o;
+            states[production.symbols.Count - 1].nonterminalDFA.param[1] = o;
 
-            return nonterminalDFA[production.symbols.Count - 1].CallAction(invokeFunction);
+            return states[production.symbols.Count - 1].nonterminalDFA.CallAction(invokeFunction);
         }
 
         public object CallAction(Yacc.CallActionDelegate invokeFunction)
@@ -2243,19 +2242,27 @@ namespace LexYaccNs
             newDFA.startState = this.startState;
             newDFA.acceptedState = this.acceptedState;
             newDFA.currentState = this.currentState;
-            newDFA.states.AddRange(this.states);
+
             foreach (var tokenObject in tokenObjects)
                 newDFA.tokenObjects.Add(tokenObject.Key, tokenObject.Value);
             foreach (var p in param)
                 newDFA.param.Add(p.Key, p.Value);
+
             newDFA.production = this.production;
             newDFA.yacc = this.yacc;
 
             oldDFAtoNewDFAMapping.Add(this, newDFA);
 
-            foreach (var s in nonterminalDFA)
-                newDFA.nonterminalDFA[s.Key] = s.Value.clone(oldDFAtoNewDFAMapping);
+            for (int i = 0; i < this.states.Count; i++)
+            {
+                newDFA.states.Add(new State(states[i].symbol));
 
+                State s = this.states[i];
+                if (s.nonterminalDFA != null)
+                {
+                    newDFA.states[i].nonterminalDFA = s.nonterminalDFA.clone(oldDFAtoNewDFAMapping);
+                }
+            }
 
             return newDFA;
         }

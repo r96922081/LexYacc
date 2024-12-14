@@ -87,7 +87,7 @@
             DFA dfa = route.dfaStack.Peek();
             while (dfa.states[dfa.currentState].symbol is Nonterminal)
             {
-                if (!dfa.nonterminalDFA.ContainsKey(dfa.currentState))
+                if (dfa.states[dfa.currentState].nonterminalDFA == null)
                 {
                     Nonterminal nt = (Nonterminal)dfa.states[dfa.currentState].symbol;
                     List<Production> productions = GetProductions(nt.name);
@@ -98,17 +98,17 @@
                         Route newRoute = CloneRoute(lexTokenIndex);
 
                         DFA newDFA = new DFA(this, productions[i]);
-                        newRoute.dfaStack.Peek().nonterminalDFA[dfa.currentState] = newDFA;
+                        newRoute.dfaStack.Peek().states[dfa.currentState].nonterminalDFA = newDFA;
                         newRoute.dfaStack.Push(newDFA);
 
                         routes.Add(newRoute);
                     }
 
                     DFA newDFA2 = new DFA(this, productions[0]);
-                    dfa.nonterminalDFA[dfa.currentState] = newDFA2;
+                    dfa.states[dfa.currentState].nonterminalDFA = newDFA2;
                     route.dfaStack.Push(newDFA2);
                 }
-                dfa = dfa.nonterminalDFA[dfa.currentState];
+                dfa = dfa.states[dfa.currentState].nonterminalDFA;
             }
         }
 
@@ -135,8 +135,8 @@
                         break;
                     }
 
-                    if (dfa.nonterminalDFA.ContainsKey(dfa.currentState))
-                        dfa = dfa.nonterminalDFA[dfa.currentState];
+                    if (dfa.states[dfa.currentState].nonterminalDFA != null)
+                        dfa = dfa.states[dfa.currentState].nonterminalDFA;
                     else
                         break;
                 }
