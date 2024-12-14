@@ -31,9 +31,12 @@
         Dictionary<int, object> param = new Dictionary<int, object>();
 
         public Production production = null;
-        public Dictionary<int, List<DFA>> subDFAs = new Dictionary<int, List<DFA>>();
-        public Dictionary<int, int> symbolIndexDict = new Dictionary<int, int>();
+        public Dictionary<int, DFA> subDFAs = new Dictionary<int, DFA>();
         public Yacc yacc = null;
+
+        public DFA()
+        {
+        }
 
         public DFA(Yacc yacc, Production p, List<LexTokenDef> lexTokenDef, Dictionary<string, string> ruleNonterminalType)
         {
@@ -69,12 +72,10 @@
 
         public void Feed(Yacc yacc, int symbolIndex, bool empty)
         {
-            symbolIndexDict[currentState] = symbolIndex;
-
             if (states[currentState].symbol is Nonterminal)
             {
-                if (yacc.route.dfaStack.Count == 0 || yacc.route.dfaStack.Peek() != subDFAs[currentState][0])
-                    yacc.route.dfaStack.Push(subDFAs[currentState][0]);
+                if (yacc.route.dfaStack.Count == 0 || yacc.route.dfaStack.Peek() != subDFAs[currentState])
+                    yacc.route.dfaStack.Push(subDFAs[currentState]);
 
                 yacc.route.dfaStack.Peek().Feed(yacc, symbolIndex, empty);
             }
@@ -98,7 +99,7 @@
                     }
                     else
                     {
-                        yacc.BackToPrevNonterminal();
+                        yacc.route.result = Result.Rejected;
                         return;
                     }
                 }
@@ -127,7 +128,7 @@
                                 }
                                 else
                                 {
-                                    yacc.BackToPrevNonterminal();
+                                    yacc.route.result = Result.Rejected;
                                     return;
                                 }
                             }
@@ -146,7 +147,7 @@
                                 }
                                 else
                                 {
-                                    yacc.BackToPrevNonterminal();
+                                    yacc.route.result = Result.Rejected;
                                     return;
                                 }
                             }
@@ -157,7 +158,7 @@
                         }
                         else
                         {
-                            yacc.BackToPrevNonterminal();
+                            yacc.route.result = Result.Rejected;
                             return;
                         }
                     }
@@ -188,9 +189,9 @@
                 else
                 {
                     if (production.type == ProductionType.LeftRecursiveSecond)
-                        param[i + 2] = subDFAs[i][0].CallAction(invokeFunction);
+                        param[i + 2] = subDFAs[i].CallAction(invokeFunction);
                     else
-                        param[i + 1] = subDFAs[i][0].CallAction(invokeFunction);
+                        param[i + 1] = subDFAs[i].CallAction(invokeFunction);
                 }
             }
 
@@ -220,16 +221,16 @@
                 else
                 {
                     if (production.type == ProductionType.LeftRecursiveSecond)
-                        param[i + 2] = subDFAs[i][0].CallAction(invokeFunction);
+                        param[i + 2] = subDFAs[i].CallAction(invokeFunction);
                     else
-                        param[i + 1] = subDFAs[i][0].CallAction(invokeFunction);
+                        param[i + 1] = subDFAs[i].CallAction(invokeFunction);
                 }
             }
 
             object o = invokeFunction(production.GetFunctionName(), param);
-            subDFAs[production.symbols.Count - 1][0].param[1] = o;
+            subDFAs[production.symbols.Count - 1].param[1] = o;
 
-            return subDFAs[production.symbols.Count - 1][0].CallAction(invokeFunction);
+            return subDFAs[production.symbols.Count - 1].CallAction(invokeFunction);
         }
 
         public object CallAction(Yacc.CallActionDelegate invokeFunction)
@@ -248,6 +249,31 @@
         public override int GetHashCode()
         {
             return RuntimeHelpers.GetHashCode(this);
+        }
+
+        public DFA clone(Dictionary<DFA, DFA> oldDFAtoNewDFAMapping)
+        {
+            DFA newDFA = new DFA();
+            newDFA.startState = this.startState;
+            newDFA.acceptedState = this.acceptedState;
+            newDFA.currentState = this.currentState;
+            newDFA.states.AddRange(this.states);
+            newDFA.lexTokenDef = this.lexTokenDef;
+            newDFA.ruleNonterminalType = this.ruleNonterminalType;
+            foreach (var tokenObject in tokenObjects)
+                newDFA.tokenObjects.Add(tokenObject.Key, tokenObject.Value);
+            foreach (var p in param)
+                newDFA.param.Add(p.Key, p.Value);
+            newDFA.production = this.production;
+            newDFA.yacc = this.yacc;
+
+            oldDFAtoNewDFAMapping.Add(this, newDFA);
+
+            foreach (var s in subDFAs)
+                newDFA.subDFAs[s.Key] = s.Value.clone(oldDFAtoNewDFAMapping);
+
+
+            return newDFA;
         }
     }
 

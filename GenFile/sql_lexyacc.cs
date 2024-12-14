@@ -1823,13 +1823,6 @@ namespace sql_lexyaccNs{
 
 namespace LexYaccNs
 {
-    public enum FeedResult
-    {
-        Accept,
-        Reject,
-        Alive
-    }
-
     public class LexTokenDef
     {
         public string name;
@@ -1837,12 +1830,19 @@ namespace LexYaccNs
         public int index;
     }
 
+    public enum Result
+    {
+        Alive,
+        Accepted,
+        Rejected,
+    }
+
     public class Route
     {
         public DFA startDFA = null;
         public int symbolIndex = -1;
         public Stack<DFA> dfaStack = new Stack<DFA>();
-        public bool result = false;
+        public Result result = Result.Alive;
     }
 
     public class Yacc
@@ -1877,7 +1877,7 @@ namespace LexYaccNs
             route.startDFA = new DFA(this, productionRules[0].productions[0], lexTokenDef, ruleNonterminalType);
             route.dfaStack.Push(route.startDFA);
             route.symbolIndex = 0;
-            route.result = false;
+            route.result = Result.Alive;
 
             this.route = route;
             routes.Clear();
@@ -1892,12 +1892,38 @@ namespace LexYaccNs
                 if (!dfa.subDFAs.ContainsKey(dfa.currentState))
                 {
                     Nonterminal nt = (Nonterminal)dfa.states[dfa.currentState].symbol;
-                    dfa.subDFAs[dfa.currentState] = new List<DFA>();
-                    dfa.symbolIndexDict[dfa.currentState] = symbolIndex;
-                    foreach (Production production in GetProductions(nt.name))
-                        dfa.subDFAs[dfa.currentState].Add(new DFA(this, production, lexTokenDef, ruleNonterminalType));
+                    List<Production> productions = GetProductions(nt.name);
+
+                    // create new route
+                    for (int i = 1; i < productions.Count; i++)
+                    {
+                        Dictionary<DFA, DFA> oldDFAtoNewDFAMapping = new Dictionary<DFA, DFA>();
+
+                        DFA newStartDFA = route.startDFA.clone(oldDFAtoNewDFAMapping);
+                        Route newRoute = new Route();
+                        newRoute.startDFA = newStartDFA;
+                        newRoute.symbolIndex = symbolIndex;
+                        newRoute.result = Result.Alive;
+
+                        // restore stack
+                        Stack<DFA> reverse = new Stack<DFA>(route.dfaStack);
+                        while (reverse.Count > 0)
+                        {
+                            DFA oldDFA = reverse.Pop();
+                            newRoute.dfaStack.Push(oldDFAtoNewDFAMapping[oldDFA]);
+                        }
+
+                        DFA newDFA = new DFA(this, productions[i], lexTokenDef, ruleNonterminalType);
+                        newRoute.dfaStack.Peek().subDFAs[dfa.currentState] = newDFA;
+                        newRoute.dfaStack.Push(newDFA);
+                        routes.Add(newRoute);
+                    }
+
+                    DFA newDFA2 = new DFA(this, productions[0], lexTokenDef, ruleNonterminalType);
+                    dfa.subDFAs[dfa.currentState] = newDFA2;
+                    route.dfaStack.Push(newDFA2);
                 }
-                dfa = dfa.subDFAs[dfa.currentState][0];
+                dfa = dfa.subDFAs[dfa.currentState];
             }
         }
 
@@ -1924,66 +1950,50 @@ namespace LexYaccNs
                         break;
                     }
 
-                    if (dfa.subDFAs.ContainsKey(dfa.currentState) && dfa.subDFAs[dfa.currentState].Count > 0)
-                        dfa = dfa.subDFAs[dfa.currentState][0];
+                    if (dfa.subDFAs.ContainsKey(dfa.currentState))
+                        dfa = dfa.subDFAs[dfa.currentState];
                     else
                         break;
                 }
             }
         }
 
+        public bool FeedInternal()
+        {
+            ExpandAndFeedEmpty(route.symbolIndex);
+
+            for (; route.symbolIndex < symbols.Count; route.symbolIndex++)
+            {
+                if (route.dfaStack.Count == 0)
+                    return false;
+
+                route.dfaStack.Peek().Feed(this, route.symbolIndex, false);
+                if (route.result == Result.Rejected)
+                    return false;
+
+                ExpandAndFeedEmpty(route.symbolIndex + 1);
+            }
+
+            if (route.result == Result.Accepted)
+                return true;
+            else
+                return false;
+        }
+
         public bool Feed(List<Symbol> s)
         {
             symbols = s;
 
-            while (route.dfaStack.Count != 0)
+            while (routes.Count > 0)
             {
-                ExpandAndFeedEmpty(route.symbolIndex);
-
-                while (route.symbolIndex < symbols.Count)
-                {
-                    if (route.dfaStack.Count == 0)
-                        return false;
-
-                    int tempSymbolIndex = route.symbolIndex++;
-
-                    route.dfaStack.Peek().Feed(this, tempSymbolIndex, false);
-
-                    ExpandAndFeedEmpty(tempSymbolIndex + 1);
-                }
-
-                if (route.dfaStack.Count == 0)
-                    return route.result;
-                else
-                    BackToPrevNonterminal();
+                route = routes[routes.Count - 1];
+                routes.RemoveAt(routes.Count - 1);
+                bool result = FeedInternal();
+                if (result == true)
+                    return true;
             }
 
-            return route.result;
-        }
-
-        public void BackToPrevNonterminal()
-        {
-            if (route.dfaStack.Count == 0)
-            {
-                route.result = false;
-                return;
-            }
-
-            DFA dfa = route.dfaStack.Peek();
-            while (dfa.currentState != -1)
-            {
-                if (dfa.states[dfa.currentState].symbol is Nonterminal)
-                {
-                    route.symbolIndex = dfa.symbolIndexDict[dfa.currentState];
-                    dfa.subDFAs[dfa.currentState].RemoveAt(0);
-                    if (dfa.subDFAs[dfa.currentState].Count > 0)
-                        return;
-                }
-                dfa.currentState--;
-            }
-
-            route.dfaStack.Pop();
-            BackToPrevNonterminal();
+            return false;
         }
 
         public void AdvanceToNextState()
@@ -1991,7 +2001,7 @@ namespace LexYaccNs
             route.dfaStack.Pop();
             if (route.dfaStack.Count == 0)
             {
-                route.result = true;
+                route.result = Result.Accepted;
                 return;
             }
 
@@ -2223,9 +2233,12 @@ namespace LexYaccNs
         Dictionary<int, object> param = new Dictionary<int, object>();
 
         public Production production = null;
-        public Dictionary<int, List<DFA>> subDFAs = new Dictionary<int, List<DFA>>();
-        public Dictionary<int, int> symbolIndexDict = new Dictionary<int, int>();
+        public Dictionary<int, DFA> subDFAs = new Dictionary<int, DFA>();
         public Yacc yacc = null;
+
+        public DFA()
+        {
+        }
 
         public DFA(Yacc yacc, Production p, List<LexTokenDef> lexTokenDef, Dictionary<string, string> ruleNonterminalType)
         {
@@ -2261,12 +2274,10 @@ namespace LexYaccNs
 
         public void Feed(Yacc yacc, int symbolIndex, bool empty)
         {
-            symbolIndexDict[currentState] = symbolIndex;
-
             if (states[currentState].symbol is Nonterminal)
             {
-                if (yacc.route.dfaStack.Count == 0 || yacc.route.dfaStack.Peek() != subDFAs[currentState][0])
-                    yacc.route.dfaStack.Push(subDFAs[currentState][0]);
+                if (yacc.route.dfaStack.Count == 0 || yacc.route.dfaStack.Peek() != subDFAs[currentState])
+                    yacc.route.dfaStack.Push(subDFAs[currentState]);
 
                 yacc.route.dfaStack.Peek().Feed(yacc, symbolIndex, empty);
             }
@@ -2290,7 +2301,7 @@ namespace LexYaccNs
                     }
                     else
                     {
-                        yacc.BackToPrevNonterminal();
+                        yacc.route.result = Result.Rejected;
                         return;
                     }
                 }
@@ -2319,7 +2330,7 @@ namespace LexYaccNs
                                 }
                                 else
                                 {
-                                    yacc.BackToPrevNonterminal();
+                                    yacc.route.result = Result.Rejected;
                                     return;
                                 }
                             }
@@ -2338,7 +2349,7 @@ namespace LexYaccNs
                                 }
                                 else
                                 {
-                                    yacc.BackToPrevNonterminal();
+                                    yacc.route.result = Result.Rejected;
                                     return;
                                 }
                             }
@@ -2349,7 +2360,7 @@ namespace LexYaccNs
                         }
                         else
                         {
-                            yacc.BackToPrevNonterminal();
+                            yacc.route.result = Result.Rejected;
                             return;
                         }
                     }
@@ -2380,9 +2391,9 @@ namespace LexYaccNs
                 else
                 {
                     if (production.type == ProductionType.LeftRecursiveSecond)
-                        param[i + 2] = subDFAs[i][0].CallAction(invokeFunction);
+                        param[i + 2] = subDFAs[i].CallAction(invokeFunction);
                     else
-                        param[i + 1] = subDFAs[i][0].CallAction(invokeFunction);
+                        param[i + 1] = subDFAs[i].CallAction(invokeFunction);
                 }
             }
 
@@ -2412,16 +2423,16 @@ namespace LexYaccNs
                 else
                 {
                     if (production.type == ProductionType.LeftRecursiveSecond)
-                        param[i + 2] = subDFAs[i][0].CallAction(invokeFunction);
+                        param[i + 2] = subDFAs[i].CallAction(invokeFunction);
                     else
-                        param[i + 1] = subDFAs[i][0].CallAction(invokeFunction);
+                        param[i + 1] = subDFAs[i].CallAction(invokeFunction);
                 }
             }
 
             object o = invokeFunction(production.GetFunctionName(), param);
-            subDFAs[production.symbols.Count - 1][0].param[1] = o;
+            subDFAs[production.symbols.Count - 1].param[1] = o;
 
-            return subDFAs[production.symbols.Count - 1][0].CallAction(invokeFunction);
+            return subDFAs[production.symbols.Count - 1].CallAction(invokeFunction);
         }
 
         public object CallAction(Yacc.CallActionDelegate invokeFunction)
@@ -2440,6 +2451,31 @@ namespace LexYaccNs
         public override int GetHashCode()
         {
             return RuntimeHelpers.GetHashCode(this);
+        }
+
+        public DFA clone(Dictionary<DFA, DFA> oldDFAtoNewDFAMapping)
+        {
+            DFA newDFA = new DFA();
+            newDFA.startState = this.startState;
+            newDFA.acceptedState = this.acceptedState;
+            newDFA.currentState = this.currentState;
+            newDFA.states.AddRange(this.states);
+            newDFA.lexTokenDef = this.lexTokenDef;
+            newDFA.ruleNonterminalType = this.ruleNonterminalType;
+            foreach (var tokenObject in tokenObjects)
+                newDFA.tokenObjects.Add(tokenObject.Key, tokenObject.Value);
+            foreach (var p in param)
+                newDFA.param.Add(p.Key, p.Value);
+            newDFA.production = this.production;
+            newDFA.yacc = this.yacc;
+
+            oldDFAtoNewDFAMapping.Add(this, newDFA);
+
+            foreach (var s in subDFAs)
+                newDFA.subDFAs[s.Key] = s.Value.clone(oldDFAtoNewDFAMapping);
+
+
+            return newDFA;
         }
     }
 

@@ -1,12 +1,5 @@
 ﻿namespace LexYaccNs
 {
-    public enum FeedResult
-    {
-        Accept,
-        Reject,
-        Alive
-    }
-
     public class LexTokenDef
     {
         public string name;
@@ -14,12 +7,19 @@
         public int index;
     }
 
+    public enum Result
+    {
+        Alive,
+        Accepted,
+        Rejected,
+    }
+
     public class Route
     {
         public DFA startDFA = null;
         public int symbolIndex = -1;
         public Stack<DFA> dfaStack = new Stack<DFA>();
-        public bool result = false;
+        public Result result = Result.Alive;
     }
 
     public class Yacc
@@ -54,7 +54,7 @@
             route.startDFA = new DFA(this, productionRules[0].productions[0], lexTokenDef, ruleNonterminalType);
             route.dfaStack.Push(route.startDFA);
             route.symbolIndex = 0;
-            route.result = false;
+            route.result = Result.Alive;
 
             this.route = route;
             routes.Clear();
@@ -69,12 +69,38 @@
                 if (!dfa.subDFAs.ContainsKey(dfa.currentState))
                 {
                     Nonterminal nt = (Nonterminal)dfa.states[dfa.currentState].symbol;
-                    dfa.subDFAs[dfa.currentState] = new List<DFA>();
-                    dfa.symbolIndexDict[dfa.currentState] = symbolIndex;
-                    foreach (Production production in GetProductions(nt.name))
-                        dfa.subDFAs[dfa.currentState].Add(new DFA(this, production, lexTokenDef, ruleNonterminalType));
+                    List<Production> productions = GetProductions(nt.name);
+
+                    // create new route
+                    for (int i = 1; i < productions.Count; i++)
+                    {
+                        Dictionary<DFA, DFA> oldDFAtoNewDFAMapping = new Dictionary<DFA, DFA>();
+
+                        DFA newStartDFA = route.startDFA.clone(oldDFAtoNewDFAMapping);
+                        Route newRoute = new Route();
+                        newRoute.startDFA = newStartDFA;
+                        newRoute.symbolIndex = symbolIndex;
+                        newRoute.result = Result.Alive;
+
+                        // restore stack
+                        Stack<DFA> reverse = new Stack<DFA>(route.dfaStack);
+                        while (reverse.Count > 0)
+                        {
+                            DFA oldDFA = reverse.Pop();
+                            newRoute.dfaStack.Push(oldDFAtoNewDFAMapping[oldDFA]);
+                        }
+
+                        DFA newDFA = new DFA(this, productions[i], lexTokenDef, ruleNonterminalType);
+                        newRoute.dfaStack.Peek().subDFAs[dfa.currentState] = newDFA;
+                        newRoute.dfaStack.Push(newDFA);
+                        routes.Add(newRoute);
+                    }
+
+                    DFA newDFA2 = new DFA(this, productions[0], lexTokenDef, ruleNonterminalType);
+                    dfa.subDFAs[dfa.currentState] = newDFA2;
+                    route.dfaStack.Push(newDFA2);
                 }
-                dfa = dfa.subDFAs[dfa.currentState][0];
+                dfa = dfa.subDFAs[dfa.currentState];
             }
         }
 
@@ -101,66 +127,50 @@
                         break;
                     }
 
-                    if (dfa.subDFAs.ContainsKey(dfa.currentState) && dfa.subDFAs[dfa.currentState].Count > 0)
-                        dfa = dfa.subDFAs[dfa.currentState][0];
+                    if (dfa.subDFAs.ContainsKey(dfa.currentState))
+                        dfa = dfa.subDFAs[dfa.currentState];
                     else
                         break;
                 }
             }
         }
 
+        public bool FeedInternal()
+        {
+            ExpandAndFeedEmpty(route.symbolIndex);
+
+            for (; route.symbolIndex < symbols.Count; route.symbolIndex++)
+            {
+                if (route.dfaStack.Count == 0)
+                    return false;
+
+                route.dfaStack.Peek().Feed(this, route.symbolIndex, false);
+                if (route.result == Result.Rejected)
+                    return false;
+
+                ExpandAndFeedEmpty(route.symbolIndex + 1);
+            }
+
+            if (route.result == Result.Accepted)
+                return true;
+            else
+                return false;
+        }
+
         public bool Feed(List<Symbol> s)
         {
             symbols = s;
 
-            while (route.dfaStack.Count != 0)
+            while (routes.Count > 0)
             {
-                ExpandAndFeedEmpty(route.symbolIndex);
-
-                while (route.symbolIndex < symbols.Count)
-                {
-                    if (route.dfaStack.Count == 0)
-                        return false;
-
-                    int tempSymbolIndex = route.symbolIndex++;
-
-                    route.dfaStack.Peek().Feed(this, tempSymbolIndex, false);
-
-                    ExpandAndFeedEmpty(tempSymbolIndex + 1);
-                }
-
-                if (route.dfaStack.Count == 0)
-                    return route.result;
-                else
-                    BackToPrevNonterminal();
+                route = routes[routes.Count - 1];
+                routes.RemoveAt(routes.Count - 1);
+                bool result = FeedInternal();
+                if (result == true)
+                    return true;
             }
 
-            return route.result;
-        }
-
-        public void BackToPrevNonterminal()
-        {
-            if (route.dfaStack.Count == 0)
-            {
-                route.result = false;
-                return;
-            }
-
-            DFA dfa = route.dfaStack.Peek();
-            while (dfa.currentState != -1)
-            {
-                if (dfa.states[dfa.currentState].symbol is Nonterminal)
-                {
-                    route.symbolIndex = dfa.symbolIndexDict[dfa.currentState];
-                    dfa.subDFAs[dfa.currentState].RemoveAt(0);
-                    if (dfa.subDFAs[dfa.currentState].Count > 0)
-                        return;
-                }
-                dfa.currentState--;
-            }
-
-            route.dfaStack.Pop();
-            BackToPrevNonterminal();
+            return false;
         }
 
         public void AdvanceToNextState()
@@ -168,7 +178,7 @@
             route.dfaStack.Pop();
             if (route.dfaStack.Count == 0)
             {
-                route.result = true;
+                route.result = Result.Accepted;
                 return;
             }
 

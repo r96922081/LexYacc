@@ -194,12 +194,19 @@ public class YaccUt
         Check(yacc.Feed(symbols) == false);
     }
 
-
     public static void UtFeed9()
     {
         string line1 = "a: 'A' a 'B' | 'C' ";
 
         Yacc yacc = new Yacc(line1);
+
+        yacc.Rebuild();
+        symbols.Clear();
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('A'));
+        symbols.Add(Terminal.BuildConstCharTerminal('C'));
+        symbols.Add(Terminal.BuildConstCharTerminal('B'));
+        Check(yacc.Feed(symbols) == false);
 
         yacc.Rebuild();
         symbols.Clear();
@@ -689,8 +696,8 @@ b:
         UtFeed20();
         UtFeed21();
         UtFeed22();
-        //UtFeed23();
-        //UtFeed24();
+        UtFeed23();
+        UtFeed24();
     }
 
     private static void UtBuild1()
