@@ -67,17 +67,6 @@
             }
         }
 
-        private bool IsFalseAccept(int symbolIndex)
-        {
-            if (!yacc.IsAccept())
-                return false;
-
-            if (symbolIndex + 1 == yacc.symbols.Count)
-                return false;
-            else
-                return true;
-        }
-
         public void Feed(Yacc yacc, int symbolIndex, bool empty)
         {
             symbolIndexDict[currentState] = symbolIndex;
@@ -132,10 +121,7 @@
                                     currentState++;
                                     if (currentState == acceptedState)
                                     {
-                                        if (IsFalseAccept(symbolIndex))
-                                            yacc.BackToPrevNonterminal();
-                                        else
-                                            yacc.AdvanceToNextState();
+                                        yacc.AdvanceToNextState();
                                         return;
                                     }
                                 }
@@ -154,10 +140,7 @@
                                     currentState++;
                                     if (currentState == acceptedState)
                                     {
-                                        if (IsFalseAccept(symbolIndex))
-                                            yacc.BackToPrevNonterminal();
-                                        else
-                                            yacc.AdvanceToNextState();
+                                        yacc.AdvanceToNextState();
                                         return;
                                     }
                                 }

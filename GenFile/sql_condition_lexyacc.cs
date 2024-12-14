@@ -1743,17 +1743,6 @@ namespace LexYaccNs
             }
         }
 
-        private bool IsFalseAccept(int symbolIndex)
-        {
-            if (!yacc.IsAccept())
-                return false;
-
-            if (symbolIndex + 1 == yacc.symbols.Count)
-                return false;
-            else
-                return true;
-        }
-
         public void Feed(Yacc yacc, int symbolIndex, bool empty)
         {
             symbolIndexDict[currentState] = symbolIndex;
@@ -1808,10 +1797,7 @@ namespace LexYaccNs
                                     currentState++;
                                     if (currentState == acceptedState)
                                     {
-                                        if (IsFalseAccept(symbolIndex))
-                                            yacc.BackToPrevNonterminal();
-                                        else
-                                            yacc.AdvanceToNextState();
+                                        yacc.AdvanceToNextState();
                                         return;
                                     }
                                 }
@@ -1830,10 +1816,7 @@ namespace LexYaccNs
                                     currentState++;
                                     if (currentState == acceptedState)
                                     {
-                                        if (IsFalseAccept(symbolIndex))
-                                            yacc.BackToPrevNonterminal();
-                                        else
-                                            yacc.AdvanceToNextState();
+                                        yacc.AdvanceToNextState();
                                         return;
                                     }
                                 }
