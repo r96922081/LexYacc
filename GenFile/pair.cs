@@ -793,6 +793,27 @@ namespace LexYaccNs
             routes.Add(route);
         }
 
+        public Route CloneRoute(int symbolIndex)
+        {
+            Dictionary<DFA, DFA> oldDFAtoNewDFAMapping = new Dictionary<DFA, DFA>();
+
+            DFA newStartDFA = route.startDFA.clone(oldDFAtoNewDFAMapping);
+            Route newRoute = new Route();
+            newRoute.startDFA = newStartDFA;
+            newRoute.symbolIndex = symbolIndex;
+            newRoute.result = Result.Alive;
+
+            // restore stack
+            Stack<DFA> reverse = new Stack<DFA>(route.dfaStack);
+            while (reverse.Count > 0)
+            {
+                DFA oldDFA = reverse.Pop();
+                newRoute.dfaStack.Push(oldDFAtoNewDFAMapping[oldDFA]);
+            }
+
+            return newRoute;
+        }
+
         public void ExpandNontermianl(int symbolIndex)
         {
             DFA dfa = route.dfaStack.Peek();
@@ -806,25 +827,12 @@ namespace LexYaccNs
                     // create new route
                     for (int i = 1; i < productions.Count; i++)
                     {
-                        Dictionary<DFA, DFA> oldDFAtoNewDFAMapping = new Dictionary<DFA, DFA>();
-
-                        DFA newStartDFA = route.startDFA.clone(oldDFAtoNewDFAMapping);
-                        Route newRoute = new Route();
-                        newRoute.startDFA = newStartDFA;
-                        newRoute.symbolIndex = symbolIndex;
-                        newRoute.result = Result.Alive;
-
-                        // restore stack
-                        Stack<DFA> reverse = new Stack<DFA>(route.dfaStack);
-                        while (reverse.Count > 0)
-                        {
-                            DFA oldDFA = reverse.Pop();
-                            newRoute.dfaStack.Push(oldDFAtoNewDFAMapping[oldDFA]);
-                        }
+                        Route newRoute = CloneRoute(symbolIndex);
 
                         DFA newDFA = new DFA(this, productions[i], lexTokenDef, ruleNonterminalType);
                         newRoute.dfaStack.Peek().subDFAs[dfa.currentState] = newDFA;
                         newRoute.dfaStack.Push(newDFA);
+
                         routes.Add(newRoute);
                     }
 
