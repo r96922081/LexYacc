@@ -57,6 +57,11 @@ INSERT INTO ID '(' comma_sep_id ')' VALUES '(' comma_sep_value ')'
 };
 
 delete_statement:
+DELETE FROM ID
+{
+    MyDBNs.SqlLexYaccCallback.Delete($3, null);
+}
+|
 DELETE FROM ID WHERE boolean_expression
 {
     MyDBNs.SqlLexYaccCallback.Delete($3, $5);
@@ -64,6 +69,11 @@ DELETE FROM ID WHERE boolean_expression
 ;
 
 update_statement:
+UPDATE ID SET set_expression
+{
+    MyDBNs.SqlLexYaccCallback.Update($2, $4, null);
+}
+|
 UPDATE ID SET set_expression WHERE boolean_expression
 {
     MyDBNs.SqlLexYaccCallback.Update($2, $4, $6);
@@ -78,6 +88,11 @@ SHOW TABLES
 ;
 
 select_statement:
+SELECT comma_sep_id_include_star FROM ID
+{
+    MyDBNs.SqlLexYaccCallback.Select($2, $4, null);
+}
+|
 SELECT comma_sep_id_include_star FROM ID WHERE boolean_expression
 {
     MyDBNs.SqlLexYaccCallback.Select($2, $4, $6);
@@ -276,9 +291,12 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         actions.Add("Rule_insert_statement_Producton_0", Rule_insert_statement_Producton_0);
         actions.Add("Rule_insert_statement_Producton_1", Rule_insert_statement_Producton_1);
         actions.Add("Rule_delete_statement_Producton_0", Rule_delete_statement_Producton_0);
+        actions.Add("Rule_delete_statement_Producton_1", Rule_delete_statement_Producton_1);
         actions.Add("Rule_update_statement_Producton_0", Rule_update_statement_Producton_0);
+        actions.Add("Rule_update_statement_Producton_1", Rule_update_statement_Producton_1);
         actions.Add("Rule_show_tables_statement_Producton_0", Rule_show_tables_statement_Producton_0);
         actions.Add("Rule_select_statement_Producton_0", Rule_select_statement_Producton_0);
+        actions.Add("Rule_select_statement_Producton_1", Rule_select_statement_Producton_1);
         actions.Add("Rule_boolean_expression_Producton_0", Rule_boolean_expression_Producton_0);
         actions.Add("Rule_boolean_expression_Producton_1", Rule_boolean_expression_Producton_1);
         actions.Add("Rule_boolean_expression_Producton_2", Rule_boolean_expression_Producton_2);
@@ -397,6 +415,18 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
         string _3 = (string)objects[3];
+
+        // user-defined action
+        MyDBNs.SqlLexYaccCallback.Delete(_3, null);
+
+        return _0;
+    }
+
+    public static object Rule_delete_statement_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
         string _4 = (string)objects[4];
         string _5 = (string)objects[5];
 
@@ -407,6 +437,19 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
     }
 
     public static object Rule_update_statement_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+        List<Tuple<string, string>> _4 = (List<Tuple<string, string>>)objects[4];
+
+        // user-defined action
+        MyDBNs.SqlLexYaccCallback.Update(_2, _4, null);
+
+        return _0;
+    }
+
+    public static object Rule_update_statement_Producton_1(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
@@ -433,6 +476,19 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
     }
 
     public static object Rule_select_statement_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        List<string> _2 = (List<string>)objects[2];
+        string _3 = (string)objects[3];
+        string _4 = (string)objects[4];
+
+        // user-defined action
+        MyDBNs.SqlLexYaccCallback.Select(_2, _4, null);
+
+        return _0;
+    }
+
+    public static object Rule_select_statement_Producton_1(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
         List<string> _2 = (List<string>)objects[2];

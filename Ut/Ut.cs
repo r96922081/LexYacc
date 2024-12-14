@@ -7,6 +7,6 @@
         LexYaccUt.RunAllUt();
 
 
-        //MyDBNs.SqlUt.Ut();
+        MyDBNs.SqlUt.Ut();
     }
 }

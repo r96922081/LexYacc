@@ -39,6 +39,11 @@ INSERT INTO ID '(' comma_sep_id ')' VALUES '(' comma_sep_value ')'
 };
 
 delete_statement:
+DELETE FROM ID
+{
+    MyDBNs.SqlLexYaccCallback.Delete($3, null);
+}
+|
 DELETE FROM ID WHERE boolean_expression
 {
     MyDBNs.SqlLexYaccCallback.Delete($3, $5);
@@ -46,6 +51,11 @@ DELETE FROM ID WHERE boolean_expression
 ;
 
 update_statement:
+UPDATE ID SET set_expression
+{
+    MyDBNs.SqlLexYaccCallback.Update($2, $4, null);
+}
+|
 UPDATE ID SET set_expression WHERE boolean_expression
 {
     MyDBNs.SqlLexYaccCallback.Update($2, $4, $6);
@@ -60,6 +70,11 @@ SHOW TABLES
 ;
 
 select_statement:
+SELECT comma_sep_id_include_star FROM ID
+{
+    MyDBNs.SqlLexYaccCallback.Select($2, $4, null);
+}
+|
 SELECT comma_sep_id_include_star FROM ID WHERE boolean_expression
 {
     MyDBNs.SqlLexYaccCallback.Select($2, $4, $6);

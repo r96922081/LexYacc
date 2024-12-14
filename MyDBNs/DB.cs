@@ -120,14 +120,20 @@ namespace MyDBNs
 
 #if !MarkUserOfSqlCodeGen
             SqlConditionLexYaccCallback.tableName = tableName;
-            object ret = sql_condition_lexyacc.Parse(condition);
-            HashSet<int> rows = (HashSet<int>)ret;
+            HashSet<int> rows = null;
+            if (condition != null)
+            {
+                object ret = sql_condition_lexyacc.Parse(condition);
+                rows = (HashSet<int>)ret;
+            }
 
             Table table = MyDBNs.DB.GetTable(tableName);
             for (int i = table.rows.Count - 1; i >= 0; i--)
             {
-                if (rows.Contains(i))
-                    table.rows.RemoveAt(i);
+                if (condition != null && !rows.Contains(i))
+                    continue;
+
+                table.rows.RemoveAt(i);
             }
 #endif
         }
@@ -141,13 +147,17 @@ namespace MyDBNs
 
 #if !MarkUserOfSqlCodeGen
             SqlConditionLexYaccCallback.tableName = tableName;
-            object ret = sql_condition_lexyacc.Parse(condition);
-            HashSet<int> rows = (HashSet<int>)ret;
+            HashSet<int> rows = null;
+            if (condition != null)
+            {
+                object ret = sql_condition_lexyacc.Parse(condition);
+                rows = (HashSet<int>)ret;
+            }
 
             Table table = GetTable(tableName);
             for (int i = 0; i < table.rows.Count; i++)
             {
-                if (!rows.Contains(i))
+                if (condition != null && !rows.Contains(i))
                     continue;
 
                 object[] row = table.rows[i];
@@ -189,8 +199,12 @@ namespace MyDBNs
             Table table = GetTable(tableName);
 
             SqlConditionLexYaccCallback.tableName = tableName;
-            object ret = sql_condition_lexyacc.Parse(condition);
-            HashSet<int> selectedRows = (HashSet<int>)ret;
+            HashSet<int> selectedRows = null;
+            if (condition != null)
+            {
+                object ret = sql_condition_lexyacc.Parse(condition);
+                selectedRows = (HashSet<int>)ret;
+            }
 
             List<string> columnNames = new List<string>();
             List<int> columnIndex = new List<int>();
@@ -247,7 +261,7 @@ namespace MyDBNs
             // show cell
             for (int rowIndex = 0; rowIndex < table.rows.Count; rowIndex++)
             {
-                if (!selectedRows.Contains(rowIndex))
+                if (condition != null && !selectedRows.Contains(rowIndex))
                     continue;
 
 
