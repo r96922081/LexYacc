@@ -2270,8 +2270,8 @@ namespace LexYaccNs
 
     public class State
     {
-        public DFA nonterminalDFA = null;
         public Symbol symbol;
+        public DFA nonterminalDFA = null;
 
         public State()
         { }
