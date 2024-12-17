@@ -2,12 +2,14 @@
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER UPDATE SET
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER UPDATE SET ORDER BY ASC DESC
 %type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
+%type <List<object>> order_by_column
+%type <List<List<object>>> order_by_condition
 %type <List<Tuple<string, string>>> set_expression
-%type <object> expression term
+%type <object> expression term 
 %%
 
 statement: create_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement | expression;
@@ -72,12 +74,22 @@ SHOW TABLES
 select_statement:
 SELECT comma_sep_id_include_star FROM ID
 {
-    MyDBNs.SqlLexYaccCallback.Select($2, $4, null);
+    MyDBNs.SqlLexYaccCallback.Select($2, $4, null, null);
+}
+|
+SELECT comma_sep_id_include_star FROM ID ORDER BY order_by_condition
+{
+    MyDBNs.SqlLexYaccCallback.Select($2, $4, null, $7);
 }
 |
 SELECT comma_sep_id_include_star FROM ID WHERE boolean_expression
 {
-    MyDBNs.SqlLexYaccCallback.Select($2, $4, $6);
+    MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, null);
+}
+|
+SELECT comma_sep_id_include_star FROM ID WHERE boolean_expression ORDER BY order_by_condition
+{
+    MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, $9);
 }
 ;
 
@@ -162,6 +174,17 @@ string_number
 }
 ;
 
+order_by_condition:
+order_by_column
+{
+    MyDBNs.SqlLexYaccCallback.OrderByCondition($$, $1, null);
+}
+|
+order_by_column ',' order_by_condition
+{
+    MyDBNs.SqlLexYaccCallback.OrderByCondition($$, $1, $3);
+};
+
 comma_sep_id_include_star: 
 ID 
 {
@@ -244,6 +267,38 @@ STRING
 NUMBER
 {
     $$ = $1;
+}
+;
+
+order_by_column:
+ID
+{
+    MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
+}
+| 
+ID ASC
+{
+    MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
+}
+| 
+ID DESC
+{
+    MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, false);
+}
+| 
+NUMBER
+{
+    MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
+}
+| 
+NUMBER ASC
+{
+    MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
+}
+| 
+NUMBER DESC
+{
+    MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, false);
 }
 ;
 

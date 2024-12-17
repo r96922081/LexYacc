@@ -191,7 +191,7 @@ namespace MyDBNs
 #endif
         }
 
-        public static void Select(List<string> columns, string tableName, string condition)
+        public static void Select(List<string> columns, string tableName, string condition, List<List<object>> orders)
         {
             tableName = tableName.ToUpper();
 

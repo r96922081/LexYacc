@@ -1,4 +1,6 @@
-﻿namespace LexYaccNs
+﻿using System.Runtime.CompilerServices;
+
+namespace LexYaccNs
 {
 
     /*
@@ -36,6 +38,16 @@
                 ret += p.ToString() + "\n";
 
             return ret;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return ReferenceEquals(this, obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return RuntimeHelpers.GetHashCode(this);
         }
     }
 

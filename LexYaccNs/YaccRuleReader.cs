@@ -97,6 +97,8 @@ namespace LexYaccNs
                 rule = ReadRule(ref input, lexTokenDef, ruleNonterminalType);
             }
 
+            //ret = ConvertIndirectLeftRecursion(ret, lexTokenDef, ruleNonterminalType);
+
             ret = ConvertLeftRecursion(ret, lexTokenDef, ruleNonterminalType);
 
             foreach (YaccRule r in ret)
@@ -267,6 +269,59 @@ namespace LexYaccNs
             }
 
             return rule;
+        }
+
+        private static List<YaccRule> GetIndirectLeftRecursionDfs(YaccRule rule, List<YaccRule> rules, List<YaccRule> traversed)
+        {
+            traversed.Add(rule);
+            foreach (Production p in rule.productions)
+            {
+                if (p.IsEmptyProduction())
+                    continue;
+
+                if (p.symbols[0] is Terminal)
+                    continue;
+
+                Nonterminal nt = (Nonterminal)p.symbols[0];
+                if (nt.name == rule.lhs.name)
+                    continue;
+
+
+            }
+
+            return null;
+        }
+
+        private static List<YaccRule> GetIndirectLeftRecursion(List<YaccRule> rulesParam)
+        {
+            List<YaccRule> rules = new List<YaccRule>(rulesParam);
+
+            while (rules.Count > 0)
+            {
+                List<YaccRule> traversed = new List<YaccRule>();
+                List<YaccRule> indirect = GetIndirectLeftRecursionDfs(rules[0], rules, traversed);
+                if (indirect != null)
+                    return indirect;
+
+                foreach (YaccRule r in traversed)
+                    rules.Remove(r);
+            }
+
+            return null;
+        }
+
+        public static List<YaccRule> ConvertIndirectLeftRecursion(List<YaccRule> rules, List<LexTokenDef> lexTokenDef, Dictionary<string, string> ruleNonterminalType)
+        {
+            List<YaccRule> ret = new List<YaccRule>(rules);
+
+            List<YaccRule> indirectLeftRecursionRule = GetIndirectLeftRecursion(rules);
+
+            while (indirectLeftRecursionRule != null)
+            {
+                indirectLeftRecursionRule = GetIndirectLeftRecursion(rules);
+            }
+
+            return ret;
         }
 
         public static List<YaccRule> ConvertLeftRecursion(List<YaccRule> rules, List<LexTokenDef> lexTokenDef, Dictionary<string, string> ruleNonterminalType)

@@ -18,6 +18,10 @@
 [aA][nN][dD]                  { return AND; }
 [oO][rR]                      { return OR; }
 [nN][oO][tT]                  { return NOT; }
+[oO][rR][dD][eE][rR]          { return ORDER; }
+[bB][yY]                      { return BY; }
+[aA][sS][cC]                  { return ASC; }
+[dD][eE][sS][cC]              { return DESC; }
 [nN][uU][mM][bB][eE][rR]      { value = "NUMBER_TYPE"; return NUMBER_TYPE; }
 [vV][aA][rR][cC][hH][aA][rR]  { value = "VARCHAR"; return VARCHAR; }
 "!="                     { return NOT_EQUAL; }

@@ -20,7 +20,7 @@ public class YaccActions{
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER UPDATE SET
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER UPDATE SET ORDER BY ASC DESC
 %type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id string_number
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
@@ -317,6 +317,10 @@ namespace sql_condition_lexyaccNs
             { 277, "NUMBER"},
             { 278, "UPDATE"},
             { 279, "SET"},
+            { 280, "ORDER"},
+            { 281, "BY"},
+            { 282, "ASC"},
+            { 283, "DESC"},
         };
 
         public static int SELECT = 256;
@@ -343,6 +347,10 @@ namespace sql_condition_lexyaccNs
         public static int NUMBER = 277;
         public static int UPDATE = 278;
         public static int SET = 279;
+        public static int ORDER = 280;
+        public static int BY = 281;
+        public static int ASC = 282;
+        public static int DESC = 283;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -382,6 +390,10 @@ namespace sql_condition_lexyaccNs
 [aA][nN][dD]                  { return AND; }
 [oO][rR]                      { return OR; }
 [nN][oO][tT]                  { return NOT; }
+[oO][rR][dD][eE][rR]          { return ORDER; }
+[bB][yY]                      { return BY; }
+[aA][sS][cC]                  { return ASC; }
+[dD][eE][sS][cC]              { return DESC; }
 [nN][uU][mM][bB][eE][rR]      { value = ""NUMBER_TYPE""; return NUMBER_TYPE; }
 [vV][aA][rR][cC][hH][aA][rR]  { value = ""VARCHAR""; return VARCHAR; }
 ""!=""                     { return NOT_EQUAL; }
@@ -450,6 +462,10 @@ namespace sql_condition_lexyaccNs
             actions.Add("LexRule34", LexAction34);
             actions.Add("LexRule35", LexAction35);
             actions.Add("LexRule36", LexAction36);
+            actions.Add("LexRule37", LexAction37);
+            actions.Add("LexRule38", LexAction38);
+            actions.Add("LexRule39", LexAction39);
+            actions.Add("LexRule40", LexAction40);
         }
         public static object LexAction0(string yytext)
         {
@@ -600,7 +616,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            value = "NUMBER_TYPE"; return NUMBER_TYPE; 
+            return ORDER; 
 
             return 0;
         }
@@ -609,7 +625,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            value = "VARCHAR"; return VARCHAR; 
+            return BY; 
 
             return 0;
         }
@@ -618,7 +634,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            return NOT_EQUAL; 
+            return ASC; 
 
             return 0;
         }
@@ -627,7 +643,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            return LESS_OR_EQUAL; 
+            return DESC; 
 
             return 0;
         }
@@ -636,7 +652,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            return GREATER_OR_EQUAL; 
+            value = "NUMBER_TYPE"; return NUMBER_TYPE; 
 
             return 0;
         }
@@ -645,7 +661,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            return '{'; 
+            value = "VARCHAR"; return VARCHAR; 
 
             return 0;
         }
@@ -654,7 +670,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            return '}'; 
+            return NOT_EQUAL; 
 
             return 0;
         }
@@ -663,7 +679,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            return '('; 
+            return LESS_OR_EQUAL; 
 
             return 0;
         }
@@ -672,7 +688,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            return ')'; 
+            return GREATER_OR_EQUAL; 
 
             return 0;
         }
@@ -681,7 +697,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            return ','; 
+            return '{'; 
 
             return 0;
         }
@@ -690,7 +706,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            return '='; 
+            return '}'; 
 
             return 0;
         }
@@ -699,7 +715,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            return '<'; 
+            return '('; 
 
             return 0;
         }
@@ -708,7 +724,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            return '>'; 
+            return ')'; 
 
             return 0;
         }
@@ -717,7 +733,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            return '*'; 
+            return ','; 
 
             return 0;
         }
@@ -726,7 +742,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            return '+'; 
+            return '='; 
 
             return 0;
         }
@@ -735,7 +751,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            return '-'; 
+            return '<'; 
 
             return 0;
         }
@@ -744,7 +760,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            return '/'; 
+            return '>'; 
 
             return 0;
         }
@@ -753,7 +769,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return NUMBER; 
+            return '*'; 
 
             return 0;
         }
@@ -762,7 +778,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return STRING; 
+            return '+'; 
 
             return 0;
         }
@@ -771,11 +787,47 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            return '-'; 
 
             return 0;
         }
         public static object LexAction36(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '/'; 
+
+            return 0;
+        }
+        public static object LexAction37(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return NUMBER; 
+
+            return 0;
+        }
+        public static object LexAction38(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return STRING; 
+
+            return 0;
+        }
+        public static object LexAction39(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return ID; 
+
+            return 0;
+        }
+        public static object LexAction40(string yytext)
         {
             value = null;
 
@@ -1968,6 +2020,8 @@ namespace LexYaccNs
 
 namespace sql_condition_lexyaccNs{
 
+using System.Runtime.CompilerServices;
+
 namespace LexYaccNs
 {
 
@@ -2006,6 +2060,16 @@ namespace LexYaccNs
                 ret += p.ToString() + "\n";
 
             return ret;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return ReferenceEquals(this, obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return RuntimeHelpers.GetHashCode(this);
         }
     }
 
@@ -2274,6 +2338,8 @@ namespace LexYaccNs
                 rule = ReadRule(ref input, lexTokenDef, ruleNonterminalType);
             }
 
+            //ret = ConvertIndirectLeftRecursion(ret, lexTokenDef, ruleNonterminalType);
+
             ret = ConvertLeftRecursion(ret, lexTokenDef, ruleNonterminalType);
 
             foreach (YaccRule r in ret)
@@ -2444,6 +2510,59 @@ namespace LexYaccNs
             }
 
             return rule;
+        }
+
+        private static List<YaccRule> GetIndirectLeftRecursionDfs(YaccRule rule, List<YaccRule> rules, List<YaccRule> traversed)
+        {
+            traversed.Add(rule);
+            foreach (Production p in rule.productions)
+            {
+                if (p.IsEmptyProduction())
+                    continue;
+
+                if (p.symbols[0] is Terminal)
+                    continue;
+
+                Nonterminal nt = (Nonterminal)p.symbols[0];
+                if (nt.name == rule.lhs.name)
+                    continue;
+
+
+            }
+
+            return null;
+        }
+
+        private static List<YaccRule> GetIndirectLeftRecursion(List<YaccRule> rulesParam)
+        {
+            List<YaccRule> rules = new List<YaccRule>(rulesParam);
+
+            while (rules.Count > 0)
+            {
+                List<YaccRule> traversed = new List<YaccRule>();
+                List<YaccRule> indirect = GetIndirectLeftRecursionDfs(rules[0], rules, traversed);
+                if (indirect != null)
+                    return indirect;
+
+                foreach (YaccRule r in traversed)
+                    rules.Remove(r);
+            }
+
+            return null;
+        }
+
+        public static List<YaccRule> ConvertIndirectLeftRecursion(List<YaccRule> rules, List<LexTokenDef> lexTokenDef, Dictionary<string, string> ruleNonterminalType)
+        {
+            List<YaccRule> ret = new List<YaccRule>(rules);
+
+            List<YaccRule> indirectLeftRecursionRule = GetIndirectLeftRecursion(rules);
+
+            while (indirectLeftRecursionRule != null)
+            {
+                indirectLeftRecursionRule = GetIndirectLeftRecursion(rules);
+            }
+
+            return ret;
         }
 
         public static List<YaccRule> ConvertLeftRecursion(List<YaccRule> rules, List<LexTokenDef> lexTokenDef, Dictionary<string, string> ruleNonterminalType)

@@ -47,7 +47,7 @@ public class LexUt
     {
         string input = "-0 - 2 * 3 - 12 / 4 -    \t\n  -10000     ";
 
-#if GenCodeUt
+#if !DisableGenCodeUt
         List<Terminal> tokens = Lex.Parse(input, UtLex1Ns.LexActions.ruleInput, UtLex1Ns.LexActions.CallAction);
         Check(tokens[0].tokenName == "NUMBER");
         Check((int)tokens[0].tokenObject == 0);

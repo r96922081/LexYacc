@@ -78,9 +78,9 @@
             columnDeclare.AddRange(prevColumnDeclare);
         }
 
-        public static void Select(List<string> columns, string tableName, string condition)
+        public static void Select(List<string> columns, string tableName, string condition, List<List<object>> orders)
         {
-            MyDBNs.DB.Select(columns, tableName, condition);
+            MyDBNs.DB.Select(columns, tableName, condition, orders);
         }
 
         public static void BooleanExpression1(ref string booleanExpression, string rhs)
@@ -91,6 +91,20 @@
         public static void BooleanExpression2(ref string booleanExpression, string lhs, string op, string rhs)
         {
             booleanExpression = lhs + " " + op + " " + rhs;
+        }
+
+        public static void OrderByColumn(ref List<object> ret, object column, bool ascending)
+        {
+            ret.Add(column);
+            ret.Add(ascending);
+        }
+
+        public static void OrderByCondition(List<List<object>> condition, List<object> order, List<List<object>> prevCondition)
+        {
+            condition.Add(order);
+
+            if (prevCondition != null)
+                condition.AddRange(prevCondition);
         }
     }
 }
