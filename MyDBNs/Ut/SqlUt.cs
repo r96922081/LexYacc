@@ -2,7 +2,6 @@
 
 namespace MyDBNs
 {
-
     public class SqlUt
     {
         public static void Check(bool b)
@@ -61,7 +60,7 @@ namespace MyDBNs
         public static void Ut()
         {
             AdhocUt();
-            DBConsole.Interactive();
+            Console.Interactive();
         }
 
     }

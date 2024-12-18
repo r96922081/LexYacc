@@ -1,7 +1,12 @@
 ﻿namespace MyDBNs
 {
-    public class DBUtil
+    public class Util
     {
+        public static Table GetTable(string tableName)
+        {
+            return DB.tables.FirstOrDefault(t => t.tableName.ToUpper() == tableName.ToUpper());
+        }
+
         public static StringType GetStringType(string s)
         {
             if (s.StartsWith("'") && s.EndsWith("'"))

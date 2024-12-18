@@ -1,6 +1,6 @@
 ﻿namespace MyDBNs
 {
-    public class DBVerifier
+    public class Verifier
     {
         public static void VerifyCreateTable(string name, List<(string, string)> columnDeclare)
         {
@@ -25,7 +25,7 @@
         // INSERT INTO A VALUES (AAA, BB)
         public static void VerifyInsert(string tableName, List<string> columnNames, List<string> values)
         {
-            Table table = MyDBNs.DB.GetTable(tableName);
+            Table table = Util.GetTable(tableName);
             if (table == null)
                 throw new Exception("no table named: " + tableName);
 
@@ -60,7 +60,7 @@
 
         public static void VerifyUpdate(string tableName, List<Tuple<string, string>> setExpression)
         {
-            Table table = MyDBNs.DB.GetTable(tableName);
+            Table table = Util.GetTable(tableName);
             if (table == null)
                 throw new Exception("no table named: " + tableName);
 
@@ -72,7 +72,7 @@
 
                 ColumnType type = table.columnNameToTypesMap[columnName];
 
-                StringType type2 = DBUtil.GetStringType(kv.Item2);
+                StringType type2 = Util.GetStringType(kv.Item2);
 
                 if (type2 == StringType.String)
                 {

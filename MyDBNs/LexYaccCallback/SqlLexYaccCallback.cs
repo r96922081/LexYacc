@@ -4,27 +4,27 @@
     {
         public static void CreateTable(string name, List<(string, string)> columnDeclare)
         {
-            MyDBNs.DB.CreateTable(name, columnDeclare);
+            Create.CreateTable(name, columnDeclare);
         }
 
         public static void ShowTables()
         {
-            MyDBNs.DB.ShowTables();
+            Show.ShowTables();
         }
 
         public static void Insert(string tableName, List<string> columnNames, List<string> values)
         {
-            MyDBNs.DB.Insert(tableName, columnNames, values);
+            MyDBNs.Insert.InsertRows(tableName, columnNames, values);
         }
 
         public static void Delete(string tableName, string condition)
         {
-            MyDBNs.DB.Delete(tableName, condition);
+            MyDBNs.Delete.DeleteRows(tableName, condition);
         }
 
         public static void Update(string tableName, List<Tuple<string, string>> setExpression, string condition)
         {
-            MyDBNs.DB.Update(tableName, setExpression, condition);
+            MyDBNs.Update.UpdateRows(tableName, setExpression, condition);
         }
 
         public static List<Tuple<string, string>> SetExpression(string id, string string_number_id, List<Tuple<string, string>> setExpression)
@@ -80,7 +80,7 @@
 
         public static void Select(List<string> columns, string tableName, string condition, List<List<object>> orders)
         {
-            MyDBNs.DB.Select(columns, tableName, condition, orders);
+            MyDBNs.Select.SelectRows(columns, tableName, condition, orders);
         }
 
         public static void BooleanExpression1(ref string booleanExpression, string rhs)

@@ -7,12 +7,12 @@
         public static void VerifyBooleanExpression(string lhs, string op, string rhs)
         {
             List<Table> tables = MyDBNs.DB.tables;
-            Table table = MyDBNs.DB.GetTable(tableName);
+            Table table = Util.GetTable(tableName);
             if (table == null)
                 throw new Exception("Table does not exist: " + tableName);
 
-            StringType lhsType = DBUtil.GetStringType(lhs);
-            StringType rhsType = DBUtil.GetStringType(rhs);
+            StringType lhsType = Util.GetStringType(lhs);
+            StringType rhsType = Util.GetStringType(rhs);
 
             StringType lhsType2 = lhsType;
             if (lhsType2 == StringType.Column)
@@ -40,8 +40,8 @@
 
         public static HashSet<int> BooleanExpression(string lhs, string op, string rhs)
         {
-            StringType lhsType = DBUtil.GetStringType(lhs);
-            StringType rhsType = DBUtil.GetStringType(rhs);
+            StringType lhsType = Util.GetStringType(lhs);
+            StringType rhsType = Util.GetStringType(rhs);
             if (lhsType == StringType.Column)
                 lhs = lhs.ToUpper();
             if (rhsType == StringType.Column)
@@ -52,7 +52,7 @@
             HashSet<int> rows = new HashSet<int>();
 
             List<Table> tables = MyDBNs.DB.tables;
-            Table table = MyDBNs.DB.GetTable(tableName);
+            Table table = Util.GetTable(tableName);
 
             int lhsColumnIndex = -1;
             int rhsColumnIndex = -1;

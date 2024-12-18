@@ -1,6 +1,6 @@
 ﻿namespace MyDBNs
 {
-    public class DBConsole
+    public class Console
     {
         public static void Interactive()
         {
