@@ -2,13 +2,24 @@
 {
     public class Select
     {
-        private static HashSet<int> GetSelectedRows(string tableName, string condition)
+        private static List<int> GetSelectedRows(string tableName, string condition)
         {
+            List<int> rows;
             if (condition == null)
-                return null;
+            {
+                Table table = Util.GetTable(tableName);
+                rows = new List<int>();
+                for (int i = 0; i < table.rows.Count; i++)
+                    rows.Add(i);
+
+                return rows;
+            }
 
             SqlConditionLexYaccCallback.tableName = tableName;
-            return (HashSet<int>)sql_condition_lexyacc.Parse(condition);
+            rows = new List<int>((HashSet<int>)sql_condition_lexyacc.Parse(condition));
+
+            rows.Sort();
+            return rows;
         }
 
         private static void GetColumns(Table table, List<string> columns, List<string> columnNames, List<int> columnIndex)
@@ -86,26 +97,89 @@
             System.Console.WriteLine();
 
             // show cell
-            for (int rowIndex = 0; rowIndex < s.table.rows.Count; rowIndex++)
+            for (int i = 0; i < s.selectedRows.Count; i++)
             {
-                if (s.selectedRows != null && !s.selectedRows.Contains(rowIndex))
-                    continue;
-
-
-                object[] row = s.table.rows[rowIndex];
+                object[] row = s.table.rows[s.selectedRows[i]];
                 System.Console.Write("| ");
-                int j = 0;
-                foreach (int i in s.columnIndex)
+                int k = 0;
+                foreach (int j in s.columnIndex)
                 {
-                    if (row[i] == null)
-                        System.Console.Write("".PadRight(columnWidths[j]));
+                    if (row[j] == null)
+                        System.Console.Write("".PadRight(columnWidths[k]));
                     else
-                        System.Console.Write(row[i].ToString().PadRight(columnWidths[j]));
-                    j++;
+                        System.Console.Write(row[j].ToString().PadRight(columnWidths[k]));
+                    k++;
                     System.Console.Write(" | ");
                 }
                 System.Console.WriteLine();
             }
+        }
+
+        private static List<OrderBy> ConvertOrder(SelectedData s, List<List<object>> orders)
+        {
+            List<OrderBy> orders2 = new List<OrderBy>();
+            foreach (List<object> order in orders)
+            {
+                bool ascending = (bool)order[1];
+
+                if (order[0] is string)
+                {
+                    for (int i = 0; i < s.columnNames.Count; i++)
+                    {
+                        if (s.columnNames[i].ToUpper() == ((string)order[0]).ToUpper())
+                        {
+                            OrderBy orderBy = new OrderBy();
+                            orderBy.ascending = ascending;
+                            orderBy.selectColumnIndex = (int)i;
+                            orders2.Add(orderBy);
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    OrderBy orderBy = new OrderBy();
+                    orderBy.ascending = ascending;
+                    orderBy.selectColumnIndex = (int)order[0] - 1;
+                    orders2.Add(orderBy);
+                }
+            }
+
+            return orders2;
+        }
+
+        private static void SortRows(SelectedData s, List<OrderBy> order2)
+        {
+            s.selectedRows.Sort((lIndex, rIndex) =>
+            {
+                object[] l = s.table.rows[lIndex];
+                object[] r = s.table.rows[rIndex];
+
+                foreach (OrderBy o in order2)
+                {
+                    if (l == null && r == null)
+                        continue;
+
+                    if (l == null && r != null)
+                        return o.ascending ? -1 : 1;
+
+                    if (l != null && r == null)
+                        return o.ascending ? 1 : -1;
+
+                    ColumnType t = s.table.columnTypes[s.columnIndex[o.selectColumnIndex]];
+
+                    IComparable lCompara = (IComparable)l[s.columnIndex[o.selectColumnIndex]];
+                    IComparable rCompara = (IComparable)r[s.columnIndex[o.selectColumnIndex]];
+
+                    int result = (o.ascending ? 1 : -1) * lCompara.CompareTo(rCompara);
+                    if (result == 0)
+                        continue;
+
+                    return result;
+                }
+
+                return 0;
+            });
         }
 
         public static void SelectRows(List<string> columnInput, string tableName, string whereCondition, List<List<object>> orders)
@@ -117,6 +191,14 @@
             Table table = Util.GetTable(tableName);
 
             SelectedData s = GetSelectedData(table, columnInput, whereCondition);
+
+            if (orders != null)
+            {
+                List<OrderBy> order2 = ConvertOrder(s, orders);
+                SortRows(s, order2);
+            }
+
+
             PrintTable(s);
 #endif
         }

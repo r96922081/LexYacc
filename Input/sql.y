@@ -3,7 +3,8 @@
 %}
 
 %token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER UPDATE SET ORDER BY ASC DESC
-%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement
+%token <int> POSITIVE
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement number
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
@@ -252,7 +253,7 @@ STRING
     $$ = $1;
 }
 | 
-NUMBER
+number
 {
     $$ = $1;
 }
@@ -264,7 +265,7 @@ STRING
     $$ = $1;
 }
 | 
-NUMBER
+number
 {
     $$ = $1;
 }
@@ -286,17 +287,17 @@ ID DESC
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, false);
 }
 | 
-NUMBER
+POSITIVE
 {
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
 }
 | 
-NUMBER ASC
+POSITIVE ASC
 {
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
 }
 | 
-NUMBER DESC
+POSITIVE DESC
 {
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, false);
 }
@@ -304,5 +305,17 @@ NUMBER DESC
 
 logical_operator: AND | OR;
 
-column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + "(" + $3 + ")";} | NUMBER_TYPE {$$ = $1;};
+number:
+NUMBER
+{
+    $$ = $1;
+}
+| 
+POSITIVE
+{
+    $$ = "" + $1;
+}
+;
+
+column_type: VARCHAR '(' POSITIVE ')' {$$ = $1 + "(" + $3 + ")";} | NUMBER_TYPE {$$ = $1;};
 %%

@@ -40,6 +40,7 @@
 "-"  { return '-'; }
 "/"  { return '/'; }
 
+\d+          { value = int.Parse(yytext); return POSITIVE; }
 -?\d+(\.\d+)?           { value = yytext; return NUMBER; }
 '([^']|'')*'               { value = yytext; return STRING; }
 [a-zA-Z0-9_]*      { value = yytext; return ID; }

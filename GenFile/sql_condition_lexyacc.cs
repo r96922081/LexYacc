@@ -21,7 +21,8 @@ public class YaccActions{
 %}
 
 %token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER UPDATE SET ORDER BY ASC DESC
-%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id string_number
+%token <int> POSITIVE
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id string_number number
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
 %type <HashSet<int>> boolean_expression
@@ -87,9 +88,21 @@ STRING
     $$ = $1;
 }
 | 
+number
+{
+    $$ = $1;
+}
+;
+
+number:
 NUMBER
 {
     $$ = $1;
+}
+| 
+POSITIVE
+{
+    $$ = """" + $1;
 }
 ;
 %%";
@@ -122,6 +135,8 @@ NUMBER
         actions.Add("Rule_string_number_id_Producton_0", Rule_string_number_id_Producton_0);
         actions.Add("Rule_string_number_id_Producton_1", Rule_string_number_id_Producton_1);
         actions.Add("Rule_string_number_id_Producton_2", Rule_string_number_id_Producton_2);
+        actions.Add("Rule_number_Producton_0", Rule_number_Producton_0);
+        actions.Add("Rule_number_Producton_1", Rule_number_Producton_1);
     }
 
     public static object Rule_start_Producton_0(Dictionary<int, object> objects) { 
@@ -274,6 +289,26 @@ NUMBER
 
         return _0;
     }
+
+    public static object Rule_number_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_number_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        int _1 = (int)objects[1];
+
+        // user-defined action
+        _0 = "" + _1;
+
+        return _0;
+    }
 }
 
 }
@@ -321,6 +356,7 @@ namespace sql_condition_lexyaccNs
             { 281, "BY"},
             { 282, "ASC"},
             { 283, "DESC"},
+            { 284, "POSITIVE"},
         };
 
         public static int SELECT = 256;
@@ -351,6 +387,7 @@ namespace sql_condition_lexyaccNs
         public static int BY = 281;
         public static int ASC = 282;
         public static int DESC = 283;
+        public static int POSITIVE = 284;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -412,6 +449,7 @@ namespace sql_condition_lexyaccNs
 ""-""  { return '-'; }
 ""/""  { return '/'; }
 
+\d+          { value = int.Parse(yytext); return POSITIVE; }
 -?\d+(\.\d+)?           { value = yytext; return NUMBER; }
 '([^']|'')*'               { value = yytext; return STRING; }
 [a-zA-Z0-9_]*      { value = yytext; return ID; }
@@ -466,6 +504,7 @@ namespace sql_condition_lexyaccNs
             actions.Add("LexRule38", LexAction38);
             actions.Add("LexRule39", LexAction39);
             actions.Add("LexRule40", LexAction40);
+            actions.Add("LexRule41", LexAction41);
         }
         public static object LexAction0(string yytext)
         {
@@ -805,7 +844,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return NUMBER; 
+            value = int.Parse(yytext); return POSITIVE; 
 
             return 0;
         }
@@ -814,7 +853,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return STRING; 
+            value = yytext; return NUMBER; 
 
             return 0;
         }
@@ -823,11 +862,20 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            value = yytext; return STRING; 
 
             return 0;
         }
         public static object LexAction40(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return ID; 
+
+            return 0;
+        }
+        public static object LexAction41(string yytext)
         {
             value = null;
 

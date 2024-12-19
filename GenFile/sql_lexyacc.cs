@@ -21,7 +21,8 @@ public class YaccActions{
 %}
 
 %token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER UPDATE SET ORDER BY ASC DESC
-%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement
+%token <int> POSITIVE
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement number
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
@@ -270,7 +271,7 @@ STRING
     $$ = $1;
 }
 | 
-NUMBER
+number
 {
     $$ = $1;
 }
@@ -282,7 +283,7 @@ STRING
     $$ = $1;
 }
 | 
-NUMBER
+number
 {
     $$ = $1;
 }
@@ -304,17 +305,17 @@ ID DESC
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, false);
 }
 | 
-NUMBER
+POSITIVE
 {
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
 }
 | 
-NUMBER ASC
+POSITIVE ASC
 {
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
 }
 | 
-NUMBER DESC
+POSITIVE DESC
 {
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, false);
 }
@@ -322,7 +323,19 @@ NUMBER DESC
 
 logical_operator: AND | OR;
 
-column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYPE {$$ = $1;};
+number:
+NUMBER
+{
+    $$ = $1;
+}
+| 
+POSITIVE
+{
+    $$ = """" + $1;
+}
+;
+
+column_type: VARCHAR '(' POSITIVE ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYPE {$$ = $1;};
 %%";
 
 
@@ -396,6 +409,8 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         actions.Add("Rule_order_by_column_Producton_3", Rule_order_by_column_Producton_3);
         actions.Add("Rule_order_by_column_Producton_4", Rule_order_by_column_Producton_4);
         actions.Add("Rule_order_by_column_Producton_5", Rule_order_by_column_Producton_5);
+        actions.Add("Rule_number_Producton_0", Rule_number_Producton_0);
+        actions.Add("Rule_number_Producton_1", Rule_number_Producton_1);
         actions.Add("Rule_column_type_Producton_0", Rule_column_type_Producton_0);
         actions.Add("Rule_column_type_Producton_1", Rule_column_type_Producton_1);
     }
@@ -986,7 +1001,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
 
     public static object Rule_order_by_column_Producton_3(Dictionary<int, object> objects) { 
         List<object> _0 = new List<object>();
-        string _1 = (string)objects[1];
+        int _1 = (int)objects[1];
 
         // user-defined action
         MyDBNs.SqlLexYaccCallback.OrderByColumn(ref _0, _1, true);
@@ -996,7 +1011,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
 
     public static object Rule_order_by_column_Producton_4(Dictionary<int, object> objects) { 
         List<object> _0 = new List<object>();
-        string _1 = (string)objects[1];
+        int _1 = (int)objects[1];
         string _2 = (string)objects[2];
 
         // user-defined action
@@ -1007,7 +1022,7 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
 
     public static object Rule_order_by_column_Producton_5(Dictionary<int, object> objects) { 
         List<object> _0 = new List<object>();
-        string _1 = (string)objects[1];
+        int _1 = (int)objects[1];
         string _2 = (string)objects[2];
 
         // user-defined action
@@ -1016,10 +1031,30 @@ column_type: VARCHAR '(' NUMBER ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYP
         return _0;
     }
 
+    public static object Rule_number_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_number_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        int _1 = (int)objects[1];
+
+        // user-defined action
+        _0 = "" + _1;
+
+        return _0;
+    }
+
     public static object Rule_column_type_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
-        string _3 = (string)objects[3];
+        int _3 = (int)objects[3];
 
         // user-defined action
         _0 = _1 + "(" + _3 + ")";
@@ -1083,6 +1118,7 @@ namespace sql_lexyaccNs
             { 281, "BY"},
             { 282, "ASC"},
             { 283, "DESC"},
+            { 284, "POSITIVE"},
         };
 
         public static int SELECT = 256;
@@ -1113,6 +1149,7 @@ namespace sql_lexyaccNs
         public static int BY = 281;
         public static int ASC = 282;
         public static int DESC = 283;
+        public static int POSITIVE = 284;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -1174,6 +1211,7 @@ namespace sql_lexyaccNs
 ""-""  { return '-'; }
 ""/""  { return '/'; }
 
+\d+          { value = int.Parse(yytext); return POSITIVE; }
 -?\d+(\.\d+)?           { value = yytext; return NUMBER; }
 '([^']|'')*'               { value = yytext; return STRING; }
 [a-zA-Z0-9_]*      { value = yytext; return ID; }
@@ -1228,6 +1266,7 @@ namespace sql_lexyaccNs
             actions.Add("LexRule38", LexAction38);
             actions.Add("LexRule39", LexAction39);
             actions.Add("LexRule40", LexAction40);
+            actions.Add("LexRule41", LexAction41);
         }
         public static object LexAction0(string yytext)
         {
@@ -1567,7 +1606,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return NUMBER; 
+            value = int.Parse(yytext); return POSITIVE; 
 
             return 0;
         }
@@ -1576,7 +1615,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return STRING; 
+            value = yytext; return NUMBER; 
 
             return 0;
         }
@@ -1585,11 +1624,20 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            value = yytext; return STRING; 
 
             return 0;
         }
         public static object LexAction40(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return ID; 
+
+            return 0;
+        }
+        public static object LexAction41(string yytext)
         {
             value = null;
 

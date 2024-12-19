@@ -34,7 +34,7 @@
         public Table table;
         public List<string> columnNames = new List<string>();
         public List<int> columnIndex = new List<int>();
-        public HashSet<int> selectedRows = new HashSet<int>();
+        public List<int> selectedRows = new List<int>();
     }
 
     public class OrderBy
