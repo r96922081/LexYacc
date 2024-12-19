@@ -2,9 +2,9 @@
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER UPDATE SET ORDER BY ASC DESC
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
 %token <int> POSITIVE
-%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement number
+%type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement number file_path
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
@@ -13,11 +13,27 @@
 %type <object> expression term 
 %%
 
-statement: create_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement | expression;
+statement: save_db | load_db | create_table_statement | drop_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement;
+
+save_db: SAVE DB file_path
+{
+    MyDBNs.SqlLexYaccCallback.SaveDB($3);
+};
+
+load_db: LOAD DB file_path
+{
+    MyDBNs.SqlLexYaccCallback.LoadDB($3);
+};
+
 
 create_table_statement: CREATE TABLE ID '(' column_declare ')' 
 {
     MyDBNs.SqlLexYaccCallback.CreateTable($3, $5);
+};
+
+drop_table_statement: DROP TABLE ID
+{
+    MyDBNs.SqlLexYaccCallback.DropTable($3);
 };
 
 column_declare: ID column_type 
@@ -300,6 +316,28 @@ POSITIVE ASC
 POSITIVE DESC
 {
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, false);
+}
+;
+
+file_path:
+FILE_PATH
+{
+    $$ = $1;
+}
+|
+POSITIVE
+{
+    $$ = "" + $1;
+}
+|
+NUMBER
+{
+    $$ = $1;
+}
+|
+ID
+{
+    $$ = $1;
 }
 ;
 

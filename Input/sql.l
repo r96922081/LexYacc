@@ -2,8 +2,12 @@
 %}
 
 %%
+[sS][aA][vV][eE]              { return SAVE; }
+[lL][oO][aA][dD]              { return LOAD; }
+[dD][bB]                      { return DB; }
 [sS][eE][lL][eE][cC][tT]      { return SELECT; }
 [cC][rR][eE][aA][tT][eE]      { return CREATE; }
+[dD][rR][oO][pP]              { return DROP; }
 [tT][aA][bB][lL][eE]          { return TABLE; }
 [iI][nN][sS][eE][rR][tT]      { return INSERT; }
 [dD][eE][lL][eE][tT][eE]      { return DELETE; }
@@ -44,6 +48,7 @@
 -?\d+(\.\d+)?           { value = yytext; return NUMBER; }
 '([^']|'')*'               { value = yytext; return STRING; }
 [a-zA-Z0-9_]*      { value = yytext; return ID; }
+[a-zA-Z0-9_:\.\\/]+  { value = yytext; return FILE_PATH; }
 [ \t\n]                      {}
 
 %%

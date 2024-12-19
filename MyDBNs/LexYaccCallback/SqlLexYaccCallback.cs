@@ -2,9 +2,24 @@
 {
     public class SqlLexYaccCallback
     {
+        public static void SaveDB(string name)
+        {
+            Save.SaveDB(name);
+        }
+
+        public static void LoadDB(string name)
+        {
+            Load.LoadDB(name);
+        }
+
         public static void CreateTable(string name, List<(string, string)> columnDeclare)
         {
             Create.CreateTable(name, columnDeclare);
+        }
+
+        public static void DropTable(string name)
+        {
+            Drop.DropTable(name);
         }
 
         public static void ShowTables()
