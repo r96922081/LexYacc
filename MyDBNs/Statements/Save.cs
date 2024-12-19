@@ -13,11 +13,11 @@
                 foreach (var table in DB.tables)
                 {
                     // Save table name
-                    writer.Write(table.tableName);
+                    writer.Write(table.originalTableName);
 
                     // Save column names
-                    writer.Write(table.columnNames.Length);
-                    foreach (var columnName in table.columnNames)
+                    writer.Write(table.originalColumnNames.Length);
+                    foreach (var columnName in table.originalColumnNames)
                         writer.Write(columnName);
 
                     // Save column types
@@ -29,6 +29,29 @@
                     writer.Write(table.columnSizes.Length);
                     foreach (var columnSize in table.columnSizes)
                         writer.Write(columnSize);
+
+                    // row count
+                    writer.Write(table.rows.Count);
+                    foreach (var row in table.rows)
+                    {
+                        for (int i = 0; i < table.columnTypes.Length; i++)
+                        {
+                            ColumnType type = table.columnTypes[i];
+                            object value = row[i];
+                            if (value == null)
+                            {
+                                writer.Write(false);
+                            }
+                            else
+                            {
+                                writer.Write(true);
+                                if (type == ColumnType.NUMBER)
+                                    writer.Write(((double)value));
+                                else
+                                    writer.Write(((string)value));
+                            }
+                        }
+                    }
                 }
             }
         }
