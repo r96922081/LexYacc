@@ -43,4 +43,13 @@
         public int selectColumnIndex;
     }
 
+    public enum BooleanOperator
+    {
+        Equal,
+        NotEqual,
+        LessThan,
+        GreaterThan,
+        LessThanEqualTo,
+        GreaterThanEqualTo
+    }
 }

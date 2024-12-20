@@ -38,6 +38,93 @@
                 throw new Exception(lhs + " & " + rhs + " have different type");
         }
 
+        public static bool EvaluateBooleanExpression(BooleanOperator op, object lhs, object rhs, ColumnType type)
+        {
+            switch (op)
+            {
+                case BooleanOperator.Equal:
+                    if (lhs == null && rhs == null)
+                    {
+                        return true;
+                    }
+                    else if (lhs == null && rhs != null)
+                    {
+                        return false;
+                    }
+                    else if (lhs != null && rhs == null)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        if (type == ColumnType.VARCHAR)
+                        {
+                            return ((string)lhs).CompareTo((string)rhs) == 0;
+                        }
+                        else
+                        {
+                            return ((double)lhs).CompareTo((double)rhs) == 0;
+                        }
+                    }
+                case BooleanOperator.NotEqual:
+                    if (lhs == null && rhs == null)
+                    {
+                        return false;
+                    }
+                    else if (lhs == null && rhs != null)
+                    {
+                        return true;
+                    }
+                    else if (lhs != null && rhs == null)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        if (type == ColumnType.VARCHAR)
+                        {
+                            return ((string)lhs).CompareTo((string)rhs) != 0;
+                        }
+                        else
+                        {
+                            return ((double)lhs).CompareTo((double)rhs) != 0;
+                        }
+                    }
+                case BooleanOperator.LessThan:
+                    if (lhs == null && rhs == null)
+                    {
+                        return false;
+                    }
+                    else if (lhs == null && rhs != null)
+                    {
+                        return true;
+                    }
+                    else if (lhs != null && rhs == null)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        if (type == ColumnType.VARCHAR)
+                        {
+                            return ((string)lhs).CompareTo((string)rhs) < 0;
+                        }
+                        else
+                        {
+                            return ((double)lhs).CompareTo((double)rhs) < 0;
+                        }
+                    }
+                case BooleanOperator.LessThanEqualTo:
+                    return EvaluateBooleanExpression(BooleanOperator.LessThan, lhs, rhs, type) && EvaluateBooleanExpression(BooleanOperator.Equal, lhs, rhs, type);
+                case BooleanOperator.GreaterThan:
+                    return !EvaluateBooleanExpression(BooleanOperator.LessThan, lhs, rhs, type) && !EvaluateBooleanExpression(BooleanOperator.Equal, lhs, rhs, type);
+                case BooleanOperator.GreaterThanEqualTo:
+                    return !EvaluateBooleanExpression(BooleanOperator.LessThan, lhs, rhs, type);
+            }
+
+            return false;
+        }
+
         public static HashSet<int> BooleanExpression(string lhs, string op, string rhs)
         {
             StringType lhsType = Util.GetStringType(lhs);
@@ -57,26 +144,34 @@
             int lhsColumnIndex = -1;
             int rhsColumnIndex = -1;
 
-            StringType lhsType2 = lhsType;
-            if (lhsType2 == StringType.Column)
+            ColumnType lhsType2 = ColumnType.NUMBER;
+            if (lhsType == StringType.String)
+                lhsType2 = ColumnType.VARCHAR;
+            else if (lhsType == StringType.Number)
+                lhsType2 = ColumnType.NUMBER;
+            else
             {
                 ColumnType t = table.columnNameToTypesMap[lhs];
                 if (t == ColumnType.NUMBER)
-                    lhsType2 = StringType.Number;
+                    lhsType2 = ColumnType.NUMBER;
                 else
-                    lhsType2 = StringType.String;
+                    lhsType2 = ColumnType.VARCHAR;
 
                 lhsColumnIndex = table.columnNameToIndexMap[lhs];
             }
 
-            StringType rhsType2 = rhsType;
-            if (rhsType2 == StringType.Column)
+            ColumnType rhsType2 = ColumnType.NUMBER;
+            if (rhsType == StringType.String)
+                rhsType2 = ColumnType.VARCHAR;
+            else if (rhsType == StringType.Number)
+                rhsType2 = ColumnType.NUMBER;
+            else
             {
                 ColumnType t = table.columnNameToTypesMap[rhs];
                 if (t == ColumnType.NUMBER)
-                    rhsType2 = StringType.Number;
+                    rhsType2 = ColumnType.NUMBER;
                 else
-                    rhsType2 = StringType.String;
+                    rhsType2 = ColumnType.VARCHAR;
 
                 rhsColumnIndex = table.columnNameToIndexMap[rhs];
             }
@@ -93,12 +188,12 @@
                 {
                     lhsValue = row[lhsColumnIndex];
                 }
-                else if (lhsType2 == StringType.Number)
+                else if (lhsType2 == ColumnType.NUMBER)
                 {
                     if (lhs != null)
                         lhsValue = double.Parse(lhs);
                 }
-                else if (lhsType2 == StringType.String)
+                else if (lhsType2 == ColumnType.VARCHAR)
                 {
                     if (lhs != null)
                         lhsValue = lhs.Substring(1, lhs.Length - 2);
@@ -108,12 +203,12 @@
                 {
                     rhsValue = row[rhsColumnIndex];
                 }
-                else if (rhsType2 == StringType.Number)
+                else if (rhsType2 == ColumnType.NUMBER)
                 {
                     if (rhs != null)
                         rhsValue = double.Parse(rhs);
                 }
-                else if (rhsType2 == StringType.String)
+                else if (rhsType2 == ColumnType.VARCHAR)
                 {
                     if (rhs != null)
                         rhsValue = rhs.Substring(1, rhs.Length - 2);
@@ -122,104 +217,28 @@
                 switch (op)
                 {
                     case "=":
-                        if (lhsValue == null || rhsValue == null)
-                        {
-                            if (lhsValue == rhsValue)
-                                rows.Add(i);
-                        }
-                        else
-                        {
-                            if (lhsType2 == StringType.String)
-                            {
-                                if (((string)lhsValue).CompareTo(rhsValue) == 0)
-                                    rows.Add(i);
-                            }
-                            else if (lhsType2 == StringType.Number)
-                            {
-                                if (((double)lhsValue).CompareTo(rhsValue) == 0)
-                                    rows.Add(i);
-                            }
-                        }
+                        if (EvaluateBooleanExpression(BooleanOperator.Equal, lhsValue, rhsValue, lhsType2))
+                            rows.Add(i);
                         break;
                     case "!=":
-                        if (lhsValue == null || rhsValue == null)
-                        {
-                            if (lhsValue != rhsValue)
-                                rows.Add(i);
-                        }
-                        else
-                        {
-                            if (lhsType2 == StringType.String)
-                            {
-                                if (((string)lhsValue).CompareTo(rhsValue) != 0)
-                                    rows.Add(i);
-                            }
-                            else if (lhsType2 == StringType.Number)
-                            {
-                                if (((double)lhsValue).CompareTo(rhsValue) != 0)
-                                    rows.Add(i);
-                            }
-                        }
+                        if (EvaluateBooleanExpression(BooleanOperator.NotEqual, lhsValue, rhsValue, lhsType2))
+                            rows.Add(i);
                         break;
                     case "<":
-                        if (lhsValue != null && rhsValue != null)
-                        {
-                            if (lhsType2 == StringType.String)
-                            {
-                                if (((string)lhsValue).CompareTo(rhsValue) < 0)
-                                    rows.Add(i);
-                            }
-                            else if (lhsType2 == StringType.Number)
-                            {
-                                if (((double)lhsValue).CompareTo(rhsValue) < 0)
-                                    rows.Add(i);
-                            }
-                        }
+                        if (EvaluateBooleanExpression(BooleanOperator.LessThan, lhsValue, rhsValue, lhsType2))
+                            rows.Add(i);
                         break;
                     case "<=":
-                        if (lhsValue != null && rhsValue != null)
-                        {
-                            if (lhsType2 == StringType.String)
-                            {
-                                if (((string)lhsValue).CompareTo(rhsValue) <= 0)
-                                    rows.Add(i);
-                            }
-                            else if (lhsType2 == StringType.Number)
-                            {
-                                if (((double)lhsValue).CompareTo(rhsValue) <= 0)
-                                    rows.Add(i);
-                            }
-                        }
+                        if (EvaluateBooleanExpression(BooleanOperator.LessThanEqualTo, lhsValue, rhsValue, lhsType2))
+                            rows.Add(i);
                         break;
                     case ">":
-                        if (lhsValue != null && rhsValue != null)
-                        {
-                            if (lhsType2 == StringType.String)
-                            {
-                                if (((string)lhsValue).CompareTo(rhsValue) > 0)
-                                    rows.Add(i);
-                            }
-                            else if (lhsType2 == StringType.Number)
-                            {
-                                if (((double)lhsValue).CompareTo(rhsValue) > 0)
-                                    rows.Add(i);
-                            }
-                        }
+                        if (EvaluateBooleanExpression(BooleanOperator.GreaterThan, lhsValue, rhsValue, lhsType2))
+                            rows.Add(i);
                         break;
                     case ">=":
-                        if (lhsValue != null && rhsValue != null)
-                        {
-                            if (lhsType2 == StringType.String)
-                            {
-                                if (((string)lhsValue).CompareTo(rhsValue) >= 0)
-                                    rows.Add(i);
-                            }
-                            else if (lhsType2 == StringType.Number)
-                            {
-                                if (((double)lhsValue).CompareTo(rhsValue) >= 0)
-                                    rows.Add(i);
-                            }
-                        }
+                        if (EvaluateBooleanExpression(BooleanOperator.GreaterThanEqualTo, lhsValue, rhsValue, lhsType2))
+                            rows.Add(i);
                         break;
                 }
             }
