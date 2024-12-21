@@ -52,12 +52,20 @@ namespace MyDBNs
             ret = sql_lexyacc.Parse("INSERT INTO A VALUES ( 'GH', 456  )");
             Check(ret == null || ret.ToString() == "");
 
-            // bug should be 12 not 0.75
-            ret = sql_lexyacc.Parse("(1 + 2) * 3 / ( (8 - 2) / 2) * 4 ");
+
+            // test action calling order.
+            // to ensure order is as expected
+            ret = sql_lexyacc.Parse("3 - 2 + 1");
             Check(ret == null || ret.ToString() == "");
 
-            //ret = sql_lexyacc.Parse("1 + 2 - 'adb' /  (aaa)");
-            //Check(ret == null || ret.ToString() == "");
+            ret = sql_lexyacc.Parse("12 / 6 / 2");
+            Check(ret == null || ret.ToString() == "");
+
+            ret = sql_lexyacc.Parse("9 / 3 * 4 ");
+            Check(ret == null || ret.ToString() == "");
+
+            ret = sql_lexyacc.Parse("(1 + 2) * 3 / ( (8 - 2) / 2) * 4 ");
+            Check(ret == null || ret.ToString() == "");
 
             //ret = sql_lexyacc.Parse("SELECT AGE, NAME, * FROM A WHERE 1 = 1");
             //Check(ret == null || ret.ToString() == "");

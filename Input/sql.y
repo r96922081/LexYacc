@@ -11,7 +11,7 @@
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_condition
 %type <List<Tuple<string, string>>> set_expression
-%type <double> arithmetic_expression term number_double
+%type <double> arithmetic_expression term number_double number_double_ID
 %%
 
 statement: save_db | load_db | create_table_statement | drop_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement | arithmetic_expression;
@@ -224,13 +224,13 @@ ID ',' comma_sep_id_include_star
 ;
 
 arithmetic_expression:
-arithmetic_expression '+' arithmetic_expression 
+arithmetic_expression '+' term 
 {
     $$ = $1 + $3;
     Console.WriteLine($$);
 }
 | 
-arithmetic_expression '-' arithmetic_expression 
+arithmetic_expression '-' term 
 {
     $$ = $1 - $3;
     Console.WriteLine($$);
@@ -244,13 +244,22 @@ term
 ;
 
 term:
-term '*' term 
+term '*' number_double_ID 
 {
     $$ = $1 * $3;
 }
-| term '/' term 
+| term '/' number_double_ID 
 {
     $$ = $1 / $3;
+}
+|
+term '*' '(' arithmetic_expression ')' 
+{
+    $$ = $1 * $4;
+}
+| term '/' '(' arithmetic_expression ')' 
+{
+    $$ = $1 / $4;
 }
 |
 '(' arithmetic_expression ')'
@@ -258,11 +267,18 @@ term '*' term
     $$ = $2;
 }
 | 
+number_double_ID
+{
+    $$ = $1;
+}
+;
+
+number_double_ID:
 number_double
 {
     $$ = $1;
 }
-| 
+|
 ID
 {
     //mojo

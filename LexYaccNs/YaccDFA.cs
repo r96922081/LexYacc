@@ -192,6 +192,15 @@
             return invokeFunction(production.GetFunctionName(), param);
         }
 
+        /*
+
+        a: a 'A' | 'B'  =>
+
+        a: 'B' a2
+        a2: 'A' a2 | empty
+
+         */
+
         public object CallLeftRecursionAction(Yacc.CallActionDelegate invokeFunction)
         {
             if (production.IsEmptyProduction())
