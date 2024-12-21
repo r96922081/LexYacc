@@ -765,7 +765,6 @@ b:
         UtFeed24();
         UtFeed25();
         UtFeed26();
-        UtFeed26();
     }
 
     private static void UtBuild1()

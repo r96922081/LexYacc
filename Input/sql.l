@@ -45,7 +45,7 @@
 "/"  { return '/'; }
 
 \d+          { value = int.Parse(yytext); return POSITIVE_INT; }
--?\d+(\.\d+)?           { value = yytext; return NUMBER_DOUBLE; }
+-?\d+(\.\d+)?           { value = double.Parse(yytext); return NUMBER_DOUBLE; }
 '([^']|'')*'               { value = yytext; return STRING; }
 [a-zA-Z0-9_]*      { value = yytext; return ID; }
 [a-zA-Z0-9_:\.\\/]+  { value = yytext; return FILE_PATH; }

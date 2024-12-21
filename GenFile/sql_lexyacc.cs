@@ -20,15 +20,16 @@ public class YaccActions{
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER_DOUBLE UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
 %token <int> POSITIVE_INT
-%type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement number file_path number_id
+%token <double> NUMBER_DOUBLE
+%type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement file_path
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_condition
 %type <List<Tuple<string, string>>> set_expression
-%type <double> arithmetic_expression term
+%type <double> arithmetic_expression term number_double
 %%
 
 statement: save_db | load_db | create_table_statement | drop_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement | arithmetic_expression;
@@ -244,15 +245,19 @@ arithmetic_expression:
 arithmetic_expression '+' arithmetic_expression 
 {
     $$ = $1 + $3;
+    Console.WriteLine($$);
 }
-| arithmetic_expression '-' arithmetic_expression 
+| 
+arithmetic_expression '-' arithmetic_expression 
 {
     $$ = $1 - $3;
+    Console.WriteLine($$);
 }
 | 
 term 
 {
     $$ = $1;
+    Console.WriteLine($$);
 }
 ;
 
@@ -270,21 +275,16 @@ term '*' term
 {
     $$ = $2;
 }
-| number_id 
-{
-
-}
-;
-
-number_id:
-ID
+| 
+number_double
 {
     $$ = $1;
 }
 | 
-number
+ID
 {
-    $$ = $1;
+    //mojo
+    $$ = 1;
 }
 ;
 
@@ -299,9 +299,9 @@ STRING
     $$ = $1;
 }
 | 
-number
+number_double
 {
-    $$ = $1;
+    $$ = """" + $1;
 }
 ;
 
@@ -311,9 +311,9 @@ STRING
     $$ = $1;
 }
 | 
-number
+number_double
 {
-    $$ = $1;
+    $$ = """" + $1;
 }
 ;
 
@@ -362,7 +362,7 @@ POSITIVE_INT
 |
 NUMBER_DOUBLE
 {
-    $$ = $1;
+    $$ = """" + $1;
 }
 |
 ID
@@ -373,7 +373,7 @@ ID
 
 logical_operator: AND | OR;
 
-number:
+number_double:
 NUMBER_DOUBLE
 {
     $$ = $1;
@@ -381,7 +381,7 @@ NUMBER_DOUBLE
 | 
 POSITIVE_INT
 {
-    $$ = """" + $1;
+    $$ = $1;
 }
 ;
 
@@ -448,11 +448,10 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         actions.Add("Rule_arithmetic_expression_LeftRecursionExpand_Producton_2", Rule_arithmetic_expression_LeftRecursionExpand_Producton_2);
         actions.Add("Rule_term_Producton_0", Rule_term_Producton_0);
         actions.Add("Rule_term_Producton_1", Rule_term_Producton_1);
+        actions.Add("Rule_term_Producton_2", Rule_term_Producton_2);
         actions.Add("Rule_term_LeftRecursionExpand_Producton_0", Rule_term_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_term_LeftRecursionExpand_Producton_1", Rule_term_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_term_LeftRecursionExpand_Producton_2", Rule_term_LeftRecursionExpand_Producton_2);
-        actions.Add("Rule_number_id_Producton_0", Rule_number_id_Producton_0);
-        actions.Add("Rule_number_id_Producton_1", Rule_number_id_Producton_1);
         actions.Add("Rule_string_number_id_Producton_0", Rule_string_number_id_Producton_0);
         actions.Add("Rule_string_number_id_Producton_1", Rule_string_number_id_Producton_1);
         actions.Add("Rule_string_number_id_Producton_2", Rule_string_number_id_Producton_2);
@@ -468,8 +467,8 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         actions.Add("Rule_file_path_Producton_1", Rule_file_path_Producton_1);
         actions.Add("Rule_file_path_Producton_2", Rule_file_path_Producton_2);
         actions.Add("Rule_file_path_Producton_3", Rule_file_path_Producton_3);
-        actions.Add("Rule_number_Producton_0", Rule_number_Producton_0);
-        actions.Add("Rule_number_Producton_1", Rule_number_Producton_1);
+        actions.Add("Rule_number_double_Producton_0", Rule_number_double_Producton_0);
+        actions.Add("Rule_number_double_Producton_1", Rule_number_double_Producton_1);
         actions.Add("Rule_column_type_Producton_0", Rule_column_type_Producton_0);
         actions.Add("Rule_column_type_Producton_1", Rule_column_type_Producton_1);
     }
@@ -953,6 +952,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
 
         // user-defined action
         _0 = _1;
+        Console.WriteLine(_0);
 
         return _0;
     }
@@ -964,6 +964,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
 
         // user-defined action
         _0 = _1 + _3;
+        Console.WriteLine(_0);
 
         return _0;
     }
@@ -975,6 +976,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
 
         // user-defined action
         _0 = _1 - _3;
+        Console.WriteLine(_0);
 
         return _0;
     }
@@ -997,7 +999,21 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
 
     public static object Rule_term_Producton_1(Dictionary<int, object> objects) { 
         double _0 = new double();
+        double _1 = (double)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_term_Producton_2(Dictionary<int, object> objects) { 
+        double _0 = new double();
         string _1 = (string)objects[1];
+
+        // user-defined action
+        //mojo
+        _0 = 1;
 
         return _0;
     }
@@ -1030,26 +1046,6 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         return _0;
     }
 
-    public static object Rule_number_id_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = _1;
-
-        return _0;
-    }
-
-    public static object Rule_number_id_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = _1;
-
-        return _0;
-    }
-
     public static object Rule_string_number_id_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
@@ -1072,10 +1068,10 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
 
     public static object Rule_string_number_id_Producton_2(Dictionary<int, object> objects) { 
         string _0 = new string("");
-        string _1 = (string)objects[1];
+        double _1 = (double)objects[1];
 
         // user-defined action
-        _0 = _1;
+        _0 = "" + _1;
 
         return _0;
     }
@@ -1092,10 +1088,10 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
 
     public static object Rule_string_number_Producton_1(Dictionary<int, object> objects) { 
         string _0 = new string("");
-        string _1 = (string)objects[1];
+        double _1 = (double)objects[1];
 
         // user-defined action
-        _0 = _1;
+        _0 = "" + _1;
 
         return _0;
     }
@@ -1186,10 +1182,10 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
 
     public static object Rule_file_path_Producton_2(Dictionary<int, object> objects) { 
         string _0 = new string("");
-        string _1 = (string)objects[1];
+        double _1 = (double)objects[1];
 
         // user-defined action
-        _0 = _1;
+        _0 = "" + _1;
 
         return _0;
     }
@@ -1204,9 +1200,9 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         return _0;
     }
 
-    public static object Rule_number_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
+    public static object Rule_number_double_Producton_0(Dictionary<int, object> objects) { 
+        double _0 = new double();
+        double _1 = (double)objects[1];
 
         // user-defined action
         _0 = _1;
@@ -1214,12 +1210,12 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         return _0;
     }
 
-    public static object Rule_number_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+    public static object Rule_number_double_Producton_1(Dictionary<int, object> objects) { 
+        double _0 = new double();
         int _1 = (int)objects[1];
 
         // user-defined action
-        _0 = "" + _1;
+        _0 = _1;
 
         return _0;
     }
@@ -1284,19 +1280,19 @@ namespace sql_lexyaccNs
             { 274, "LESS_OR_EQUAL"},
             { 275, "GREATER_OR_EQUAL"},
             { 276, "STRING"},
-            { 277, "NUMBER_DOUBLE"},
-            { 278, "UPDATE"},
-            { 279, "SET"},
-            { 280, "ORDER"},
-            { 281, "BY"},
-            { 282, "ASC"},
-            { 283, "DESC"},
-            { 284, "DROP"},
-            { 285, "SAVE"},
-            { 286, "LOAD"},
-            { 287, "DB"},
-            { 288, "FILE_PATH"},
-            { 289, "POSITIVE_INT"},
+            { 277, "UPDATE"},
+            { 278, "SET"},
+            { 279, "ORDER"},
+            { 280, "BY"},
+            { 281, "ASC"},
+            { 282, "DESC"},
+            { 283, "DROP"},
+            { 284, "SAVE"},
+            { 285, "LOAD"},
+            { 286, "DB"},
+            { 287, "FILE_PATH"},
+            { 288, "POSITIVE_INT"},
+            { 289, "NUMBER_DOUBLE"},
         };
 
         public static int SELECT = 256;
@@ -1320,19 +1316,19 @@ namespace sql_lexyaccNs
         public static int LESS_OR_EQUAL = 274;
         public static int GREATER_OR_EQUAL = 275;
         public static int STRING = 276;
-        public static int NUMBER_DOUBLE = 277;
-        public static int UPDATE = 278;
-        public static int SET = 279;
-        public static int ORDER = 280;
-        public static int BY = 281;
-        public static int ASC = 282;
-        public static int DESC = 283;
-        public static int DROP = 284;
-        public static int SAVE = 285;
-        public static int LOAD = 286;
-        public static int DB = 287;
-        public static int FILE_PATH = 288;
-        public static int POSITIVE_INT = 289;
+        public static int UPDATE = 277;
+        public static int SET = 278;
+        public static int ORDER = 279;
+        public static int BY = 280;
+        public static int ASC = 281;
+        public static int DESC = 282;
+        public static int DROP = 283;
+        public static int SAVE = 284;
+        public static int LOAD = 285;
+        public static int DB = 286;
+        public static int FILE_PATH = 287;
+        public static int POSITIVE_INT = 288;
+        public static int NUMBER_DOUBLE = 289;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -1399,7 +1395,7 @@ namespace sql_lexyaccNs
 ""/""  { return '/'; }
 
 \d+          { value = int.Parse(yytext); return POSITIVE_INT; }
--?\d+(\.\d+)?           { value = yytext; return NUMBER_DOUBLE; }
+-?\d+(\.\d+)?           { value = double.Parse(yytext); return NUMBER_DOUBLE; }
 '([^']|'')*'               { value = yytext; return STRING; }
 [a-zA-Z0-9_]*      { value = yytext; return ID; }
 [a-zA-Z0-9_:\.\\/]+  { value = yytext; return FILE_PATH; }
@@ -1844,7 +1840,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return NUMBER_DOUBLE; 
+            value = double.Parse(yytext); return NUMBER_DOUBLE; 
 
             return 0;
         }
@@ -3409,7 +3405,6 @@ namespace LexYaccNs
                 nameToYaccRuleMap.Add(rule.lhs.name, rule);
                 rule = ReadRule(ref input, lexTokenDef, ruleNonterminalType);
             }
-
 
             ConvertIndirectLeftRecursion(allRules, lexTokenDef, ruleNonterminalType, nameToYaccRuleMap);
 

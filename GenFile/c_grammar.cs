@@ -2615,7 +2615,6 @@ namespace LexYaccNs
                 rule = ReadRule(ref input, lexTokenDef, ruleNonterminalType);
             }
 
-
             ConvertIndirectLeftRecursion(allRules, lexTokenDef, ruleNonterminalType, nameToYaccRuleMap);
 
             allRules = ConvertLeftRecursion(allRules, lexTokenDef, ruleNonterminalType);

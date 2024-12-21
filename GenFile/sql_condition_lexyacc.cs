@@ -22,7 +22,7 @@ public class YaccActions{
 
 %token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER_DOUBLE UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
 %token <int> POSITIVE_INT
-%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id string_number number
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id string_number number_double
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
 %type <HashSet<int>> boolean_expression
@@ -88,13 +88,13 @@ STRING
     $$ = $1;
 }
 | 
-number
+number_double
 {
     $$ = $1;
 }
 ;
 
-number:
+number_double:
 NUMBER_DOUBLE
 {
     $$ = $1;
@@ -135,8 +135,8 @@ POSITIVE_INT
         actions.Add("Rule_string_number_id_Producton_0", Rule_string_number_id_Producton_0);
         actions.Add("Rule_string_number_id_Producton_1", Rule_string_number_id_Producton_1);
         actions.Add("Rule_string_number_id_Producton_2", Rule_string_number_id_Producton_2);
-        actions.Add("Rule_number_Producton_0", Rule_number_Producton_0);
-        actions.Add("Rule_number_Producton_1", Rule_number_Producton_1);
+        actions.Add("Rule_number_double_Producton_0", Rule_number_double_Producton_0);
+        actions.Add("Rule_number_double_Producton_1", Rule_number_double_Producton_1);
     }
 
     public static object Rule_start_Producton_0(Dictionary<int, object> objects) { 
@@ -290,7 +290,7 @@ POSITIVE_INT
         return _0;
     }
 
-    public static object Rule_number_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_number_double_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 
@@ -300,7 +300,7 @@ POSITIVE_INT
         return _0;
     }
 
-    public static object Rule_number_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_number_double_Producton_1(Dictionary<int, object> objects) { 
         string _0 = new string("");
         int _1 = (int)objects[1];
 
@@ -464,7 +464,7 @@ namespace sql_condition_lexyaccNs
 ""/""  { return '/'; }
 
 \d+          { value = int.Parse(yytext); return POSITIVE_INT; }
--?\d+(\.\d+)?           { value = yytext; return NUMBER_DOUBLE; }
+-?\d+(\.\d+)?           { value = double.Parse(yytext); return NUMBER_DOUBLE; }
 '([^']|'')*'               { value = yytext; return STRING; }
 [a-zA-Z0-9_]*      { value = yytext; return ID; }
 [a-zA-Z0-9_:\.\\/]+  { value = yytext; return FILE_PATH; }
@@ -909,7 +909,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return NUMBER_DOUBLE; 
+            value = double.Parse(yytext); return NUMBER_DOUBLE; 
 
             return 0;
         }
@@ -2474,7 +2474,6 @@ namespace LexYaccNs
                 nameToYaccRuleMap.Add(rule.lhs.name, rule);
                 rule = ReadRule(ref input, lexTokenDef, ruleNonterminalType);
             }
-
 
             ConvertIndirectLeftRecursion(allRules, lexTokenDef, ruleNonterminalType, nameToYaccRuleMap);
 

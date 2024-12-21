@@ -2,15 +2,16 @@
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER_DOUBLE UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
 %token <int> POSITIVE_INT
-%type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement number file_path number_id
+%token <double> NUMBER_DOUBLE
+%type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement file_path
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_condition
 %type <List<Tuple<string, string>>> set_expression
-%type <double> arithmetic_expression term
+%type <double> arithmetic_expression term number_double
 %%
 
 statement: save_db | load_db | create_table_statement | drop_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement | arithmetic_expression;
@@ -226,15 +227,19 @@ arithmetic_expression:
 arithmetic_expression '+' arithmetic_expression 
 {
     $$ = $1 + $3;
+    Console.WriteLine($$);
 }
-| arithmetic_expression '-' arithmetic_expression 
+| 
+arithmetic_expression '-' arithmetic_expression 
 {
     $$ = $1 - $3;
+    Console.WriteLine($$);
 }
 | 
 term 
 {
     $$ = $1;
+    Console.WriteLine($$);
 }
 ;
 
@@ -252,21 +257,16 @@ term '*' term
 {
     $$ = $2;
 }
-| number_id 
-{
-
-}
-;
-
-number_id:
-ID
+| 
+number_double
 {
     $$ = $1;
 }
 | 
-number
+ID
 {
-    $$ = $1;
+    //mojo
+    $$ = 1;
 }
 ;
 
@@ -281,9 +281,9 @@ STRING
     $$ = $1;
 }
 | 
-number
+number_double
 {
-    $$ = $1;
+    $$ = "" + $1;
 }
 ;
 
@@ -293,9 +293,9 @@ STRING
     $$ = $1;
 }
 | 
-number
+number_double
 {
-    $$ = $1;
+    $$ = "" + $1;
 }
 ;
 
@@ -344,7 +344,7 @@ POSITIVE_INT
 |
 NUMBER_DOUBLE
 {
-    $$ = $1;
+    $$ = "" + $1;
 }
 |
 ID
@@ -355,7 +355,7 @@ ID
 
 logical_operator: AND | OR;
 
-number:
+number_double:
 NUMBER_DOUBLE
 {
     $$ = $1;
@@ -363,7 +363,7 @@ NUMBER_DOUBLE
 | 
 POSITIVE_INT
 {
-    $$ = "" + $1;
+    $$ = $1;
 }
 ;
 

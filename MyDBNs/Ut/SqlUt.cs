@@ -52,7 +52,8 @@ namespace MyDBNs
             ret = sql_lexyacc.Parse("INSERT INTO A VALUES ( 'GH', 456  )");
             Check(ret == null || ret.ToString() == "");
 
-            ret = sql_lexyacc.Parse("(1 + 2) * 3");
+            // bug should be 12 not 0.75
+            ret = sql_lexyacc.Parse("(1 + 2) * 3 / ( (8 - 2) / 2) * 4 ");
             Check(ret == null || ret.ToString() == "");
 
             //ret = sql_lexyacc.Parse("1 + 2 - 'adb' /  (aaa)");
