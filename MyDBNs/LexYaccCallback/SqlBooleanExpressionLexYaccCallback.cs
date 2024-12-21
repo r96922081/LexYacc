@@ -117,7 +117,7 @@
                         }
                     }
                 case BooleanOperator.LessThanEqualTo:
-                    return EvaluateBooleanExpression(BooleanOperator.LessThan, lhs, rhs, type) && EvaluateBooleanExpression(BooleanOperator.Equal, lhs, rhs, type);
+                    return EvaluateBooleanExpression(BooleanOperator.LessThan, lhs, rhs, type) || EvaluateBooleanExpression(BooleanOperator.Equal, lhs, rhs, type);
                 case BooleanOperator.GreaterThan:
                     return !EvaluateBooleanExpression(BooleanOperator.LessThan, lhs, rhs, type) && !EvaluateBooleanExpression(BooleanOperator.Equal, lhs, rhs, type);
                 case BooleanOperator.GreaterThanEqualTo:
