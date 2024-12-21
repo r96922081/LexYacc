@@ -674,92 +674,66 @@ b:
 
     public static void UtFeed25()
     {
-        string line0 = "start: a; ";
-        string line1 = "a: b 'A' | 'X'; ";
-        string line2 = "b: c; ";
-        string line3 = "c: d; ";
-        string line4 = "d: a 'D'; ";
+        string line1 = "a: b 'A' | 'X';"; // a: a 'B' 'A' | 'X'
+        string line2 = "b: a 'B' ; ";
 
-        /*
-          a: c 'A';
-          ->
-          a: d 'A'
-          ->
-          d: d 'A' 'D'
-         */
-
-        Yacc yacc = new Yacc(line0 + line1 + line2 + line3 + line4);
+        Yacc yacc = new Yacc(line1 + line2);
 
         yacc.Rebuild();
         tokens.Clear();
+        tokens.Add(Terminal.BuildConstCharTerminal('X'));
+        tokens.Add(Terminal.BuildConstCharTerminal('B'));
         tokens.Add(Terminal.BuildConstCharTerminal('A'));
-        tokens.Add(Terminal.BuildConstCharTerminal('D'));
         Check(yacc.Feed(tokens) == true);
 
         yacc.Rebuild();
         tokens.Clear();
+        tokens.Add(Terminal.BuildConstCharTerminal('X'));
+        tokens.Add(Terminal.BuildConstCharTerminal('B'));
         tokens.Add(Terminal.BuildConstCharTerminal('A'));
-        tokens.Add(Terminal.BuildConstCharTerminal('D'));
+        tokens.Add(Terminal.BuildConstCharTerminal('B'));
         tokens.Add(Terminal.BuildConstCharTerminal('A'));
-        tokens.Add(Terminal.BuildConstCharTerminal('D'));
+        tokens.Add(Terminal.BuildConstCharTerminal('B'));
         tokens.Add(Terminal.BuildConstCharTerminal('A'));
-        tokens.Add(Terminal.BuildConstCharTerminal('D'));
         Check(yacc.Feed(tokens) == true);
 
         yacc.Rebuild();
         tokens.Clear();
-        tokens.Add(Terminal.BuildConstCharTerminal('A'));
-        tokens.Add(Terminal.BuildConstCharTerminal('D'));
-        tokens.Add(Terminal.BuildConstCharTerminal('A'));
+        tokens.Add(Terminal.BuildConstCharTerminal('X'));
+        tokens.Add(Terminal.BuildConstCharTerminal('B'));
         Check(yacc.Feed(tokens) == false);
     }
 
     public static void UtFeed26()
     {
-        string line1 = "a: b 'A' | 'A'; ";
-        string line2 = "b: c 'B'; ";
-        string line3 = "c: a 'C'; ";
+        string line0 = "a: b 'A' | 'X'; "; //  a: a 'C' 'B' 'A' | 'X'
+        string line1 = "b: c 'B'; ";
+        string line2 = "c: a 'C'; ";
 
-        /*
-          a: c 'B' 'A' | 'A';
-          ->
-          c:  (c 'B' 'A' | 'A') x 'C'
-          ->
-          c: c 'B' 'A' 'C' | 'A' 'C'
-         */
 
-        Yacc yacc = new Yacc(line1 + line2 + line3);
+        Yacc yacc = new Yacc(line0 + line1 + line2);
 
         yacc.Rebuild();
         tokens.Clear();
-        tokens.Add(Terminal.BuildConstCharTerminal('A'));
-        tokens.Add(Terminal.BuildConstCharTerminal('C'));
-        tokens.Add(Terminal.BuildConstCharTerminal('B'));
-        tokens.Add(Terminal.BuildConstCharTerminal('A'));
-        tokens.Add(Terminal.BuildConstCharTerminal('C'));
-        Check(yacc.Feed(tokens) == true);
-
-        yacc.Rebuild();
-        tokens.Clear();
-        tokens.Add(Terminal.BuildConstCharTerminal('A'));
-        tokens.Add(Terminal.BuildConstCharTerminal('C'));
-        tokens.Add(Terminal.BuildConstCharTerminal('A'));
-        tokens.Add(Terminal.BuildConstCharTerminal('C'));
-        tokens.Add(Terminal.BuildConstCharTerminal('A'));
-        tokens.Add(Terminal.BuildConstCharTerminal('C'));
-        tokens.Add(Terminal.BuildConstCharTerminal('B'));
-        tokens.Add(Terminal.BuildConstCharTerminal('A'));
-        tokens.Add(Terminal.BuildConstCharTerminal('C'));
-        Check(yacc.Feed(tokens) == true);
-
-        yacc.Rebuild();
-        tokens.Clear();
-        tokens.Add(Terminal.BuildConstCharTerminal('A'));
-        tokens.Add(Terminal.BuildConstCharTerminal('C'));
-        tokens.Add(Terminal.BuildConstCharTerminal('B'));
-        tokens.Add(Terminal.BuildConstCharTerminal('A'));
-        tokens.Add(Terminal.BuildConstCharTerminal('C'));
         tokens.Add(Terminal.BuildConstCharTerminal('X'));
+        Check(yacc.Feed(tokens) == true);
+
+        yacc.Rebuild();
+        tokens.Clear();
+        tokens.Add(Terminal.BuildConstCharTerminal('X'));
+        tokens.Add(Terminal.BuildConstCharTerminal('C'));
+        tokens.Add(Terminal.BuildConstCharTerminal('B'));
+        tokens.Add(Terminal.BuildConstCharTerminal('A'));
+        tokens.Add(Terminal.BuildConstCharTerminal('C'));
+        tokens.Add(Terminal.BuildConstCharTerminal('B'));
+        tokens.Add(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.Feed(tokens) == true);
+
+        yacc.Rebuild();
+        tokens.Clear();
+        tokens.Add(Terminal.BuildConstCharTerminal('C'));
+        tokens.Add(Terminal.BuildConstCharTerminal('B'));
+        tokens.Add(Terminal.BuildConstCharTerminal('A'));
         Check(yacc.Feed(tokens) == false);
     }
 
@@ -789,8 +763,8 @@ b:
         UtFeed22();
         UtFeed23();
         UtFeed24();
-        //UtFeed25();
-        //UtFeed26();
+        UtFeed25();
+        UtFeed26();
     }
 
     private static void UtBuild1()
@@ -1392,10 +1366,6 @@ term:
 
     public static void RunAllUt()
     {
-        //mojo
-        UtFeed25();
-        //UtFeed26();
-
         UtSecctionSplitter();
         UtFeed();
         UtBuild();

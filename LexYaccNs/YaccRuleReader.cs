@@ -100,7 +100,7 @@ namespace LexYaccNs
                 rule = ReadRule(ref input, lexTokenDef, ruleNonterminalType);
             }
 
-            allRules = ConvertIndirectLeftRecursion(allRules, lexTokenDef, ruleNonterminalType, nameToYaccRuleMap);
+            ConvertIndirectLeftRecursion(allRules, lexTokenDef, ruleNonterminalType, nameToYaccRuleMap);
 
             allRules = ConvertLeftRecursion(allRules, lexTokenDef, ruleNonterminalType);
 
@@ -345,18 +345,86 @@ namespace LexYaccNs
             return null;
         }
 
-        public static List<YaccRule> ConvertIndirectLeftRecursion(List<YaccRule> rules, List<LexTokenDef> lexTokenDef, Dictionary<string, string> ruleNonterminalType, Dictionary<string, YaccRule> nameToYaccRuleMap)
+        private static void ReplaceIndirectLeftRecursion(List<Tuple<YaccRule, Production>> indirectLeftRecursionRule, List<LexTokenDef> lexTokenDef, Dictionary<string, string> ruleNonterminalType)
         {
-            List<YaccRule> ret = new List<YaccRule>(rules);
 
+            /*
+             a: b ' A' | 'X';
+             b: a 'B' | 'B'
+
+             => a: a 'B' 'A' | 'B' 'A' | 'X'
+
+            =======
+
+            a: b 'A';
+            b: c 'B';
+            c: d 'C';
+            d: a 'D';
+
+            =>
+            a: c 'B' 'A'
+            =>
+            a: d 'C' 'B' 'A'
+            =>
+            a: a 'D' 'C' 'B' 'A'
+            =>
+             */
+
+            YaccRule r0 = indirectLeftRecursionRule[0].Item1;
+
+            for (int i = 1; i < indirectLeftRecursionRule.Count; i++)
+            {
+                YaccRule nextRule = indirectLeftRecursionRule[i].Item1;
+
+                List<Production> oldProductions = new List<Production>(r0.productions);
+                r0.productions.Clear();
+
+                foreach (Production oldProduction in oldProductions)
+                {
+                    if (oldProduction.IsEmptyProduction())
+                    {
+                        r0.productions.Add(oldProduction);
+                        continue;
+                    }
+
+                    if (oldProduction.symbols[0] is Terminal)
+                    {
+                        r0.productions.Add(oldProduction);
+                        continue;
+                    }
+
+                    Nonterminal nt = (Nonterminal)oldProduction.symbols[0];
+
+                    if (nt.name != nextRule.lhs.name)
+                    {
+                        r0.productions.Add(oldProduction);
+                        continue;
+                    }
+
+                    if (nt.name == nextRule.lhs.name)
+                    {
+                        foreach (Production nextP in nextRule.productions)
+                        {
+                            List<Symbol> symbols = new List<Symbol>();
+                            symbols.AddRange(nextP.symbols);
+                            symbols.AddRange(oldProduction.symbols.GetRange(1, oldProduction.symbols.Count - 1));
+                            r0.productions.Add(new Production(r0.lhs, symbols, lexTokenDef, ruleNonterminalType, null, ProductionType.Plain));
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void ConvertIndirectLeftRecursion(List<YaccRule> rules, List<LexTokenDef> lexTokenDef, Dictionary<string, string> ruleNonterminalType, Dictionary<string, YaccRule> nameToYaccRuleMap)
+        {
             List<Tuple<YaccRule, Production>> indirectLeftRecursionRule = GetIndirectLeftRecursion(rules, nameToYaccRuleMap);
 
             while (indirectLeftRecursionRule != null)
             {
+                ReplaceIndirectLeftRecursion(indirectLeftRecursionRule, lexTokenDef, ruleNonterminalType);
+
                 indirectLeftRecursionRule = GetIndirectLeftRecursion(rules, nameToYaccRuleMap);
             }
-
-            return ret;
         }
 
         public static List<YaccRule> ConvertLeftRecursion(List<YaccRule> rules, List<LexTokenDef> lexTokenDef, Dictionary<string, string> ruleNonterminalType)
