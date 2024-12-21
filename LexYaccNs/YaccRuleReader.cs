@@ -88,20 +88,23 @@ namespace LexYaccNs
 
         public static List<YaccRule> Parse(string input, List<LexTokenDef> lexTokenDef, Dictionary<string, string> ruleNonterminalType)
         {
-            List<YaccRule> ret = new List<YaccRule>();
+            List<YaccRule> allRules = new List<YaccRule>();
 
             YaccRule rule = ReadRule(ref input, lexTokenDef, ruleNonterminalType);
+            Dictionary<string, YaccRule> nameToYaccRuleMap = new Dictionary<string, YaccRule>();
+
             while (rule != null)
             {
-                ret.Add(rule);
+                allRules.Add(rule);
+                nameToYaccRuleMap.Add(rule.lhs.name, rule);
                 rule = ReadRule(ref input, lexTokenDef, ruleNonterminalType);
             }
 
-            //ret = ConvertIndirectLeftRecursion(ret, lexTokenDef, ruleNonterminalType);
+            allRules = ConvertIndirectLeftRecursion(allRules, lexTokenDef, ruleNonterminalType, nameToYaccRuleMap);
 
-            ret = ConvertLeftRecursion(ret, lexTokenDef, ruleNonterminalType);
+            allRules = ConvertLeftRecursion(allRules, lexTokenDef, ruleNonterminalType);
 
-            foreach (YaccRule r in ret)
+            foreach (YaccRule r in allRules)
             {
                 for (int i = 0; i < r.productions.Count; i++)
                 {
@@ -111,7 +114,7 @@ namespace LexYaccNs
                 }
             }
 
-            return ret;
+            return allRules;
         }
 
         private static string ConvertActionVariable(string action)
@@ -271,11 +274,12 @@ namespace LexYaccNs
             return rule;
         }
 
-        private static List<YaccRule> GetIndirectLeftRecursionDfs(YaccRule rule, List<YaccRule> rules, List<YaccRule> traversed)
+        private static List<Tuple<YaccRule, Production>> GetIndirectLeftRecursionDfs(YaccRule r, HashSet<string> traversed, HashSet<string> tempTraversed, List<Tuple<string, Production>> tempTraversedList, Dictionary<string, YaccRule> nameToYaccRuleMap)
         {
-            traversed.Add(rule);
-            foreach (Production p in rule.productions)
+            foreach (Production p in r.productions)
             {
+                traversed.Add(r.lhs.name);
+
                 if (p.IsEmptyProduction())
                     continue;
 
@@ -283,42 +287,73 @@ namespace LexYaccNs
                     continue;
 
                 Nonterminal nt = (Nonterminal)p.symbols[0];
-                if (nt.name == rule.lhs.name)
+                if (nt.name == p.lhs.name)
                     continue;
 
+                tempTraversed.Add(r.lhs.name);
+                tempTraversedList.Add(Tuple.Create(r.lhs.name, p));
 
+                string name = nt.name;
+                if (tempTraversed.Contains(name))
+                {
+                    List<Tuple<YaccRule, Production>> indirect = new List<Tuple<YaccRule, Production>>();
+                    for (int i = tempTraversedList.Count - 1; i >= 0; i--)
+                    {
+                        Tuple<string, Production> t = tempTraversedList.ElementAt(i);
+                        string name2 = t.Item1;
+
+                        indirect.Insert(0, Tuple.Create(nameToYaccRuleMap[name2], t.Item2));
+
+                        if (name2 == name)
+                            return indirect;
+                    }
+                }
+
+                List<Tuple<YaccRule, Production>> ret = GetIndirectLeftRecursionDfs(nameToYaccRuleMap[name], traversed, tempTraversed, tempTraversedList, nameToYaccRuleMap);
+                if (ret != null)
+                    return ret;
+
+                tempTraversed.Remove(r.lhs.name);
+                tempTraversedList.RemoveAt(tempTraversedList.Count - 1);
             }
 
             return null;
         }
 
-        private static List<YaccRule> GetIndirectLeftRecursion(List<YaccRule> rulesParam)
+        private static List<Tuple<YaccRule, Production>> GetIndirectLeftRecursion(List<YaccRule> rulesParam, Dictionary<string, YaccRule> nameToYaccRuleMap)
         {
             List<YaccRule> rules = new List<YaccRule>(rulesParam);
+            HashSet<string> traversed = new HashSet<string>();
+            HashSet<string> tempTraversed = new HashSet<string>();
+            List<Tuple<string, Production>> tempTraversedList = new List<Tuple<string, Production>>();
 
             while (rules.Count > 0)
             {
-                List<YaccRule> traversed = new List<YaccRule>();
-                List<YaccRule> indirect = GetIndirectLeftRecursionDfs(rules[0], rules, traversed);
+                traversed.Clear();
+                tempTraversed.Clear();
+                tempTraversedList.Clear();
+
+
+                List<Tuple<YaccRule, Production>> indirect = GetIndirectLeftRecursionDfs(rules[0], traversed, tempTraversed, tempTraversedList, nameToYaccRuleMap);
                 if (indirect != null)
                     return indirect;
 
-                foreach (YaccRule r in traversed)
-                    rules.Remove(r);
+                foreach (var name in traversed)
+                    rules.Remove(nameToYaccRuleMap[name]);
             }
 
             return null;
         }
 
-        public static List<YaccRule> ConvertIndirectLeftRecursion(List<YaccRule> rules, List<LexTokenDef> lexTokenDef, Dictionary<string, string> ruleNonterminalType)
+        public static List<YaccRule> ConvertIndirectLeftRecursion(List<YaccRule> rules, List<LexTokenDef> lexTokenDef, Dictionary<string, string> ruleNonterminalType, Dictionary<string, YaccRule> nameToYaccRuleMap)
         {
             List<YaccRule> ret = new List<YaccRule>(rules);
 
-            List<YaccRule> indirectLeftRecursionRule = GetIndirectLeftRecursion(rules);
+            List<Tuple<YaccRule, Production>> indirectLeftRecursionRule = GetIndirectLeftRecursion(rules, nameToYaccRuleMap);
 
             while (indirectLeftRecursionRule != null)
             {
-                indirectLeftRecursionRule = GetIndirectLeftRecursion(rules);
+                indirectLeftRecursionRule = GetIndirectLeftRecursion(rules, nameToYaccRuleMap);
             }
 
             return ret;

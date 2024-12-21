@@ -674,7 +674,8 @@ b:
 
     public static void UtFeed25()
     {
-        string line1 = "a: b 'A'; ";
+        string line0 = "start: a; ";
+        string line1 = "a: b 'A' | 'X'; ";
         string line2 = "b: c; ";
         string line3 = "c: d; ";
         string line4 = "d: a 'D'; ";
@@ -687,7 +688,7 @@ b:
           d: d 'A' 'D'
          */
 
-        Yacc yacc = new Yacc(line1 + line2 + line3 + line4);
+        Yacc yacc = new Yacc(line0 + line1 + line2 + line3 + line4);
 
         yacc.Rebuild();
         tokens.Clear();
@@ -1392,7 +1393,7 @@ term:
     public static void RunAllUt()
     {
         //mojo
-        //UtFeed25();
+        UtFeed25();
         //UtFeed26();
 
         UtSecctionSplitter();

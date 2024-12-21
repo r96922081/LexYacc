@@ -204,6 +204,17 @@
             return null;
         }
 
+        public YaccRule GetYaccRule(string lhsName)
+        {
+            foreach (var r in productionRules)
+            {
+                if (r.lhs.name == lhsName)
+                    return r;
+            }
+
+            return null;
+        }
+
         public override string ToString()
         {
             string ret = "";
