@@ -10,10 +10,10 @@
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_condition
 %type <List<Tuple<string, string>>> set_expression
-%type <object> expression term 
+%type <object> expression term
 %%
 
-statement: save_db | load_db | create_table_statement | drop_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement;
+statement: save_db | load_db | create_table_statement | drop_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement | expression;
 
 save_db: SAVE DB file_path
 {
@@ -231,11 +231,6 @@ expression '+' expression
 {
 
 }
-|
-'(' expression ')'
-{
-
-}
 | 
 term 
 {
@@ -244,11 +239,16 @@ term
 ;
 
 term:
-term '*' string_number_id 
+term '*' term 
 {
 
 }
-| term '/' string_number_id 
+| term '/' term 
+{
+
+}
+|
+'(' expression ')'
 {
 
 }

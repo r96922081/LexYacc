@@ -28,10 +28,10 @@ public class YaccActions{
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_condition
 %type <List<Tuple<string, string>>> set_expression
-%type <object> expression term 
+%type <object> expression term
 %%
 
-statement: save_db | load_db | create_table_statement | drop_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement;
+statement: save_db | load_db | create_table_statement | drop_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement | expression;
 
 save_db: SAVE DB file_path
 {
@@ -249,11 +249,6 @@ expression '+' expression
 {
 
 }
-|
-'(' expression ')'
-{
-
-}
 | 
 term 
 {
@@ -262,11 +257,16 @@ term
 ;
 
 term:
-term '*' string_number_id 
+term '*' term 
 {
 
 }
-| term '/' string_number_id 
+| term '/' term 
+{
+
+}
+|
+'(' expression ')'
 {
 
 }
@@ -431,11 +431,11 @@ column_type: VARCHAR '(' POSITIVE ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_T
         actions.Add("Rule_comma_sep_id_include_star_Producton_2", Rule_comma_sep_id_include_star_Producton_2);
         actions.Add("Rule_comma_sep_id_include_star_Producton_3", Rule_comma_sep_id_include_star_Producton_3);
         actions.Add("Rule_expression_Producton_0", Rule_expression_Producton_0);
-        actions.Add("Rule_expression_Producton_1", Rule_expression_Producton_1);
         actions.Add("Rule_expression_LeftRecursionExpand_Producton_0", Rule_expression_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_expression_LeftRecursionExpand_Producton_1", Rule_expression_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_expression_LeftRecursionExpand_Producton_2", Rule_expression_LeftRecursionExpand_Producton_2);
         actions.Add("Rule_term_Producton_0", Rule_term_Producton_0);
+        actions.Add("Rule_term_Producton_1", Rule_term_Producton_1);
         actions.Add("Rule_term_LeftRecursionExpand_Producton_0", Rule_term_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_term_LeftRecursionExpand_Producton_1", Rule_term_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_term_LeftRecursionExpand_Producton_2", Rule_term_LeftRecursionExpand_Producton_2);
@@ -935,13 +935,6 @@ column_type: VARCHAR '(' POSITIVE ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_T
 
     public static object Rule_expression_Producton_0(Dictionary<int, object> objects) { 
         object _0 = new object();
-        object _2 = (object)objects[2];
-
-        return _0;
-    }
-
-    public static object Rule_expression_Producton_1(Dictionary<int, object> objects) { 
-        object _0 = new object();
         object _1 = (object)objects[1];
 
         return _0;
@@ -971,6 +964,13 @@ column_type: VARCHAR '(' POSITIVE ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_T
 
     public static object Rule_term_Producton_0(Dictionary<int, object> objects) { 
         object _0 = new object();
+        object _2 = (object)objects[2];
+
+        return _0;
+    }
+
+    public static object Rule_term_Producton_1(Dictionary<int, object> objects) { 
+        object _0 = new object();
         string _1 = (string)objects[1];
 
         return _0;
@@ -979,7 +979,7 @@ column_type: VARCHAR '(' POSITIVE ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_T
     public static object Rule_term_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
         object _0 = new object();
         object _1 =(object)objects[1];
-        string _3 = (string)objects[3];
+        object _3 = (object)objects[3];
 
         return _0;
     }
@@ -987,7 +987,7 @@ column_type: VARCHAR '(' POSITIVE ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_T
     public static object Rule_term_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
         object _0 = new object();
         object _1 =(object)objects[1];
-        string _3 = (string)objects[3];
+        object _3 = (object)objects[3];
 
         return _0;
     }
