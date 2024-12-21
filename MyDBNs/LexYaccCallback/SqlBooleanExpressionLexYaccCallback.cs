@@ -17,6 +17,7 @@
             StringType lhsType2 = lhsType;
             if (lhsType2 == StringType.Column)
             {
+                lhs = lhs.ToUpper();
                 ColumnType t = table.columnNameToTypesMap[lhs];
                 if (t == ColumnType.NUMBER)
                     lhsType2 = StringType.Number;
@@ -27,6 +28,7 @@
             StringType rhsType2 = rhsType;
             if (rhsType2 == StringType.Column)
             {
+                rhs = rhs.ToUpper();
                 ColumnType t = table.columnNameToTypesMap[rhs];
                 if (t == ColumnType.NUMBER)
                     rhsType2 = StringType.Number;
@@ -130,14 +132,64 @@
             return null;
         }
 
+        public static ColumnType GetType(string s, ref int columnIndex)
+        {
+            StringType type = Util.GetStringType(s);
+            if (type == StringType.Column)
+                s = s.ToUpper();
+
+            List<Table> tables = MyDBNs.DB.tables;
+            Table table = Util.GetTable(tableName);
+
+            ColumnType type2 = ColumnType.NUMBER;
+            if (type == StringType.String)
+                type2 = ColumnType.VARCHAR;
+            else if (type == StringType.Number)
+                type2 = ColumnType.NUMBER;
+            else
+            {
+                ColumnType t = table.columnNameToTypesMap[s];
+                if (t == ColumnType.NUMBER)
+                    type2 = ColumnType.NUMBER;
+                else
+                    type2 = ColumnType.VARCHAR;
+
+                columnIndex = table.columnNameToIndexMap[s];
+            }
+
+            return type2;
+        }
+
+        public static object GetValue(object[] row, string value, ColumnType type, int columnIndex)
+        {
+            if (columnIndex != -1)
+            {
+                return row[columnIndex];
+            }
+            else if (type == ColumnType.NUMBER)
+            {
+                if (value != null)
+                    return double.Parse(value);
+                else
+                    return null;
+            }
+            else if (type == ColumnType.VARCHAR)
+            {
+                if (value != null)
+                    return value.Substring(1, value.Length - 2);
+                else
+                    return null;
+            }
+
+            return null;
+        }
+
         public static HashSet<int> BooleanExpressionVarcharColumn(string lhs, string op, string rhs)
         {
-            StringType lhsType = Util.GetStringType(lhs);
-            StringType rhsType = Util.GetStringType(rhs);
-            if (lhsType == StringType.Column)
-                lhs = lhs.ToUpper();
-            if (rhsType == StringType.Column)
-                rhs = rhs.ToUpper();
+            int lhsColumnIndex = -1;
+            int rhsColumnIndex = -1;
+            ColumnType lhsType = GetType(lhs, ref lhsColumnIndex);
+            ColumnType rhsType = GetType(lhs, ref lhsColumnIndex);
 
             VerifyBooleanExpression(lhs, op, rhs);
 
@@ -146,89 +198,36 @@
             List<Table> tables = MyDBNs.DB.tables;
             Table table = Util.GetTable(tableName);
 
-            int lhsColumnIndex = -1;
-            int rhsColumnIndex = -1;
-
-            ColumnType lhsType2 = ColumnType.VARCHAR;
-            if (lhsType == StringType.String)
-                lhsType2 = ColumnType.VARCHAR;
-            else
-            {
-                ColumnType t = table.columnNameToTypesMap[lhs];
-                if (t == ColumnType.NUMBER)
-                    lhsType2 = ColumnType.NUMBER;
-                else
-                    lhsType2 = ColumnType.VARCHAR;
-
-                lhsColumnIndex = table.columnNameToIndexMap[lhs];
-            }
-
-            ColumnType rhsType2 = ColumnType.VARCHAR;
-            if (rhsType == StringType.String)
-                rhsType2 = ColumnType.VARCHAR;
-            else
-            {
-                ColumnType t = table.columnNameToTypesMap[rhs];
-                if (t == ColumnType.NUMBER)
-                    rhsType2 = ColumnType.NUMBER;
-                else
-                    rhsType2 = ColumnType.VARCHAR;
-
-                rhsColumnIndex = table.columnNameToIndexMap[rhs];
-            }
-
-
             for (int i = 0; i < table.rows.Count; i++)
             {
                 object[] row = table.rows[i];
-
-                object lhsValue = null;
-                object rhsValue = null;
-
-                if (lhsType == StringType.Column)
-                {
-                    lhsValue = row[lhsColumnIndex];
-                }
-                else if (lhsType2 == ColumnType.VARCHAR)
-                {
-                    if (lhs != null)
-                        lhsValue = lhs.Substring(1, lhs.Length - 2);
-                }
-
-                if (rhsType == StringType.Column)
-                {
-                    rhsValue = row[rhsColumnIndex];
-                }
-                else if (rhsType2 == ColumnType.VARCHAR)
-                {
-                    if (rhs != null)
-                        rhsValue = rhs.Substring(1, rhs.Length - 2);
-                }
+                object lhsValue = GetValue(row, lhs, lhsType, lhsColumnIndex);
+                object rhsValue = GetValue(row, rhs, rhsType, rhsColumnIndex); ;
 
                 switch (op)
                 {
                     case "=":
-                        if (EvaluateBooleanExpression(BooleanOperator.Equal, lhsValue, rhsValue, lhsType2))
+                        if (EvaluateBooleanExpression(BooleanOperator.Equal, lhsValue, rhsValue, lhsType))
                             rows.Add(i);
                         break;
                     case "!=":
-                        if (EvaluateBooleanExpression(BooleanOperator.NotEqual, lhsValue, rhsValue, lhsType2))
+                        if (EvaluateBooleanExpression(BooleanOperator.NotEqual, lhsValue, rhsValue, lhsType))
                             rows.Add(i);
                         break;
                     case "<":
-                        if (EvaluateBooleanExpression(BooleanOperator.LessThan, lhsValue, rhsValue, lhsType2))
+                        if (EvaluateBooleanExpression(BooleanOperator.LessThan, lhsValue, rhsValue, lhsType))
                             rows.Add(i);
                         break;
                     case "<=":
-                        if (EvaluateBooleanExpression(BooleanOperator.LessThanEqualTo, lhsValue, rhsValue, lhsType2))
+                        if (EvaluateBooleanExpression(BooleanOperator.LessThanEqualTo, lhsValue, rhsValue, lhsType))
                             rows.Add(i);
                         break;
                     case ">":
-                        if (EvaluateBooleanExpression(BooleanOperator.GreaterThan, lhsValue, rhsValue, lhsType2))
+                        if (EvaluateBooleanExpression(BooleanOperator.GreaterThan, lhsValue, rhsValue, lhsType))
                             rows.Add(i);
                         break;
                     case ">=":
-                        if (EvaluateBooleanExpression(BooleanOperator.GreaterThanEqualTo, lhsValue, rhsValue, lhsType2))
+                        if (EvaluateBooleanExpression(BooleanOperator.GreaterThanEqualTo, lhsValue, rhsValue, lhsType))
                             rows.Add(i);
                         break;
                 }

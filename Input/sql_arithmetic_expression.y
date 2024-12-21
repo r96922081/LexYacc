@@ -19,19 +19,16 @@ arithmetic_expression:
 arithmetic_expression '+' term 
 {
     $$ = $1 + $3;
-    Console.WriteLine($$);
 }
 | 
 arithmetic_expression '-' term 
 {
     $$ = $1 - $3;
-    Console.WriteLine($$);
 }
 | 
 term 
 {
     $$ = $1;
-    Console.WriteLine($$);
 }
 ;
 
