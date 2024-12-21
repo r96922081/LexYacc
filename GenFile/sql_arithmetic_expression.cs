@@ -1,13 +1,13 @@
 //LexYacc Gen
-public class sql_lexyacc
+public class sql_arithmetic_expression
 {
     public static object Parse(string input)
     {
-        return sql_lexyaccNs.LexYaccNs.LexYacc.Parse(input, sql_lexyaccNs.LexActions.ruleInput, sql_lexyaccNs.YaccActions.ruleInput, sql_lexyaccNs.LexActions.CallAction, sql_lexyaccNs.YaccActions.CallAction);
+        return sql_arithmetic_expressionNs.LexYaccNs.LexYacc.Parse(input, sql_arithmetic_expressionNs.LexActions.ruleInput, sql_arithmetic_expressionNs.YaccActions.ruleInput, sql_arithmetic_expressionNs.LexActions.CallAction, sql_arithmetic_expressionNs.YaccActions.CallAction);
     }
 }
 //Yacc Gen 
-namespace sql_lexyaccNs
+namespace sql_arithmetic_expressionNs
 {
 
 
@@ -23,258 +23,53 @@ public class YaccActions{
 %token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
 %token <int> POSITIVE_INT
 %token <double> NUMBER_DOUBLE
-%type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement file_path arithmetic_expression term number_double_id string_id
+%type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement file_path
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_condition
 %type <List<Tuple<string, string>>> set_expression
-%type <double> number_double
+%type <double> arithmetic_expression term number_double number_double_id
 %%
 
-statement: save_db | load_db | create_table_statement | drop_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement;
-
-save_db: SAVE DB file_path
-{
-    MyDBNs.SqlLexYaccCallback.SaveDB($3);
-};
-
-load_db: LOAD DB file_path
-{
-    MyDBNs.SqlLexYaccCallback.LoadDB($3);
-};
-
-
-create_table_statement: CREATE TABLE ID '(' column_declare ')' 
-{
-    MyDBNs.SqlLexYaccCallback.CreateTable($3, $5);
-};
-
-drop_table_statement: DROP TABLE ID
-{
-    MyDBNs.SqlLexYaccCallback.DropTable($3);
-};
-
-column_declare: ID column_type 
-{
-    MyDBNs.SqlLexYaccCallback.ColumnDeclare($$, $1, $2);
-} 
-| 
-ID column_type ',' column_declare 
-{
-    MyDBNs.SqlLexYaccCallback.ColumnDeclare($$, $1, $2, $4);
-};
-
-insert_statement: 
-INSERT INTO ID VALUES '(' comma_sep_value ')'
-{
-    MyDBNs.SqlLexYaccCallback.Insert($3, null, $6);
-}
-|
-INSERT INTO ID '(' comma_sep_id ')' VALUES '(' comma_sep_value ')'
-{
-    MyDBNs.SqlLexYaccCallback.Insert($3, $5, $9);
-};
-
-delete_statement:
-DELETE FROM ID
-{
-    MyDBNs.SqlLexYaccCallback.Delete($3, null);
-}
-|
-DELETE FROM ID WHERE boolean_expression
-{
-    MyDBNs.SqlLexYaccCallback.Delete($3, $5);
-}
-;
-
-update_statement:
-UPDATE ID SET set_expression
-{
-    MyDBNs.SqlLexYaccCallback.Update($2, $4, null);
-}
-|
-UPDATE ID SET set_expression WHERE boolean_expression
-{
-    MyDBNs.SqlLexYaccCallback.Update($2, $4, $6);
-}
-;
-
-show_tables_statement:
-SHOW TABLES
-{
-    MyDBNs.SqlLexYaccCallback.ShowTables();
-}
-;
-
-select_statement:
-SELECT comma_sep_id_include_star FROM ID
-{
-    MyDBNs.SqlLexYaccCallback.Select($2, $4, null, null);
-}
-|
-SELECT comma_sep_id_include_star FROM ID ORDER BY order_by_condition
-{
-    MyDBNs.SqlLexYaccCallback.Select($2, $4, null, $7);
-}
-|
-SELECT comma_sep_id_include_star FROM ID WHERE boolean_expression
-{
-    MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, null);
-}
-|
-SELECT comma_sep_id_include_star FROM ID WHERE boolean_expression ORDER BY order_by_condition
-{
-    MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, $9);
-}
-;
-
-boolean_expression:
-boolean_expression AND boolean_expression
-{
-    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""AND"", $3);
-}
-|
-boolean_expression OR boolean_expression
-{
-    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""OR"", $3);
-}
-| 
-'(' boolean_expression ')'
-{
-    MyDBNs.SqlLexYaccCallback.BooleanExpression1(ref $$, $2);
-}
-| 
-string_id '=' string_id
-{
-    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""="", $3);
-}
-| 
-string_id '<' string_id
-{
-    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""<"", $3);
-}
-| 
-string_id '>' string_id
-{
-    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "">"", $3);
-}
-| 
-string_id NOT_EQUAL string_id
-{
-    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""!="", $3);
-}
-| 
-string_id LESS_OR_EQUAL string_id
-{
-    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""<="", $3);
-}
-| 
-string_id GREATER_OR_EQUAL string_id
-{
-    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "">="", $3);
-}
-;
-
-set_expression:
-ID '=' string_number_id ',' set_expression
-{
-    $$ = MyDBNs.SqlLexYaccCallback.SetExpression($1, $3, $5);
-}
-|
-ID '=' string_number_id
-{
-    $$ = MyDBNs.SqlLexYaccCallback.SetExpression($1, $3);
-}
-;
-
-comma_sep_id: 
-ID 
-{
-    MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1);
-}
-| ID ',' comma_sep_id
-{
-    MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1, $3);
-}
-;
-
-comma_sep_value: 
-string_number 
-{
-    MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1);
-}
-| string_number ',' comma_sep_value
-{
-    MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1, $3);
-}
-;
-
-order_by_condition:
-order_by_column
-{
-    MyDBNs.SqlLexYaccCallback.OrderByCondition($$, $1, null);
-}
-|
-order_by_column ',' order_by_condition
-{
-    MyDBNs.SqlLexYaccCallback.OrderByCondition($$, $1, $3);
-};
-
-comma_sep_id_include_star: 
-ID 
-{
-    MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1);
-}
-|
-ID ',' comma_sep_id_include_star
-{
-    MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1, $3);
-}
-| '*'
-{
-    MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, ""*"");
-}
-| '*' ',' comma_sep_id_include_star
-{
-    MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, ""*"", $3);
-}
-;
 
 arithmetic_expression:
 arithmetic_expression '+' term 
 {
-    $$ = $1 + "" + "" + $3;
+    $$ = $1 + $3;
+    Console.WriteLine($$);
 }
 | 
 arithmetic_expression '-' term 
 {
-    $$ = $1 + "" - "" + $3;
+    $$ = $1 - $3;
+    Console.WriteLine($$);
 }
 | 
 term 
 {
     $$ = $1;
+    Console.WriteLine($$);
 }
 ;
 
 term:
 term '*' number_double_id 
 {
-    $$ = $1 + "" * "" + $3;
+    $$ = $1 * $3;
 }
 | term '/' number_double_id 
 {
-    $$ = $1 + "" / "" + $3;
+    $$ = $1 / $3;
 }
 |
 term '*' '(' arithmetic_expression ')' 
 {
-    $$ = $1 + "" * ( "" + $4 + "" )"";
+    $$ = $1 * $4;
 }
 | term '/' '(' arithmetic_expression ')' 
 {
-    $$ = $1 + "" / ( "" + $4 + "" )"";
+    $$ = $1 / $4;
 }
 |
 '(' arithmetic_expression ')'
@@ -291,111 +86,15 @@ number_double_id
 number_double_id:
 number_double
 {
-    $$ = """" + $1;
-}
-|
-ID
-{
-    $$ = $1;
-}
-;
-
-string_number_id:
-ID
-{
-    $$ = $1;
-}
-| 
-STRING
-{
-    $$ = $1;
-}
-| 
-number_double
-{
-    $$ = """" + $1;
-}
-;
-
-string_id:
-ID
-{
-    $$ = $1;
-}
-| 
-STRING
-{
-    $$ = $1;
-}
-;
-
-string_number:
-STRING
-{
-    $$ = $1;
-}
-| 
-number_double
-{
-    $$ = """" + $1;
-}
-;
-
-order_by_column:
-ID
-{
-    MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
-}
-| 
-ID ASC
-{
-    MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
-}
-| 
-ID DESC
-{
-    MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, false);
-}
-| 
-POSITIVE_INT
-{
-    MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
-}
-| 
-POSITIVE_INT ASC
-{
-    MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
-}
-| 
-POSITIVE_INT DESC
-{
-    MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, false);
-}
-;
-
-file_path:
-FILE_PATH
-{
     $$ = $1;
 }
 |
-POSITIVE_INT
-{
-    $$ = """" + $1;
-}
-|
-NUMBER_DOUBLE
-{
-    $$ = """" + $1;
-}
-|
 ID
 {
-    $$ = $1;
+    //mojo
+    $$ = 1;
 }
 ;
-
-logical_operator: AND | OR;
 
 number_double:
 NUMBER_DOUBLE
@@ -408,8 +107,6 @@ POSITIVE_INT
     $$ = $1;
 }
 ;
-
-column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYPE {$$ = $1;};
 %%";
 
 
@@ -427,45 +124,6 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
             return;
 
         actions.Add("Rule_start_Producton_0", Rule_start_Producton_0);
-        actions.Add("Rule_save_db_Producton_0", Rule_save_db_Producton_0);
-        actions.Add("Rule_load_db_Producton_0", Rule_load_db_Producton_0);
-        actions.Add("Rule_create_table_statement_Producton_0", Rule_create_table_statement_Producton_0);
-        actions.Add("Rule_drop_table_statement_Producton_0", Rule_drop_table_statement_Producton_0);
-        actions.Add("Rule_column_declare_Producton_0", Rule_column_declare_Producton_0);
-        actions.Add("Rule_column_declare_Producton_1", Rule_column_declare_Producton_1);
-        actions.Add("Rule_insert_statement_Producton_0", Rule_insert_statement_Producton_0);
-        actions.Add("Rule_insert_statement_Producton_1", Rule_insert_statement_Producton_1);
-        actions.Add("Rule_delete_statement_Producton_0", Rule_delete_statement_Producton_0);
-        actions.Add("Rule_delete_statement_Producton_1", Rule_delete_statement_Producton_1);
-        actions.Add("Rule_update_statement_Producton_0", Rule_update_statement_Producton_0);
-        actions.Add("Rule_update_statement_Producton_1", Rule_update_statement_Producton_1);
-        actions.Add("Rule_show_tables_statement_Producton_0", Rule_show_tables_statement_Producton_0);
-        actions.Add("Rule_select_statement_Producton_0", Rule_select_statement_Producton_0);
-        actions.Add("Rule_select_statement_Producton_1", Rule_select_statement_Producton_1);
-        actions.Add("Rule_select_statement_Producton_2", Rule_select_statement_Producton_2);
-        actions.Add("Rule_select_statement_Producton_3", Rule_select_statement_Producton_3);
-        actions.Add("Rule_boolean_expression_Producton_0", Rule_boolean_expression_Producton_0);
-        actions.Add("Rule_boolean_expression_Producton_1", Rule_boolean_expression_Producton_1);
-        actions.Add("Rule_boolean_expression_Producton_2", Rule_boolean_expression_Producton_2);
-        actions.Add("Rule_boolean_expression_Producton_3", Rule_boolean_expression_Producton_3);
-        actions.Add("Rule_boolean_expression_Producton_4", Rule_boolean_expression_Producton_4);
-        actions.Add("Rule_boolean_expression_Producton_5", Rule_boolean_expression_Producton_5);
-        actions.Add("Rule_boolean_expression_Producton_6", Rule_boolean_expression_Producton_6);
-        actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_0", Rule_boolean_expression_LeftRecursionExpand_Producton_0);
-        actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_1", Rule_boolean_expression_LeftRecursionExpand_Producton_1);
-        actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_2", Rule_boolean_expression_LeftRecursionExpand_Producton_2);
-        actions.Add("Rule_set_expression_Producton_0", Rule_set_expression_Producton_0);
-        actions.Add("Rule_set_expression_Producton_1", Rule_set_expression_Producton_1);
-        actions.Add("Rule_comma_sep_id_Producton_0", Rule_comma_sep_id_Producton_0);
-        actions.Add("Rule_comma_sep_id_Producton_1", Rule_comma_sep_id_Producton_1);
-        actions.Add("Rule_comma_sep_value_Producton_0", Rule_comma_sep_value_Producton_0);
-        actions.Add("Rule_comma_sep_value_Producton_1", Rule_comma_sep_value_Producton_1);
-        actions.Add("Rule_order_by_condition_Producton_0", Rule_order_by_condition_Producton_0);
-        actions.Add("Rule_order_by_condition_Producton_1", Rule_order_by_condition_Producton_1);
-        actions.Add("Rule_comma_sep_id_include_star_Producton_0", Rule_comma_sep_id_include_star_Producton_0);
-        actions.Add("Rule_comma_sep_id_include_star_Producton_1", Rule_comma_sep_id_include_star_Producton_1);
-        actions.Add("Rule_comma_sep_id_include_star_Producton_2", Rule_comma_sep_id_include_star_Producton_2);
-        actions.Add("Rule_comma_sep_id_include_star_Producton_3", Rule_comma_sep_id_include_star_Producton_3);
         actions.Add("Rule_arithmetic_expression_Producton_0", Rule_arithmetic_expression_Producton_0);
         actions.Add("Rule_arithmetic_expression_LeftRecursionExpand_Producton_0", Rule_arithmetic_expression_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_arithmetic_expression_LeftRecursionExpand_Producton_1", Rule_arithmetic_expression_LeftRecursionExpand_Producton_1);
@@ -479,543 +137,64 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         actions.Add("Rule_term_LeftRecursionExpand_Producton_4", Rule_term_LeftRecursionExpand_Producton_4);
         actions.Add("Rule_number_double_id_Producton_0", Rule_number_double_id_Producton_0);
         actions.Add("Rule_number_double_id_Producton_1", Rule_number_double_id_Producton_1);
-        actions.Add("Rule_string_number_id_Producton_0", Rule_string_number_id_Producton_0);
-        actions.Add("Rule_string_number_id_Producton_1", Rule_string_number_id_Producton_1);
-        actions.Add("Rule_string_number_id_Producton_2", Rule_string_number_id_Producton_2);
-        actions.Add("Rule_string_id_Producton_0", Rule_string_id_Producton_0);
-        actions.Add("Rule_string_id_Producton_1", Rule_string_id_Producton_1);
-        actions.Add("Rule_string_number_Producton_0", Rule_string_number_Producton_0);
-        actions.Add("Rule_string_number_Producton_1", Rule_string_number_Producton_1);
-        actions.Add("Rule_order_by_column_Producton_0", Rule_order_by_column_Producton_0);
-        actions.Add("Rule_order_by_column_Producton_1", Rule_order_by_column_Producton_1);
-        actions.Add("Rule_order_by_column_Producton_2", Rule_order_by_column_Producton_2);
-        actions.Add("Rule_order_by_column_Producton_3", Rule_order_by_column_Producton_3);
-        actions.Add("Rule_order_by_column_Producton_4", Rule_order_by_column_Producton_4);
-        actions.Add("Rule_order_by_column_Producton_5", Rule_order_by_column_Producton_5);
-        actions.Add("Rule_file_path_Producton_0", Rule_file_path_Producton_0);
-        actions.Add("Rule_file_path_Producton_1", Rule_file_path_Producton_1);
-        actions.Add("Rule_file_path_Producton_2", Rule_file_path_Producton_2);
-        actions.Add("Rule_file_path_Producton_3", Rule_file_path_Producton_3);
         actions.Add("Rule_number_double_Producton_0", Rule_number_double_Producton_0);
         actions.Add("Rule_number_double_Producton_1", Rule_number_double_Producton_1);
-        actions.Add("Rule_column_type_Producton_0", Rule_column_type_Producton_0);
-        actions.Add("Rule_column_type_Producton_1", Rule_column_type_Producton_1);
     }
 
     public static object Rule_start_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
+        double _0 = new double();
+        double _1 = (double)objects[1];
 
         // user-defined action
         _0 = _1;
-
-        return _0;
-    }
-
-    public static object Rule_save_db_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.SaveDB(_3);
-
-        return _0;
-    }
-
-    public static object Rule_load_db_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.LoadDB(_3);
-
-        return _0;
-    }
-
-    public static object Rule_create_table_statement_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-        List<(string, string)> _5 = (List<(string, string)>)objects[5];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.CreateTable(_3, _5);
-
-        return _0;
-    }
-
-    public static object Rule_drop_table_statement_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.DropTable(_3);
-
-        return _0;
-    }
-
-    public static object Rule_column_declare_Producton_0(Dictionary<int, object> objects) { 
-        List<(string, string)> _0 = new List<(string, string)>();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.ColumnDeclare(_0, _1, _2);
-
-        return _0;
-    }
-
-    public static object Rule_column_declare_Producton_1(Dictionary<int, object> objects) { 
-        List<(string, string)> _0 = new List<(string, string)>();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        List<(string, string)> _4 = (List<(string, string)>)objects[4];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.ColumnDeclare(_0, _1, _2, _4);
-
-        return _0;
-    }
-
-    public static object Rule_insert_statement_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-        string _4 = (string)objects[4];
-        List<string> _6 = (List<string>)objects[6];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.Insert(_3, null, _6);
-
-        return _0;
-    }
-
-    public static object Rule_insert_statement_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-        List<string> _5 = (List<string>)objects[5];
-        string _7 = (string)objects[7];
-        List<string> _9 = (List<string>)objects[9];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.Insert(_3, _5, _9);
-
-        return _0;
-    }
-
-    public static object Rule_delete_statement_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.Delete(_3, null);
-
-        return _0;
-    }
-
-    public static object Rule_delete_statement_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-        string _4 = (string)objects[4];
-        string _5 = (string)objects[5];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.Delete(_3, _5);
-
-        return _0;
-    }
-
-    public static object Rule_update_statement_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-        List<Tuple<string, string>> _4 = (List<Tuple<string, string>>)objects[4];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.Update(_2, _4, null);
-
-        return _0;
-    }
-
-    public static object Rule_update_statement_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-        List<Tuple<string, string>> _4 = (List<Tuple<string, string>>)objects[4];
-        string _5 = (string)objects[5];
-        string _6 = (string)objects[6];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.Update(_2, _4, _6);
-
-        return _0;
-    }
-
-    public static object Rule_show_tables_statement_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.ShowTables();
-
-        return _0;
-    }
-
-    public static object Rule_select_statement_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        List<string> _2 = (List<string>)objects[2];
-        string _3 = (string)objects[3];
-        string _4 = (string)objects[4];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.Select(_2, _4, null, null);
-
-        return _0;
-    }
-
-    public static object Rule_select_statement_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        List<string> _2 = (List<string>)objects[2];
-        string _3 = (string)objects[3];
-        string _4 = (string)objects[4];
-        string _5 = (string)objects[5];
-        string _6 = (string)objects[6];
-        List<List<object>> _7 = (List<List<object>>)objects[7];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.Select(_2, _4, null, _7);
-
-        return _0;
-    }
-
-    public static object Rule_select_statement_Producton_2(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        List<string> _2 = (List<string>)objects[2];
-        string _3 = (string)objects[3];
-        string _4 = (string)objects[4];
-        string _5 = (string)objects[5];
-        string _6 = (string)objects[6];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.Select(_2, _4, _6, null);
-
-        return _0;
-    }
-
-    public static object Rule_select_statement_Producton_3(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        List<string> _2 = (List<string>)objects[2];
-        string _3 = (string)objects[3];
-        string _4 = (string)objects[4];
-        string _5 = (string)objects[5];
-        string _6 = (string)objects[6];
-        string _7 = (string)objects[7];
-        string _8 = (string)objects[8];
-        List<List<object>> _9 = (List<List<object>>)objects[9];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.Select(_2, _4, _6, _9);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _2 = (string)objects[2];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.BooleanExpression1(ref _0, _2);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "=", _3);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_Producton_2(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "<", _3);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_Producton_3(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, ">", _3);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_Producton_4(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "!=", _3);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_Producton_5(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "<=", _3);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_Producton_6(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, ">=", _3);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 =(string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "AND", _3);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 =(string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "OR", _3);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-
-        return _0;
-    }
-
-    public static object Rule_set_expression_Producton_0(Dictionary<int, object> objects) { 
-        List<Tuple<string, string>> _0 = new List<Tuple<string, string>>();
-        string _1 = (string)objects[1];
-        string _3 = (string)objects[3];
-        List<Tuple<string, string>> _5 = (List<Tuple<string, string>>)objects[5];
-
-        // user-defined action
-        _0 = MyDBNs.SqlLexYaccCallback.SetExpression(_1, _3, _5);
-
-        return _0;
-    }
-
-    public static object Rule_set_expression_Producton_1(Dictionary<int, object> objects) { 
-        List<Tuple<string, string>> _0 = new List<Tuple<string, string>>();
-        string _1 = (string)objects[1];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        _0 = MyDBNs.SqlLexYaccCallback.SetExpression(_1, _3);
-
-        return _0;
-    }
-
-    public static object Rule_comma_sep_id_Producton_0(Dictionary<int, object> objects) { 
-        List<string> _0 = new List<string>();
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.CommaSepID(_0, _1);
-
-        return _0;
-    }
-
-    public static object Rule_comma_sep_id_Producton_1(Dictionary<int, object> objects) { 
-        List<string> _0 = new List<string>();
-        string _1 = (string)objects[1];
-        List<string> _3 = (List<string>)objects[3];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.CommaSepID(_0, _1, _3);
-
-        return _0;
-    }
-
-    public static object Rule_comma_sep_value_Producton_0(Dictionary<int, object> objects) { 
-        List<string> _0 = new List<string>();
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.CommaSepID(_0, _1);
-
-        return _0;
-    }
-
-    public static object Rule_comma_sep_value_Producton_1(Dictionary<int, object> objects) { 
-        List<string> _0 = new List<string>();
-        string _1 = (string)objects[1];
-        List<string> _3 = (List<string>)objects[3];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.CommaSepID(_0, _1, _3);
-
-        return _0;
-    }
-
-    public static object Rule_order_by_condition_Producton_0(Dictionary<int, object> objects) { 
-        List<List<object>> _0 = new List<List<object>>();
-        List<object> _1 = (List<object>)objects[1];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.OrderByCondition(_0, _1, null);
-
-        return _0;
-    }
-
-    public static object Rule_order_by_condition_Producton_1(Dictionary<int, object> objects) { 
-        List<List<object>> _0 = new List<List<object>>();
-        List<object> _1 = (List<object>)objects[1];
-        List<List<object>> _3 = (List<List<object>>)objects[3];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.OrderByCondition(_0, _1, _3);
-
-        return _0;
-    }
-
-    public static object Rule_comma_sep_id_include_star_Producton_0(Dictionary<int, object> objects) { 
-        List<string> _0 = new List<string>();
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, _1);
-
-        return _0;
-    }
-
-    public static object Rule_comma_sep_id_include_star_Producton_1(Dictionary<int, object> objects) { 
-        List<string> _0 = new List<string>();
-        string _1 = (string)objects[1];
-        List<string> _3 = (List<string>)objects[3];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, _1, _3);
-
-        return _0;
-    }
-
-    public static object Rule_comma_sep_id_include_star_Producton_2(Dictionary<int, object> objects) { 
-        List<string> _0 = new List<string>();
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, "*");
-
-        return _0;
-    }
-
-    public static object Rule_comma_sep_id_include_star_Producton_3(Dictionary<int, object> objects) { 
-        List<string> _0 = new List<string>();
-        List<string> _3 = (List<string>)objects[3];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, "*", _3);
 
         return _0;
     }
 
     public static object Rule_arithmetic_expression_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
+        double _0 = new double();
+        double _1 = (double)objects[1];
 
         // user-defined action
         _0 = _1;
+        Console.WriteLine(_0);
 
         return _0;
     }
 
     public static object Rule_arithmetic_expression_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 =(string)objects[1];
-        string _3 = (string)objects[3];
+        double _0 = new double();
+        double _1 =(double)objects[1];
+        double _3 = (double)objects[3];
 
         // user-defined action
-        _0 = _1 + " + " + _3;
+        _0 = _1 + _3;
+        Console.WriteLine(_0);
 
         return _0;
     }
 
     public static object Rule_arithmetic_expression_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 =(string)objects[1];
-        string _3 = (string)objects[3];
+        double _0 = new double();
+        double _1 =(double)objects[1];
+        double _3 = (double)objects[3];
 
         // user-defined action
-        _0 = _1 + " - " + _3;
+        _0 = _1 - _3;
+        Console.WriteLine(_0);
 
         return _0;
     }
 
     public static object Rule_arithmetic_expression_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+        double _0 = new double();
 
         return _0;
     }
 
     public static object Rule_term_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _2 = (string)objects[2];
+        double _0 = new double();
+        double _2 = (double)objects[2];
 
         // user-defined action
         _0 = _2;
@@ -1024,8 +203,8 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
     }
 
     public static object Rule_term_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
+        double _0 = new double();
+        double _1 = (double)objects[1];
 
         // user-defined action
         _0 = _1;
@@ -1034,245 +213,72 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
     }
 
     public static object Rule_term_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 =(string)objects[1];
-        string _3 = (string)objects[3];
+        double _0 = new double();
+        double _1 =(double)objects[1];
+        double _3 = (double)objects[3];
 
         // user-defined action
-        _0 = _1 + " * " + _3;
+        _0 = _1 * _3;
 
         return _0;
     }
 
     public static object Rule_term_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 =(string)objects[1];
-        string _3 = (string)objects[3];
+        double _0 = new double();
+        double _1 =(double)objects[1];
+        double _3 = (double)objects[3];
 
         // user-defined action
-        _0 = _1 + " / " + _3;
+        _0 = _1 / _3;
 
         return _0;
     }
 
     public static object Rule_term_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 =(string)objects[1];
-        string _4 = (string)objects[4];
+        double _0 = new double();
+        double _1 =(double)objects[1];
+        double _4 = (double)objects[4];
 
         // user-defined action
-        _0 = _1 + " * ( " + _4 + " )";
+        _0 = _1 * _4;
 
         return _0;
     }
 
     public static object Rule_term_LeftRecursionExpand_Producton_3(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 =(string)objects[1];
-        string _4 = (string)objects[4];
+        double _0 = new double();
+        double _1 =(double)objects[1];
+        double _4 = (double)objects[4];
 
         // user-defined action
-        _0 = _1 + " / ( " + _4 + " )";
+        _0 = _1 / _4;
 
         return _0;
     }
 
     public static object Rule_term_LeftRecursionExpand_Producton_4(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+        double _0 = new double();
 
         return _0;
     }
 
     public static object Rule_number_double_id_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+        double _0 = new double();
         double _1 = (double)objects[1];
 
         // user-defined action
-        _0 = "" + _1;
+        _0 = _1;
 
         return _0;
     }
 
     public static object Rule_number_double_id_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+        double _0 = new double();
         string _1 = (string)objects[1];
 
         // user-defined action
-        _0 = _1;
-
-        return _0;
-    }
-
-    public static object Rule_string_number_id_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = _1;
-
-        return _0;
-    }
-
-    public static object Rule_string_number_id_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = _1;
-
-        return _0;
-    }
-
-    public static object Rule_string_number_id_Producton_2(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        double _1 = (double)objects[1];
-
-        // user-defined action
-        _0 = "" + _1;
-
-        return _0;
-    }
-
-    public static object Rule_string_id_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = _1;
-
-        return _0;
-    }
-
-    public static object Rule_string_id_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = _1;
-
-        return _0;
-    }
-
-    public static object Rule_string_number_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = _1;
-
-        return _0;
-    }
-
-    public static object Rule_string_number_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        double _1 = (double)objects[1];
-
-        // user-defined action
-        _0 = "" + _1;
-
-        return _0;
-    }
-
-    public static object Rule_order_by_column_Producton_0(Dictionary<int, object> objects) { 
-        List<object> _0 = new List<object>();
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.OrderByColumn(ref _0, _1, true);
-
-        return _0;
-    }
-
-    public static object Rule_order_by_column_Producton_1(Dictionary<int, object> objects) { 
-        List<object> _0 = new List<object>();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.OrderByColumn(ref _0, _1, true);
-
-        return _0;
-    }
-
-    public static object Rule_order_by_column_Producton_2(Dictionary<int, object> objects) { 
-        List<object> _0 = new List<object>();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.OrderByColumn(ref _0, _1, false);
-
-        return _0;
-    }
-
-    public static object Rule_order_by_column_Producton_3(Dictionary<int, object> objects) { 
-        List<object> _0 = new List<object>();
-        int _1 = (int)objects[1];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.OrderByColumn(ref _0, _1, true);
-
-        return _0;
-    }
-
-    public static object Rule_order_by_column_Producton_4(Dictionary<int, object> objects) { 
-        List<object> _0 = new List<object>();
-        int _1 = (int)objects[1];
-        string _2 = (string)objects[2];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.OrderByColumn(ref _0, _1, true);
-
-        return _0;
-    }
-
-    public static object Rule_order_by_column_Producton_5(Dictionary<int, object> objects) { 
-        List<object> _0 = new List<object>();
-        int _1 = (int)objects[1];
-        string _2 = (string)objects[2];
-
-        // user-defined action
-        MyDBNs.SqlLexYaccCallback.OrderByColumn(ref _0, _1, false);
-
-        return _0;
-    }
-
-    public static object Rule_file_path_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = _1;
-
-        return _0;
-    }
-
-    public static object Rule_file_path_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        int _1 = (int)objects[1];
-
-        // user-defined action
-        _0 = "" + _1;
-
-        return _0;
-    }
-
-    public static object Rule_file_path_Producton_2(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        double _1 = (double)objects[1];
-
-        // user-defined action
-        _0 = "" + _1;
-
-        return _0;
-    }
-
-    public static object Rule_file_path_Producton_3(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = _1;
+        //mojo
+        _0 = 1;
 
         return _0;
     }
@@ -1296,34 +302,13 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
 
         return _0;
     }
-
-    public static object Rule_column_type_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-        int _3 = (int)objects[3];
-
-        // user-defined action
-        _0 = _1 + "(" + _3 + ")";
-
-        return _0;
-    }
-
-    public static object Rule_column_type_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = _1;
-
-        return _0;
-    }
 }
 
 }
 
 
 //Lex Gen 
-namespace sql_lexyaccNs
+namespace sql_arithmetic_expressionNs
 {
 
 
@@ -1959,7 +944,7 @@ namespace sql_lexyaccNs
 
 
 //Src files Gen
-namespace sql_lexyaccNs{
+namespace sql_arithmetic_expressionNs{
 
 namespace LexYaccNs
 {
@@ -2051,7 +1036,7 @@ namespace LexYaccNs
 }
 }
 
-namespace sql_lexyaccNs{
+namespace sql_arithmetic_expressionNs{
 
 using System.Text;
 
@@ -2173,7 +1158,7 @@ namespace LexYaccNs
 
 }
 
-namespace sql_lexyaccNs{
+namespace sql_arithmetic_expressionNs{
 
 using RegexNs;
 
@@ -2206,7 +1191,7 @@ namespace LexYaccNs
 
 }
 
-namespace sql_lexyaccNs{
+namespace sql_arithmetic_expressionNs{
 
 using RegexNs;
 
@@ -2245,7 +1230,7 @@ namespace LexYaccNs
 
 }
 
-namespace sql_lexyaccNs{
+namespace sql_arithmetic_expressionNs{
 
 namespace LexYaccNs
 {
@@ -2269,7 +1254,7 @@ namespace LexYaccNs
 }
 }
 
-namespace sql_lexyaccNs{
+namespace sql_arithmetic_expressionNs{
 
 using System.Text;
 
@@ -2331,7 +1316,7 @@ namespace LexYaccNs
 
 }
 
-namespace sql_lexyaccNs{
+namespace sql_arithmetic_expressionNs{
 
 using System.Text;
 
@@ -2468,7 +1453,7 @@ namespace LexYaccNs
 }
 }
 
-namespace sql_lexyaccNs{
+namespace sql_arithmetic_expressionNs{
 
 namespace LexYaccNs
 {
@@ -2708,7 +1693,7 @@ namespace LexYaccNs
 }
 }
 
-namespace sql_lexyaccNs{
+namespace sql_arithmetic_expressionNs{
 
 using System.Text;
 
@@ -2866,7 +1851,7 @@ namespace LexYaccNs
 
 }
 
-namespace sql_lexyaccNs{
+namespace sql_arithmetic_expressionNs{
 
 namespace LexYaccNs
 {
@@ -3159,7 +2144,7 @@ namespace LexYaccNs
 }
 }
 
-namespace sql_lexyaccNs{
+namespace sql_arithmetic_expressionNs{
 
 using System.Runtime.CompilerServices;
 
@@ -3388,7 +2373,7 @@ namespace LexYaccNs
 }
 }
 
-namespace sql_lexyaccNs{
+namespace sql_arithmetic_expressionNs{
 
 using System.Text;
 
@@ -3948,7 +2933,7 @@ namespace LexYaccNs
 
 }
 
-namespace sql_lexyaccNs{
+namespace sql_arithmetic_expressionNs{
 
 namespace RegexNs
 {
@@ -4211,7 +3196,7 @@ namespace RegexNs
 }
 }
 
-namespace sql_lexyaccNs{
+namespace sql_arithmetic_expressionNs{
 
 namespace RegexNs
 {
@@ -4819,7 +3804,7 @@ namespace RegexNs
 
 }
 
-namespace sql_lexyaccNs{
+namespace sql_arithmetic_expressionNs{
 
 namespace RegexNs
 {

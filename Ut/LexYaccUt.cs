@@ -17,6 +17,7 @@ public class LexYaccUt
         LexYaccCodeGen.GenCode("../../../input/c_grammar.l", "../../../input/c_grammar.y", LexYaccUtil.GetGenFileFolder(), "c_grammar");
         LexYaccCodeGen.GenCode("../../../input/sql.l", "../../../input/sql.y", LexYaccUtil.GetGenFileFolder(), "sql_lexyacc");
         LexYaccCodeGen.GenCode("../../../input/sql.l", "../../../input/sql_boolean_expression.y", LexYaccUtil.GetGenFileFolder(), "sql_boolean_expression");
+        LexYaccCodeGen.GenCode("../../../input/sql.l", "../../../input/sql_arithmetic_expression.y", LexYaccUtil.GetGenFileFolder(), "sql_arithmetic_expression");
 
 #if !DisableGenCodeUt
         object ret = cal.Parse(" 2 * 3 + 6 / 2 + 10000  ");

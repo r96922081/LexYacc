@@ -1,7 +1,11 @@
 ﻿/*
 Todo:
 
+1.
 indirect left recursive, action calling
+
+2.
+boolean expression,  a is null
 
  */
 

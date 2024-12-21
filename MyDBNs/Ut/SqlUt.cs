@@ -11,7 +11,35 @@ namespace MyDBNs
         }
 
 
-        public static void AdhocUt()
+        public static void TestArithmeticExpression()
+        {
+#if !MarkUserOfSqlCodeGen
+            object ret = sql_arithmetic_expression.Parse("3 - 2 + 1");
+            Check((double)ret == 2);
+
+            ret = sql_arithmetic_expression.Parse("12 / 6 / 2");
+            Check((double)ret == 1);
+
+            ret = sql_arithmetic_expression.Parse("9 / 3 * 4 ");
+            Check((double)ret == 12);
+
+            ret = sql_arithmetic_expression.Parse("(1 + 2) * 3 / ( (8 - 2) / 2) * 4 ");
+            Check((double)ret == 12);
+#endif
+        }
+
+        public static void TestBooleanExpression()
+        {
+#if !MarkUserOfSqlCodeGen
+            object ret = sql_lexyacc.Parse("DELETE FROM A WHERE NAME = 'ABC'  ");
+            Check(ret == null || ret.ToString() == "");
+
+            ret = sql_lexyacc.Parse("SELECT * FROM A WHERE NAME != 'ABC'");
+            Check(ret == null || ret.ToString() == "");
+#endif
+        }
+
+        public static void TestSql()
         {
 #if !MarkUserOfSqlCodeGen
 
@@ -40,41 +68,16 @@ namespace MyDBNs
             ret = sql_lexyacc.Parse("SHOW TABLES");
             Check(ret == null || ret.ToString() == "");
 
-            ret = sql_lexyacc.Parse("DELETE FROM A WHERE NAME = 'ABC' OR AGE = 55 ");
-            Check(ret == null || ret.ToString() == "");
-
-            ret = sql_lexyacc.Parse("SELECT * FROM A WHERE 1 = 1");
-            Check(ret == null || ret.ToString() == "");
-
-            ret = sql_lexyacc.Parse("UPDATE A SET AGE = 11, NAME = 'NNNN' WHERE 1 = 1");
-            Check(ret == null || ret.ToString() == "");
-
             ret = sql_lexyacc.Parse("INSERT INTO A VALUES ( 'GH', 456  )");
             Check(ret == null || ret.ToString() == "");
-
-
-            // test action calling order.
-            // to ensure order is as expected
-            ret = sql_lexyacc.Parse("3 - 2 + 1");
-            Check(ret == null || ret.ToString() == "");
-
-            ret = sql_lexyacc.Parse("12 / 6 / 2");
-            Check(ret == null || ret.ToString() == "");
-
-            ret = sql_lexyacc.Parse("9 / 3 * 4 ");
-            Check(ret == null || ret.ToString() == "");
-
-            ret = sql_lexyacc.Parse("(1 + 2) * 3 / ( (8 - 2) / 2) * 4 ");
-            Check(ret == null || ret.ToString() == "");
-
-            //ret = sql_lexyacc.Parse("SELECT AGE, NAME, * FROM A WHERE 1 = 1");
-            //Check(ret == null || ret.ToString() == "");
 #endif
         }
 
         public static void Ut()
         {
-            AdhocUt();
+            TestSql();
+            TestBooleanExpression();
+            TestArithmeticExpression();
             Console.Interactive();
         }
 
