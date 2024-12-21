@@ -142,7 +142,7 @@ boolean_expression OR boolean_expression
 | 
 '(' boolean_expression ')'
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression1(ref $$, $2);
+    $$ = "" ( "" + $2 + "" ) "";
 }
 | 
 string_id '=' string_id
@@ -745,7 +745,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         string _2 = (string)objects[2];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.BooleanExpression1(ref _0, _2);
+        _0 = " ( " + _2 + " ) ";
 
         return _0;
     }

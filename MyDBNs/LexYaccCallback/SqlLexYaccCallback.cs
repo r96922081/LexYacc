@@ -98,11 +98,6 @@
             MyDBNs.Select.SelectRows(columns, tableName, condition, orders);
         }
 
-        public static void BooleanExpression1(ref string booleanExpression, string rhs)
-        {
-            booleanExpression = " ( " + rhs + " ) ";
-        }
-
         public static void BooleanExpression2(ref string booleanExpression, string lhs, string op, string rhs)
         {
             booleanExpression = lhs + " " + op + " " + rhs;

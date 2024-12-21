@@ -124,7 +124,7 @@ boolean_expression OR boolean_expression
 | 
 '(' boolean_expression ')'
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression1(ref $$, $2);
+    $$ = " ( " + $2 + " ) ";
 }
 | 
 string_id '=' string_id
