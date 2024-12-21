@@ -100,7 +100,9 @@ namespace LexYaccNs
                 rule = ReadRule(ref input, lexTokenDef, ruleNonterminalType);
             }
 
-            ConvertIndirectLeftRecursion(allRules, lexTokenDef, ruleNonterminalType, nameToYaccRuleMap);
+            // Todo
+            // conversion is ok, but action was not fixed accordingly
+            //ConvertIndirectLeftRecursion(allRules, lexTokenDef, ruleNonterminalType, nameToYaccRuleMap);
 
             allRules = ConvertLeftRecursion(allRules, lexTokenDef, ruleNonterminalType);
 
