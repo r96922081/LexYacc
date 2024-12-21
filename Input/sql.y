@@ -114,12 +114,12 @@ SELECT comma_sep_id_include_star FROM ID WHERE boolean_expression ORDER BY order
 boolean_expression:
 boolean_expression AND boolean_expression
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, "AND", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "AND", $3);
 }
 |
 boolean_expression OR boolean_expression
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, "OR", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "OR", $3);
 }
 | 
 '(' boolean_expression ')'
@@ -129,62 +129,62 @@ boolean_expression OR boolean_expression
 | 
 string_id '=' string_id
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, "=", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "=", $3);
 }
 | 
 string_id '<' string_id
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, "<", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "<", $3);
 }
 | 
 string_id '>' string_id
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, ">", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, ">", $3);
 }
 | 
 string_id NOT_EQUAL string_id
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, "!=", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "!=", $3);
 }
 | 
 string_id LESS_OR_EQUAL string_id
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, "<=", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "<=", $3);
 }
 | 
 string_id GREATER_OR_EQUAL string_id
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, ">=", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, ">=", $3);
 }
 | 
 arithmetic_expression_id '=' arithmetic_expression_id
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, "=", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "=", $3);
 }
 | 
 arithmetic_expression_id '<' arithmetic_expression_id
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, "<", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "<", $3);
 }
 | 
 arithmetic_expression_id '>' arithmetic_expression_id
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, ">", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, ">", $3);
 }
 | 
 arithmetic_expression_id NOT_EQUAL arithmetic_expression_id
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, "!=", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "!=", $3);
 }
 | 
 arithmetic_expression_id LESS_OR_EQUAL arithmetic_expression_id
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, "<=", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "<=", $3);
 }
 | 
 arithmetic_expression_id GREATER_OR_EQUAL arithmetic_expression_id
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, ">=", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, ">=", $3);
 }
 ;
 

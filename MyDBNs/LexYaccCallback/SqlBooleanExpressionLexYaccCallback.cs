@@ -125,7 +125,12 @@
             return false;
         }
 
-        public static HashSet<int> BooleanExpression(string lhs, string op, string rhs)
+        public static HashSet<int> BooleanExpressionNumberColumn(string lhs, string op, string rhs)
+        {
+            return null;
+        }
+
+        public static HashSet<int> BooleanExpressionVarcharColumn(string lhs, string op, string rhs)
         {
             StringType lhsType = Util.GetStringType(lhs);
             StringType rhsType = Util.GetStringType(rhs);

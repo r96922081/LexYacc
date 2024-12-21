@@ -98,7 +98,7 @@
             MyDBNs.Select.SelectRows(columns, tableName, condition, orders);
         }
 
-        public static void BooleanExpressionVarcharColumn(ref string booleanExpression, string lhs, string op, string rhs)
+        public static void BooleanExpression(ref string booleanExpression, string lhs, string op, string rhs)
         {
             booleanExpression = lhs + " " + op + " " + rhs;
         }

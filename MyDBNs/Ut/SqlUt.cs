@@ -25,6 +25,9 @@ namespace MyDBNs
 
             ret = sql_arithmetic_expression.Parse("(1 + 2) * 3 / ( (8 - 2) / 2) * 4 ");
             Check((double)ret == 12);
+
+            ret = sql_lexyacc.Parse("SELECT * FROM A WHERE AGE != 6 - 3 - 2");
+            Check(ret == null || ret.ToString() == "");
 #endif
         }
 
