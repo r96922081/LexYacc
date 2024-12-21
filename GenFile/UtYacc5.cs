@@ -11,11 +11,11 @@ public class YaccActions{
     public static string ruleInput = @"
 %{        
 %}
-%token <int> NUMBER
+%token <int> NUMBER_DOUBLE
 %type <int> cal exp term
 %%
 cal: exp {Console.WriteLine(""Result = "" + $1);} ;
-exp: exp '-' NUMBER {$$ = $1 - $3;} | exp '+' NUMBER {$$ = $1 + $3;} | NUMBER {$$ = $1;};
+exp: exp '-' NUMBER_DOUBLE {$$ = $1 - $3;} | exp '+' NUMBER_DOUBLE {$$ = $1 + $3;} | NUMBER_DOUBLE {$$ = $1;};
 %%
 ";
 

@@ -20,18 +20,18 @@ public class YaccActions{
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
-%token <int> POSITIVE
-%type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement number file_path
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER_DOUBLE UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
+%token <int> POSITIVE_INT
+%type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement number file_path number_id
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_condition
 %type <List<Tuple<string, string>>> set_expression
-%type <object> expression term
+%type <double> arithmetic_expression term
 %%
 
-statement: save_db | load_db | create_table_statement | drop_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement | expression;
+statement: save_db | load_db | create_table_statement | drop_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement | arithmetic_expression;
 
 save_db: SAVE DB file_path
 {
@@ -240,39 +240,51 @@ ID ',' comma_sep_id_include_star
 }
 ;
 
-expression:
-expression '+' expression 
+arithmetic_expression:
+arithmetic_expression '+' arithmetic_expression 
 {
-
+    $$ = $1 + $3;
 }
-| expression '-' expression 
+| arithmetic_expression '-' arithmetic_expression 
 {
-
+    $$ = $1 - $3;
 }
 | 
 term 
 {
-
+    $$ = $1;
 }
 ;
 
 term:
 term '*' term 
 {
-
+    $$ = $1 * $3;
 }
 | term '/' term 
 {
-
+    $$ = $1 / $3;
 }
 |
-'(' expression ')'
+'(' arithmetic_expression ')'
+{
+    $$ = $2;
+}
+| number_id 
 {
 
 }
-| string_number_id 
-{
+;
 
+number_id:
+ID
+{
+    $$ = $1;
+}
+| 
+number
+{
+    $$ = $1;
 }
 ;
 
@@ -321,17 +333,17 @@ ID DESC
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, false);
 }
 | 
-POSITIVE
+POSITIVE_INT
 {
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
 }
 | 
-POSITIVE ASC
+POSITIVE_INT ASC
 {
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
 }
 | 
-POSITIVE DESC
+POSITIVE_INT DESC
 {
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, false);
 }
@@ -343,12 +355,12 @@ FILE_PATH
     $$ = $1;
 }
 |
-POSITIVE
+POSITIVE_INT
 {
     $$ = """" + $1;
 }
 |
-NUMBER
+NUMBER_DOUBLE
 {
     $$ = $1;
 }
@@ -362,18 +374,18 @@ ID
 logical_operator: AND | OR;
 
 number:
-NUMBER
+NUMBER_DOUBLE
 {
     $$ = $1;
 }
 | 
-POSITIVE
+POSITIVE_INT
 {
     $$ = """" + $1;
 }
 ;
 
-column_type: VARCHAR '(' POSITIVE ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYPE {$$ = $1;};
+column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYPE {$$ = $1;};
 %%";
 
 
@@ -430,15 +442,17 @@ column_type: VARCHAR '(' POSITIVE ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_T
         actions.Add("Rule_comma_sep_id_include_star_Producton_1", Rule_comma_sep_id_include_star_Producton_1);
         actions.Add("Rule_comma_sep_id_include_star_Producton_2", Rule_comma_sep_id_include_star_Producton_2);
         actions.Add("Rule_comma_sep_id_include_star_Producton_3", Rule_comma_sep_id_include_star_Producton_3);
-        actions.Add("Rule_expression_Producton_0", Rule_expression_Producton_0);
-        actions.Add("Rule_expression_LeftRecursionExpand_Producton_0", Rule_expression_LeftRecursionExpand_Producton_0);
-        actions.Add("Rule_expression_LeftRecursionExpand_Producton_1", Rule_expression_LeftRecursionExpand_Producton_1);
-        actions.Add("Rule_expression_LeftRecursionExpand_Producton_2", Rule_expression_LeftRecursionExpand_Producton_2);
+        actions.Add("Rule_arithmetic_expression_Producton_0", Rule_arithmetic_expression_Producton_0);
+        actions.Add("Rule_arithmetic_expression_LeftRecursionExpand_Producton_0", Rule_arithmetic_expression_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_arithmetic_expression_LeftRecursionExpand_Producton_1", Rule_arithmetic_expression_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_arithmetic_expression_LeftRecursionExpand_Producton_2", Rule_arithmetic_expression_LeftRecursionExpand_Producton_2);
         actions.Add("Rule_term_Producton_0", Rule_term_Producton_0);
         actions.Add("Rule_term_Producton_1", Rule_term_Producton_1);
         actions.Add("Rule_term_LeftRecursionExpand_Producton_0", Rule_term_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_term_LeftRecursionExpand_Producton_1", Rule_term_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_term_LeftRecursionExpand_Producton_2", Rule_term_LeftRecursionExpand_Producton_2);
+        actions.Add("Rule_number_id_Producton_0", Rule_number_id_Producton_0);
+        actions.Add("Rule_number_id_Producton_1", Rule_number_id_Producton_1);
         actions.Add("Rule_string_number_id_Producton_0", Rule_string_number_id_Producton_0);
         actions.Add("Rule_string_number_id_Producton_1", Rule_string_number_id_Producton_1);
         actions.Add("Rule_string_number_id_Producton_2", Rule_string_number_id_Producton_2);
@@ -933,67 +947,105 @@ column_type: VARCHAR '(' POSITIVE ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_T
         return _0;
     }
 
-    public static object Rule_expression_Producton_0(Dictionary<int, object> objects) { 
-        object _0 = new object();
-        object _1 = (object)objects[1];
+    public static object Rule_arithmetic_expression_Producton_0(Dictionary<int, object> objects) { 
+        double _0 = new double();
+        double _1 = (double)objects[1];
+
+        // user-defined action
+        _0 = _1;
 
         return _0;
     }
 
-    public static object Rule_expression_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
-        object _0 = new object();
-        object _1 =(object)objects[1];
-        object _3 = (object)objects[3];
+    public static object Rule_arithmetic_expression_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        double _0 = new double();
+        double _1 =(double)objects[1];
+        double _3 = (double)objects[3];
+
+        // user-defined action
+        _0 = _1 + _3;
 
         return _0;
     }
 
-    public static object Rule_expression_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
-        object _0 = new object();
-        object _1 =(object)objects[1];
-        object _3 = (object)objects[3];
+    public static object Rule_arithmetic_expression_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        double _0 = new double();
+        double _1 =(double)objects[1];
+        double _3 = (double)objects[3];
+
+        // user-defined action
+        _0 = _1 - _3;
 
         return _0;
     }
 
-    public static object Rule_expression_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
-        object _0 = new object();
+    public static object Rule_arithmetic_expression_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
+        double _0 = new double();
 
         return _0;
     }
 
     public static object Rule_term_Producton_0(Dictionary<int, object> objects) { 
-        object _0 = new object();
-        object _2 = (object)objects[2];
+        double _0 = new double();
+        double _2 = (double)objects[2];
+
+        // user-defined action
+        _0 = _2;
 
         return _0;
     }
 
     public static object Rule_term_Producton_1(Dictionary<int, object> objects) { 
-        object _0 = new object();
+        double _0 = new double();
         string _1 = (string)objects[1];
 
         return _0;
     }
 
     public static object Rule_term_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
-        object _0 = new object();
-        object _1 =(object)objects[1];
-        object _3 = (object)objects[3];
+        double _0 = new double();
+        double _1 =(double)objects[1];
+        double _3 = (double)objects[3];
+
+        // user-defined action
+        _0 = _1 * _3;
 
         return _0;
     }
 
     public static object Rule_term_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
-        object _0 = new object();
-        object _1 =(object)objects[1];
-        object _3 = (object)objects[3];
+        double _0 = new double();
+        double _1 =(double)objects[1];
+        double _3 = (double)objects[3];
+
+        // user-defined action
+        _0 = _1 / _3;
 
         return _0;
     }
 
     public static object Rule_term_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
-        object _0 = new object();
+        double _0 = new double();
+
+        return _0;
+    }
+
+    public static object Rule_number_id_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_number_id_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
 
         return _0;
     }
@@ -1232,7 +1284,7 @@ namespace sql_lexyaccNs
             { 274, "LESS_OR_EQUAL"},
             { 275, "GREATER_OR_EQUAL"},
             { 276, "STRING"},
-            { 277, "NUMBER"},
+            { 277, "NUMBER_DOUBLE"},
             { 278, "UPDATE"},
             { 279, "SET"},
             { 280, "ORDER"},
@@ -1244,7 +1296,7 @@ namespace sql_lexyaccNs
             { 286, "LOAD"},
             { 287, "DB"},
             { 288, "FILE_PATH"},
-            { 289, "POSITIVE"},
+            { 289, "POSITIVE_INT"},
         };
 
         public static int SELECT = 256;
@@ -1268,7 +1320,7 @@ namespace sql_lexyaccNs
         public static int LESS_OR_EQUAL = 274;
         public static int GREATER_OR_EQUAL = 275;
         public static int STRING = 276;
-        public static int NUMBER = 277;
+        public static int NUMBER_DOUBLE = 277;
         public static int UPDATE = 278;
         public static int SET = 279;
         public static int ORDER = 280;
@@ -1280,7 +1332,7 @@ namespace sql_lexyaccNs
         public static int LOAD = 286;
         public static int DB = 287;
         public static int FILE_PATH = 288;
-        public static int POSITIVE = 289;
+        public static int POSITIVE_INT = 289;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -1346,8 +1398,8 @@ namespace sql_lexyaccNs
 ""-""  { return '-'; }
 ""/""  { return '/'; }
 
-\d+          { value = int.Parse(yytext); return POSITIVE; }
--?\d+(\.\d+)?           { value = yytext; return NUMBER; }
+\d+          { value = int.Parse(yytext); return POSITIVE_INT; }
+-?\d+(\.\d+)?           { value = yytext; return NUMBER_DOUBLE; }
 '([^']|'')*'               { value = yytext; return STRING; }
 [a-zA-Z0-9_]*      { value = yytext; return ID; }
 [a-zA-Z0-9_:\.\\/]+  { value = yytext; return FILE_PATH; }
@@ -1783,7 +1835,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = int.Parse(yytext); return POSITIVE; 
+            value = int.Parse(yytext); return POSITIVE_INT; 
 
             return 0;
         }
@@ -1792,7 +1844,7 @@ namespace sql_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return NUMBER; 
+            value = yytext; return NUMBER_DOUBLE; 
 
             return 0;
         }
@@ -3357,6 +3409,7 @@ namespace LexYaccNs
                 nameToYaccRuleMap.Add(rule.lhs.name, rule);
                 rule = ReadRule(ref input, lexTokenDef, ruleNonterminalType);
             }
+
 
             ConvertIndirectLeftRecursion(allRules, lexTokenDef, ruleNonterminalType, nameToYaccRuleMap);
 

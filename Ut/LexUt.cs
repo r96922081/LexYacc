@@ -18,7 +18,7 @@ public class LexUt
 %%
 (\-)?[0-9]+ { 
         value = int.Parse(yytext);
-        return NUMBER;
+        return NUMBER_DOUBLE;
 }
 ""+""  {return '+';}
 ""-""  {return '-';}
@@ -30,7 +30,7 @@ public class LexUt
 
         LexTokenDef l = new LexTokenDef();
         l.type = "int";
-        l.name = "NUMBER";
+        l.name = "NUMBER_DOUBLE";
         l.index = 256;
         List<LexTokenDef> lexTokenDef = new List<LexTokenDef>() { l };
 
@@ -49,11 +49,11 @@ public class LexUt
 
 #if !DisableGenCodeUt
         List<Terminal> tokens = Lex.Parse(input, UtLex1Ns.LexActions.ruleInput, UtLex1Ns.LexActions.CallAction);
-        Check(tokens[0].tokenName == "NUMBER");
+        Check(tokens[0].tokenName == "NUMBER_DOUBLE");
         Check((int)tokens[0].tokenObject == 0);
         Check(tokens[1].type == TerminalType.CONSTANT_CHAR);
         Check(tokens[1].constCharValue == "-");
-        Check(tokens[10].tokenName == "NUMBER");
+        Check(tokens[10].tokenName == "NUMBER_DOUBLE");
         Check((int)tokens[10].tokenObject == -10000);
 #endif
     }

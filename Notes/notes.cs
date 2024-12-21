@@ -1,17 +1,22 @@
-﻿namespace LexYaccNs
-{
-    /*
-    Term:
+﻿/*
+Todo:
 
-    A: 'B' c | 'D' e
+indirect left recursive, action calling
 
-    Production rule = A: 'B' c | 'D' e
-    Production body = 'B' c | 'D' e
-    Production = 'B' c
-    Production = 'D' e
+ */
 
-    */
-}
+/*
+Term:
+
+A: 'B' c | 'D' e
+
+Production rule = A: 'B' c | 'D' e
+Production body = 'B' c | 'D' e
+Production = 'B' c
+Production = 'D' e
+
+*/
+
 
 /*
 not support:

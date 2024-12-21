@@ -19,7 +19,7 @@
                 table.originalColumnNames[i] = columnDeclare[i].Item1;
                 table.columnNames[i] = columnDeclare[i].Item1.ToUpper();
                 string columnType = columnDeclare[i].Item2.ToUpper();
-                if (columnType == "NUMBER")
+                if (columnType == "NUMBER_DOUBLE")
                 {
                     table.columnTypes[i] = ColumnType.NUMBER;
                 }

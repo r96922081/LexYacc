@@ -20,8 +20,8 @@ public class YaccActions{
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
-%token <int> POSITIVE
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER_DOUBLE UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
+%token <int> POSITIVE_INT
 %type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id string_number number
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
@@ -95,12 +95,12 @@ number
 ;
 
 number:
-NUMBER
+NUMBER_DOUBLE
 {
     $$ = $1;
 }
 | 
-POSITIVE
+POSITIVE_INT
 {
     $$ = """" + $1;
 }
@@ -349,7 +349,7 @@ namespace sql_condition_lexyaccNs
             { 274, "LESS_OR_EQUAL"},
             { 275, "GREATER_OR_EQUAL"},
             { 276, "STRING"},
-            { 277, "NUMBER"},
+            { 277, "NUMBER_DOUBLE"},
             { 278, "UPDATE"},
             { 279, "SET"},
             { 280, "ORDER"},
@@ -361,7 +361,7 @@ namespace sql_condition_lexyaccNs
             { 286, "LOAD"},
             { 287, "DB"},
             { 288, "FILE_PATH"},
-            { 289, "POSITIVE"},
+            { 289, "POSITIVE_INT"},
         };
 
         public static int SELECT = 256;
@@ -385,7 +385,7 @@ namespace sql_condition_lexyaccNs
         public static int LESS_OR_EQUAL = 274;
         public static int GREATER_OR_EQUAL = 275;
         public static int STRING = 276;
-        public static int NUMBER = 277;
+        public static int NUMBER_DOUBLE = 277;
         public static int UPDATE = 278;
         public static int SET = 279;
         public static int ORDER = 280;
@@ -397,7 +397,7 @@ namespace sql_condition_lexyaccNs
         public static int LOAD = 286;
         public static int DB = 287;
         public static int FILE_PATH = 288;
-        public static int POSITIVE = 289;
+        public static int POSITIVE_INT = 289;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -463,8 +463,8 @@ namespace sql_condition_lexyaccNs
 ""-""  { return '-'; }
 ""/""  { return '/'; }
 
-\d+          { value = int.Parse(yytext); return POSITIVE; }
--?\d+(\.\d+)?           { value = yytext; return NUMBER; }
+\d+          { value = int.Parse(yytext); return POSITIVE_INT; }
+-?\d+(\.\d+)?           { value = yytext; return NUMBER_DOUBLE; }
 '([^']|'')*'               { value = yytext; return STRING; }
 [a-zA-Z0-9_]*      { value = yytext; return ID; }
 [a-zA-Z0-9_:\.\\/]+  { value = yytext; return FILE_PATH; }
@@ -900,7 +900,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            value = int.Parse(yytext); return POSITIVE; 
+            value = int.Parse(yytext); return POSITIVE_INT; 
 
             return 0;
         }
@@ -909,7 +909,7 @@ namespace sql_condition_lexyaccNs
             value = null;
 
             // user-defined action
-            value = yytext; return NUMBER; 
+            value = yytext; return NUMBER_DOUBLE; 
 
             return 0;
         }
@@ -2474,6 +2474,7 @@ namespace LexYaccNs
                 nameToYaccRuleMap.Add(rule.lhs.name, rule);
                 rule = ReadRule(ref input, lexTokenDef, ruleNonterminalType);
             }
+
 
             ConvertIndirectLeftRecursion(allRules, lexTokenDef, ruleNonterminalType, nameToYaccRuleMap);
 

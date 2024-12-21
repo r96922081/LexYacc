@@ -12,10 +12,10 @@ namespace UtLex1Ns
 
         public static Dictionary<int, string> tokenDict = new Dictionary<int, string>
         {
-            { 256, "NUMBER"},
+            { 256, "NUMBER_DOUBLE"},
         };
 
-        public static int NUMBER = 256;
+        public static int NUMBER_DOUBLE = 256;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -42,7 +42,7 @@ namespace UtLex1Ns
 %%
 (\-)?[0-9]+ { 
         value = int.Parse(yytext);
-        return NUMBER;
+        return NUMBER_DOUBLE;
 }
 ""+""  {return '+';}
 ""-""  {return '-';}
@@ -70,7 +70,7 @@ namespace UtLex1Ns
 
             // user-defined action
             value = int.Parse(yytext);
-            return NUMBER;
+            return NUMBER_DOUBLE;
 
             return 0;
         }

@@ -2,8 +2,8 @@
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
-%token <int> POSITIVE
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER_DOUBLE UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
+%token <int> POSITIVE_INT
 %type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id string_number number
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
@@ -77,12 +77,12 @@ number
 ;
 
 number:
-NUMBER
+NUMBER_DOUBLE
 {
     $$ = $1;
 }
 | 
-POSITIVE
+POSITIVE_INT
 {
     $$ = "" + $1;
 }

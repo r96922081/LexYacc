@@ -18,7 +18,7 @@ public class YaccActions{
 
     public static string ruleInput = @"%{
 %}
-%token <int> NUMBER
+%token <int> NUMBER_DOUBLE
 %type <int> cal exp term
 %%
 cal: exp {$$ = $1; Console.WriteLine(""Result = "" + $1); };
@@ -30,9 +30,9 @@ exp:
   ;
   
 term:
-  term '*' NUMBER { $$ = $1 * $3;}
-  | term '/' NUMBER { $$ = $1 / $3;}
-  | NUMBER {$$ = $1;}
+  term '*' NUMBER_DOUBLE { $$ = $1 * $3;}
+  | term '/' NUMBER_DOUBLE { $$ = $1 / $3;}
+  | NUMBER_DOUBLE {$$ = $1;}
   ;
 %%";
 
@@ -176,10 +176,10 @@ namespace calNs
 
         public static Dictionary<int, string> tokenDict = new Dictionary<int, string>
         {
-            { 256, "NUMBER"},
+            { 256, "NUMBER_DOUBLE"},
         };
 
-        public static int NUMBER = 256;
+        public static int NUMBER_DOUBLE = 256;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -206,7 +206,7 @@ namespace calNs
 %%
 (\-)?[0-9]+ { 
             value = int.Parse(yytext);
-            return NUMBER;
+            return NUMBER_DOUBLE;
 }
 [ \t\n]+   {}
 ""+""  {return '+';}
@@ -233,7 +233,7 @@ namespace calNs
 
             // user-defined action
             value = int.Parse(yytext);
-            return NUMBER;
+            return NUMBER_DOUBLE;
 
             return 0;
         }
@@ -1807,6 +1807,7 @@ namespace LexYaccNs
                 nameToYaccRuleMap.Add(rule.lhs.name, rule);
                 rule = ReadRule(ref input, lexTokenDef, ruleNonterminalType);
             }
+
 
             ConvertIndirectLeftRecursion(allRules, lexTokenDef, ruleNonterminalType, nameToYaccRuleMap);
 

@@ -44,8 +44,8 @@
 "-"  { return '-'; }
 "/"  { return '/'; }
 
-\d+          { value = int.Parse(yytext); return POSITIVE; }
--?\d+(\.\d+)?           { value = yytext; return NUMBER; }
+\d+          { value = int.Parse(yytext); return POSITIVE_INT; }
+-?\d+(\.\d+)?           { value = yytext; return NUMBER_DOUBLE; }
 '([^']|'')*'               { value = yytext; return STRING; }
 [a-zA-Z0-9_]*      { value = yytext; return ID; }
 [a-zA-Z0-9_:\.\\/]+  { value = yytext; return FILE_PATH; }

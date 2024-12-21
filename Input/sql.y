@@ -2,18 +2,18 @@
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
-%token <int> POSITIVE
-%type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement number file_path
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER_DOUBLE UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
+%token <int> POSITIVE_INT
+%type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement number file_path number_id
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_condition
 %type <List<Tuple<string, string>>> set_expression
-%type <object> expression term
+%type <double> arithmetic_expression term
 %%
 
-statement: save_db | load_db | create_table_statement | drop_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement | expression;
+statement: save_db | load_db | create_table_statement | drop_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement | arithmetic_expression;
 
 save_db: SAVE DB file_path
 {
@@ -222,39 +222,51 @@ ID ',' comma_sep_id_include_star
 }
 ;
 
-expression:
-expression '+' expression 
+arithmetic_expression:
+arithmetic_expression '+' arithmetic_expression 
 {
-
+    $$ = $1 + $3;
 }
-| expression '-' expression 
+| arithmetic_expression '-' arithmetic_expression 
 {
-
+    $$ = $1 - $3;
 }
 | 
 term 
 {
-
+    $$ = $1;
 }
 ;
 
 term:
 term '*' term 
 {
-
+    $$ = $1 * $3;
 }
 | term '/' term 
 {
-
+    $$ = $1 / $3;
 }
 |
-'(' expression ')'
+'(' arithmetic_expression ')'
+{
+    $$ = $2;
+}
+| number_id 
 {
 
 }
-| string_number_id 
-{
+;
 
+number_id:
+ID
+{
+    $$ = $1;
+}
+| 
+number
+{
+    $$ = $1;
 }
 ;
 
@@ -303,17 +315,17 @@ ID DESC
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, false);
 }
 | 
-POSITIVE
+POSITIVE_INT
 {
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
 }
 | 
-POSITIVE ASC
+POSITIVE_INT ASC
 {
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
 }
 | 
-POSITIVE DESC
+POSITIVE_INT DESC
 {
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, false);
 }
@@ -325,12 +337,12 @@ FILE_PATH
     $$ = $1;
 }
 |
-POSITIVE
+POSITIVE_INT
 {
     $$ = "" + $1;
 }
 |
-NUMBER
+NUMBER_DOUBLE
 {
     $$ = $1;
 }
@@ -344,16 +356,16 @@ ID
 logical_operator: AND | OR;
 
 number:
-NUMBER
+NUMBER_DOUBLE
 {
     $$ = $1;
 }
 | 
-POSITIVE
+POSITIVE_INT
 {
     $$ = "" + $1;
 }
 ;
 
-column_type: VARCHAR '(' POSITIVE ')' {$$ = $1 + "(" + $3 + ")";} | NUMBER_TYPE {$$ = $1;};
+column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + "(" + $3 + ")";} | NUMBER_TYPE {$$ = $1;};
 %%

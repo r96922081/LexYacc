@@ -55,8 +55,8 @@ namespace MyDBNs
             ret = sql_lexyacc.Parse("(1 + 2) * 3");
             Check(ret == null || ret.ToString() == "");
 
-            ret = sql_lexyacc.Parse("1 + 2 - 'adb' /  (aaa)");
-            Check(ret == null || ret.ToString() == "");
+            //ret = sql_lexyacc.Parse("1 + 2 - 'adb' /  (aaa)");
+            //Check(ret == null || ret.ToString() == "");
 
             //ret = sql_lexyacc.Parse("SELECT AGE, NAME, * FROM A WHERE 1 = 1");
             //Check(ret == null || ret.ToString() == "");
