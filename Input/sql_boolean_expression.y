@@ -2,12 +2,14 @@
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER_DOUBLE UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
 %token <int> POSITIVE_INT
-%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id string_number number_double
+%token <double> NUMBER_DOUBLE
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id string_number arithmetic_expression_id arithmetic_expression term number_double_id
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
 %type <HashSet<int>> boolean_expression
+%type <double> number_double
 %%
 
 boolean_expression:
@@ -57,6 +59,95 @@ string_number_id GREATER_OR_EQUAL string_number_id
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, ">=", $3);
 }
+| 
+arithmetic_expression_id '=' arithmetic_expression_id
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, "=", $3);
+}
+| 
+arithmetic_expression_id '<' arithmetic_expression_id
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, "<", $3);
+}
+| 
+arithmetic_expression_id '>' arithmetic_expression_id
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, ">", $3);
+}
+| 
+arithmetic_expression_id NOT_EQUAL arithmetic_expression_id
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, "!=", $3);
+}
+| 
+arithmetic_expression_id LESS_OR_EQUAL arithmetic_expression_id
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, "<=", $3);
+}
+| 
+arithmetic_expression_id GREATER_OR_EQUAL arithmetic_expression_id
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, ">=", $3);
+}
+;
+
+arithmetic_expression:
+arithmetic_expression '+' term 
+{
+    $$ = $1 + " + " + $3;
+}
+| 
+arithmetic_expression '-' term 
+{
+    $$ = $1 + " - " + $3;
+}
+| 
+term 
+{
+    $$ = $1;
+}
+;
+
+term:
+term '*' number_double_id 
+{
+    $$ = $1 + " * " + $3;
+}
+| term '/' number_double_id 
+{
+    $$ = $1 + " / " + $3;
+}
+|
+term '*' '(' arithmetic_expression ')' 
+{
+    $$ = $1 + " * ( " + $4 + " )";
+}
+| term '/' '(' arithmetic_expression ')' 
+{
+    $$ = $1 + " / ( " + $4 + " )";
+}
+|
+'(' arithmetic_expression ')'
+{
+    $$ = $2;
+}
+| 
+number_double_id
+{
+    $$ = $1;
+}
+;
+
+number_double_id:
+number_double
+{
+    $$ = "" + $1;
+}
+|
+ID
+{
+    $$ = $1;
+}
 ;
 
 string_number_id:
@@ -72,6 +163,18 @@ STRING
 | 
 number_double
 {
+    $$ = "" + $1;
+}
+;
+
+arithmetic_expression_id:
+ID
+{
+    $$ = $1;
+}
+| 
+arithmetic_expression
+{
     $$ = $1;
 }
 ;
@@ -84,7 +187,7 @@ NUMBER_DOUBLE
 | 
 POSITIVE_INT
 {
-    $$ = "" + $1;
+    $$ = $1;
 }
 ;
 %%

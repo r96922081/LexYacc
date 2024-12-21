@@ -20,12 +20,14 @@ public class YaccActions{
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING NUMBER_DOUBLE UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
 %token <int> POSITIVE_INT
-%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id string_number number_double
+%token <double> NUMBER_DOUBLE
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id string_number arithmetic_expression_id arithmetic_expression term number_double_id
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
 %type <HashSet<int>> boolean_expression
+%type <double> number_double
 %%
 
 boolean_expression:
@@ -75,6 +77,95 @@ string_number_id GREATER_OR_EQUAL string_number_id
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, "">="", $3);
 }
+| 
+arithmetic_expression_id '=' arithmetic_expression_id
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, ""="", $3);
+}
+| 
+arithmetic_expression_id '<' arithmetic_expression_id
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, ""<"", $3);
+}
+| 
+arithmetic_expression_id '>' arithmetic_expression_id
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, "">"", $3);
+}
+| 
+arithmetic_expression_id NOT_EQUAL arithmetic_expression_id
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, ""!="", $3);
+}
+| 
+arithmetic_expression_id LESS_OR_EQUAL arithmetic_expression_id
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, ""<="", $3);
+}
+| 
+arithmetic_expression_id GREATER_OR_EQUAL arithmetic_expression_id
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, "">="", $3);
+}
+;
+
+arithmetic_expression:
+arithmetic_expression '+' term 
+{
+    $$ = $1 + "" + "" + $3;
+}
+| 
+arithmetic_expression '-' term 
+{
+    $$ = $1 + "" - "" + $3;
+}
+| 
+term 
+{
+    $$ = $1;
+}
+;
+
+term:
+term '*' number_double_id 
+{
+    $$ = $1 + "" * "" + $3;
+}
+| term '/' number_double_id 
+{
+    $$ = $1 + "" / "" + $3;
+}
+|
+term '*' '(' arithmetic_expression ')' 
+{
+    $$ = $1 + "" * ( "" + $4 + "" )"";
+}
+| term '/' '(' arithmetic_expression ')' 
+{
+    $$ = $1 + "" / ( "" + $4 + "" )"";
+}
+|
+'(' arithmetic_expression ')'
+{
+    $$ = $2;
+}
+| 
+number_double_id
+{
+    $$ = $1;
+}
+;
+
+number_double_id:
+number_double
+{
+    $$ = """" + $1;
+}
+|
+ID
+{
+    $$ = $1;
+}
 ;
 
 string_number_id:
@@ -90,6 +181,18 @@ STRING
 | 
 number_double
 {
+    $$ = """" + $1;
+}
+;
+
+arithmetic_expression_id:
+ID
+{
+    $$ = $1;
+}
+| 
+arithmetic_expression
+{
     $$ = $1;
 }
 ;
@@ -102,7 +205,7 @@ NUMBER_DOUBLE
 | 
 POSITIVE_INT
 {
-    $$ = """" + $1;
+    $$ = $1;
 }
 ;
 %%";
@@ -129,12 +232,33 @@ POSITIVE_INT
         actions.Add("Rule_boolean_expression_Producton_4", Rule_boolean_expression_Producton_4);
         actions.Add("Rule_boolean_expression_Producton_5", Rule_boolean_expression_Producton_5);
         actions.Add("Rule_boolean_expression_Producton_6", Rule_boolean_expression_Producton_6);
+        actions.Add("Rule_boolean_expression_Producton_7", Rule_boolean_expression_Producton_7);
+        actions.Add("Rule_boolean_expression_Producton_8", Rule_boolean_expression_Producton_8);
+        actions.Add("Rule_boolean_expression_Producton_9", Rule_boolean_expression_Producton_9);
+        actions.Add("Rule_boolean_expression_Producton_10", Rule_boolean_expression_Producton_10);
+        actions.Add("Rule_boolean_expression_Producton_11", Rule_boolean_expression_Producton_11);
+        actions.Add("Rule_boolean_expression_Producton_12", Rule_boolean_expression_Producton_12);
         actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_0", Rule_boolean_expression_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_1", Rule_boolean_expression_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_2", Rule_boolean_expression_LeftRecursionExpand_Producton_2);
+        actions.Add("Rule_arithmetic_expression_Producton_0", Rule_arithmetic_expression_Producton_0);
+        actions.Add("Rule_arithmetic_expression_LeftRecursionExpand_Producton_0", Rule_arithmetic_expression_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_arithmetic_expression_LeftRecursionExpand_Producton_1", Rule_arithmetic_expression_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_arithmetic_expression_LeftRecursionExpand_Producton_2", Rule_arithmetic_expression_LeftRecursionExpand_Producton_2);
+        actions.Add("Rule_term_Producton_0", Rule_term_Producton_0);
+        actions.Add("Rule_term_Producton_1", Rule_term_Producton_1);
+        actions.Add("Rule_term_LeftRecursionExpand_Producton_0", Rule_term_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_term_LeftRecursionExpand_Producton_1", Rule_term_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_term_LeftRecursionExpand_Producton_2", Rule_term_LeftRecursionExpand_Producton_2);
+        actions.Add("Rule_term_LeftRecursionExpand_Producton_3", Rule_term_LeftRecursionExpand_Producton_3);
+        actions.Add("Rule_term_LeftRecursionExpand_Producton_4", Rule_term_LeftRecursionExpand_Producton_4);
+        actions.Add("Rule_number_double_id_Producton_0", Rule_number_double_id_Producton_0);
+        actions.Add("Rule_number_double_id_Producton_1", Rule_number_double_id_Producton_1);
         actions.Add("Rule_string_number_id_Producton_0", Rule_string_number_id_Producton_0);
         actions.Add("Rule_string_number_id_Producton_1", Rule_string_number_id_Producton_1);
         actions.Add("Rule_string_number_id_Producton_2", Rule_string_number_id_Producton_2);
+        actions.Add("Rule_arithmetic_expression_id_Producton_0", Rule_arithmetic_expression_id_Producton_0);
+        actions.Add("Rule_arithmetic_expression_id_Producton_1", Rule_arithmetic_expression_id_Producton_1);
         actions.Add("Rule_number_double_Producton_0", Rule_number_double_Producton_0);
         actions.Add("Rule_number_double_Producton_1", Rule_number_double_Producton_1);
     }
@@ -228,6 +352,75 @@ POSITIVE_INT
         return _0;
     }
 
+    public static object Rule_boolean_expression_Producton_7(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression(_1, "=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_8(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression(_1, "<", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_9(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression(_1, ">", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_10(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression(_1, "!=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_11(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression(_1, "<=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_12(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression(_1, ">=", _3);
+
+        return _0;
+    }
+
     public static object Rule_boolean_expression_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
         HashSet<int> _0 = new HashSet<int>();
         HashSet<int> _1 =(HashSet<int>)objects[1];
@@ -260,6 +453,134 @@ POSITIVE_INT
         return _0;
     }
 
+    public static object Rule_arithmetic_expression_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_arithmetic_expression_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 =(string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = _1 + " + " + _3;
+
+        return _0;
+    }
+
+    public static object Rule_arithmetic_expression_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 =(string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = _1 + " - " + _3;
+
+        return _0;
+    }
+
+    public static object Rule_arithmetic_expression_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+
+        return _0;
+    }
+
+    public static object Rule_term_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _2 = (string)objects[2];
+
+        // user-defined action
+        _0 = _2;
+
+        return _0;
+    }
+
+    public static object Rule_term_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_term_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 =(string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = _1 + " * " + _3;
+
+        return _0;
+    }
+
+    public static object Rule_term_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 =(string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = _1 + " / " + _3;
+
+        return _0;
+    }
+
+    public static object Rule_term_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 =(string)objects[1];
+        string _4 = (string)objects[4];
+
+        // user-defined action
+        _0 = _1 + " * ( " + _4 + " )";
+
+        return _0;
+    }
+
+    public static object Rule_term_LeftRecursionExpand_Producton_3(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 =(string)objects[1];
+        string _4 = (string)objects[4];
+
+        // user-defined action
+        _0 = _1 + " / ( " + _4 + " )";
+
+        return _0;
+    }
+
+    public static object Rule_term_LeftRecursionExpand_Producton_4(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+
+        return _0;
+    }
+
+    public static object Rule_number_double_id_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        double _1 = (double)objects[1];
+
+        // user-defined action
+        _0 = "" + _1;
+
+        return _0;
+    }
+
+    public static object Rule_number_double_id_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
     public static object Rule_string_number_id_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
@@ -282,6 +603,26 @@ POSITIVE_INT
 
     public static object Rule_string_number_id_Producton_2(Dictionary<int, object> objects) { 
         string _0 = new string("");
+        double _1 = (double)objects[1];
+
+        // user-defined action
+        _0 = "" + _1;
+
+        return _0;
+    }
+
+    public static object Rule_arithmetic_expression_id_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_arithmetic_expression_id_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
         string _1 = (string)objects[1];
 
         // user-defined action
@@ -291,8 +632,8 @@ POSITIVE_INT
     }
 
     public static object Rule_number_double_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
+        double _0 = new double();
+        double _1 = (double)objects[1];
 
         // user-defined action
         _0 = _1;
@@ -301,11 +642,11 @@ POSITIVE_INT
     }
 
     public static object Rule_number_double_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+        double _0 = new double();
         int _1 = (int)objects[1];
 
         // user-defined action
-        _0 = "" + _1;
+        _0 = _1;
 
         return _0;
     }
@@ -349,19 +690,19 @@ namespace sql_boolean_expressionNs
             { 274, "LESS_OR_EQUAL"},
             { 275, "GREATER_OR_EQUAL"},
             { 276, "STRING"},
-            { 277, "NUMBER_DOUBLE"},
-            { 278, "UPDATE"},
-            { 279, "SET"},
-            { 280, "ORDER"},
-            { 281, "BY"},
-            { 282, "ASC"},
-            { 283, "DESC"},
-            { 284, "DROP"},
-            { 285, "SAVE"},
-            { 286, "LOAD"},
-            { 287, "DB"},
-            { 288, "FILE_PATH"},
-            { 289, "POSITIVE_INT"},
+            { 277, "UPDATE"},
+            { 278, "SET"},
+            { 279, "ORDER"},
+            { 280, "BY"},
+            { 281, "ASC"},
+            { 282, "DESC"},
+            { 283, "DROP"},
+            { 284, "SAVE"},
+            { 285, "LOAD"},
+            { 286, "DB"},
+            { 287, "FILE_PATH"},
+            { 288, "POSITIVE_INT"},
+            { 289, "NUMBER_DOUBLE"},
         };
 
         public static int SELECT = 256;
@@ -385,19 +726,19 @@ namespace sql_boolean_expressionNs
         public static int LESS_OR_EQUAL = 274;
         public static int GREATER_OR_EQUAL = 275;
         public static int STRING = 276;
-        public static int NUMBER_DOUBLE = 277;
-        public static int UPDATE = 278;
-        public static int SET = 279;
-        public static int ORDER = 280;
-        public static int BY = 281;
-        public static int ASC = 282;
-        public static int DESC = 283;
-        public static int DROP = 284;
-        public static int SAVE = 285;
-        public static int LOAD = 286;
-        public static int DB = 287;
-        public static int FILE_PATH = 288;
-        public static int POSITIVE_INT = 289;
+        public static int UPDATE = 277;
+        public static int SET = 278;
+        public static int ORDER = 279;
+        public static int BY = 280;
+        public static int ASC = 281;
+        public static int DESC = 282;
+        public static int DROP = 283;
+        public static int SAVE = 284;
+        public static int LOAD = 285;
+        public static int DB = 286;
+        public static int FILE_PATH = 287;
+        public static int POSITIVE_INT = 288;
+        public static int NUMBER_DOUBLE = 289;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {

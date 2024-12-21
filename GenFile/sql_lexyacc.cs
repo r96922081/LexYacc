@@ -23,7 +23,7 @@ public class YaccActions{
 %token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
 %token <int> POSITIVE_INT
 %token <double> NUMBER_DOUBLE
-%type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement file_path arithmetic_expression term number_double_id string_id
+%type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement file_path arithmetic_expression term number_double_id string_id arithmetic_expression_id
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
@@ -132,12 +132,12 @@ SELECT comma_sep_id_include_star FROM ID WHERE boolean_expression ORDER BY order
 boolean_expression:
 boolean_expression AND boolean_expression
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""AND"", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, ""AND"", $3);
 }
 |
 boolean_expression OR boolean_expression
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""OR"", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, ""OR"", $3);
 }
 | 
 '(' boolean_expression ')'
@@ -147,32 +147,62 @@ boolean_expression OR boolean_expression
 | 
 string_id '=' string_id
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""="", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, ""="", $3);
 }
 | 
 string_id '<' string_id
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""<"", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, ""<"", $3);
 }
 | 
 string_id '>' string_id
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "">"", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, "">"", $3);
 }
 | 
 string_id NOT_EQUAL string_id
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""!="", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, ""!="", $3);
 }
 | 
 string_id LESS_OR_EQUAL string_id
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, ""<="", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, ""<="", $3);
 }
 | 
 string_id GREATER_OR_EQUAL string_id
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref $$, $1, "">="", $3);
+    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, "">="", $3);
+}
+| 
+arithmetic_expression_id '=' arithmetic_expression_id
+{
+    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, ""="", $3);
+}
+| 
+arithmetic_expression_id '<' arithmetic_expression_id
+{
+    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, ""<"", $3);
+}
+| 
+arithmetic_expression_id '>' arithmetic_expression_id
+{
+    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, "">"", $3);
+}
+| 
+arithmetic_expression_id NOT_EQUAL arithmetic_expression_id
+{
+    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, ""!="", $3);
+}
+| 
+arithmetic_expression_id LESS_OR_EQUAL arithmetic_expression_id
+{
+    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, ""<="", $3);
+}
+| 
+arithmetic_expression_id GREATER_OR_EQUAL arithmetic_expression_id
+{
+    MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref $$, $1, "">="", $3);
 }
 ;
 
@@ -329,6 +359,18 @@ STRING
 }
 ;
 
+arithmetic_expression_id:
+ID
+{
+    $$ = $1;
+}
+| 
+arithmetic_expression
+{
+    $$ = $1;
+}
+;
+
 string_number:
 STRING
 {
@@ -451,6 +493,12 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         actions.Add("Rule_boolean_expression_Producton_4", Rule_boolean_expression_Producton_4);
         actions.Add("Rule_boolean_expression_Producton_5", Rule_boolean_expression_Producton_5);
         actions.Add("Rule_boolean_expression_Producton_6", Rule_boolean_expression_Producton_6);
+        actions.Add("Rule_boolean_expression_Producton_7", Rule_boolean_expression_Producton_7);
+        actions.Add("Rule_boolean_expression_Producton_8", Rule_boolean_expression_Producton_8);
+        actions.Add("Rule_boolean_expression_Producton_9", Rule_boolean_expression_Producton_9);
+        actions.Add("Rule_boolean_expression_Producton_10", Rule_boolean_expression_Producton_10);
+        actions.Add("Rule_boolean_expression_Producton_11", Rule_boolean_expression_Producton_11);
+        actions.Add("Rule_boolean_expression_Producton_12", Rule_boolean_expression_Producton_12);
         actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_0", Rule_boolean_expression_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_1", Rule_boolean_expression_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_2", Rule_boolean_expression_LeftRecursionExpand_Producton_2);
@@ -484,6 +532,8 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         actions.Add("Rule_string_number_id_Producton_2", Rule_string_number_id_Producton_2);
         actions.Add("Rule_string_id_Producton_0", Rule_string_id_Producton_0);
         actions.Add("Rule_string_id_Producton_1", Rule_string_id_Producton_1);
+        actions.Add("Rule_arithmetic_expression_id_Producton_0", Rule_arithmetic_expression_id_Producton_0);
+        actions.Add("Rule_arithmetic_expression_id_Producton_1", Rule_arithmetic_expression_id_Producton_1);
         actions.Add("Rule_string_number_Producton_0", Rule_string_number_Producton_0);
         actions.Add("Rule_string_number_Producton_1", Rule_string_number_Producton_1);
         actions.Add("Rule_order_by_column_Producton_0", Rule_order_by_column_Producton_0);
@@ -756,7 +806,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         string _3 = (string)objects[3];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "=", _3);
+        MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref _0, _1, "=", _3);
 
         return _0;
     }
@@ -767,7 +817,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         string _3 = (string)objects[3];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "<", _3);
+        MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref _0, _1, "<", _3);
 
         return _0;
     }
@@ -778,7 +828,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         string _3 = (string)objects[3];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, ">", _3);
+        MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref _0, _1, ">", _3);
 
         return _0;
     }
@@ -790,7 +840,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         string _3 = (string)objects[3];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "!=", _3);
+        MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref _0, _1, "!=", _3);
 
         return _0;
     }
@@ -802,7 +852,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         string _3 = (string)objects[3];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "<=", _3);
+        MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref _0, _1, "<=", _3);
 
         return _0;
     }
@@ -814,7 +864,76 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         string _3 = (string)objects[3];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, ">=", _3);
+        MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref _0, _1, ">=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_7(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref _0, _1, "=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_8(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref _0, _1, "<", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_9(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref _0, _1, ">", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_10(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref _0, _1, "!=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_11(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref _0, _1, "<=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_12(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref _0, _1, ">=", _3);
 
         return _0;
     }
@@ -826,7 +945,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         string _3 = (string)objects[3];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "AND", _3);
+        MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref _0, _1, "AND", _3);
 
         return _0;
     }
@@ -838,7 +957,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         string _3 = (string)objects[3];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.BooleanExpression2(ref _0, _1, "OR", _3);
+        MyDBNs.SqlLexYaccCallback.BooleanExpressionVarcharColumn(ref _0, _1, "OR", _3);
 
         return _0;
     }
@@ -1144,6 +1263,26 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
     }
 
     public static object Rule_string_id_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_arithmetic_expression_id_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_arithmetic_expression_id_Producton_1(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 
