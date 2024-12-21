@@ -149,11 +149,9 @@
             int lhsColumnIndex = -1;
             int rhsColumnIndex = -1;
 
-            ColumnType lhsType2 = ColumnType.NUMBER;
+            ColumnType lhsType2 = ColumnType.VARCHAR;
             if (lhsType == StringType.String)
                 lhsType2 = ColumnType.VARCHAR;
-            else if (lhsType == StringType.Number)
-                lhsType2 = ColumnType.NUMBER;
             else
             {
                 ColumnType t = table.columnNameToTypesMap[lhs];
@@ -165,11 +163,9 @@
                 lhsColumnIndex = table.columnNameToIndexMap[lhs];
             }
 
-            ColumnType rhsType2 = ColumnType.NUMBER;
+            ColumnType rhsType2 = ColumnType.VARCHAR;
             if (rhsType == StringType.String)
                 rhsType2 = ColumnType.VARCHAR;
-            else if (rhsType == StringType.Number)
-                rhsType2 = ColumnType.NUMBER;
             else
             {
                 ColumnType t = table.columnNameToTypesMap[rhs];
@@ -193,11 +189,6 @@
                 {
                     lhsValue = row[lhsColumnIndex];
                 }
-                else if (lhsType2 == ColumnType.NUMBER)
-                {
-                    if (lhs != null)
-                        lhsValue = double.Parse(lhs);
-                }
                 else if (lhsType2 == ColumnType.VARCHAR)
                 {
                     if (lhs != null)
@@ -207,11 +198,6 @@
                 if (rhsType == StringType.Column)
                 {
                     rhsValue = row[rhsColumnIndex];
-                }
-                else if (rhsType2 == ColumnType.NUMBER)
-                {
-                    if (rhs != null)
-                        rhsValue = double.Parse(rhs);
                 }
                 else if (rhsType2 == ColumnType.VARCHAR)
                 {
