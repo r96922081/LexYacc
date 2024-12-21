@@ -11,19 +11,19 @@
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_condition
 %type <List<Tuple<string, string>>> set_expression
-%type <double> arithmetic_expression term number_double number_double_id
+%type <List<double>> arithmetic_expression term number_double number_double_id
 %%
 
 
 arithmetic_expression:
 arithmetic_expression '+' term 
 {
-    $$ = $1 + $3;
+    $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.ArithmeticExpression($1, "+", $3);
 }
 | 
 arithmetic_expression '-' term 
 {
-    $$ = $1 - $3;
+    $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.ArithmeticExpression($1, "-", $3);
 }
 | 
 term 
@@ -35,20 +35,20 @@ term
 term:
 term '*' number_double_id 
 {
-    $$ = $1 * $3;
+    $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.ArithmeticExpression($1, "*", $3);
 }
 | term '/' number_double_id 
 {
-    $$ = $1 / $3;
+    $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.ArithmeticExpression($1, "/", $3);
 }
 |
 term '*' '(' arithmetic_expression ')' 
 {
-    $$ = $1 * $4;
+    $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.ArithmeticExpression($1, "*", $4);
 }
 | term '/' '(' arithmetic_expression ')' 
 {
-    $$ = $1 / $4;
+    $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.ArithmeticExpression($1, "/", $4);
 }
 |
 '(' arithmetic_expression ')'
@@ -70,20 +70,19 @@ number_double
 |
 ID
 {
-    //mojo
-    $$ = 1;
+    $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.GetColumnValues($1);
 }
 ;
 
 number_double:
 NUMBER_DOUBLE
 {
-    $$ = $1;
+    $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.GetColumnValues($1);
 }
 | 
 POSITIVE_INT
 {
-    $$ = $1;
+    $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.GetColumnValues($1);
 }
 ;
 %%

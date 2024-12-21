@@ -29,47 +29,44 @@ public class YaccActions{
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_condition
 %type <List<Tuple<string, string>>> set_expression
-%type <double> arithmetic_expression term number_double number_double_id
+%type <List<double>> arithmetic_expression term number_double number_double_id
 %%
 
 
 arithmetic_expression:
 arithmetic_expression '+' term 
 {
-    $$ = $1 + $3;
-    Console.WriteLine($$);
+    $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.ArithmeticExpression($1, ""+"", $3);
 }
 | 
 arithmetic_expression '-' term 
 {
-    $$ = $1 - $3;
-    Console.WriteLine($$);
+    $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.ArithmeticExpression($1, ""-"", $3);
 }
 | 
 term 
 {
     $$ = $1;
-    Console.WriteLine($$);
 }
 ;
 
 term:
 term '*' number_double_id 
 {
-    $$ = $1 * $3;
+    $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.ArithmeticExpression($1, ""*"", $3);
 }
 | term '/' number_double_id 
 {
-    $$ = $1 / $3;
+    $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.ArithmeticExpression($1, ""/"", $3);
 }
 |
 term '*' '(' arithmetic_expression ')' 
 {
-    $$ = $1 * $4;
+    $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.ArithmeticExpression($1, ""*"", $4);
 }
 | term '/' '(' arithmetic_expression ')' 
 {
-    $$ = $1 / $4;
+    $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.ArithmeticExpression($1, ""/"", $4);
 }
 |
 '(' arithmetic_expression ')'
@@ -91,20 +88,19 @@ number_double
 |
 ID
 {
-    //mojo
-    $$ = 1;
+    $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.GetColumnValues($1);
 }
 ;
 
 number_double:
 NUMBER_DOUBLE
 {
-    $$ = $1;
+    $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.GetColumnValues($1);
 }
 | 
 POSITIVE_INT
 {
-    $$ = $1;
+    $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.GetColumnValues($1);
 }
 ;
 %%";
@@ -142,8 +138,8 @@ POSITIVE_INT
     }
 
     public static object Rule_start_Producton_0(Dictionary<int, object> objects) { 
-        double _0 = new double();
-        double _1 = (double)objects[1];
+        List<double> _0 = new List<double>();
+        List<double> _1 = (List<double>)objects[1];
 
         // user-defined action
         _0 = _1;
@@ -152,49 +148,46 @@ POSITIVE_INT
     }
 
     public static object Rule_arithmetic_expression_Producton_0(Dictionary<int, object> objects) { 
-        double _0 = new double();
-        double _1 = (double)objects[1];
+        List<double> _0 = new List<double>();
+        List<double> _1 = (List<double>)objects[1];
 
         // user-defined action
         _0 = _1;
-        Console.WriteLine(_0);
 
         return _0;
     }
 
     public static object Rule_arithmetic_expression_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
-        double _0 = new double();
-        double _1 =(double)objects[1];
-        double _3 = (double)objects[3];
+        List<double> _0 = new List<double>();
+        List<double> _1 =(List<double>)objects[1];
+        List<double> _3 = (List<double>)objects[3];
 
         // user-defined action
-        _0 = _1 + _3;
-        Console.WriteLine(_0);
+        _0 = MyDBNs.SqlArithmeticExpressionLexYaccCallback.ArithmeticExpression(_1, "+", _3);
 
         return _0;
     }
 
     public static object Rule_arithmetic_expression_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
-        double _0 = new double();
-        double _1 =(double)objects[1];
-        double _3 = (double)objects[3];
+        List<double> _0 = new List<double>();
+        List<double> _1 =(List<double>)objects[1];
+        List<double> _3 = (List<double>)objects[3];
 
         // user-defined action
-        _0 = _1 - _3;
-        Console.WriteLine(_0);
+        _0 = MyDBNs.SqlArithmeticExpressionLexYaccCallback.ArithmeticExpression(_1, "-", _3);
 
         return _0;
     }
 
     public static object Rule_arithmetic_expression_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
-        double _0 = new double();
+        List<double> _0 = new List<double>();
 
         return _0;
     }
 
     public static object Rule_term_Producton_0(Dictionary<int, object> objects) { 
-        double _0 = new double();
-        double _2 = (double)objects[2];
+        List<double> _0 = new List<double>();
+        List<double> _2 = (List<double>)objects[2];
 
         // user-defined action
         _0 = _2;
@@ -203,8 +196,8 @@ POSITIVE_INT
     }
 
     public static object Rule_term_Producton_1(Dictionary<int, object> objects) { 
-        double _0 = new double();
-        double _1 = (double)objects[1];
+        List<double> _0 = new List<double>();
+        List<double> _1 = (List<double>)objects[1];
 
         // user-defined action
         _0 = _1;
@@ -213,58 +206,58 @@ POSITIVE_INT
     }
 
     public static object Rule_term_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
-        double _0 = new double();
-        double _1 =(double)objects[1];
-        double _3 = (double)objects[3];
+        List<double> _0 = new List<double>();
+        List<double> _1 =(List<double>)objects[1];
+        List<double> _3 = (List<double>)objects[3];
 
         // user-defined action
-        _0 = _1 * _3;
+        _0 = MyDBNs.SqlArithmeticExpressionLexYaccCallback.ArithmeticExpression(_1, "*", _3);
 
         return _0;
     }
 
     public static object Rule_term_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
-        double _0 = new double();
-        double _1 =(double)objects[1];
-        double _3 = (double)objects[3];
+        List<double> _0 = new List<double>();
+        List<double> _1 =(List<double>)objects[1];
+        List<double> _3 = (List<double>)objects[3];
 
         // user-defined action
-        _0 = _1 / _3;
+        _0 = MyDBNs.SqlArithmeticExpressionLexYaccCallback.ArithmeticExpression(_1, "/", _3);
 
         return _0;
     }
 
     public static object Rule_term_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
-        double _0 = new double();
-        double _1 =(double)objects[1];
-        double _4 = (double)objects[4];
+        List<double> _0 = new List<double>();
+        List<double> _1 =(List<double>)objects[1];
+        List<double> _4 = (List<double>)objects[4];
 
         // user-defined action
-        _0 = _1 * _4;
+        _0 = MyDBNs.SqlArithmeticExpressionLexYaccCallback.ArithmeticExpression(_1, "*", _4);
 
         return _0;
     }
 
     public static object Rule_term_LeftRecursionExpand_Producton_3(Dictionary<int, object> objects) { 
-        double _0 = new double();
-        double _1 =(double)objects[1];
-        double _4 = (double)objects[4];
+        List<double> _0 = new List<double>();
+        List<double> _1 =(List<double>)objects[1];
+        List<double> _4 = (List<double>)objects[4];
 
         // user-defined action
-        _0 = _1 / _4;
+        _0 = MyDBNs.SqlArithmeticExpressionLexYaccCallback.ArithmeticExpression(_1, "/", _4);
 
         return _0;
     }
 
     public static object Rule_term_LeftRecursionExpand_Producton_4(Dictionary<int, object> objects) { 
-        double _0 = new double();
+        List<double> _0 = new List<double>();
 
         return _0;
     }
 
     public static object Rule_number_double_id_Producton_0(Dictionary<int, object> objects) { 
-        double _0 = new double();
-        double _1 = (double)objects[1];
+        List<double> _0 = new List<double>();
+        List<double> _1 = (List<double>)objects[1];
 
         // user-defined action
         _0 = _1;
@@ -273,32 +266,31 @@ POSITIVE_INT
     }
 
     public static object Rule_number_double_id_Producton_1(Dictionary<int, object> objects) { 
-        double _0 = new double();
+        List<double> _0 = new List<double>();
         string _1 = (string)objects[1];
 
         // user-defined action
-        //mojo
-        _0 = 1;
+        _0 = MyDBNs.SqlArithmeticExpressionLexYaccCallback.GetColumnValues(_1);
 
         return _0;
     }
 
     public static object Rule_number_double_Producton_0(Dictionary<int, object> objects) { 
-        double _0 = new double();
+        List<double> _0 = new List<double>();
         double _1 = (double)objects[1];
 
         // user-defined action
-        _0 = _1;
+        _0 = MyDBNs.SqlArithmeticExpressionLexYaccCallback.GetColumnValues(_1);
 
         return _0;
     }
 
     public static object Rule_number_double_Producton_1(Dictionary<int, object> objects) { 
-        double _0 = new double();
+        List<double> _0 = new List<double>();
         int _1 = (int)objects[1];
 
         // user-defined action
-        _0 = _1;
+        _0 = MyDBNs.SqlArithmeticExpressionLexYaccCallback.GetColumnValues(_1);
 
         return _0;
     }

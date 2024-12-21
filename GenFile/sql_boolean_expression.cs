@@ -80,7 +80,7 @@ string_number_id GREATER_OR_EQUAL string_number_id
 | 
 arithmetic_expression_id '=' arithmetic_expression_id
 {
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, ""="", $3);
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, ""="", $3);
 }
 | 
 arithmetic_expression_id '<' arithmetic_expression_id
@@ -358,7 +358,7 @@ POSITIVE_INT
         string _3 = (string)objects[3];
 
         // user-defined action
-        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn(_1, "=", _3);
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn(_1, "=", _3);
 
         return _0;
     }

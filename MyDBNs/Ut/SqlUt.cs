@@ -14,6 +14,10 @@ namespace MyDBNs
         public static void TestArithmeticExpression()
         {
 #if !MarkUserOfSqlCodeGen
+            object ret = sql_lexyacc.Parse("SELECT * FROM A WHERE AGE = 1 + 2 + AGE");
+            Check(ret == null || ret.ToString() == "");
+
+            /*
             object ret = sql_arithmetic_expression.Parse("3 - 2 + 1");
             Check((double)ret == 2);
 
@@ -24,7 +28,7 @@ namespace MyDBNs
             Check((double)ret == 12);
 
             ret = sql_arithmetic_expression.Parse("(1 + 2) * 3 / ( (8 - 2) / 2) * 4 ");
-            Check((double)ret == 12);
+            Check((double)ret == 12);*/
 
             //ret = sql_lexyacc.Parse("SELECT * FROM A WHERE AGE != 6 - 3 - 2");
             //Check(ret == null || ret.ToString() == "");

@@ -129,7 +129,45 @@
 
         public static HashSet<int> BooleanExpressionNumberColumn(string lhs, string op, string rhs)
         {
-            return null;
+            SqlArithmeticExpressionLexYaccCallback.tableName = tableName;
+            List<double> lhsValues = (List<double>)sql_arithmetic_expression.Parse(lhs);
+            List<double> rhsValues = (List<double>)sql_arithmetic_expression.Parse(rhs);
+
+            HashSet<int> rows = new HashSet<int>();
+            Table table = Util.GetTable(tableName);
+
+            for (int i = 0; i < lhsValues.Count; i++)
+            {
+                switch (op)
+                {
+                    case "=":
+                        if (EvaluateBooleanExpression(BooleanOperator.Equal, lhsValues[i], rhsValues[i], ColumnType.NUMBER))
+                            rows.Add(i);
+                        break;
+                    case "!=":
+                        if (EvaluateBooleanExpression(BooleanOperator.NotEqual, lhsValues[i], rhsValues[i], ColumnType.NUMBER))
+                            rows.Add(i);
+                        break;
+                    case "<":
+                        if (EvaluateBooleanExpression(BooleanOperator.LessThan, lhsValues[i], rhsValues[i], ColumnType.NUMBER))
+                            rows.Add(i);
+                        break;
+                    case "<=":
+                        if (EvaluateBooleanExpression(BooleanOperator.LessThanEqualTo, lhsValues[i], rhsValues[i], ColumnType.NUMBER))
+                            rows.Add(i);
+                        break;
+                    case ">":
+                        if (EvaluateBooleanExpression(BooleanOperator.GreaterThan, lhsValues[i], rhsValues[i], ColumnType.NUMBER))
+                            rows.Add(i);
+                        break;
+                    case ">=":
+                        if (EvaluateBooleanExpression(BooleanOperator.GreaterThanEqualTo, lhsValues[i], rhsValues[i], ColumnType.NUMBER))
+                            rows.Add(i);
+                        break;
+                }
+            }
+
+            return rows;
         }
 
         public static ColumnType GetType(string s, ref int columnIndex)
