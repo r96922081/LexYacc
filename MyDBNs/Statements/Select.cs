@@ -16,7 +16,7 @@
             }
 
 #if !MarkUserOfSqlCodeGen
-            SqlBooleanExpressionLexYaccCallback.tableName = tableName;
+            SqlBooleanExpressionLexYaccCallback.table = Util.GetTable(tableName);
             rows = new List<int>((HashSet<int>)sql_boolean_expression.Parse(condition));
 #endif
 

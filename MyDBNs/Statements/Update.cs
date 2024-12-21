@@ -10,7 +10,7 @@
             Verifier.VerifyUpdate(tableName, setExpression);
 
 #if !MarkUserOfSqlCodeGen
-            SqlBooleanExpressionLexYaccCallback.tableName = tableName;
+            SqlBooleanExpressionLexYaccCallback.table = Util.GetTable(tableName);
             HashSet<int> rows = null;
             if (condition != null)
             {
@@ -19,14 +19,15 @@
             }
 
             Table table = Util.GetTable(tableName);
-            for (int i = 0; i < table.rows.Count; i++)
+            foreach (var kv in setExpression)
             {
-                if (condition != null && !rows.Contains(i))
-                    continue;
-
-                object[] row = table.rows[i];
-                foreach (var kv in setExpression)
+                for (int i = 0; i < table.rows.Count; i++)
                 {
+                    if (condition != null && !rows.Contains(i))
+                        continue;
+
+                    object[] row = table.rows[i];
+
                     string columnName = kv.Item1;
                     int columnIndex = table.columnNameToIndexMap[columnName];
 

@@ -2,15 +2,10 @@
 {
     public class SqlBooleanExpressionLexYaccCallback
     {
-        public static string tableName = "";
+        public static Table table = null;
 
         public static void VerifyBooleanExpression(string lhs, string op, string rhs)
         {
-            List<Table> tables = MyDBNs.DB.tables;
-            Table table = Util.GetTable(tableName);
-            if (table == null)
-                throw new Exception("Table does not exist: " + tableName);
-
             StringType lhsType = Util.GetStringType(lhs);
             StringType rhsType = Util.GetStringType(rhs);
 
@@ -129,12 +124,11 @@
 
         public static HashSet<int> BooleanExpressionNumberColumn(string lhs, string op, string rhs)
         {
-            SqlArithmeticExpressionLexYaccCallback.tableName = tableName;
+            SqlArithmeticExpressionLexYaccCallback.table = table;
             List<double> lhsValues = (List<double>)sql_arithmetic_expression.Parse(lhs);
             List<double> rhsValues = (List<double>)sql_arithmetic_expression.Parse(rhs);
 
             HashSet<int> rows = new HashSet<int>();
-            Table table = Util.GetTable(tableName);
 
             for (int i = 0; i < lhsValues.Count; i++)
             {
@@ -177,7 +171,6 @@
                 s = s.ToUpper();
 
             List<Table> tables = MyDBNs.DB.tables;
-            Table table = Util.GetTable(tableName);
 
             ColumnType type2 = ColumnType.NUMBER;
             if (type == StringType.String)
@@ -232,9 +225,6 @@
             VerifyBooleanExpression(lhs, op, rhs);
 
             HashSet<int> rows = new HashSet<int>();
-
-            List<Table> tables = MyDBNs.DB.tables;
-            Table table = Util.GetTable(tableName);
 
             for (int i = 0; i < table.rows.Count; i++)
             {

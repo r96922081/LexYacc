@@ -452,7 +452,7 @@ namespace sql_arithmetic_expressionNs
 -?\d+(\.\d+)?           { value = double.Parse(yytext); return NUMBER_DOUBLE; }
 '([^']|'')*'               { value = yytext; return STRING; }
 [a-zA-Z0-9_]*      { value = yytext; return ID; }
-[a-zA-Z0-9_:\.\\/]+  { value = yytext; return FILE_PATH; }
+[a-zA-Z0-9_:\.\\]+  { value = yytext; return FILE_PATH; }
 [ \t\n]                      {}
 
 %%

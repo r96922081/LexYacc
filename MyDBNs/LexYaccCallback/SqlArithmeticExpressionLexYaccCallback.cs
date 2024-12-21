@@ -2,7 +2,7 @@
 {
     public class SqlArithmeticExpressionLexYaccCallback
     {
-        public static string tableName = "";
+        public static Table table = null;
 
         public static List<double> ArithmeticExpression(List<double> lhs, string op, List<double> rhs)
         {
@@ -27,11 +27,10 @@
             int columnIndex = -1;
             ColumnType type = SqlBooleanExpressionLexYaccCallback.GetType(column, ref columnIndex);
 
-            Table t = Util.GetTable(tableName);
             List<double> values = new List<double>();
-            for (int i = 0; i < t.rows.Count; i++)
+            for (int i = 0; i < table.rows.Count; i++)
             {
-                object value = t.rows[i][columnIndex];
+                object value = table.rows[i][columnIndex];
                 if (value == null)
                     values.Add(0);
                 else
@@ -43,9 +42,8 @@
 
         public static List<double> GetColumnValues(double value)
         {
-            Table t = Util.GetTable(tableName);
             List<double> values = new List<double>();
-            for (int i = 0; i < t.rows.Count; i++)
+            for (int i = 0; i < table.rows.Count; i++)
                 values.Add(value);
 
             return values;

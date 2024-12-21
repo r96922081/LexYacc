@@ -7,7 +7,7 @@
             tableName = tableName.ToUpper();
 
 #if !MarkUserOfSqlCodeGen
-            SqlBooleanExpressionLexYaccCallback.tableName = tableName;
+            SqlBooleanExpressionLexYaccCallback.table = Util.GetTable(tableName);
             HashSet<int> rows = null;
             if (condition != null)
             {
