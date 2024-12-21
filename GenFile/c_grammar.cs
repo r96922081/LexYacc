@@ -2789,7 +2789,7 @@ namespace LexYaccNs
             return rule;
         }
 
-        private static List<Tuple<YaccRule, Production>> GetIndirectLeftRecursionDfs(YaccRule r, HashSet<string> traversed, HashSet<string> tempTraversed, List<Tuple<string, Production>> tempTraversedList, Dictionary<string, YaccRule> nameToYaccRuleMap)
+        private static List<YaccRule> GetIndirectLeftRecursionDfs(YaccRule r, HashSet<string> traversed, HashSet<string> tempTraversed, List<Tuple<string, Production>> tempTraversedList, Dictionary<string, YaccRule> nameToYaccRuleMap)
         {
             foreach (Production p in r.productions)
             {
@@ -2811,20 +2811,20 @@ namespace LexYaccNs
                 string name = nt.name;
                 if (tempTraversed.Contains(name))
                 {
-                    List<Tuple<YaccRule, Production>> indirect = new List<Tuple<YaccRule, Production>>();
+                    List<YaccRule> indirect = new List<YaccRule>();
                     for (int i = tempTraversedList.Count - 1; i >= 0; i--)
                     {
                         Tuple<string, Production> t = tempTraversedList.ElementAt(i);
                         string name2 = t.Item1;
 
-                        indirect.Insert(0, Tuple.Create(nameToYaccRuleMap[name2], t.Item2));
+                        indirect.Insert(0, nameToYaccRuleMap[t.Item1]);
 
                         if (name2 == name)
                             return indirect;
                     }
                 }
 
-                List<Tuple<YaccRule, Production>> ret = GetIndirectLeftRecursionDfs(nameToYaccRuleMap[name], traversed, tempTraversed, tempTraversedList, nameToYaccRuleMap);
+                List<YaccRule> ret = GetIndirectLeftRecursionDfs(nameToYaccRuleMap[name], traversed, tempTraversed, tempTraversedList, nameToYaccRuleMap);
                 if (ret != null)
                     return ret;
 
@@ -2835,7 +2835,7 @@ namespace LexYaccNs
             return null;
         }
 
-        private static List<Tuple<YaccRule, Production>> GetIndirectLeftRecursion(List<YaccRule> rulesParam, Dictionary<string, YaccRule> nameToYaccRuleMap)
+        private static List<YaccRule> GetIndirectLeftRecursion(List<YaccRule> rulesParam, Dictionary<string, YaccRule> nameToYaccRuleMap)
         {
             List<YaccRule> rules = new List<YaccRule>(rulesParam);
             HashSet<string> traversed = new HashSet<string>();
@@ -2849,7 +2849,7 @@ namespace LexYaccNs
                 tempTraversedList.Clear();
 
 
-                List<Tuple<YaccRule, Production>> indirect = GetIndirectLeftRecursionDfs(rules[0], traversed, tempTraversed, tempTraversedList, nameToYaccRuleMap);
+                List<YaccRule> indirect = GetIndirectLeftRecursionDfs(rules[0], traversed, tempTraversed, tempTraversedList, nameToYaccRuleMap);
                 if (indirect != null)
                     return indirect;
 
@@ -2860,7 +2860,7 @@ namespace LexYaccNs
             return null;
         }
 
-        private static void ReplaceIndirectLeftRecursion(List<Tuple<YaccRule, Production>> indirectLeftRecursionRule, List<LexTokenDef> lexTokenDef, Dictionary<string, string> ruleNonterminalType)
+        private static void ReplaceIndirectLeftRecursion(List<YaccRule> indirectLeftRecursionRule, List<LexTokenDef> lexTokenDef, Dictionary<string, string> ruleNonterminalType)
         {
 
             /*
@@ -2885,11 +2885,11 @@ namespace LexYaccNs
             =>
              */
 
-            YaccRule r0 = indirectLeftRecursionRule[0].Item1;
+            YaccRule r0 = indirectLeftRecursionRule[0];
 
             for (int i = 1; i < indirectLeftRecursionRule.Count; i++)
             {
-                YaccRule nextRule = indirectLeftRecursionRule[i].Item1;
+                YaccRule nextRule = indirectLeftRecursionRule[i];
 
                 List<Production> oldProductions = new List<Production>(r0.productions);
                 r0.productions.Clear();
@@ -2932,7 +2932,7 @@ namespace LexYaccNs
 
         public static void ConvertIndirectLeftRecursion(List<YaccRule> rules, List<LexTokenDef> lexTokenDef, Dictionary<string, string> ruleNonterminalType, Dictionary<string, YaccRule> nameToYaccRuleMap)
         {
-            List<Tuple<YaccRule, Production>> indirectLeftRecursionRule = GetIndirectLeftRecursion(rules, nameToYaccRuleMap);
+            List<YaccRule> indirectLeftRecursionRule = GetIndirectLeftRecursion(rules, nameToYaccRuleMap);
 
             while (indirectLeftRecursionRule != null)
             {
