@@ -1,6 +1,6 @@
 ﻿namespace MyDBNs
 {
-    public class SqlConditionLexYaccCallback
+    public class SqlBooleanExpressionLexYaccCallback
     {
         public static string tableName = "";
 

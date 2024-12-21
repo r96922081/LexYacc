@@ -4,7 +4,7 @@
     {
         private static List<int> GetSelectedRows(string tableName, string condition)
         {
-            List<int> rows;
+            List<int> rows = new List<int>();
             if (condition == null)
             {
                 Table table = Util.GetTable(tableName);
@@ -15,8 +15,10 @@
                 return rows;
             }
 
-            SqlConditionLexYaccCallback.tableName = tableName;
-            rows = new List<int>((HashSet<int>)sql_condition_lexyacc.Parse(condition));
+#if !MarkUserOfSqlCodeGen
+            SqlBooleanExpressionLexYaccCallback.tableName = tableName;
+            rows = new List<int>((HashSet<int>)sql_boolean_expression.Parse(condition));
+#endif
 
             rows.Sort();
             return rows;

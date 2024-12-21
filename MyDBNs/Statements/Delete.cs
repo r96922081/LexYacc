@@ -7,11 +7,11 @@
             tableName = tableName.ToUpper();
 
 #if !MarkUserOfSqlCodeGen
-            SqlConditionLexYaccCallback.tableName = tableName;
+            SqlBooleanExpressionLexYaccCallback.tableName = tableName;
             HashSet<int> rows = null;
             if (condition != null)
             {
-                object ret = sql_condition_lexyacc.Parse(condition);
+                object ret = sql_boolean_expression.Parse(condition);
                 rows = (HashSet<int>)ret;
             }
 

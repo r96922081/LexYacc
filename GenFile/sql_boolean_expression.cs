@@ -1,13 +1,13 @@
 //LexYacc Gen
-public class sql_condition_lexyacc
+public class sql_boolean_expression
 {
     public static object Parse(string input)
     {
-        return sql_condition_lexyaccNs.LexYaccNs.LexYacc.Parse(input, sql_condition_lexyaccNs.LexActions.ruleInput, sql_condition_lexyaccNs.YaccActions.ruleInput, sql_condition_lexyaccNs.LexActions.CallAction, sql_condition_lexyaccNs.YaccActions.CallAction);
+        return sql_boolean_expressionNs.LexYaccNs.LexYacc.Parse(input, sql_boolean_expressionNs.LexActions.ruleInput, sql_boolean_expressionNs.YaccActions.ruleInput, sql_boolean_expressionNs.LexActions.CallAction, sql_boolean_expressionNs.YaccActions.CallAction);
     }
 }
 //Yacc Gen 
-namespace sql_condition_lexyaccNs
+namespace sql_boolean_expressionNs
 {
 
 
@@ -48,32 +48,32 @@ boolean_expression OR boolean_expression
 | 
 string_number_id '=' string_number_id
 {
-    $$ = MyDBNs.SqlConditionLexYaccCallback.BooleanExpression($1, ""="", $3);
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, ""="", $3);
 }
 | 
 string_number_id '<' string_number_id
 {
-    $$ = MyDBNs.SqlConditionLexYaccCallback.BooleanExpression($1, ""<"", $3);
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, ""<"", $3);
 }
 | 
 string_number_id '>' string_number_id
 {
-    $$ = MyDBNs.SqlConditionLexYaccCallback.BooleanExpression($1, "">"", $3);
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, "">"", $3);
 }
 | 
 string_number_id NOT_EQUAL string_number_id
 {
-    $$ = MyDBNs.SqlConditionLexYaccCallback.BooleanExpression($1, ""!="", $3);
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, ""!="", $3);
 }
 | 
 string_number_id LESS_OR_EQUAL string_number_id
 {
-    $$ = MyDBNs.SqlConditionLexYaccCallback.BooleanExpression($1, ""<="", $3);
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, ""<="", $3);
 }
 | 
 string_number_id GREATER_OR_EQUAL string_number_id
 {
-    $$ = MyDBNs.SqlConditionLexYaccCallback.BooleanExpression($1, "">="", $3);
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression($1, "">="", $3);
 }
 ;
 
@@ -165,7 +165,7 @@ POSITIVE_INT
         string _3 = (string)objects[3];
 
         // user-defined action
-        _0 = MyDBNs.SqlConditionLexYaccCallback.BooleanExpression(_1, "=", _3);
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression(_1, "=", _3);
 
         return _0;
     }
@@ -176,7 +176,7 @@ POSITIVE_INT
         string _3 = (string)objects[3];
 
         // user-defined action
-        _0 = MyDBNs.SqlConditionLexYaccCallback.BooleanExpression(_1, "<", _3);
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression(_1, "<", _3);
 
         return _0;
     }
@@ -187,7 +187,7 @@ POSITIVE_INT
         string _3 = (string)objects[3];
 
         // user-defined action
-        _0 = MyDBNs.SqlConditionLexYaccCallback.BooleanExpression(_1, ">", _3);
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression(_1, ">", _3);
 
         return _0;
     }
@@ -199,7 +199,7 @@ POSITIVE_INT
         string _3 = (string)objects[3];
 
         // user-defined action
-        _0 = MyDBNs.SqlConditionLexYaccCallback.BooleanExpression(_1, "!=", _3);
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression(_1, "!=", _3);
 
         return _0;
     }
@@ -211,7 +211,7 @@ POSITIVE_INT
         string _3 = (string)objects[3];
 
         // user-defined action
-        _0 = MyDBNs.SqlConditionLexYaccCallback.BooleanExpression(_1, "<=", _3);
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression(_1, "<=", _3);
 
         return _0;
     }
@@ -223,7 +223,7 @@ POSITIVE_INT
         string _3 = (string)objects[3];
 
         // user-defined action
-        _0 = MyDBNs.SqlConditionLexYaccCallback.BooleanExpression(_1, ">=", _3);
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpression(_1, ">=", _3);
 
         return _0;
     }
@@ -315,7 +315,7 @@ POSITIVE_INT
 
 
 //Lex Gen 
-namespace sql_condition_lexyaccNs
+namespace sql_boolean_expressionNs
 {
 
 
@@ -951,7 +951,7 @@ namespace sql_condition_lexyaccNs
 
 
 //Src files Gen
-namespace sql_condition_lexyaccNs{
+namespace sql_boolean_expressionNs{
 
 namespace LexYaccNs
 {
@@ -1043,7 +1043,7 @@ namespace LexYaccNs
 }
 }
 
-namespace sql_condition_lexyaccNs{
+namespace sql_boolean_expressionNs{
 
 using System.Text;
 
@@ -1165,7 +1165,7 @@ namespace LexYaccNs
 
 }
 
-namespace sql_condition_lexyaccNs{
+namespace sql_boolean_expressionNs{
 
 using RegexNs;
 
@@ -1198,7 +1198,7 @@ namespace LexYaccNs
 
 }
 
-namespace sql_condition_lexyaccNs{
+namespace sql_boolean_expressionNs{
 
 using RegexNs;
 
@@ -1237,7 +1237,7 @@ namespace LexYaccNs
 
 }
 
-namespace sql_condition_lexyaccNs{
+namespace sql_boolean_expressionNs{
 
 namespace LexYaccNs
 {
@@ -1261,7 +1261,7 @@ namespace LexYaccNs
 }
 }
 
-namespace sql_condition_lexyaccNs{
+namespace sql_boolean_expressionNs{
 
 using System.Text;
 
@@ -1323,7 +1323,7 @@ namespace LexYaccNs
 
 }
 
-namespace sql_condition_lexyaccNs{
+namespace sql_boolean_expressionNs{
 
 using System.Text;
 
@@ -1460,7 +1460,7 @@ namespace LexYaccNs
 }
 }
 
-namespace sql_condition_lexyaccNs{
+namespace sql_boolean_expressionNs{
 
 namespace LexYaccNs
 {
@@ -1700,7 +1700,7 @@ namespace LexYaccNs
 }
 }
 
-namespace sql_condition_lexyaccNs{
+namespace sql_boolean_expressionNs{
 
 using System.Text;
 
@@ -1858,7 +1858,7 @@ namespace LexYaccNs
 
 }
 
-namespace sql_condition_lexyaccNs{
+namespace sql_boolean_expressionNs{
 
 namespace LexYaccNs
 {
@@ -2151,7 +2151,7 @@ namespace LexYaccNs
 }
 }
 
-namespace sql_condition_lexyaccNs{
+namespace sql_boolean_expressionNs{
 
 using System.Runtime.CompilerServices;
 
@@ -2380,7 +2380,7 @@ namespace LexYaccNs
 }
 }
 
-namespace sql_condition_lexyaccNs{
+namespace sql_boolean_expressionNs{
 
 using System.Text;
 
@@ -2940,7 +2940,7 @@ namespace LexYaccNs
 
 }
 
-namespace sql_condition_lexyaccNs{
+namespace sql_boolean_expressionNs{
 
 namespace RegexNs
 {
@@ -3203,7 +3203,7 @@ namespace RegexNs
 }
 }
 
-namespace sql_condition_lexyaccNs{
+namespace sql_boolean_expressionNs{
 
 namespace RegexNs
 {
@@ -3811,7 +3811,7 @@ namespace RegexNs
 
 }
 
-namespace sql_condition_lexyaccNs{
+namespace sql_boolean_expressionNs{
 
 namespace RegexNs
 {
