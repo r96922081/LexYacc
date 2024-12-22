@@ -7,6 +7,8 @@ indirect left recursive, action calling
 2.
 boolean expression,  a is null
 
+3. join, group by, in, with, like
+
  */
 
 /*
@@ -29,6 +31,4 @@ not support:
 Do not support empty rule like a: | 'A'
 empty rule is used only in left recursion
 
-2. do not support indirect recursion
- * 
  */

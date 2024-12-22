@@ -14,7 +14,7 @@ namespace MyDBNs
         public static void TestArithmeticExpression()
         {
 #if !MarkUserOfSqlCodeGen
-            object ret = sql_lexyacc.Parse("SELECT * FROM A WHERE AGE = 1 + 2 + AGE");
+            object ret = sql_statements.Parse("SELECT * FROM A WHERE AGE = 1 + 2 + AGE");
             Check(ret == null || ret.ToString() == "");
 
             /*
@@ -30,7 +30,7 @@ namespace MyDBNs
             ret = sql_arithmetic_expression.Parse("(1 + 2) * 3 / ( (8 - 2) / 2) * 4 ");
             Check((double)ret == 12);*/
 
-            //ret = sql_lexyacc.Parse("SELECT * FROM A WHERE AGE != 6 - 3 - 2");
+            //ret = sql_statements.Parse("SELECT * FROM A WHERE AGE != 6 - 3 - 2");
             //Check(ret == null || ret.ToString() == "");
 #endif
         }
@@ -38,10 +38,10 @@ namespace MyDBNs
         public static void TestBooleanExpression()
         {
 #if !MarkUserOfSqlCodeGen
-            object ret = sql_lexyacc.Parse("DELETE FROM A WHERE NAME = 'ABC'  ");
+            object ret = sql_statements.Parse("DELETE FROM A WHERE NAME = 'ABC'  ");
             Check(ret == null || ret.ToString() == "");
 
-            ret = sql_lexyacc.Parse("SELECT * FROM A WHERE NAME != 'ABC'");
+            ret = sql_statements.Parse("SELECT * FROM A WHERE NAME != 'ABC'");
             Check(ret == null || ret.ToString() == "");
 #endif
         }
@@ -50,32 +50,32 @@ namespace MyDBNs
         {
 #if !MarkUserOfSqlCodeGen
 
-            object ret = sql_lexyacc.Parse("CREATE TABLE A ( NAME VARCHAR(123), AGE NUMBER)");
+            object ret = sql_statements.Parse("CREATE TABLE A ( NAME VARCHAR(123), AGE NUMBER)");
             Check(ret == null || ret.ToString() == "");
 
-            ret = sql_lexyacc.Parse("CREATE TABLE A2 ( AAA VARCHAR(456), BBB NUMBER)");
+            ret = sql_statements.Parse("CREATE TABLE A2 ( AAA VARCHAR(456), BBB NUMBER)");
             Check(ret == null || ret.ToString() == "");
 
 
-            ret = sql_lexyacc.Parse("INSERT INTO A VALUES ( 'DEF', 33  )");
+            ret = sql_statements.Parse("INSERT INTO A VALUES ( 'DEF', 33  )");
             Check(ret == null || ret.ToString() == "");
 
-            ret = sql_lexyacc.Parse("INSERT INTO A ( NAME, AGE ) VALUES ( 'DEF', 33  )");
+            ret = sql_statements.Parse("INSERT INTO A ( NAME, AGE ) VALUES ( 'DEF', 33  )");
             Check(ret == null || ret.ToString() == "");
 
-            ret = sql_lexyacc.Parse("INSERT INTO A VALUES ( 44, 55  )");
+            ret = sql_statements.Parse("INSERT INTO A VALUES ( 44, 55  )");
             Check(ret == null || ret.ToString() == "");
 
-            ret = sql_lexyacc.Parse("INSERT INTO A ( AGE, NAME ) VALUES ( 66, 'ABC'  )");
+            ret = sql_statements.Parse("INSERT INTO A ( AGE, NAME ) VALUES ( 66, 'ABC'  )");
             Check(ret == null || ret.ToString() == "");
 
-            ret = sql_lexyacc.Parse("INSERT INTO A ( AGE ) VALUES ( 999)");
+            ret = sql_statements.Parse("INSERT INTO A ( AGE ) VALUES ( 999)");
             Check(ret == null || ret.ToString() == "");
 
-            ret = sql_lexyacc.Parse("SHOW TABLES");
+            ret = sql_statements.Parse("SHOW TABLES");
             Check(ret == null || ret.ToString() == "");
 
-            ret = sql_lexyacc.Parse("INSERT INTO A VALUES ( 'GH', 456  )");
+            ret = sql_statements.Parse("INSERT INTO A VALUES ( 'GH', 456  )");
             Check(ret == null || ret.ToString() == "");
 #endif
         }

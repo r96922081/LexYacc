@@ -9,7 +9,7 @@
             string line;
             while ((line = System.Console.ReadLine()) != null)
             {
-                object result = sql_lexyacc.Parse(line);
+                object result = sql_statements.Parse(line);
                 if (result != null && result.ToString() != "")
                     System.Console.WriteLine(result);
 

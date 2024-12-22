@@ -29,6 +29,20 @@
         Number
     }
 
+    public class SetExpressionType
+    {
+        public string lhsColumn;
+        public StringType rhsType;
+        public string rhs;
+
+        public SetExpressionType(string lhsColumn, StringType rhsType, string rhs)
+        {
+            this.lhsColumn = lhsColumn;
+            this.rhsType = rhsType;
+            this.rhs = rhs;
+        }
+    }
+
     public class SelectedData
     {
         public Table table;

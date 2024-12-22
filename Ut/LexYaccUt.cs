@@ -15,7 +15,7 @@ public class LexYaccUt
         LexYaccCodeGen.GenCode("../../../input/pair.l", "../../../input/pair.y", LexYaccUtil.GetGenFileFolder(), "pair");
         LexYaccCodeGen.GenCode("../../../input/cal.l", "../../../input/cal.y", LexYaccUtil.GetGenFileFolder(), "cal");
         LexYaccCodeGen.GenCode("../../../input/c_grammar.l", "../../../input/c_grammar.y", LexYaccUtil.GetGenFileFolder(), "c_grammar");
-        LexYaccCodeGen.GenCode("../../../input/sql.l", "../../../input/sql.y", LexYaccUtil.GetGenFileFolder(), "sql_lexyacc");
+        LexYaccCodeGen.GenCode("../../../input/sql.l", "../../../input/sql_statements.y", LexYaccUtil.GetGenFileFolder(), "sql_statements");
         LexYaccCodeGen.GenCode("../../../input/sql.l", "../../../input/sql_boolean_expression.y", LexYaccUtil.GetGenFileFolder(), "sql_boolean_expression");
         LexYaccCodeGen.GenCode("../../../input/sql.l", "../../../input/sql_arithmetic_expression.y", LexYaccUtil.GetGenFileFolder(), "sql_arithmetic_expression");
 

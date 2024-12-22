@@ -37,26 +37,25 @@
             MyDBNs.Delete.DeleteRows(tableName, condition);
         }
 
-        public static void Update(string tableName, List<Tuple<string, string>> setExpression, string condition)
+        public static void Update(string tableName, List<SetExpressionType> setExpression, string condition)
         {
             MyDBNs.Update.UpdateRows(tableName, setExpression, condition);
         }
 
-        public static List<Tuple<string, string>> SetExpression(string id, string string_number_id, List<Tuple<string, string>> setExpression)
+        public static List<SetExpressionType> SetExpression(string id, string string_number_id, List<SetExpressionType> setExpression)
         {
-            List<Tuple<string, string>> ret = new List<Tuple<string, string>>();
+            List<SetExpressionType> ret = new List<SetExpressionType>();
 
             ret.AddRange(setExpression);
-            ret.Add(new Tuple<string, string>(id, string_number_id));
+            ret.Add(new SetExpressionType(id, Util.GetStringType(string_number_id), string_number_id));
 
             return ret;
         }
 
-        public static List<Tuple<string, string>> SetExpression(string id, string string_number_id)
+        public static List<SetExpressionType> SetExpression(string id, string string_number_id)
         {
-            List<Tuple<string, string>> ret = new List<Tuple<string, string>>();
-
-            ret.Add(new Tuple<string, string>(id, string_number_id));
+            List<SetExpressionType> ret = new List<SetExpressionType>();
+            ret.Add(new SetExpressionType(id, Util.GetStringType(string_number_id), string_number_id));
 
             return ret;
         }

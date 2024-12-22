@@ -10,7 +10,7 @@
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_condition
-%type <List<Tuple<string, string>>> set_expression
+%type <List<MyDBNs.SetExpressionType>> set_expression
 %type <double> number_double
 %%
 
@@ -198,6 +198,17 @@ ID '=' string_number_id
 {
     $$ = MyDBNs.SqlLexYaccCallback.SetExpression($1, $3);
 }
+|
+ID '=' string_number_id ',' set_expression
+{
+    $$ = MyDBNs.SqlLexYaccCallback.SetExpression($1, $3, $5);
+}
+|
+ID '=' string_number_id
+{
+    $$ = MyDBNs.SqlLexYaccCallback.SetExpression($1, $3);
+}
+arithmetic_expression
 ;
 
 comma_sep_id: 

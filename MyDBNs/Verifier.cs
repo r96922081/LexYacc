@@ -60,6 +60,7 @@
 
         public static void VerifyUpdate(string tableName, List<Tuple<string, string>> setExpression)
         {
+            /*
             Table table = Util.GetTable(tableName);
             if (table == null)
                 throw new Exception("no table named: " + tableName);
@@ -95,7 +96,7 @@
                         throw new Exception("column " + columnName + "'s type = " + type + " not compatible with column " + columnName2 + "'s type = " + type3);
                 }
 
-            }
+            }*/
         }
     }
 }

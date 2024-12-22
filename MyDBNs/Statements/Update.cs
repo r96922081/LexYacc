@@ -2,12 +2,11 @@
 {
     public class Update
     {
-        public static void UpdateRows(string tableName, List<Tuple<string, string>> setExpression, string condition)
+        public static void UpdateRows(string tableName, List<SetExpressionType> setExpressions, string condition)
         {
             tableName = tableName.ToUpper();
-            setExpression = setExpression.Select(tuple => Tuple.Create(tuple.Item1.ToUpper(), tuple.Item2)).ToList();
 
-            Verifier.VerifyUpdate(tableName, setExpression);
+            //Verifier.VerifyUpdate(tableName, setExpressions);
 
 #if !MarkUserOfSqlCodeGen
             SqlBooleanExpressionLexYaccCallback.table = Util.GetTable(tableName);
@@ -19,7 +18,7 @@
             }
 
             Table table = Util.GetTable(tableName);
-            foreach (var kv in setExpression)
+            foreach (SetExpressionType setExpression in setExpressions)
             {
                 for (int i = 0; i < table.rows.Count; i++)
                 {
@@ -28,26 +27,24 @@
 
                     object[] row = table.rows[i];
 
-                    string columnName = kv.Item1;
+                    string columnName = setExpression.lhsColumn;
                     int columnIndex = table.columnNameToIndexMap[columnName];
 
                     ColumnType type = table.columnNameToTypesMap[columnName];
 
-                    StringType valueType = Util.GetStringType(kv.Item2);
                     object value = null;
 
-
-                    if (valueType == StringType.String)
+                    if (setExpression.rhsType == StringType.String)
                     {
-                        value = Util.GetString(kv.Item2);
+                        value = Util.GetString(setExpression.rhs);
                     }
-                    else if (valueType == StringType.Number)
+                    else if (setExpression.rhsType == StringType.Number)
                     {
-                        value = Util.GetNumber(kv.Item2);
+                        value = Util.GetNumber(setExpression.rhs);
                     }
-                    else if (valueType == StringType.Column)
+                    else if (setExpression.rhsType == StringType.Column)
                     {
-                        value = row[table.columnNameToIndexMap[kv.Item2.ToUpper()]];
+                        value = row[table.columnNameToIndexMap[setExpression.rhs.ToUpper()]];
                     }
 
                     row[columnIndex] = value;

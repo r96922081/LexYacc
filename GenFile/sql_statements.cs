@@ -1,13 +1,13 @@
 //LexYacc Gen
-public class sql_lexyacc
+public class sql_statements
 {
     public static object Parse(string input)
     {
-        return sql_lexyaccNs.LexYaccNs.LexYacc.Parse(input, sql_lexyaccNs.LexActions.ruleInput, sql_lexyaccNs.YaccActions.ruleInput, sql_lexyaccNs.LexActions.CallAction, sql_lexyaccNs.YaccActions.CallAction);
+        return sql_statementsNs.LexYaccNs.LexYacc.Parse(input, sql_statementsNs.LexActions.ruleInput, sql_statementsNs.YaccActions.ruleInput, sql_statementsNs.LexActions.CallAction, sql_statementsNs.YaccActions.CallAction);
     }
 }
 //Yacc Gen 
-namespace sql_lexyaccNs
+namespace sql_statementsNs
 {
 
 
@@ -28,7 +28,7 @@ public class YaccActions{
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_condition
-%type <List<Tuple<string, string>>> set_expression
+%type <List<MyDBNs.SetExpressionType>> set_expression
 %type <double> number_double
 %%
 
@@ -216,6 +216,17 @@ ID '=' string_number_id
 {
     $$ = MyDBNs.SqlLexYaccCallback.SetExpression($1, $3);
 }
+|
+ID '=' string_number_id ',' set_expression
+{
+    $$ = MyDBNs.SqlLexYaccCallback.SetExpression($1, $3, $5);
+}
+|
+ID '=' string_number_id
+{
+    $$ = MyDBNs.SqlLexYaccCallback.SetExpression($1, $3);
+}
+arithmetic_expression
 ;
 
 comma_sep_id: 
@@ -504,6 +515,8 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_2", Rule_boolean_expression_LeftRecursionExpand_Producton_2);
         actions.Add("Rule_set_expression_Producton_0", Rule_set_expression_Producton_0);
         actions.Add("Rule_set_expression_Producton_1", Rule_set_expression_Producton_1);
+        actions.Add("Rule_set_expression_Producton_2", Rule_set_expression_Producton_2);
+        actions.Add("Rule_set_expression_Producton_3", Rule_set_expression_Producton_3);
         actions.Add("Rule_comma_sep_id_Producton_0", Rule_comma_sep_id_Producton_0);
         actions.Add("Rule_comma_sep_id_Producton_1", Rule_comma_sep_id_Producton_1);
         actions.Add("Rule_comma_sep_value_Producton_0", Rule_comma_sep_value_Producton_0);
@@ -694,7 +707,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
         string _3 = (string)objects[3];
-        List<Tuple<string, string>> _4 = (List<Tuple<string, string>>)objects[4];
+        List<MyDBNs.SetExpressionType> _4 = (List<MyDBNs.SetExpressionType>)objects[4];
 
         // user-defined action
         MyDBNs.SqlLexYaccCallback.Update(_2, _4, null);
@@ -707,7 +720,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
         string _3 = (string)objects[3];
-        List<Tuple<string, string>> _4 = (List<Tuple<string, string>>)objects[4];
+        List<MyDBNs.SetExpressionType> _4 = (List<MyDBNs.SetExpressionType>)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
 
@@ -969,10 +982,10 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
     }
 
     public static object Rule_set_expression_Producton_0(Dictionary<int, object> objects) { 
-        List<Tuple<string, string>> _0 = new List<Tuple<string, string>>();
+        List<MyDBNs.SetExpressionType> _0 = new List<MyDBNs.SetExpressionType>();
         string _1 = (string)objects[1];
         string _3 = (string)objects[3];
-        List<Tuple<string, string>> _5 = (List<Tuple<string, string>>)objects[5];
+        List<MyDBNs.SetExpressionType> _5 = (List<MyDBNs.SetExpressionType>)objects[5];
 
         // user-defined action
         _0 = MyDBNs.SqlLexYaccCallback.SetExpression(_1, _3, _5);
@@ -981,7 +994,30 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
     }
 
     public static object Rule_set_expression_Producton_1(Dictionary<int, object> objects) { 
-        List<Tuple<string, string>> _0 = new List<Tuple<string, string>>();
+        List<MyDBNs.SetExpressionType> _0 = new List<MyDBNs.SetExpressionType>();
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlLexYaccCallback.SetExpression(_1, _3);
+
+        return _0;
+    }
+
+    public static object Rule_set_expression_Producton_2(Dictionary<int, object> objects) { 
+        List<MyDBNs.SetExpressionType> _0 = new List<MyDBNs.SetExpressionType>();
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+        List<MyDBNs.SetExpressionType> _5 = (List<MyDBNs.SetExpressionType>)objects[5];
+
+        // user-defined action
+        _0 = MyDBNs.SqlLexYaccCallback.SetExpression(_1, _3, _5);
+
+        return _0;
+    }
+
+    public static object Rule_set_expression_Producton_3(Dictionary<int, object> objects) { 
+        List<MyDBNs.SetExpressionType> _0 = new List<MyDBNs.SetExpressionType>();
         string _1 = (string)objects[1];
         string _3 = (string)objects[3];
 
@@ -1462,7 +1498,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
 
 
 //Lex Gen 
-namespace sql_lexyaccNs
+namespace sql_statementsNs
 {
 
 
@@ -2098,7 +2134,7 @@ namespace sql_lexyaccNs
 
 
 //Src files Gen
-namespace sql_lexyaccNs{
+namespace sql_statementsNs{
 
 namespace LexYaccNs
 {
@@ -2190,7 +2226,7 @@ namespace LexYaccNs
 }
 }
 
-namespace sql_lexyaccNs{
+namespace sql_statementsNs{
 
 using System.Text;
 
@@ -2312,7 +2348,7 @@ namespace LexYaccNs
 
 }
 
-namespace sql_lexyaccNs{
+namespace sql_statementsNs{
 
 using RegexNs;
 
@@ -2345,7 +2381,7 @@ namespace LexYaccNs
 
 }
 
-namespace sql_lexyaccNs{
+namespace sql_statementsNs{
 
 using RegexNs;
 
@@ -2384,7 +2420,7 @@ namespace LexYaccNs
 
 }
 
-namespace sql_lexyaccNs{
+namespace sql_statementsNs{
 
 namespace LexYaccNs
 {
@@ -2408,7 +2444,7 @@ namespace LexYaccNs
 }
 }
 
-namespace sql_lexyaccNs{
+namespace sql_statementsNs{
 
 using System.Text;
 
@@ -2470,7 +2506,7 @@ namespace LexYaccNs
 
 }
 
-namespace sql_lexyaccNs{
+namespace sql_statementsNs{
 
 using System.Text;
 
@@ -2607,7 +2643,7 @@ namespace LexYaccNs
 }
 }
 
-namespace sql_lexyaccNs{
+namespace sql_statementsNs{
 
 namespace LexYaccNs
 {
@@ -2847,7 +2883,7 @@ namespace LexYaccNs
 }
 }
 
-namespace sql_lexyaccNs{
+namespace sql_statementsNs{
 
 using System.Text;
 
@@ -3005,7 +3041,7 @@ namespace LexYaccNs
 
 }
 
-namespace sql_lexyaccNs{
+namespace sql_statementsNs{
 
 namespace LexYaccNs
 {
@@ -3298,7 +3334,7 @@ namespace LexYaccNs
 }
 }
 
-namespace sql_lexyaccNs{
+namespace sql_statementsNs{
 
 using System.Runtime.CompilerServices;
 
@@ -3527,7 +3563,7 @@ namespace LexYaccNs
 }
 }
 
-namespace sql_lexyaccNs{
+namespace sql_statementsNs{
 
 using System.Text;
 
@@ -4087,7 +4123,7 @@ namespace LexYaccNs
 
 }
 
-namespace sql_lexyaccNs{
+namespace sql_statementsNs{
 
 namespace RegexNs
 {
@@ -4350,7 +4386,7 @@ namespace RegexNs
 }
 }
 
-namespace sql_lexyaccNs{
+namespace sql_statementsNs{
 
 namespace RegexNs
 {
@@ -4958,7 +4994,7 @@ namespace RegexNs
 
 }
 
-namespace sql_lexyaccNs{
+namespace sql_statementsNs{
 
 namespace RegexNs
 {
