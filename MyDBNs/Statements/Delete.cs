@@ -4,10 +4,9 @@
     {
         public static void DeleteRows(string tableName, string condition)
         {
-            tableName = tableName.ToUpper();
-
+            Table table = Util.GetTable(tableName);
 #if !MarkUserOfSqlCodeGen
-            SqlBooleanExpressionLexYaccCallback.table = Util.GetTable(tableName);
+            SqlBooleanExpressionLexYaccCallback.table = table;
             HashSet<int> rows = null;
             if (condition != null)
             {
@@ -15,7 +14,6 @@
                 rows = (HashSet<int>)ret;
             }
 
-            Table table = Util.GetTable(tableName);
             for (int i = table.rows.Count - 1; i >= 0; i--)
             {
                 if (condition != null && !rows.Contains(i))

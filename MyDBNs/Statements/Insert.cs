@@ -4,8 +4,6 @@
     {
         public static void InsertRows(string tableName, List<string> columnNames, List<string> values)
         {
-            tableName = tableName.ToUpper();
-
             if (columnNames != null)
                 columnNames = columnNames.Select(name => name.ToUpper()).ToList();
 
@@ -21,8 +19,8 @@
             for (int i = 0; i < values.Count; i++)
             {
                 string columnName = columnNames[i];
-                int columnIndex = table.columnNameToIndexMap[columnName];
-                ColumnType columnType = table.columnNameToTypesMap[columnName];
+                int columnIndex = table.GetColumnIndex(columnName);
+                ColumnType columnType = table.GetColumnType(columnName);
                 string value = values[i];
                 if (value == null)
                 {

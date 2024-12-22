@@ -14,7 +14,7 @@ namespace MyDBNs
         public static void TestArithmeticExpression()
         {
 #if !MarkUserOfSqlCodeGen
-            object ret = sql_statements.Parse("SELECT * FROM A WHERE AGE = 1 + 2 + AGE");
+            object ret = sql_statements.Parse("UPDATE A SET AGE = AGE + 2 * 100");
             Check(ret == null || ret.ToString() == "");
 
             /*

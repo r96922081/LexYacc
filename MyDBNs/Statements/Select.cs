@@ -36,13 +36,13 @@
                     foreach (string column2 in table.columnNames)
                     {
                         columnNames.Add(column2);
-                        columnIndex.Add(table.columnNameToIndexMap[column2]);
+                        columnIndex.Add(table.GetColumnIndex(column2));
                     }
                 }
                 else
                 {
                     columnNames.Add(column);
-                    columnIndex.Add(table.columnNameToIndexMap[column]);
+                    columnIndex.Add(table.GetColumnIndex(column));
                 }
             }
         }
@@ -186,8 +186,6 @@
 
         public static void SelectRows(List<string> columnInput, string tableName, string whereCondition, List<List<object>> orders)
         {
-            tableName = tableName.ToUpper();
-
 #if !MarkUserOfSqlCodeGen
 
             Table table = Util.GetTable(tableName);

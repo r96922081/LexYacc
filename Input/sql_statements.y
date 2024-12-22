@@ -189,26 +189,25 @@ arithmetic_expression_id GREATER_OR_EQUAL arithmetic_expression_id
 ;
 
 set_expression:
-ID '=' string_number_id ',' set_expression
+ID '=' string_id ',' set_expression
 {
-    $$ = MyDBNs.SqlLexYaccCallback.SetExpression($1, $3, $5);
+    $$ = MyDBNs.SqlLexYaccCallback.SetExpressionVarchar($1, $3, $5);
 }
 |
-ID '=' string_number_id
+ID '=' string_id
 {
-    $$ = MyDBNs.SqlLexYaccCallback.SetExpression($1, $3);
+    $$ = MyDBNs.SqlLexYaccCallback.SetExpressionVarchar($1, $3);
 }
 |
-ID '=' string_number_id ',' set_expression
+ID '=' arithmetic_expression ',' set_expression
 {
-    $$ = MyDBNs.SqlLexYaccCallback.SetExpression($1, $3, $5);
+    $$ = MyDBNs.SqlLexYaccCallback.SetExpressionNumber($1, $3, $5);
 }
 |
-ID '=' string_number_id
+ID '=' arithmetic_expression
 {
-    $$ = MyDBNs.SqlLexYaccCallback.SetExpression($1, $3);
+    $$ = MyDBNs.SqlLexYaccCallback.SetExpressionNumber($1, $3);
 }
-arithmetic_expression
 ;
 
 comma_sep_id: 

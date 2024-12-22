@@ -44,7 +44,7 @@
             for (int i = 0; i < values.Count; i++)
             {
                 string columnName = columnNames[i];
-                ColumnType columnType = table.columnNameToTypesMap[columnName];
+                ColumnType columnType = table.GetColumnType(columnName);
                 string value = values[i];
                 if (value == null)
                     continue;

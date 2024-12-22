@@ -14,6 +14,16 @@
         public string[] originalColumnNames;
 
         public List<object[]> rows = new List<object[]>();
+
+        public int GetColumnIndex(string columnName)
+        {
+            return columnNameToIndexMap[columnName.ToUpper()];
+        }
+
+        public ColumnType GetColumnType(string columnName)
+        {
+            return columnNameToTypesMap[columnName.ToUpper()];
+        }
     }
 
     public enum ColumnType

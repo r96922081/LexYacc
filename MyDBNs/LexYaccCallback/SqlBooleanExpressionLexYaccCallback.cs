@@ -12,8 +12,7 @@
             StringType lhsType2 = lhsType;
             if (lhsType2 == StringType.Column)
             {
-                lhs = lhs.ToUpper();
-                ColumnType t = table.columnNameToTypesMap[lhs];
+                ColumnType t = table.GetColumnType(lhs);
                 if (t == ColumnType.NUMBER)
                     lhsType2 = StringType.Number;
                 else
@@ -23,8 +22,7 @@
             StringType rhsType2 = rhsType;
             if (rhsType2 == StringType.Column)
             {
-                rhs = rhs.ToUpper();
-                ColumnType t = table.columnNameToTypesMap[rhs];
+                ColumnType t = table.GetColumnType(rhs);
                 if (t == ColumnType.NUMBER)
                     rhsType2 = StringType.Number;
                 else
@@ -167,9 +165,6 @@
         public static ColumnType GetType(string s, ref int columnIndex)
         {
             StringType type = Util.GetStringType(s);
-            if (type == StringType.Column)
-                s = s.ToUpper();
-
             List<Table> tables = MyDBNs.DB.tables;
 
             ColumnType type2 = ColumnType.NUMBER;
@@ -179,13 +174,13 @@
                 type2 = ColumnType.NUMBER;
             else
             {
-                ColumnType t = table.columnNameToTypesMap[s];
+                ColumnType t = table.GetColumnType(s);
                 if (t == ColumnType.NUMBER)
                     type2 = ColumnType.NUMBER;
                 else
                     type2 = ColumnType.VARCHAR;
 
-                columnIndex = table.columnNameToIndexMap[s];
+                columnIndex = table.GetColumnIndex(s);
             }
 
             return type2;

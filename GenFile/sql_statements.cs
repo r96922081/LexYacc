@@ -207,26 +207,25 @@ arithmetic_expression_id GREATER_OR_EQUAL arithmetic_expression_id
 ;
 
 set_expression:
-ID '=' string_number_id ',' set_expression
+ID '=' string_id ',' set_expression
 {
-    $$ = MyDBNs.SqlLexYaccCallback.SetExpression($1, $3, $5);
+    $$ = MyDBNs.SqlLexYaccCallback.SetExpressionVarchar($1, $3, $5);
 }
 |
-ID '=' string_number_id
+ID '=' string_id
 {
-    $$ = MyDBNs.SqlLexYaccCallback.SetExpression($1, $3);
+    $$ = MyDBNs.SqlLexYaccCallback.SetExpressionVarchar($1, $3);
 }
 |
-ID '=' string_number_id ',' set_expression
+ID '=' arithmetic_expression ',' set_expression
 {
-    $$ = MyDBNs.SqlLexYaccCallback.SetExpression($1, $3, $5);
+    $$ = MyDBNs.SqlLexYaccCallback.SetExpressionNumber($1, $3, $5);
 }
 |
-ID '=' string_number_id
+ID '=' arithmetic_expression
 {
-    $$ = MyDBNs.SqlLexYaccCallback.SetExpression($1, $3);
+    $$ = MyDBNs.SqlLexYaccCallback.SetExpressionNumber($1, $3);
 }
-arithmetic_expression
 ;
 
 comma_sep_id: 
@@ -988,7 +987,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         List<MyDBNs.SetExpressionType> _5 = (List<MyDBNs.SetExpressionType>)objects[5];
 
         // user-defined action
-        _0 = MyDBNs.SqlLexYaccCallback.SetExpression(_1, _3, _5);
+        _0 = MyDBNs.SqlLexYaccCallback.SetExpressionVarchar(_1, _3, _5);
 
         return _0;
     }
@@ -999,7 +998,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         string _3 = (string)objects[3];
 
         // user-defined action
-        _0 = MyDBNs.SqlLexYaccCallback.SetExpression(_1, _3);
+        _0 = MyDBNs.SqlLexYaccCallback.SetExpressionVarchar(_1, _3);
 
         return _0;
     }
@@ -1011,7 +1010,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         List<MyDBNs.SetExpressionType> _5 = (List<MyDBNs.SetExpressionType>)objects[5];
 
         // user-defined action
-        _0 = MyDBNs.SqlLexYaccCallback.SetExpression(_1, _3, _5);
+        _0 = MyDBNs.SqlLexYaccCallback.SetExpressionNumber(_1, _3, _5);
 
         return _0;
     }
@@ -1022,7 +1021,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         string _3 = (string)objects[3];
 
         // user-defined action
-        _0 = MyDBNs.SqlLexYaccCallback.SetExpression(_1, _3);
+        _0 = MyDBNs.SqlLexYaccCallback.SetExpressionNumber(_1, _3);
 
         return _0;
     }

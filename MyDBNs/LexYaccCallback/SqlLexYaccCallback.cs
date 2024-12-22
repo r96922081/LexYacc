@@ -42,20 +42,38 @@
             MyDBNs.Update.UpdateRows(tableName, setExpression, condition);
         }
 
-        public static List<SetExpressionType> SetExpression(string id, string string_number_id, List<SetExpressionType> setExpression)
+        public static List<SetExpressionType> SetExpressionVarchar(string id, string string_id, List<SetExpressionType> setExpression)
         {
             List<SetExpressionType> ret = new List<SetExpressionType>();
 
             ret.AddRange(setExpression);
-            ret.Add(new SetExpressionType(id, Util.GetStringType(string_number_id), string_number_id));
+            ret.Add(new SetExpressionType(id, Util.GetStringType(string_id), string_id));
 
             return ret;
         }
 
-        public static List<SetExpressionType> SetExpression(string id, string string_number_id)
+        public static List<SetExpressionType> SetExpressionVarchar(string id, string string_id)
         {
             List<SetExpressionType> ret = new List<SetExpressionType>();
-            ret.Add(new SetExpressionType(id, Util.GetStringType(string_number_id), string_number_id));
+            ret.Add(new SetExpressionType(id, Util.GetStringType(string_id), string_id));
+
+            return ret;
+        }
+
+        public static List<SetExpressionType> SetExpressionNumber(string id, string arithmeticExpression, List<SetExpressionType> setExpression)
+        {
+            List<SetExpressionType> ret = new List<SetExpressionType>();
+
+            ret.AddRange(setExpression);
+            ret.Add(new SetExpressionType(id, StringType.Number, arithmeticExpression));
+
+            return ret;
+        }
+
+        public static List<SetExpressionType> SetExpressionNumber(string id, string arithmeticExpression)
+        {
+            List<SetExpressionType> ret = new List<SetExpressionType>();
+            ret.Add(new SetExpressionType(id, StringType.Number, arithmeticExpression));
 
             return ret;
         }

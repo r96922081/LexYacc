@@ -9,6 +9,8 @@ boolean expression,  a is null
 
 3. join, group by, in, with, like
 
+4. ||
+
  */
 
 /*
