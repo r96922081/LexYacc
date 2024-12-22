@@ -17,6 +17,12 @@ namespace MyDBNs
             object ret = sql_statements.Parse("UPDATE A SET AGE = AGE + 2 * 100");
             Check(ret == null || ret.ToString() == "");
 
+            ret = sql_statements.Parse("UPDATE A SET NAME = NAME || '_X'");
+            Check(ret == null || ret.ToString() == "");
+
+            ret = sql_statements.Parse("SELECT * FROM A WHERE NAME = 'ABC' || '_X'");
+            Check(ret == null || ret.ToString() == "");
+
             /*
             object ret = sql_arithmetic_expression.Parse("3 - 2 + 1");
             Check((double)ret == 2);

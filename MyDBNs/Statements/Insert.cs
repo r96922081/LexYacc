@@ -34,7 +34,7 @@
                     }
                     else if (columnType == ColumnType.VARCHAR)
                     {
-                        rows[columnIndex] = Util.GetString(value);
+                        rows[columnIndex] = Util.ExtractStringFromSingleQuote(value);
                     }
                 }
             }

@@ -4,26 +4,14 @@
     {
         public static void UpdateRowsVarchar(Table table, int lhsColumnIndex, SetExpressionType setExpression, HashSet<int> selectedRows)
         {
-            for (int i = 0; i < table.rows.Count; i++)
+            List<string> rows = StringExpression.Parse(table, setExpression.rhs);
+
+            for (int i = 0; i < rows.Count; i++)
             {
                 if (selectedRows != null && !selectedRows.Contains(i))
                     continue;
 
-                object[] row = table.rows[i];
-                ColumnType type = table.GetColumnType(setExpression.lhsColumn);
-
-                object value = null;
-
-                if (setExpression.rhsType == StringType.String)
-                {
-                    value = Util.GetString(setExpression.rhs);
-                }
-                else if (setExpression.rhsType == StringType.Column)
-                {
-                    value = row[table.GetColumnIndex(setExpression.rhs)];
-                }
-
-                row[lhsColumnIndex] = value;
+                table.rows[i][lhsColumnIndex] = rows[i];
             }
         }
 

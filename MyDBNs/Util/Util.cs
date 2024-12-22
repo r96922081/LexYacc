@@ -26,7 +26,7 @@
             return double.Parse(s);
         }
 
-        public static string GetString(string s)
+        public static string ExtractStringFromSingleQuote(string s)
         {
             // remove ' ' 
             return s.Substring(1, s.Length - 2);

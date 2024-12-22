@@ -5,6 +5,10 @@
         public static void Interactive()
         {
 #if !MarkUserOfSqlCodeGen
+            sql_statements.Parse("load db 1.txt");
+            sql_statements.Parse("show tables");
+
+
             System.Console.WriteLine("input sql:\n\n");
             string line;
             while ((line = System.Console.ReadLine()) != null)

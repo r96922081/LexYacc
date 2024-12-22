@@ -2,10 +2,10 @@
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE
 %token <int> POSITIVE_INT
 %token <double> NUMBER_DOUBLE
-%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id string_number arithmetic_expression_id arithmetic_expression term number_double_id
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id string_number arithmetic_expression_id arithmetic_expression term number_double_id string_expression string_id
 %type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
 %type <List<(string, string)>> column_declare
 %type <HashSet<int>> boolean_expression
@@ -30,32 +30,32 @@ boolean_expression OR boolean_expression
     $$ = $2;
 }
 | 
-string_number_id '=' string_number_id
+string_expression '=' string_expression
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, "=", $3);
 }
 | 
-string_number_id '<' string_number_id
+string_expression '<' string_expression
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, "<", $3);
 }
 | 
-string_number_id '>' string_number_id
+string_expression '>' string_expression
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, ">", $3);
 }
 | 
-string_number_id NOT_EQUAL string_number_id
+string_expression NOT_EQUAL string_expression
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, "!=", $3);
 }
 | 
-string_number_id LESS_OR_EQUAL string_number_id
+string_expression LESS_OR_EQUAL string_expression
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, "<=", $3);
 }
 | 
-string_number_id GREATER_OR_EQUAL string_number_id
+string_expression GREATER_OR_EQUAL string_expression
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, ">=", $3);
 }
@@ -150,23 +150,6 @@ ID
 }
 ;
 
-string_number_id:
-ID
-{
-    $$ = $1;
-}
-| 
-STRING
-{
-    $$ = $1;
-}
-| 
-number_double
-{
-    $$ = "" + $1;
-}
-;
-
 arithmetic_expression_id:
 ID
 {
@@ -190,4 +173,28 @@ POSITIVE_INT
     $$ = $1;
 }
 ;
+
+string_expression:
+string_expression TWO_PIPE string_id 
+{
+    $$ = $1 + " || " + $3;
+}
+string_id 
+{
+    $$ = $1;
+}
+;
+
+string_id:
+ID
+{
+    $$ = $1;
+}
+| 
+STRING
+{
+    $$ = $1;
+}
+;
+
 %%

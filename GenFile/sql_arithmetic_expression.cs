@@ -20,7 +20,7 @@ public class YaccActions{
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE
 %token <int> POSITIVE_INT
 %token <double> NUMBER_DOUBLE
 %type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement file_path
@@ -345,8 +345,9 @@ namespace sql_arithmetic_expressionNs
             { 285, "LOAD"},
             { 286, "DB"},
             { 287, "FILE_PATH"},
-            { 288, "POSITIVE_INT"},
-            { 289, "NUMBER_DOUBLE"},
+            { 288, "TWO_PIPE"},
+            { 289, "POSITIVE_INT"},
+            { 290, "NUMBER_DOUBLE"},
         };
 
         public static int SELECT = 256;
@@ -381,8 +382,9 @@ namespace sql_arithmetic_expressionNs
         public static int LOAD = 285;
         public static int DB = 286;
         public static int FILE_PATH = 287;
-        public static int POSITIVE_INT = 288;
-        public static int NUMBER_DOUBLE = 289;
+        public static int TWO_PIPE = 288;
+        public static int POSITIVE_INT = 289;
+        public static int NUMBER_DOUBLE = 290;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -432,6 +434,7 @@ namespace sql_arithmetic_expressionNs
 [dD][eE][sS][cC]              { return DESC; }
 [nN][uU][mM][bB][eE][rR]      { value = ""NUMBER_TYPE""; return NUMBER_TYPE; }
 [vV][aA][rR][cC][hH][aA][rR]  { value = ""VARCHAR""; return VARCHAR; }
+""||""                          { return TWO_PIPE; }
 ""!=""                     { return NOT_EQUAL; }
 ""<=""                     { return LESS_OR_EQUAL; }
 "">=""                     { return GREATER_OR_EQUAL; }
@@ -510,6 +513,7 @@ namespace sql_arithmetic_expressionNs
             actions.Add("LexRule44", LexAction44);
             actions.Add("LexRule45", LexAction45);
             actions.Add("LexRule46", LexAction46);
+            actions.Add("LexRule47", LexAction47);
         }
         public static object LexAction0(string yytext)
         {
@@ -750,7 +754,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return NOT_EQUAL; 
+            return TWO_PIPE; 
 
             return 0;
         }
@@ -759,7 +763,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return LESS_OR_EQUAL; 
+            return NOT_EQUAL; 
 
             return 0;
         }
@@ -768,7 +772,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return GREATER_OR_EQUAL; 
+            return LESS_OR_EQUAL; 
 
             return 0;
         }
@@ -777,7 +781,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '{'; 
+            return GREATER_OR_EQUAL; 
 
             return 0;
         }
@@ -786,7 +790,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '}'; 
+            return '{'; 
 
             return 0;
         }
@@ -795,7 +799,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '('; 
+            return '}'; 
 
             return 0;
         }
@@ -804,7 +808,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return ')'; 
+            return '('; 
 
             return 0;
         }
@@ -813,7 +817,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return ','; 
+            return ')'; 
 
             return 0;
         }
@@ -822,7 +826,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '='; 
+            return ','; 
 
             return 0;
         }
@@ -831,7 +835,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '<'; 
+            return '='; 
 
             return 0;
         }
@@ -840,7 +844,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '>'; 
+            return '<'; 
 
             return 0;
         }
@@ -849,7 +853,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '*'; 
+            return '>'; 
 
             return 0;
         }
@@ -858,7 +862,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '+'; 
+            return '*'; 
 
             return 0;
         }
@@ -867,7 +871,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '-'; 
+            return '+'; 
 
             return 0;
         }
@@ -876,7 +880,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '/'; 
+            return '-'; 
 
             return 0;
         }
@@ -885,7 +889,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = int.Parse(yytext); return POSITIVE_INT; 
+            return '/'; 
 
             return 0;
         }
@@ -894,7 +898,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = double.Parse(yytext); return NUMBER_DOUBLE; 
+            value = int.Parse(yytext); return POSITIVE_INT; 
 
             return 0;
         }
@@ -903,7 +907,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext; return STRING; 
+            value = double.Parse(yytext); return NUMBER_DOUBLE; 
 
             return 0;
         }
@@ -912,7 +916,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            value = yytext; return STRING; 
 
             return 0;
         }
@@ -921,11 +925,20 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext; return FILE_PATH; 
+            value = yytext; return ID; 
 
             return 0;
         }
         public static object LexAction46(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return FILE_PATH; 
+
+            return 0;
+        }
+        public static object LexAction47(string yytext)
         {
             value = null;
 

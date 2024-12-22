@@ -42,20 +42,20 @@
             MyDBNs.Update.UpdateRows(tableName, setExpression, condition);
         }
 
-        public static List<SetExpressionType> SetExpressionVarchar(string id, string string_id, List<SetExpressionType> setExpression)
+        public static List<SetExpressionType> SetExpressionVarchar(string id, string stringExpression, List<SetExpressionType> setExpression)
         {
             List<SetExpressionType> ret = new List<SetExpressionType>();
 
             ret.AddRange(setExpression);
-            ret.Add(new SetExpressionType(id, Util.GetStringType(string_id), string_id));
+            ret.Add(new SetExpressionType(id, StringType.String, stringExpression));
 
             return ret;
         }
 
-        public static List<SetExpressionType> SetExpressionVarchar(string id, string string_id)
+        public static List<SetExpressionType> SetExpressionVarchar(string id, string stringExpression)
         {
             List<SetExpressionType> ret = new List<SetExpressionType>();
-            ret.Add(new SetExpressionType(id, Util.GetStringType(string_id), string_id));
+            ret.Add(new SetExpressionType(id, StringType.String, stringExpression));
 
             return ret;
         }

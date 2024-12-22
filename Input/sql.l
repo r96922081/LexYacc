@@ -28,6 +28,7 @@
 [dD][eE][sS][cC]              { return DESC; }
 [nN][uU][mM][bB][eE][rR]      { value = "NUMBER_TYPE"; return NUMBER_TYPE; }
 [vV][aA][rR][cC][hH][aA][rR]  { value = "VARCHAR"; return VARCHAR; }
+"||"                          { return TWO_PIPE; }
 "!="                     { return NOT_EQUAL; }
 "<="                     { return LESS_OR_EQUAL; }
 ">="                     { return GREATER_OR_EQUAL; }

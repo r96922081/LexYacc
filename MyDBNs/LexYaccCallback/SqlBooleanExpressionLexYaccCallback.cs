@@ -212,45 +212,37 @@
 
         public static HashSet<int> BooleanExpressionVarcharColumn(string lhs, string op, string rhs)
         {
-            int lhsColumnIndex = -1;
-            int rhsColumnIndex = -1;
-            ColumnType lhsType = GetType(lhs, ref lhsColumnIndex);
-            ColumnType rhsType = GetType(lhs, ref lhsColumnIndex);
-
-            VerifyBooleanExpression(lhs, op, rhs);
+            List<string> lhsValues = StringExpression.Parse(table, lhs);
+            List<string> rhsValues = StringExpression.Parse(table, rhs);
 
             HashSet<int> rows = new HashSet<int>();
 
-            for (int i = 0; i < table.rows.Count; i++)
+            for (int i = 0; i < lhsValues.Count; i++)
             {
-                object[] row = table.rows[i];
-                object lhsValue = GetValue(row, lhs, lhsType, lhsColumnIndex);
-                object rhsValue = GetValue(row, rhs, rhsType, rhsColumnIndex); ;
-
                 switch (op)
                 {
                     case "=":
-                        if (EvaluateBooleanExpression(BooleanOperator.Equal, lhsValue, rhsValue, lhsType))
+                        if (EvaluateBooleanExpression(BooleanOperator.Equal, lhsValues[i], rhsValues[i], ColumnType.VARCHAR))
                             rows.Add(i);
                         break;
                     case "!=":
-                        if (EvaluateBooleanExpression(BooleanOperator.NotEqual, lhsValue, rhsValue, lhsType))
+                        if (EvaluateBooleanExpression(BooleanOperator.NotEqual, lhsValues[i], rhsValues[i], ColumnType.VARCHAR))
                             rows.Add(i);
                         break;
                     case "<":
-                        if (EvaluateBooleanExpression(BooleanOperator.LessThan, lhsValue, rhsValue, lhsType))
+                        if (EvaluateBooleanExpression(BooleanOperator.LessThan, lhsValues[i], rhsValues[i], ColumnType.VARCHAR))
                             rows.Add(i);
                         break;
                     case "<=":
-                        if (EvaluateBooleanExpression(BooleanOperator.LessThanEqualTo, lhsValue, rhsValue, lhsType))
+                        if (EvaluateBooleanExpression(BooleanOperator.LessThanEqualTo, lhsValues[i], rhsValues[i], ColumnType.VARCHAR))
                             rows.Add(i);
                         break;
                     case ">":
-                        if (EvaluateBooleanExpression(BooleanOperator.GreaterThan, lhsValue, rhsValue, lhsType))
+                        if (EvaluateBooleanExpression(BooleanOperator.GreaterThan, lhsValues[i], rhsValues[i], ColumnType.VARCHAR))
                             rows.Add(i);
                         break;
                     case ">=":
-                        if (EvaluateBooleanExpression(BooleanOperator.GreaterThanEqualTo, lhsValue, rhsValue, lhsType))
+                        if (EvaluateBooleanExpression(BooleanOperator.GreaterThanEqualTo, lhsValues[i], rhsValues[i], ColumnType.NUMBER))
                             rows.Add(i);
                         break;
                 }
