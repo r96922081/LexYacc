@@ -4,7 +4,7 @@
     {
         public static void Ut()
         {
-            Gv.ut = false;
+            Gv.ut = true;
 
             if (Gv.ut)
             {
@@ -13,6 +13,8 @@
                 new SelectUt().Ut();
                 new BooleanExpressionUt().Ut();
                 new ArithmeticExpressionUt().Ut();
+                new DeleteUt().Ut();
+                new UpdateUt().Ut();
                 new SaveLoadUt().Ut();
             }
             else
