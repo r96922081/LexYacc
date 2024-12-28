@@ -20,11 +20,11 @@ public class YaccActions{
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL
 %token <int> POSITIVE_INT
 %token <double> NUMBER_DOUBLE
-%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id string_number arithmetic_expression_id arithmetic_expression term number_double_id string_expression string_id
-%type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id arithmetic_expression_id arithmetic_expression term number_double_id string_expression string_id string_number_null
+%type <List<string>> comma_sep_id commaSep_id_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <HashSet<int>> boolean_expression
 %type <double> number_double
@@ -729,8 +729,9 @@ namespace sql_boolean_expressionNs
             { 286, "DB"},
             { 287, "FILE_PATH"},
             { 288, "TWO_PIPE"},
-            { 289, "POSITIVE_INT"},
-            { 290, "NUMBER_DOUBLE"},
+            { 289, "NULL"},
+            { 290, "POSITIVE_INT"},
+            { 291, "NUMBER_DOUBLE"},
         };
 
         public static int SELECT = 256;
@@ -766,8 +767,9 @@ namespace sql_boolean_expressionNs
         public static int DB = 286;
         public static int FILE_PATH = 287;
         public static int TWO_PIPE = 288;
-        public static int POSITIVE_INT = 289;
-        public static int NUMBER_DOUBLE = 290;
+        public static int NULL = 289;
+        public static int POSITIVE_INT = 290;
+        public static int NUMBER_DOUBLE = 291;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -815,6 +817,7 @@ namespace sql_boolean_expressionNs
 [bB][yY]                      { return BY; }
 [aA][sS][cC]                  { return ASC; }
 [dD][eE][sS][cC]              { return DESC; }
+[nN][uU][lL][lL]              { return NULL; }
 [nN][uU][mM][bB][eE][rR]      { value = ""NUMBER_TYPE""; return NUMBER_TYPE; }
 [vV][aA][rR][cC][hH][aA][rR]  { value = ""VARCHAR""; return VARCHAR; }
 ""||""                          { return TWO_PIPE; }
@@ -897,6 +900,7 @@ namespace sql_boolean_expressionNs
             actions.Add("LexRule45", LexAction45);
             actions.Add("LexRule46", LexAction46);
             actions.Add("LexRule47", LexAction47);
+            actions.Add("LexRule48", LexAction48);
         }
         public static object LexAction0(string yytext)
         {
@@ -1119,7 +1123,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            value = "NUMBER_TYPE"; return NUMBER_TYPE; 
+            return NULL; 
 
             return 0;
         }
@@ -1128,7 +1132,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            value = "VARCHAR"; return VARCHAR; 
+            value = "NUMBER_TYPE"; return NUMBER_TYPE; 
 
             return 0;
         }
@@ -1137,7 +1141,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            return TWO_PIPE; 
+            value = "VARCHAR"; return VARCHAR; 
 
             return 0;
         }
@@ -1146,7 +1150,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            return NOT_EQUAL; 
+            return TWO_PIPE; 
 
             return 0;
         }
@@ -1155,7 +1159,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            return LESS_OR_EQUAL; 
+            return NOT_EQUAL; 
 
             return 0;
         }
@@ -1164,7 +1168,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            return GREATER_OR_EQUAL; 
+            return LESS_OR_EQUAL; 
 
             return 0;
         }
@@ -1173,7 +1177,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            return '{'; 
+            return GREATER_OR_EQUAL; 
 
             return 0;
         }
@@ -1182,7 +1186,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            return '}'; 
+            return '{'; 
 
             return 0;
         }
@@ -1191,7 +1195,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            return '('; 
+            return '}'; 
 
             return 0;
         }
@@ -1200,7 +1204,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            return ')'; 
+            return '('; 
 
             return 0;
         }
@@ -1209,7 +1213,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            return ','; 
+            return ')'; 
 
             return 0;
         }
@@ -1218,7 +1222,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            return '='; 
+            return ','; 
 
             return 0;
         }
@@ -1227,7 +1231,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            return '<'; 
+            return '='; 
 
             return 0;
         }
@@ -1236,7 +1240,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            return '>'; 
+            return '<'; 
 
             return 0;
         }
@@ -1245,7 +1249,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            return '*'; 
+            return '>'; 
 
             return 0;
         }
@@ -1254,7 +1258,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            return '+'; 
+            return '*'; 
 
             return 0;
         }
@@ -1263,7 +1267,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            return '-'; 
+            return '+'; 
 
             return 0;
         }
@@ -1272,7 +1276,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            return '/'; 
+            return '-'; 
 
             return 0;
         }
@@ -1281,7 +1285,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            value = int.Parse(yytext); return POSITIVE_INT; 
+            return '/'; 
 
             return 0;
         }
@@ -1290,7 +1294,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            value = double.Parse(yytext); return NUMBER_DOUBLE; 
+            value = int.Parse(yytext); return POSITIVE_INT; 
 
             return 0;
         }
@@ -1299,7 +1303,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext; return STRING; 
+            value = double.Parse(yytext); return NUMBER_DOUBLE; 
 
             return 0;
         }
@@ -1308,7 +1312,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            value = yytext; return STRING; 
 
             return 0;
         }
@@ -1317,11 +1321,20 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext; return FILE_PATH; 
+            value = yytext; return ID; 
 
             return 0;
         }
         public static object LexAction47(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return FILE_PATH; 
+
+            return 0;
+        }
+        public static object LexAction48(string yytext)
         {
             value = null;
 

@@ -9,7 +9,9 @@ boolean expression,  a is null
 
 3. join, group by, in, with, like
 
-4. ||
+4. group by min, max, count, sum
+
+5. case when
 
  */
 

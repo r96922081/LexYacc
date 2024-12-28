@@ -1,5 +1,10 @@
 ﻿namespace MyDBNs
 {
+    public class Gv
+    {
+        public static bool ut = false;
+    }
+
     public class Table
     {
         public string tableName;

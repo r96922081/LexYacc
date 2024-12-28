@@ -7,8 +7,6 @@
             if (columnNames != null)
                 columnNames = columnNames.Select(name => name.ToUpper()).ToList();
 
-            Verifier.VerifyInsert(tableName, columnNames, values);
-
             Table table = Util.GetTable(tableName);
 
             if (columnNames == null || columnNames.Count == 0)
@@ -21,6 +19,9 @@
                 string columnName = columnNames[i];
                 int columnIndex = table.GetColumnIndex(columnName);
                 ColumnType columnType = table.GetColumnType(columnName);
+
+
+
                 string value = values[i];
                 if (value == null)
                 {
@@ -28,12 +29,20 @@
                 }
                 else
                 {
+                    StringType type = Util.GetStringType(value);
+
                     if (columnType == ColumnType.NUMBER)
                     {
+                        if (type != StringType.Number)
+                            throw new Exception("value = " + value + " is not a number");
+
                         rows[columnIndex] = Util.GetNumber(value);
                     }
                     else if (columnType == ColumnType.VARCHAR)
                     {
+                        if (type != StringType.String)
+                            throw new Exception("value = " + value + " is not a varchar");
+
                         rows[columnIndex] = Util.ExtractStringFromSingleQuote(value);
                     }
                 }

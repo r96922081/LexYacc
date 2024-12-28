@@ -13,13 +13,23 @@
             string line;
             while ((line = System.Console.ReadLine()) != null)
             {
-                object result = sql_statements.Parse(line);
+                object result = null;
+
+                try
+                {
+                    result = sql_statements.Parse(line);
+                }
+                catch (Exception e)
+                {
+                    System.Console.WriteLine("Error occurred");
+                }
+
                 if (result != null && result.ToString() != "")
                     System.Console.WriteLine(result);
 
                 System.Console.WriteLine("input sql:\n\n");
-            }
 #endif
+            }
         }
     }
 }

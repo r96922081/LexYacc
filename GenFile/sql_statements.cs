@@ -20,19 +20,21 @@ public class YaccActions{
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL
 %token <int> POSITIVE_INT
 %token <double> NUMBER_DOUBLE
-%type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_id string_number update_statement file_path arithmetic_expression string_expression term number_double_id string_id arithmetic_expression_id
-%type <List<string>> comma_sep_id comma_sep_id_include_star comma_sep_value
+%type <string> column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_id update_statement file_path arithmetic_expression string_expression term number_double_id string_id arithmetic_expression_id string_number_null
+%type <List<string>> comma_sep_id commaSep_id_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_condition
 %type <List<MyDBNs.SetExpressionType>> set_expression
+%type <List<object[]>> select_statement
+%type <object> statement
 %type <double> number_double
 %%
 
-statement: save_db | load_db | create_table_statement | drop_table_statement | insert_statement | delete_statement | show_tables_statement | select_statement | update_statement;
+statement: save_db { $$ = $1; } | load_db { $$ = $1; } | create_table_statement { $$ = $1; } | drop_table_statement { $$ = $1; } | insert_statement { $$ = $1; } | delete_statement { $$ = $1; } | show_tables_statement { $$ = $1; } | select_statement { $$ = $1; } | update_statement { $$ = $1; };
 
 save_db: SAVE DB file_path
 {
@@ -66,12 +68,12 @@ ID column_type ',' column_declare
 };
 
 insert_statement: 
-INSERT INTO ID VALUES '(' comma_sep_value ')'
+INSERT INTO ID VALUES '(' commaSep_string_number_null ')'
 {
     MyDBNs.SqlLexYaccCallback.Insert($3, null, $6);
 }
 |
-INSERT INTO ID '(' comma_sep_id ')' VALUES '(' comma_sep_value ')'
+INSERT INTO ID '(' comma_sep_id ')' VALUES '(' commaSep_string_number_null ')'
 {
     MyDBNs.SqlLexYaccCallback.Insert($3, $5, $9);
 };
@@ -108,24 +110,24 @@ SHOW TABLES
 ;
 
 select_statement:
-SELECT comma_sep_id_include_star FROM ID
+SELECT commaSep_id_star FROM ID
 {
-    MyDBNs.SqlLexYaccCallback.Select($2, $4, null, null);
+    $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, null, null);
 }
 |
-SELECT comma_sep_id_include_star FROM ID ORDER BY order_by_condition
+SELECT commaSep_id_star FROM ID ORDER BY order_by_condition
 {
-    MyDBNs.SqlLexYaccCallback.Select($2, $4, null, $7);
+    $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, null, $7);
 }
 |
-SELECT comma_sep_id_include_star FROM ID WHERE boolean_expression
+SELECT commaSep_id_star FROM ID WHERE boolean_expression
 {
-    MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, null);
+    $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, null);
 }
 |
-SELECT comma_sep_id_include_star FROM ID WHERE boolean_expression ORDER BY order_by_condition
+SELECT commaSep_id_star FROM ID WHERE boolean_expression ORDER BY order_by_condition
 {
-    MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, $9);
+    $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, $9);
 }
 ;
 
@@ -239,12 +241,12 @@ ID
 }
 ;
 
-comma_sep_value: 
-string_number 
+commaSep_string_number_null: 
+string_number_null 
 {
     MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1);
 }
-| string_number ',' comma_sep_value
+| string_number_null ',' commaSep_string_number_null
 {
     MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1, $3);
 }
@@ -261,13 +263,13 @@ order_by_column ',' order_by_condition
     MyDBNs.SqlLexYaccCallback.OrderByCondition($$, $1, $3);
 };
 
-comma_sep_id_include_star: 
+commaSep_id_star: 
 ID 
 {
     MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1);
 }
 |
-ID ',' comma_sep_id_include_star
+ID ',' commaSep_id_star
 {
     MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1, $3);
 }
@@ -275,7 +277,7 @@ ID ',' comma_sep_id_include_star
 {
     MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, ""*"");
 }
-| '*' ',' comma_sep_id_include_star
+| '*' ',' commaSep_id_star
 {
     MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, ""*"", $3);
 }
@@ -392,7 +394,7 @@ arithmetic_expression
 }
 ;
 
-string_number:
+string_number_null:
 STRING
 {
     $$ = $1;
@@ -401,6 +403,11 @@ STRING
 number_double
 {
     $$ = """" + $1;
+}
+|
+NULL
+{
+    $$ = null;
 }
 ;
 
@@ -490,6 +497,15 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
             return;
 
         actions.Add("Rule_start_Producton_0", Rule_start_Producton_0);
+        actions.Add("Rule_statement_Producton_0", Rule_statement_Producton_0);
+        actions.Add("Rule_statement_Producton_1", Rule_statement_Producton_1);
+        actions.Add("Rule_statement_Producton_2", Rule_statement_Producton_2);
+        actions.Add("Rule_statement_Producton_3", Rule_statement_Producton_3);
+        actions.Add("Rule_statement_Producton_4", Rule_statement_Producton_4);
+        actions.Add("Rule_statement_Producton_5", Rule_statement_Producton_5);
+        actions.Add("Rule_statement_Producton_6", Rule_statement_Producton_6);
+        actions.Add("Rule_statement_Producton_7", Rule_statement_Producton_7);
+        actions.Add("Rule_statement_Producton_8", Rule_statement_Producton_8);
         actions.Add("Rule_save_db_Producton_0", Rule_save_db_Producton_0);
         actions.Add("Rule_load_db_Producton_0", Rule_load_db_Producton_0);
         actions.Add("Rule_create_table_statement_Producton_0", Rule_create_table_statement_Producton_0);
@@ -529,14 +545,14 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         actions.Add("Rule_set_expression_Producton_3", Rule_set_expression_Producton_3);
         actions.Add("Rule_comma_sep_id_Producton_0", Rule_comma_sep_id_Producton_0);
         actions.Add("Rule_comma_sep_id_Producton_1", Rule_comma_sep_id_Producton_1);
-        actions.Add("Rule_comma_sep_value_Producton_0", Rule_comma_sep_value_Producton_0);
-        actions.Add("Rule_comma_sep_value_Producton_1", Rule_comma_sep_value_Producton_1);
+        actions.Add("Rule_commaSep_string_number_null_Producton_0", Rule_commaSep_string_number_null_Producton_0);
+        actions.Add("Rule_commaSep_string_number_null_Producton_1", Rule_commaSep_string_number_null_Producton_1);
         actions.Add("Rule_order_by_condition_Producton_0", Rule_order_by_condition_Producton_0);
         actions.Add("Rule_order_by_condition_Producton_1", Rule_order_by_condition_Producton_1);
-        actions.Add("Rule_comma_sep_id_include_star_Producton_0", Rule_comma_sep_id_include_star_Producton_0);
-        actions.Add("Rule_comma_sep_id_include_star_Producton_1", Rule_comma_sep_id_include_star_Producton_1);
-        actions.Add("Rule_comma_sep_id_include_star_Producton_2", Rule_comma_sep_id_include_star_Producton_2);
-        actions.Add("Rule_comma_sep_id_include_star_Producton_3", Rule_comma_sep_id_include_star_Producton_3);
+        actions.Add("Rule_commaSep_id_star_Producton_0", Rule_commaSep_id_star_Producton_0);
+        actions.Add("Rule_commaSep_id_star_Producton_1", Rule_commaSep_id_star_Producton_1);
+        actions.Add("Rule_commaSep_id_star_Producton_2", Rule_commaSep_id_star_Producton_2);
+        actions.Add("Rule_commaSep_id_star_Producton_3", Rule_commaSep_id_star_Producton_3);
         actions.Add("Rule_arithmetic_expression_Producton_0", Rule_arithmetic_expression_Producton_0);
         actions.Add("Rule_arithmetic_expression_LeftRecursionExpand_Producton_0", Rule_arithmetic_expression_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_arithmetic_expression_LeftRecursionExpand_Producton_1", Rule_arithmetic_expression_LeftRecursionExpand_Producton_1);
@@ -560,8 +576,9 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         actions.Add("Rule_string_id_Producton_1", Rule_string_id_Producton_1);
         actions.Add("Rule_arithmetic_expression_id_Producton_0", Rule_arithmetic_expression_id_Producton_0);
         actions.Add("Rule_arithmetic_expression_id_Producton_1", Rule_arithmetic_expression_id_Producton_1);
-        actions.Add("Rule_string_number_Producton_0", Rule_string_number_Producton_0);
-        actions.Add("Rule_string_number_Producton_1", Rule_string_number_Producton_1);
+        actions.Add("Rule_string_number_null_Producton_0", Rule_string_number_null_Producton_0);
+        actions.Add("Rule_string_number_null_Producton_1", Rule_string_number_null_Producton_1);
+        actions.Add("Rule_string_number_null_Producton_2", Rule_string_number_null_Producton_2);
         actions.Add("Rule_order_by_column_Producton_0", Rule_order_by_column_Producton_0);
         actions.Add("Rule_order_by_column_Producton_1", Rule_order_by_column_Producton_1);
         actions.Add("Rule_order_by_column_Producton_2", Rule_order_by_column_Producton_2);
@@ -579,11 +596,101 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
     }
 
     public static object Rule_start_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
+        object _0 = new object();
+        object _1 = (object)objects[1];
 
         // user-defined action
         _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_0(Dictionary<int, object> objects) { 
+        object _0 = new object();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1; 
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_1(Dictionary<int, object> objects) { 
+        object _0 = new object();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1; 
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_2(Dictionary<int, object> objects) { 
+        object _0 = new object();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1; 
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_3(Dictionary<int, object> objects) { 
+        object _0 = new object();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1; 
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_4(Dictionary<int, object> objects) { 
+        object _0 = new object();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1; 
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_5(Dictionary<int, object> objects) { 
+        object _0 = new object();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1; 
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_6(Dictionary<int, object> objects) { 
+        object _0 = new object();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1; 
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_7(Dictionary<int, object> objects) { 
+        object _0 = new object();
+        List<object[]> _1 = (List<object[]>)objects[1];
+
+        // user-defined action
+        _0 = _1; 
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_8(Dictionary<int, object> objects) { 
+        object _0 = new object();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1; 
 
         return _0;
     }
@@ -755,20 +862,20 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
     }
 
     public static object Rule_select_statement_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+        List<object[]> _0 = new List<object[]>();
         string _1 = (string)objects[1];
         List<string> _2 = (List<string>)objects[2];
         string _3 = (string)objects[3];
         string _4 = (string)objects[4];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.Select(_2, _4, null, null);
+        _0 = MyDBNs.SqlLexYaccCallback.Select(_2, _4, null, null);
 
         return _0;
     }
 
     public static object Rule_select_statement_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+        List<object[]> _0 = new List<object[]>();
         string _1 = (string)objects[1];
         List<string> _2 = (List<string>)objects[2];
         string _3 = (string)objects[3];
@@ -778,13 +885,13 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         List<List<object>> _7 = (List<List<object>>)objects[7];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.Select(_2, _4, null, _7);
+        _0 = MyDBNs.SqlLexYaccCallback.Select(_2, _4, null, _7);
 
         return _0;
     }
 
     public static object Rule_select_statement_Producton_2(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+        List<object[]> _0 = new List<object[]>();
         string _1 = (string)objects[1];
         List<string> _2 = (List<string>)objects[2];
         string _3 = (string)objects[3];
@@ -793,13 +900,13 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         string _6 = (string)objects[6];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.Select(_2, _4, _6, null);
+        _0 = MyDBNs.SqlLexYaccCallback.Select(_2, _4, _6, null);
 
         return _0;
     }
 
     public static object Rule_select_statement_Producton_3(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+        List<object[]> _0 = new List<object[]>();
         string _1 = (string)objects[1];
         List<string> _2 = (List<string>)objects[2];
         string _3 = (string)objects[3];
@@ -811,7 +918,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         List<List<object>> _9 = (List<List<object>>)objects[9];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.Select(_2, _4, _6, _9);
+        _0 = MyDBNs.SqlLexYaccCallback.Select(_2, _4, _6, _9);
 
         return _0;
     }
@@ -1061,7 +1168,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         return _0;
     }
 
-    public static object Rule_comma_sep_value_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_commaSep_string_number_null_Producton_0(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         string _1 = (string)objects[1];
 
@@ -1071,7 +1178,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         return _0;
     }
 
-    public static object Rule_comma_sep_value_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_commaSep_string_number_null_Producton_1(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         string _1 = (string)objects[1];
         List<string> _3 = (List<string>)objects[3];
@@ -1103,7 +1210,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         return _0;
     }
 
-    public static object Rule_comma_sep_id_include_star_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_commaSep_id_star_Producton_0(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         string _1 = (string)objects[1];
 
@@ -1113,7 +1220,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         return _0;
     }
 
-    public static object Rule_comma_sep_id_include_star_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_commaSep_id_star_Producton_1(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         string _1 = (string)objects[1];
         List<string> _3 = (List<string>)objects[3];
@@ -1124,7 +1231,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         return _0;
     }
 
-    public static object Rule_comma_sep_id_include_star_Producton_2(Dictionary<int, object> objects) { 
+    public static object Rule_commaSep_id_star_Producton_2(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
 
         // user-defined action
@@ -1133,7 +1240,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         return _0;
     }
 
-    public static object Rule_comma_sep_id_include_star_Producton_3(Dictionary<int, object> objects) { 
+    public static object Rule_commaSep_id_star_Producton_3(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         List<string> _3 = (List<string>)objects[3];
 
@@ -1369,7 +1476,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         return _0;
     }
 
-    public static object Rule_string_number_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_string_number_null_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 
@@ -1379,12 +1486,22 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         return _0;
     }
 
-    public static object Rule_string_number_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_string_number_null_Producton_1(Dictionary<int, object> objects) { 
         string _0 = new string("");
         double _1 = (double)objects[1];
 
         // user-defined action
         _0 = "" + _1;
+
+        return _0;
+    }
+
+    public static object Rule_string_number_null_Producton_2(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = null;
 
         return _0;
     }
@@ -1585,8 +1702,9 @@ namespace sql_statementsNs
             { 286, "DB"},
             { 287, "FILE_PATH"},
             { 288, "TWO_PIPE"},
-            { 289, "POSITIVE_INT"},
-            { 290, "NUMBER_DOUBLE"},
+            { 289, "NULL"},
+            { 290, "POSITIVE_INT"},
+            { 291, "NUMBER_DOUBLE"},
         };
 
         public static int SELECT = 256;
@@ -1622,8 +1740,9 @@ namespace sql_statementsNs
         public static int DB = 286;
         public static int FILE_PATH = 287;
         public static int TWO_PIPE = 288;
-        public static int POSITIVE_INT = 289;
-        public static int NUMBER_DOUBLE = 290;
+        public static int NULL = 289;
+        public static int POSITIVE_INT = 290;
+        public static int NUMBER_DOUBLE = 291;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -1671,6 +1790,7 @@ namespace sql_statementsNs
 [bB][yY]                      { return BY; }
 [aA][sS][cC]                  { return ASC; }
 [dD][eE][sS][cC]              { return DESC; }
+[nN][uU][lL][lL]              { return NULL; }
 [nN][uU][mM][bB][eE][rR]      { value = ""NUMBER_TYPE""; return NUMBER_TYPE; }
 [vV][aA][rR][cC][hH][aA][rR]  { value = ""VARCHAR""; return VARCHAR; }
 ""||""                          { return TWO_PIPE; }
@@ -1753,6 +1873,7 @@ namespace sql_statementsNs
             actions.Add("LexRule45", LexAction45);
             actions.Add("LexRule46", LexAction46);
             actions.Add("LexRule47", LexAction47);
+            actions.Add("LexRule48", LexAction48);
         }
         public static object LexAction0(string yytext)
         {
@@ -1975,7 +2096,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = "NUMBER_TYPE"; return NUMBER_TYPE; 
+            return NULL; 
 
             return 0;
         }
@@ -1984,7 +2105,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = "VARCHAR"; return VARCHAR; 
+            value = "NUMBER_TYPE"; return NUMBER_TYPE; 
 
             return 0;
         }
@@ -1993,7 +2114,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return TWO_PIPE; 
+            value = "VARCHAR"; return VARCHAR; 
 
             return 0;
         }
@@ -2002,7 +2123,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return NOT_EQUAL; 
+            return TWO_PIPE; 
 
             return 0;
         }
@@ -2011,7 +2132,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return LESS_OR_EQUAL; 
+            return NOT_EQUAL; 
 
             return 0;
         }
@@ -2020,7 +2141,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return GREATER_OR_EQUAL; 
+            return LESS_OR_EQUAL; 
 
             return 0;
         }
@@ -2029,7 +2150,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '{'; 
+            return GREATER_OR_EQUAL; 
 
             return 0;
         }
@@ -2038,7 +2159,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '}'; 
+            return '{'; 
 
             return 0;
         }
@@ -2047,7 +2168,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '('; 
+            return '}'; 
 
             return 0;
         }
@@ -2056,7 +2177,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return ')'; 
+            return '('; 
 
             return 0;
         }
@@ -2065,7 +2186,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return ','; 
+            return ')'; 
 
             return 0;
         }
@@ -2074,7 +2195,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '='; 
+            return ','; 
 
             return 0;
         }
@@ -2083,7 +2204,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '<'; 
+            return '='; 
 
             return 0;
         }
@@ -2092,7 +2213,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '>'; 
+            return '<'; 
 
             return 0;
         }
@@ -2101,7 +2222,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '*'; 
+            return '>'; 
 
             return 0;
         }
@@ -2110,7 +2231,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '+'; 
+            return '*'; 
 
             return 0;
         }
@@ -2119,7 +2240,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '-'; 
+            return '+'; 
 
             return 0;
         }
@@ -2128,7 +2249,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '/'; 
+            return '-'; 
 
             return 0;
         }
@@ -2137,7 +2258,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = int.Parse(yytext); return POSITIVE_INT; 
+            return '/'; 
 
             return 0;
         }
@@ -2146,7 +2267,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = double.Parse(yytext); return NUMBER_DOUBLE; 
+            value = int.Parse(yytext); return POSITIVE_INT; 
 
             return 0;
         }
@@ -2155,7 +2276,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return STRING; 
+            value = double.Parse(yytext); return NUMBER_DOUBLE; 
 
             return 0;
         }
@@ -2164,7 +2285,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            value = yytext; return STRING; 
 
             return 0;
         }
@@ -2173,11 +2294,20 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return FILE_PATH; 
+            value = yytext; return ID; 
 
             return 0;
         }
         public static object LexAction47(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return FILE_PATH; 
+
+            return 0;
+        }
+        public static object LexAction48(string yytext)
         {
             value = null;
 

@@ -110,9 +110,9 @@
             columnDeclare.AddRange(prevColumnDeclare);
         }
 
-        public static void Select(List<string> columns, string tableName, string condition, List<List<object>> orders)
+        public static List<object[]> Select(List<string> columns, string tableName, string condition, List<List<object>> orders)
         {
-            MyDBNs.Select.SelectRows(columns, tableName, condition, orders);
+            return MyDBNs.Select.SelectRows(columns, tableName, condition, orders);
         }
 
         public static void BooleanExpression(ref string booleanExpression, string lhs, string op, string rhs)

@@ -154,24 +154,28 @@
         {
             s.selectedRows.Sort((lIndex, rIndex) =>
             {
-                object[] l = s.table.rows[lIndex];
-                object[] r = s.table.rows[rIndex];
+                object[] lhsColumns = s.table.rows[lIndex];
+                object[] rhsColumns = s.table.rows[rIndex];
 
                 foreach (OrderBy o in order2)
                 {
-                    if (l == null && r == null)
+                    int columnIndex = s.columnIndex[o.selectColumnIndex];
+                    object lhsValue = lhsColumns[columnIndex];
+                    object rhsValue = rhsColumns[columnIndex];
+
+                    if (lhsValue == null && rhsValue == null)
                         continue;
 
-                    if (l == null && r != null)
+                    if (lhsValue == null && rhsValue != null)
                         return o.ascending ? -1 : 1;
 
-                    if (l != null && r == null)
+                    if (lhsValue != null && rhsValue == null)
                         return o.ascending ? 1 : -1;
 
-                    ColumnType t = s.table.columnTypes[s.columnIndex[o.selectColumnIndex]];
+                    ColumnType t = s.table.columnTypes[columnIndex];
 
-                    IComparable lCompara = (IComparable)l[s.columnIndex[o.selectColumnIndex]];
-                    IComparable rCompara = (IComparable)r[s.columnIndex[o.selectColumnIndex]];
+                    IComparable lCompara = (IComparable)lhsValue;
+                    IComparable rCompara = (IComparable)rhsValue;
 
                     int result = (o.ascending ? 1 : -1) * lCompara.CompareTo(rCompara);
                     if (result == 0)
@@ -184,7 +188,7 @@
             });
         }
 
-        public static void SelectRows(List<string> columnInput, string tableName, string whereCondition, List<List<object>> orders)
+        public static SelectedData SelectRowsInternal(List<string> columnInput, string tableName, string whereCondition, List<List<object>> orders)
         {
 #if !MarkUserOfSqlCodeGen
 
@@ -198,9 +202,44 @@
                 SortRows(s, order2);
             }
 
-
-            PrintTable(s);
+            return s;
 #endif
+        }
+
+        public static List<object[]> SelectRowsToList(List<string> columnInput, string tableName, string whereCondition, List<List<object>> orders)
+        {
+            SelectedData s = SelectRowsInternal(columnInput, tableName, whereCondition, orders);
+
+            List<object[]> rows = new List<object[]>();
+
+            Table t = Util.GetTable(tableName);
+            for (int i = 0; i < s.selectedRows.Count; i++)
+            {
+                object[] selectedRow = t.rows[s.selectedRows[i]];
+
+                object[] row = new object[s.columnIndex.Count];
+                for (int j = 0; j < s.columnIndex.Count; j++)
+                    row[j] = selectedRow[s.columnIndex[j]];
+
+                rows.Add(row);
+            }
+
+            return rows;
+        }
+
+        public static List<object[]> SelectRowsPrint(List<string> columnInput, string tableName, string whereCondition, List<List<object>> orders)
+        {
+            PrintTable(SelectRowsInternal(columnInput, tableName, whereCondition, orders));
+
+            return null;
+        }
+
+        public static List<object[]> SelectRows(List<string> columnInput, string tableName, string whereCondition, List<List<object>> orders)
+        {
+            if (Gv.ut)
+                return SelectRowsToList(columnInput, tableName, whereCondition, orders);
+            else
+                return SelectRowsPrint(columnInput, tableName, whereCondition, orders);
         }
     }
 }
