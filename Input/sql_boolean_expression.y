@@ -2,10 +2,11 @@
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS
 %token <int> POSITIVE_INT
 %token <double> NUMBER_DOUBLE
-%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id arithmetic_expression_id arithmetic_expression term number_double_id string_expression string_id string_number_null
+
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id arithmetic_expression_id arithmetic_expression term number_double_id string_expression string_id string_number_null column_name
 %type <List<string>> comma_sep_id commaSep_id_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <HashSet<int>> boolean_expression
@@ -88,6 +89,16 @@ arithmetic_expression_id LESS_OR_EQUAL arithmetic_expression_id
 arithmetic_expression_id GREATER_OR_EQUAL arithmetic_expression_id
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, ">=", $3);
+}
+|
+column_name IS NULL
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNullity($1, "IS");   
+}
+|
+column_name IS NOT NULL
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNullity($1, "IS NOT"); 
 }
 ;
 
@@ -196,5 +207,11 @@ STRING
     $$ = $1;
 }
 ;
+
+column_name:
+ID
+{
+    $$ = $1;
+}
 
 %%

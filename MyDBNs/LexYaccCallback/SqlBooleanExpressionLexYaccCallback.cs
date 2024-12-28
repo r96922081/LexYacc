@@ -162,6 +162,31 @@
             return rows;
         }
 
+        public static HashSet<int> BooleanExpressionNullity(string lhs, string op)
+        {
+            bool isNull = op.ToUpper() == "IS";
+
+            HashSet<int> rows = new HashSet<int>();
+
+            int columnIndex = table.GetColumnIndex(lhs);
+
+            for (int i = 0; i < table.rows.Count; i++)
+            {
+                if (isNull)
+                {
+                    if (table.rows[i][columnIndex] == null)
+                        rows.Add(i);
+                }
+                else
+                {
+                    if (table.rows[i][columnIndex] != null)
+                        rows.Add(i);
+                }
+            }
+
+            return rows;
+        }
+
         public static ColumnType GetType(string s, ref int columnIndex)
         {
             StringType type = Util.GetStringType(s);

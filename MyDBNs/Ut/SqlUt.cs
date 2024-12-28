@@ -41,25 +41,15 @@ namespace MyDBNs
 #endif
         }
 
-        public static void TestBooleanExpression()
-        {
-#if !MarkUserOfSqlCodeGen
-            object ret = sql_statements.Parse("DELETE FROM A WHERE NAME = 'ABC'  ");
-            Check(ret == null || ret.ToString() == "");
-
-            ret = sql_statements.Parse("SELECT * FROM A WHERE NAME != 'ABC'");
-            Check(ret == null || ret.ToString() == "");
-#endif
-        }
-
         public static void Ut()
         {
             Gv.ut = true;
             new CreateDropUt().Ut();
             new InsertUt().Ut();
             new SelectUt().Ut();
+            new BooleanExpressionUt().Ut();
+            new SaveLoadUt().Ut();
 
-            TestBooleanExpression();
             TestArithmeticExpression();
             Console.Interactive();
         }

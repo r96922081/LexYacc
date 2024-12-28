@@ -20,10 +20,10 @@ public class YaccActions{
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL
+%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS
 %token <int> POSITIVE_INT
 %token <double> NUMBER_DOUBLE
-%type <string> column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_id update_statement file_path arithmetic_expression string_expression term number_double_id string_id arithmetic_expression_id string_number_null
+%type <string> column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_id update_statement file_path arithmetic_expression string_expression term number_double_id string_id arithmetic_expression_id string_number_null column_name
 %type <List<string>> comma_sep_id commaSep_id_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
@@ -205,6 +205,16 @@ arithmetic_expression_id LESS_OR_EQUAL arithmetic_expression_id
 arithmetic_expression_id GREATER_OR_EQUAL arithmetic_expression_id
 {
     MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "">="", $3);
+}
+|
+column_name IS NULL
+{
+     MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, ""IS"", ""NULL"");
+}
+|
+column_name IS NOT NULL
+{
+    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, ""IS NOT"", ""NULL"");
 }
 ;
 
@@ -480,6 +490,13 @@ POSITIVE_INT
 ;
 
 column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYPE {$$ = $1;};
+
+column_name:
+ID
+{
+    $$ = $1;
+}
+
 %%";
 
 
@@ -536,6 +553,8 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         actions.Add("Rule_boolean_expression_Producton_10", Rule_boolean_expression_Producton_10);
         actions.Add("Rule_boolean_expression_Producton_11", Rule_boolean_expression_Producton_11);
         actions.Add("Rule_boolean_expression_Producton_12", Rule_boolean_expression_Producton_12);
+        actions.Add("Rule_boolean_expression_Producton_13", Rule_boolean_expression_Producton_13);
+        actions.Add("Rule_boolean_expression_Producton_14", Rule_boolean_expression_Producton_14);
         actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_0", Rule_boolean_expression_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_1", Rule_boolean_expression_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_2", Rule_boolean_expression_LeftRecursionExpand_Producton_2);
@@ -593,6 +612,7 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
         actions.Add("Rule_number_double_Producton_1", Rule_number_double_Producton_1);
         actions.Add("Rule_column_type_Producton_0", Rule_column_type_Producton_0);
         actions.Add("Rule_column_type_Producton_1", Rule_column_type_Producton_1);
+        actions.Add("Rule_column_name_Producton_0", Rule_column_name_Producton_0);
     }
 
     public static object Rule_start_Producton_0(Dictionary<int, object> objects) { 
@@ -1067,6 +1087,31 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
 
         // user-defined action
         MyDBNs.SqlLexYaccCallback.BooleanExpression(ref _0, _1, ">=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_13(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        MyDBNs.SqlLexYaccCallback.BooleanExpression(ref _0, _1, "IS", "NULL");
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_14(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+        string _4 = (string)objects[4];
+
+        // user-defined action
+        MyDBNs.SqlLexYaccCallback.BooleanExpression(ref _0, _1, "IS NOT", "NULL");
 
         return _0;
     }
@@ -1650,6 +1695,16 @@ column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMB
 
         return _0;
     }
+
+    public static object Rule_column_name_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
 }
 
 }
@@ -1703,8 +1758,9 @@ namespace sql_statementsNs
             { 287, "FILE_PATH"},
             { 288, "TWO_PIPE"},
             { 289, "NULL"},
-            { 290, "POSITIVE_INT"},
-            { 291, "NUMBER_DOUBLE"},
+            { 290, "IS"},
+            { 291, "POSITIVE_INT"},
+            { 292, "NUMBER_DOUBLE"},
         };
 
         public static int SELECT = 256;
@@ -1741,8 +1797,9 @@ namespace sql_statementsNs
         public static int FILE_PATH = 287;
         public static int TWO_PIPE = 288;
         public static int NULL = 289;
-        public static int POSITIVE_INT = 290;
-        public static int NUMBER_DOUBLE = 291;
+        public static int IS = 290;
+        public static int POSITIVE_INT = 291;
+        public static int NUMBER_DOUBLE = 292;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -1791,6 +1848,7 @@ namespace sql_statementsNs
 [aA][sS][cC]                  { return ASC; }
 [dD][eE][sS][cC]              { return DESC; }
 [nN][uU][lL][lL]              { return NULL; }
+[iI][sS]                      { return IS; }
 [nN][uU][mM][bB][eE][rR]      { value = ""NUMBER_TYPE""; return NUMBER_TYPE; }
 [vV][aA][rR][cC][hH][aA][rR]  { value = ""VARCHAR""; return VARCHAR; }
 ""||""                          { return TWO_PIPE; }
@@ -1874,6 +1932,7 @@ namespace sql_statementsNs
             actions.Add("LexRule46", LexAction46);
             actions.Add("LexRule47", LexAction47);
             actions.Add("LexRule48", LexAction48);
+            actions.Add("LexRule49", LexAction49);
         }
         public static object LexAction0(string yytext)
         {
@@ -2105,7 +2164,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = "NUMBER_TYPE"; return NUMBER_TYPE; 
+            return IS; 
 
             return 0;
         }
@@ -2114,7 +2173,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = "VARCHAR"; return VARCHAR; 
+            value = "NUMBER_TYPE"; return NUMBER_TYPE; 
 
             return 0;
         }
@@ -2123,7 +2182,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return TWO_PIPE; 
+            value = "VARCHAR"; return VARCHAR; 
 
             return 0;
         }
@@ -2132,7 +2191,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return NOT_EQUAL; 
+            return TWO_PIPE; 
 
             return 0;
         }
@@ -2141,7 +2200,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return LESS_OR_EQUAL; 
+            return NOT_EQUAL; 
 
             return 0;
         }
@@ -2150,7 +2209,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return GREATER_OR_EQUAL; 
+            return LESS_OR_EQUAL; 
 
             return 0;
         }
@@ -2159,7 +2218,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '{'; 
+            return GREATER_OR_EQUAL; 
 
             return 0;
         }
@@ -2168,7 +2227,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '}'; 
+            return '{'; 
 
             return 0;
         }
@@ -2177,7 +2236,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '('; 
+            return '}'; 
 
             return 0;
         }
@@ -2186,7 +2245,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return ')'; 
+            return '('; 
 
             return 0;
         }
@@ -2195,7 +2254,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return ','; 
+            return ')'; 
 
             return 0;
         }
@@ -2204,7 +2263,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '='; 
+            return ','; 
 
             return 0;
         }
@@ -2213,7 +2272,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '<'; 
+            return '='; 
 
             return 0;
         }
@@ -2222,7 +2281,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '>'; 
+            return '<'; 
 
             return 0;
         }
@@ -2231,7 +2290,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '*'; 
+            return '>'; 
 
             return 0;
         }
@@ -2240,7 +2299,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '+'; 
+            return '*'; 
 
             return 0;
         }
@@ -2249,7 +2308,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '-'; 
+            return '+'; 
 
             return 0;
         }
@@ -2258,7 +2317,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '/'; 
+            return '-'; 
 
             return 0;
         }
@@ -2267,7 +2326,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = int.Parse(yytext); return POSITIVE_INT; 
+            return '/'; 
 
             return 0;
         }
@@ -2276,7 +2335,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = double.Parse(yytext); return NUMBER_DOUBLE; 
+            value = int.Parse(yytext); return POSITIVE_INT; 
 
             return 0;
         }
@@ -2285,7 +2344,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return STRING; 
+            value = double.Parse(yytext); return NUMBER_DOUBLE; 
 
             return 0;
         }
@@ -2294,7 +2353,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            value = yytext; return STRING; 
 
             return 0;
         }
@@ -2303,11 +2362,20 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return FILE_PATH; 
+            value = yytext; return ID; 
 
             return 0;
         }
         public static object LexAction48(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return FILE_PATH; 
+
+            return 0;
+        }
+        public static object LexAction49(string yytext)
         {
             value = null;
 

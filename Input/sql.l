@@ -27,6 +27,7 @@
 [aA][sS][cC]                  { return ASC; }
 [dD][eE][sS][cC]              { return DESC; }
 [nN][uU][lL][lL]              { return NULL; }
+[iI][sS]                      { return IS; }
 [nN][uU][mM][bB][eE][rR]      { value = "NUMBER_TYPE"; return NUMBER_TYPE; }
 [vV][aA][rR][cC][hH][aA][rR]  { value = "VARCHAR"; return VARCHAR; }
 "||"                          { return TWO_PIPE; }

@@ -6,6 +6,16 @@
         {
             Util.DeleteAllTable();
 
+            /*
+            | C1  | C2 |
+            | ABC | 11 |
+            | def |    |
+            |     | 22 |
+            | GG  | 33 |
+            | EE  | 55 |
+            |     | 66 |
+            | G   |    |
+             */
             CheckOk(sql_statements.Parse("CREATE TABLE A ( C1 VARCHAR(123), C2 NUMBER)"));
             CheckOk(sql_statements.Parse("INSERT INTO A ( C1, C2 ) VALUES ( 'ABC', 11 )"));
             CheckOk(sql_statements.Parse("INSERT INTO A ( C1 ) VALUES ( 'def' )"));
