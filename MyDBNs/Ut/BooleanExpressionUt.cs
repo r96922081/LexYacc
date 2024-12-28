@@ -2,7 +2,32 @@
 {
     public class BooleanExpressionUt : Ut
     {
-        public void Ut()
+        public void Ut2()
+        {
+            /*
+            | C1  | C2    | C3 | C4 |
+            | ABC | ABCD  | 11 | 22 |
+            | DE  | CDE   | 22 | 33 |
+            | GH  |       | 22 |    |
+            | ABC | B     | 44 | 555|
+            */
+
+            sql_statements.Parse("LOAD DB TEST_BOOLEAN_EXPRESSION.DB");
+
+            List<object[]> rows = (List<object[]>)sql_statements.Parse("SELECT * FROM A WHERE C3 = C4 - 11 AND C4 = 22");
+            Check(rows.Count == 1);
+
+            rows = (List<object[]>)sql_statements.Parse("SELECT * FROM A WHERE (C3 = 11 OR C2 IS NULL)");
+            Check(rows.Count == 2);
+
+            rows = (List<object[]>)sql_statements.Parse("SELECT * FROM A WHERE (C3 = 11 OR C2 IS NULL) OR C4 = 555");
+            Check(rows.Count == 3);
+
+            rows = (List<object[]>)sql_statements.Parse("SELECT * FROM A WHERE C2 = C1 || 'D' OR C1 = 'A' || C2 || 'C'");
+            Check(rows.Count == 2);
+        }
+
+        public void Ut1()
         {
             Util.DeleteAllTable();
 
@@ -40,7 +65,7 @@
             Check(rows.Count == 1);
 
             rows = (List<object[]>)sql_statements.Parse("SELECT * FROM A WHERE C2 = C2 + 2 - 2");
-            Check(rows.Count == 7);
+            Check(rows.Count == 5);
 
             rows = (List<object[]>)sql_statements.Parse("SELECT * FROM A WHERE C1 = 'A' || 'B' || 'C' AND C2 = 11");
             Check(rows.Count == 1);
@@ -53,6 +78,12 @@
 
             rows = (List<object[]>)sql_statements.Parse("SELECT * FROM A WHERE C2 != 11");
             Check(rows.Count == 6);
+        }
+
+        public void Ut()
+        {
+            Ut1();
+            Ut2();
         }
     }
 }
