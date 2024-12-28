@@ -5,7 +5,7 @@ Todo:
 indirect left recursive, action calling
 
 2.
-boolean expression,  a is null
+boolean expression,  a is null, SET XXX = NULL
 
 3. join, group by, in, with, like
 
