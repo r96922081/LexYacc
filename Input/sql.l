@@ -31,6 +31,10 @@
 [iI][sS]                      { return IS; }
 [nN][uU][mM][bB][eE][rR]      { value = "NUMBER"; return NUMBER; }
 [vV][aA][rR][cC][hH][aA][rR]  { value = "VARCHAR"; return VARCHAR; }
+[sS][tT][aA][rR][tT]          { return START; }
+[cC][oO][mM][mM][iI][tT]      { return COMMIT; }
+[rR][oO][lL][lL][bB][aA][cC][kK]                 { return ROLLBACK; }
+[tT][rR][aA][nN][sS][aA][cC][tT][iI][oO][nN]     { return TRANSACTION; }
 
 "||"                          { return TWO_PIPE; }
 "!="                          { return NOT_EQUAL; }

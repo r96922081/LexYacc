@@ -5,6 +5,7 @@
         public static int DeleteRows(string tableName, string condition)
         {
             Table table = Util.GetTable(tableName);
+            List<object[]> deletedRows = new List<object[]>();
 #if !MarkUserOfSqlCodeGen
             SqlBooleanExpressionLexYaccCallback.table = table;
             HashSet<int> rows = null;
@@ -21,8 +22,17 @@
                 if (condition != null && !rows.Contains(i))
                     continue;
 
+                deletedRows.Add(table.rows[i]);
                 table.rows.RemoveAt(i);
                 deleteCount++;
+            }
+
+            if (DB.inTransaction)
+            {
+                DB.transactionLog.Push(() =>
+                {
+                    Transaction.UndoDelete(table, deletedRows);
+                });
             }
 
             return deleteCount;

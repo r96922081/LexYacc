@@ -20,22 +20,22 @@ public class YaccActions{
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE
+%token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
-%type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column
+%type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start
 %type <List<string>> commaSep_column commaSep_column_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_condition
 %type <List<MyDBNs.SetExpressionType>> set_expression
 %type <MyDBNs.SelectedData> select_statement
-%type <int> delete_statement insert_statement update_statement
+%type <int> delete_statement insert_statement update_statement commit rollback
 %type <object> statement
 %type <double> number_double
 %%
 
-statement: save_db { $$ = $1; } | load_db { $$ = $1; } | create_table_statement { $$ = $1; } | drop_table_statement { $$ = $1; } | insert_statement { $$ = $1; } | delete_statement { $$ = $1; } | show_tables_statement { $$ = $1; } | select_statement { $$ = $1; } | update_statement { $$ = $1; };
+statement: save_db { $$ = $1; } | load_db { $$ = $1; } | transaction_start { $$ = $1; } | commit { $$ = $1; } | rollback { $$ = $1; }| create_table_statement { $$ = $1; } | drop_table_statement { $$ = $1; } | insert_statement { $$ = $1; } | delete_statement { $$ = $1; } | show_tables_statement { $$ = $1; } | select_statement { $$ = $1; } | update_statement { $$ = $1; };
 
 save_db: SAVE DB file_path
 {
@@ -47,6 +47,23 @@ load_db: LOAD DB file_path
     MyDBNs.SqlLexYaccCallback.LoadDB($3);
 };
 
+transaction_start: TRANSACTION START
+{
+    $$ = MyDBNs.SqlLexYaccCallback.TransactionStart();
+}
+;
+
+commit: COMMIT
+{
+    $$ = MyDBNs.SqlLexYaccCallback.Commit();
+}
+;
+
+rollback: ROLLBACK
+{
+    $$ = MyDBNs.SqlLexYaccCallback.Rollback();
+}
+;
 
 create_table_statement: CREATE TABLE table '(' column_declare ')' 
 {
@@ -565,8 +582,14 @@ ID
         actions.Add("Rule_statement_Producton_6", Rule_statement_Producton_6);
         actions.Add("Rule_statement_Producton_7", Rule_statement_Producton_7);
         actions.Add("Rule_statement_Producton_8", Rule_statement_Producton_8);
+        actions.Add("Rule_statement_Producton_9", Rule_statement_Producton_9);
+        actions.Add("Rule_statement_Producton_10", Rule_statement_Producton_10);
+        actions.Add("Rule_statement_Producton_11", Rule_statement_Producton_11);
         actions.Add("Rule_save_db_Producton_0", Rule_save_db_Producton_0);
         actions.Add("Rule_load_db_Producton_0", Rule_load_db_Producton_0);
+        actions.Add("Rule_transaction_start_Producton_0", Rule_transaction_start_Producton_0);
+        actions.Add("Rule_commit_Producton_0", Rule_commit_Producton_0);
+        actions.Add("Rule_rollback_Producton_0", Rule_rollback_Producton_0);
         actions.Add("Rule_create_table_statement_Producton_0", Rule_create_table_statement_Producton_0);
         actions.Add("Rule_drop_table_statement_Producton_0", Rule_drop_table_statement_Producton_0);
         actions.Add("Rule_column_declare_Producton_0", Rule_column_declare_Producton_0);
@@ -704,7 +727,7 @@ ID
 
     public static object Rule_statement_Producton_3(Dictionary<int, object> objects) { 
         object _0 = new object();
-        string _1 = (string)objects[1];
+        int _1 = (int)objects[1];
 
         // user-defined action
         _0 = _1; 
@@ -724,7 +747,7 @@ ID
 
     public static object Rule_statement_Producton_5(Dictionary<int, object> objects) { 
         object _0 = new object();
-        int _1 = (int)objects[1];
+        string _1 = (string)objects[1];
 
         // user-defined action
         _0 = _1; 
@@ -744,7 +767,7 @@ ID
 
     public static object Rule_statement_Producton_7(Dictionary<int, object> objects) { 
         object _0 = new object();
-        MyDBNs.SelectedData _1 = (MyDBNs.SelectedData)objects[1];
+        int _1 = (int)objects[1];
 
         // user-defined action
         _0 = _1; 
@@ -753,6 +776,36 @@ ID
     }
 
     public static object Rule_statement_Producton_8(Dictionary<int, object> objects) { 
+        object _0 = new object();
+        int _1 = (int)objects[1];
+
+        // user-defined action
+        _0 = _1; 
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_9(Dictionary<int, object> objects) { 
+        object _0 = new object();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1; 
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_10(Dictionary<int, object> objects) { 
+        object _0 = new object();
+        MyDBNs.SelectedData _1 = (MyDBNs.SelectedData)objects[1];
+
+        // user-defined action
+        _0 = _1; 
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_11(Dictionary<int, object> objects) { 
         object _0 = new object();
         int _1 = (int)objects[1];
 
@@ -782,6 +835,37 @@ ID
 
         // user-defined action
         MyDBNs.SqlLexYaccCallback.LoadDB(_3);
+
+        return _0;
+    }
+
+    public static object Rule_transaction_start_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+
+        // user-defined action
+        _0 = MyDBNs.SqlLexYaccCallback.TransactionStart();
+
+        return _0;
+    }
+
+    public static object Rule_commit_Producton_0(Dictionary<int, object> objects) { 
+        int _0 = new int();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = MyDBNs.SqlLexYaccCallback.Commit();
+
+        return _0;
+    }
+
+    public static object Rule_rollback_Producton_0(Dictionary<int, object> objects) { 
+        int _0 = new int();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = MyDBNs.SqlLexYaccCallback.Rollback();
 
         return _0;
     }
@@ -1865,8 +1949,12 @@ namespace sql_statementsNs
             { 289, "NULL"},
             { 290, "IS"},
             { 291, "LIKE"},
-            { 292, "POSITIVE_INT"},
-            { 293, "DOUBLE"},
+            { 292, "TRANSACTION"},
+            { 293, "COMMIT"},
+            { 294, "ROLLBACK"},
+            { 295, "START"},
+            { 296, "POSITIVE_INT"},
+            { 297, "DOUBLE"},
         };
 
         public static int SELECT = 256;
@@ -1905,8 +1993,12 @@ namespace sql_statementsNs
         public static int NULL = 289;
         public static int IS = 290;
         public static int LIKE = 291;
-        public static int POSITIVE_INT = 292;
-        public static int DOUBLE = 293;
+        public static int TRANSACTION = 292;
+        public static int COMMIT = 293;
+        public static int ROLLBACK = 294;
+        public static int START = 295;
+        public static int POSITIVE_INT = 296;
+        public static int DOUBLE = 297;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -1959,6 +2051,10 @@ namespace sql_statementsNs
 [iI][sS]                      { return IS; }
 [nN][uU][mM][bB][eE][rR]      { value = ""NUMBER""; return NUMBER; }
 [vV][aA][rR][cC][hH][aA][rR]  { value = ""VARCHAR""; return VARCHAR; }
+[sS][tT][aA][rR][tT]          { return START; }
+[cC][oO][mM][mM][iI][tT]      { return COMMIT; }
+[rR][oO][lL][lL][bB][aA][cC][kK]                 { return ROLLBACK; }
+[tT][rR][aA][nN][sS][aA][cC][tT][iI][oO][nN]     { return TRANSACTION; }
 
 ""||""                          { return TWO_PIPE; }
 ""!=""                          { return NOT_EQUAL; }
@@ -2043,6 +2139,10 @@ namespace sql_statementsNs
             actions.Add("LexRule48", LexAction48);
             actions.Add("LexRule49", LexAction49);
             actions.Add("LexRule50", LexAction50);
+            actions.Add("LexRule51", LexAction51);
+            actions.Add("LexRule52", LexAction52);
+            actions.Add("LexRule53", LexAction53);
+            actions.Add("LexRule54", LexAction54);
         }
         public static object LexAction0(string yytext)
         {
@@ -2310,7 +2410,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return TWO_PIPE; 
+            return START; 
 
             return 0;
         }
@@ -2319,7 +2419,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return NOT_EQUAL; 
+            return COMMIT; 
 
             return 0;
         }
@@ -2328,7 +2428,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return LESS_OR_EQUAL; 
+            return ROLLBACK; 
 
             return 0;
         }
@@ -2337,7 +2437,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return GREATER_OR_EQUAL; 
+            return TRANSACTION; 
 
             return 0;
         }
@@ -2346,7 +2446,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '{'; 
+            return TWO_PIPE; 
 
             return 0;
         }
@@ -2355,7 +2455,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '}'; 
+            return NOT_EQUAL; 
 
             return 0;
         }
@@ -2364,7 +2464,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '('; 
+            return LESS_OR_EQUAL; 
 
             return 0;
         }
@@ -2373,7 +2473,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return ')'; 
+            return GREATER_OR_EQUAL; 
 
             return 0;
         }
@@ -2382,7 +2482,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return ','; 
+            return '{'; 
 
             return 0;
         }
@@ -2391,7 +2491,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '='; 
+            return '}'; 
 
             return 0;
         }
@@ -2400,7 +2500,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '<'; 
+            return '('; 
 
             return 0;
         }
@@ -2409,7 +2509,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '>'; 
+            return ')'; 
 
             return 0;
         }
@@ -2418,7 +2518,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '*'; 
+            return ','; 
 
             return 0;
         }
@@ -2427,7 +2527,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '+'; 
+            return '='; 
 
             return 0;
         }
@@ -2436,7 +2536,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '-'; 
+            return '<'; 
 
             return 0;
         }
@@ -2445,7 +2545,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            return '/'; 
+            return '>'; 
 
             return 0;
         }
@@ -2454,7 +2554,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = int.Parse(yytext); return POSITIVE_INT; 
+            return '*'; 
 
             return 0;
         }
@@ -2463,7 +2563,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = double.Parse(yytext); return DOUBLE; 
+            return '+'; 
 
             return 0;
         }
@@ -2472,7 +2572,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return STRING; 
+            return '-'; 
 
             return 0;
         }
@@ -2481,7 +2581,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            return '/'; 
 
             return 0;
         }
@@ -2490,11 +2590,47 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return FILE_PATH; 
+            value = int.Parse(yytext); return POSITIVE_INT; 
 
             return 0;
         }
         public static object LexAction50(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = double.Parse(yytext); return DOUBLE; 
+
+            return 0;
+        }
+        public static object LexAction51(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return STRING; 
+
+            return 0;
+        }
+        public static object LexAction52(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return ID; 
+
+            return 0;
+        }
+        public static object LexAction53(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return FILE_PATH; 
+
+            return 0;
+        }
+        public static object LexAction54(string yytext)
         {
             value = null;
 

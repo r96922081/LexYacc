@@ -48,6 +48,14 @@
 
             table.rows.Add(singleRow);
 
+            if (DB.inTransaction)
+            {
+                DB.transactionLog.Push(() =>
+                {
+                    Transaction.UndoInsert(table, singleRow);
+                });
+            }
+
             return 1;
         }
     }

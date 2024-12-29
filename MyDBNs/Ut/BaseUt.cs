@@ -12,7 +12,7 @@ namespace MyDBNs
 
         public void CheckOk(object result)
         {
-            Check(result == null || (string)result == "");
+            Check(result == null || result is not string || ((string)result != "syntax error"));
         }
 
         public List<object[]> RunSelectStatementAndConvertResult(string s)

@@ -16,6 +16,7 @@
                 new DeleteUt().Ut();
                 new UpdateUt().Ut();
                 new SaveLoadUt().Ut();
+                new TransactionUt().Ut();
                 Console.WriteLine("Ut Done!");
             }
             else

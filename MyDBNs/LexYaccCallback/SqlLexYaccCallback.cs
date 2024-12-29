@@ -151,5 +151,20 @@
             if (prevCondition != null)
                 condition.AddRange(prevCondition);
         }
+
+        public static string TransactionStart()
+        {
+            return Transaction.TransactionStart();
+        }
+
+        public static int Commit()
+        {
+            return Transaction.Commit();
+        }
+
+        public static int Rollback()
+        {
+            return Transaction.Rollback();
+        }
     }
 }

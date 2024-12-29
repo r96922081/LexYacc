@@ -2,22 +2,22 @@
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE
+%token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
-%type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column
+%type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start
 %type <List<string>> commaSep_column commaSep_column_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_condition
 %type <List<MyDBNs.SetExpressionType>> set_expression
 %type <MyDBNs.SelectedData> select_statement
-%type <int> delete_statement insert_statement update_statement
+%type <int> delete_statement insert_statement update_statement commit rollback
 %type <object> statement
 %type <double> number_double
 %%
 
-statement: save_db { $$ = $1; } | load_db { $$ = $1; } | create_table_statement { $$ = $1; } | drop_table_statement { $$ = $1; } | insert_statement { $$ = $1; } | delete_statement { $$ = $1; } | show_tables_statement { $$ = $1; } | select_statement { $$ = $1; } | update_statement { $$ = $1; };
+statement: save_db { $$ = $1; } | load_db { $$ = $1; } | transaction_start { $$ = $1; } | commit { $$ = $1; } | rollback { $$ = $1; }| create_table_statement { $$ = $1; } | drop_table_statement { $$ = $1; } | insert_statement { $$ = $1; } | delete_statement { $$ = $1; } | show_tables_statement { $$ = $1; } | select_statement { $$ = $1; } | update_statement { $$ = $1; };
 
 save_db: SAVE DB file_path
 {
@@ -29,6 +29,23 @@ load_db: LOAD DB file_path
     MyDBNs.SqlLexYaccCallback.LoadDB($3);
 };
 
+transaction_start: TRANSACTION START
+{
+    $$ = MyDBNs.SqlLexYaccCallback.TransactionStart();
+}
+;
+
+commit: COMMIT
+{
+    $$ = MyDBNs.SqlLexYaccCallback.Commit();
+}
+;
+
+rollback: ROLLBACK
+{
+    $$ = MyDBNs.SqlLexYaccCallback.Rollback();
+}
+;
 
 create_table_statement: CREATE TABLE table '(' column_declare ')' 
 {

@@ -109,6 +109,16 @@
                 int count = (int)result;
                 Console.WriteLine(count + " row(s) updated");
             }
+            else if (input.ToUpper().Trim().StartsWith("COMMIT"))
+            {
+                int count = (int)result;
+                Console.WriteLine(count + " operation(s) commited");
+            }
+            else if (input.ToUpper().Trim().StartsWith("ROLLBACK"))
+            {
+                int count = (int)result;
+                Console.WriteLine(count + " operation(s) rolled back");
+            }
             else
             {
                 System.Console.WriteLine(result.ToString());
