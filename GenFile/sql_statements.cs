@@ -20,7 +20,7 @@ public class YaccActions{
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS
+%token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
 %type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_id file_path arithmetic_expression string_expression term number_double_id string_id arithmetic_expression_id string_number_null column_name
@@ -415,23 +415,6 @@ arithmetic_expression
 }
 ;
 
-string_number_null:
-STRING
-{
-    $$ = $1;
-}
-| 
-number_double
-{
-    $$ = """" + $1;
-}
-|
-NULL
-{
-    $$ = null;
-}
-;
-
 order_by_column:
 ID
 {
@@ -486,7 +469,27 @@ ID
 }
 ;
 
-logical_operator: AND | OR;
+string_number_null:
+STRING
+{
+    $$ = $1;
+}
+| 
+number_double
+{
+    $$ = """" + $1;
+}
+|
+NULL
+{
+    $$ = null;
+}
+;
+
+logical_operator: 
+AND 
+| 
+OR;
 
 number_double:
 DOUBLE
@@ -500,7 +503,16 @@ POSITIVE_INT
 }
 ;
 
-column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + ""("" + $3 + "")"";} | NUMBER_TYPE {$$ = $1;};
+column_type: 
+VARCHAR '(' POSITIVE_INT ')' 
+{
+    $$ = $1 + ""("" + $3 + "")"";
+} 
+| 
+NUMBER 
+{
+    $$ = $1;
+};
 
 column_name:
 ID
@@ -608,9 +620,6 @@ ID
         actions.Add("Rule_string_id_Producton_1", Rule_string_id_Producton_1);
         actions.Add("Rule_arithmetic_expression_id_Producton_0", Rule_arithmetic_expression_id_Producton_0);
         actions.Add("Rule_arithmetic_expression_id_Producton_1", Rule_arithmetic_expression_id_Producton_1);
-        actions.Add("Rule_string_number_null_Producton_0", Rule_string_number_null_Producton_0);
-        actions.Add("Rule_string_number_null_Producton_1", Rule_string_number_null_Producton_1);
-        actions.Add("Rule_string_number_null_Producton_2", Rule_string_number_null_Producton_2);
         actions.Add("Rule_order_by_column_Producton_0", Rule_order_by_column_Producton_0);
         actions.Add("Rule_order_by_column_Producton_1", Rule_order_by_column_Producton_1);
         actions.Add("Rule_order_by_column_Producton_2", Rule_order_by_column_Producton_2);
@@ -621,6 +630,9 @@ ID
         actions.Add("Rule_file_path_Producton_1", Rule_file_path_Producton_1);
         actions.Add("Rule_file_path_Producton_2", Rule_file_path_Producton_2);
         actions.Add("Rule_file_path_Producton_3", Rule_file_path_Producton_3);
+        actions.Add("Rule_string_number_null_Producton_0", Rule_string_number_null_Producton_0);
+        actions.Add("Rule_string_number_null_Producton_1", Rule_string_number_null_Producton_1);
+        actions.Add("Rule_string_number_null_Producton_2", Rule_string_number_null_Producton_2);
         actions.Add("Rule_number_double_Producton_0", Rule_number_double_Producton_0);
         actions.Add("Rule_number_double_Producton_1", Rule_number_double_Producton_1);
         actions.Add("Rule_column_type_Producton_0", Rule_column_type_Producton_0);
@@ -1557,36 +1569,6 @@ ID
         return _0;
     }
 
-    public static object Rule_string_number_null_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = _1;
-
-        return _0;
-    }
-
-    public static object Rule_string_number_null_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        double _1 = (double)objects[1];
-
-        // user-defined action
-        _0 = "" + _1;
-
-        return _0;
-    }
-
-    public static object Rule_string_number_null_Producton_2(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = null;
-
-        return _0;
-    }
-
     public static object Rule_order_by_column_Producton_0(Dictionary<int, object> objects) { 
         List<object> _0 = new List<object>();
         string _1 = (string)objects[1];
@@ -1691,6 +1673,36 @@ ID
         return _0;
     }
 
+    public static object Rule_string_number_null_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_string_number_null_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        double _1 = (double)objects[1];
+
+        // user-defined action
+        _0 = "" + _1;
+
+        return _0;
+    }
+
+    public static object Rule_string_number_null_Producton_2(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = null;
+
+        return _0;
+    }
+
     public static object Rule_number_double_Producton_0(Dictionary<int, object> objects) { 
         double _0 = new double();
         double _1 = (double)objects[1];
@@ -1764,7 +1776,7 @@ namespace sql_statementsNs
             { 257, "ID"},
             { 258, "CREATE"},
             { 259, "TABLE"},
-            { 260, "NUMBER_TYPE"},
+            { 260, "NUMBER"},
             { 261, "VARCHAR"},
             { 262, "INSERT"},
             { 263, "INTO"},
@@ -1803,7 +1815,7 @@ namespace sql_statementsNs
         public static int ID = 257;
         public static int CREATE = 258;
         public static int TABLE = 259;
-        public static int NUMBER_TYPE = 260;
+        public static int NUMBER = 260;
         public static int VARCHAR = 261;
         public static int INSERT = 262;
         public static int INTO = 263;
@@ -1885,7 +1897,7 @@ namespace sql_statementsNs
 [dD][eE][sS][cC]              { return DESC; }
 [nN][uU][lL][lL]              { return NULL; }
 [iI][sS]                      { return IS; }
-[nN][uU][mM][bB][eE][rR]      { value = ""NUMBER_TYPE""; return NUMBER_TYPE; }
+[nN][uU][mM][bB][eE][rR]      { value = ""NUMBER""; return NUMBER; }
 [vV][aA][rR][cC][hH][aA][rR]  { value = ""VARCHAR""; return VARCHAR; }
 
 ""||""                          { return TWO_PIPE; }
@@ -2210,7 +2222,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = "NUMBER_TYPE"; return NUMBER_TYPE; 
+            value = "NUMBER"; return NUMBER; 
 
             return 0;
         }

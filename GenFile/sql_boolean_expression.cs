@@ -20,7 +20,7 @@ public class YaccActions{
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS
+%token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
 
@@ -755,7 +755,7 @@ namespace sql_boolean_expressionNs
             { 257, "ID"},
             { 258, "CREATE"},
             { 259, "TABLE"},
-            { 260, "NUMBER_TYPE"},
+            { 260, "NUMBER"},
             { 261, "VARCHAR"},
             { 262, "INSERT"},
             { 263, "INTO"},
@@ -794,7 +794,7 @@ namespace sql_boolean_expressionNs
         public static int ID = 257;
         public static int CREATE = 258;
         public static int TABLE = 259;
-        public static int NUMBER_TYPE = 260;
+        public static int NUMBER = 260;
         public static int VARCHAR = 261;
         public static int INSERT = 262;
         public static int INTO = 263;
@@ -876,7 +876,7 @@ namespace sql_boolean_expressionNs
 [dD][eE][sS][cC]              { return DESC; }
 [nN][uU][lL][lL]              { return NULL; }
 [iI][sS]                      { return IS; }
-[nN][uU][mM][bB][eE][rR]      { value = ""NUMBER_TYPE""; return NUMBER_TYPE; }
+[nN][uU][mM][bB][eE][rR]      { value = ""NUMBER""; return NUMBER; }
 [vV][aA][rR][cC][hH][aA][rR]  { value = ""VARCHAR""; return VARCHAR; }
 
 ""||""                          { return TWO_PIPE; }
@@ -1201,7 +1201,7 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            value = "NUMBER_TYPE"; return NUMBER_TYPE; 
+            value = "NUMBER"; return NUMBER; 
 
             return 0;
         }

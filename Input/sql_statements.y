@@ -2,7 +2,7 @@
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS
+%token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
 %type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_id file_path arithmetic_expression string_expression term number_double_id string_id arithmetic_expression_id string_number_null column_name
@@ -397,23 +397,6 @@ arithmetic_expression
 }
 ;
 
-string_number_null:
-STRING
-{
-    $$ = $1;
-}
-| 
-number_double
-{
-    $$ = "" + $1;
-}
-|
-NULL
-{
-    $$ = null;
-}
-;
-
 order_by_column:
 ID
 {
@@ -468,7 +451,27 @@ ID
 }
 ;
 
-logical_operator: AND | OR;
+string_number_null:
+STRING
+{
+    $$ = $1;
+}
+| 
+number_double
+{
+    $$ = "" + $1;
+}
+|
+NULL
+{
+    $$ = null;
+}
+;
+
+logical_operator: 
+AND 
+| 
+OR;
 
 number_double:
 DOUBLE
@@ -482,7 +485,16 @@ POSITIVE_INT
 }
 ;
 
-column_type: VARCHAR '(' POSITIVE_INT ')' {$$ = $1 + "(" + $3 + ")";} | NUMBER_TYPE {$$ = $1;};
+column_type: 
+VARCHAR '(' POSITIVE_INT ')' 
+{
+    $$ = $1 + "(" + $3 + ")";
+} 
+| 
+NUMBER 
+{
+    $$ = $1;
+};
 
 column_name:
 ID
