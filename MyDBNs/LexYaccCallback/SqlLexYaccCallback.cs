@@ -152,12 +152,12 @@
                 condition.AddRange(prevCondition);
         }
 
-        public static void CommaSepGroupBy(List<string> groupByList, string groupBy, List<string> prevGroupByList)
+        public static void CommaSepAggregrationColumn(List<string> aggregrationColumns, string groupBy, List<string> prevAggregrationColumns)
         {
-            groupByList.Add(groupBy);
+            aggregrationColumns.Add(groupBy);
 
-            if (prevGroupByList != null)
-                groupByList.AddRange(prevGroupByList);
+            if (prevAggregrationColumns != null)
+                aggregrationColumns.AddRange(prevAggregrationColumns);
         }
 
         public static string TransactionStart()

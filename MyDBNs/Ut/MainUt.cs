@@ -17,7 +17,10 @@
                 new UpdateUt().Ut();
                 new SaveLoadUt().Ut();
                 new TransactionUt().Ut();
+                new GroupByUt().Ut();
                 Console.WriteLine("Ut Done!");
+
+                DBConsole.Interactive();
             }
             else
             {

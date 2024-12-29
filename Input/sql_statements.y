@@ -6,12 +6,12 @@
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
 
-%type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start group_by_column
+%type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start aggregation_column
 %type <List<string>> commaSep_column commaSep_column_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
 %type <List<List<object>>> commaSep_orderBy
-%type <List<string>> commaSep_groupBy
+%type <List<string>> commaSep_aggregationColumn
 %type <List<MyDBNs.SetExpressionType>> set_expression
 %type <MyDBNs.SelectedData> select_statement
 %type <int> delete_statement insert_statement update_statement commit rollback
@@ -117,7 +117,7 @@ SELECT commaSep_column_star FROM table
     $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, null, null);
 }
 |
-SELECT commaSep_column_star FROM table GROUP BY commaSep_column
+SELECT commaSep_aggregationColumn FROM table GROUP BY commaSep_column
 {
     $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, null, null);
 }
@@ -127,7 +127,7 @@ SELECT commaSep_column_star FROM table ORDER BY commaSep_orderBy
     $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, null, $7);
 }
 |
-SELECT commaSep_column_star FROM table GROUP BY commaSep_column ORDER BY commaSep_orderBy
+SELECT commaSep_aggregationColumn FROM table GROUP BY commaSep_column ORDER BY commaSep_orderBy
 {
     $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, null, $10);
 }
@@ -137,7 +137,7 @@ SELECT commaSep_column_star FROM table WHERE boolean_expression
     $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, null);
 }
 |
-SELECT commaSep_column_star FROM table WHERE boolean_expression GROUP BY commaSep_column
+SELECT commaSep_aggregationColumn FROM table WHERE boolean_expression GROUP BY commaSep_column
 {
     $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, null);
 }
@@ -147,7 +147,7 @@ SELECT commaSep_column_star FROM table WHERE boolean_expression ORDER BY commaSe
     $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, $9);
 }
 |
-SELECT commaSep_column_star FROM table WHERE boolean_expression GROUP BY commaSep_column ORDER BY commaSep_orderBy
+SELECT commaSep_aggregationColumn FROM table WHERE boolean_expression GROUP BY commaSep_column ORDER BY commaSep_orderBy
 {
     $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, $12);
 }
@@ -315,15 +315,15 @@ order_by_column ',' commaSep_orderBy
     MyDBNs.SqlLexYaccCallback.CommaSepOrderBy($$, $1, $3);
 };
 
-commaSep_groupBy:
-group_by_column
+commaSep_aggregationColumn:
+aggregation_column
 {
-    MyDBNs.SqlLexYaccCallback.CommaSepGroupBy($$, $1, null);
+    MyDBNs.SqlLexYaccCallback.CommaSepAggregrationColumn($$, $1, null);
 }
 |
-group_by_column ',' commaSep_groupBy
+aggregation_column ',' commaSep_aggregationColumn
 {
-    MyDBNs.SqlLexYaccCallback.CommaSepGroupBy($$, $1, $3);
+    MyDBNs.SqlLexYaccCallback.CommaSepAggregrationColumn($$, $1, $3);
 };
 
 commaSep_column_star: 
@@ -470,25 +470,25 @@ ID
 }
 ;
 
-group_by_column:
+aggregation_column:
 MAX '(' column ')'
 {
-
+    $$ = "MAX(" + $3 + ")";
 }
 |
 MIN '(' column ')'
 {
-
+    $$ = "MIN(" + $3 + ")";
 }
 |
 COUNT '(' column ')'
 {
-
+    $$ = "COUNT(" + $3 + ")";
 }
 |
 SUM '(' column ')'
 {
-
+    $$ = "SUM(" + $3 + ")";
 }
 ;
 
