@@ -24,8 +24,8 @@ public class YaccActions{
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
 
-%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_column arithmetic_expression_id arithmetic_expression term number_column string_expression string_id string_number_null column
-%type <List<string>> commaSep_column commaSep_id_star commaSep_string_number_null
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_column arithmeticExpression_column arithmetic_expression term number_column string_expression string_column string_number_null column
+%type <List<string>> commaSep_column commaSep_column_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <HashSet<int>> boolean_expression
 %type <double> number_double
@@ -79,32 +79,32 @@ string_expression GREATER_OR_EQUAL string_expression
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, "">="", $3);
 }
 | 
-arithmetic_expression_id '=' arithmetic_expression_id
+arithmeticExpression_column '=' arithmeticExpression_column
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, ""="", $3);
 }
 | 
-arithmetic_expression_id '<' arithmetic_expression_id
+arithmeticExpression_column '<' arithmeticExpression_column
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, ""<"", $3);
 }
 | 
-arithmetic_expression_id '>' arithmetic_expression_id
+arithmeticExpression_column '>' arithmeticExpression_column
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, "">"", $3);
 }
 | 
-arithmetic_expression_id NOT_EQUAL arithmetic_expression_id
+arithmeticExpression_column NOT_EQUAL arithmeticExpression_column
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, ""!="", $3);
 }
 | 
-arithmetic_expression_id LESS_OR_EQUAL arithmetic_expression_id
+arithmeticExpression_column LESS_OR_EQUAL arithmeticExpression_column
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, ""<="", $3);
 }
 | 
-arithmetic_expression_id GREATER_OR_EQUAL arithmetic_expression_id
+arithmeticExpression_column GREATER_OR_EQUAL arithmeticExpression_column
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, "">="", $3);
 }
@@ -179,7 +179,7 @@ ID
 }
 ;
 
-arithmetic_expression_id:
+arithmeticExpression_column:
 ID
 {
     $$ = $1;
@@ -204,17 +204,17 @@ POSITIVE_INT
 ;
 
 string_expression:
-string_expression TWO_PIPE string_id 
+string_expression TWO_PIPE string_column 
 {
     $$ = $1 + "" || "" + $3;
 }
-string_id 
+string_column 
 {
     $$ = $1;
 }
 ;
 
-string_id:
+string_column:
 ID
 {
     $$ = $1;
@@ -280,15 +280,15 @@ ID
         actions.Add("Rule_term_LeftRecursionExpand_Producton_4", Rule_term_LeftRecursionExpand_Producton_4);
         actions.Add("Rule_number_column_Producton_0", Rule_number_column_Producton_0);
         actions.Add("Rule_number_column_Producton_1", Rule_number_column_Producton_1);
-        actions.Add("Rule_arithmetic_expression_id_Producton_0", Rule_arithmetic_expression_id_Producton_0);
-        actions.Add("Rule_arithmetic_expression_id_Producton_1", Rule_arithmetic_expression_id_Producton_1);
+        actions.Add("Rule_arithmeticExpression_column_Producton_0", Rule_arithmeticExpression_column_Producton_0);
+        actions.Add("Rule_arithmeticExpression_column_Producton_1", Rule_arithmeticExpression_column_Producton_1);
         actions.Add("Rule_number_double_Producton_0", Rule_number_double_Producton_0);
         actions.Add("Rule_number_double_Producton_1", Rule_number_double_Producton_1);
         actions.Add("Rule_string_expression_Producton_0", Rule_string_expression_Producton_0);
         actions.Add("Rule_string_expression_LeftRecursionExpand_Producton_0", Rule_string_expression_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_string_expression_LeftRecursionExpand_Producton_1", Rule_string_expression_LeftRecursionExpand_Producton_1);
-        actions.Add("Rule_string_id_Producton_0", Rule_string_id_Producton_0);
-        actions.Add("Rule_string_id_Producton_1", Rule_string_id_Producton_1);
+        actions.Add("Rule_string_column_Producton_0", Rule_string_column_Producton_0);
+        actions.Add("Rule_string_column_Producton_1", Rule_string_column_Producton_1);
         actions.Add("Rule_column_Producton_0", Rule_column_Producton_0);
     }
 
@@ -635,7 +635,7 @@ ID
         return _0;
     }
 
-    public static object Rule_arithmetic_expression_id_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_arithmeticExpression_column_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 
@@ -645,7 +645,7 @@ ID
         return _0;
     }
 
-    public static object Rule_arithmetic_expression_id_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_arithmeticExpression_column_Producton_1(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 
@@ -703,7 +703,7 @@ ID
         return _0;
     }
 
-    public static object Rule_string_id_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_string_column_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 
@@ -713,7 +713,7 @@ ID
         return _0;
     }
 
-    public static object Rule_string_id_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_string_column_Producton_1(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 

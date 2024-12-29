@@ -96,12 +96,12 @@
             return ret;
         }
 
-        public static void CommaSepID(List<string> l, string s)
+        public static void CommaSepColumn(List<string> l, string s)
         {
             l.Add(s);
         }
 
-        public static void CommaSepID(List<string> list, string s, List<string> prevList)
+        public static void CommaSepColumn(List<string> list, string s, List<string> prevList)
         {
             list.Add(s);
             list.AddRange(prevList);
@@ -109,12 +109,12 @@
 
         public static void CommaSepIDIncludeStar(List<string> l, string s)
         {
-            CommaSepID(l, s);
+            CommaSepColumn(l, s);
         }
 
         public static void CommaSepIDIncludeStar(List<string> list, string s, List<string> prevList)
         {
-            CommaSepID(list, s, prevList);
+            CommaSepColumn(list, s, prevList);
         }
 
         public static void ColumnDeclare(List<(string, string)> columnDeclare, string columnName, string columnType)

@@ -6,8 +6,8 @@
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
 
-%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_column arithmetic_expression_id arithmetic_expression term number_column string_expression string_id string_number_null column
-%type <List<string>> commaSep_column commaSep_id_star commaSep_string_number_null
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_column arithmeticExpression_column arithmetic_expression term number_column string_expression string_column string_number_null column
+%type <List<string>> commaSep_column commaSep_column_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <HashSet<int>> boolean_expression
 %type <double> number_double
@@ -61,32 +61,32 @@ string_expression GREATER_OR_EQUAL string_expression
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, ">=", $3);
 }
 | 
-arithmetic_expression_id '=' arithmetic_expression_id
+arithmeticExpression_column '=' arithmeticExpression_column
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, "=", $3);
 }
 | 
-arithmetic_expression_id '<' arithmetic_expression_id
+arithmeticExpression_column '<' arithmeticExpression_column
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, "<", $3);
 }
 | 
-arithmetic_expression_id '>' arithmetic_expression_id
+arithmeticExpression_column '>' arithmeticExpression_column
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, ">", $3);
 }
 | 
-arithmetic_expression_id NOT_EQUAL arithmetic_expression_id
+arithmeticExpression_column NOT_EQUAL arithmeticExpression_column
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, "!=", $3);
 }
 | 
-arithmetic_expression_id LESS_OR_EQUAL arithmetic_expression_id
+arithmeticExpression_column LESS_OR_EQUAL arithmeticExpression_column
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, "<=", $3);
 }
 | 
-arithmetic_expression_id GREATER_OR_EQUAL arithmetic_expression_id
+arithmeticExpression_column GREATER_OR_EQUAL arithmeticExpression_column
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, ">=", $3);
 }
@@ -161,7 +161,7 @@ ID
 }
 ;
 
-arithmetic_expression_id:
+arithmeticExpression_column:
 ID
 {
     $$ = $1;
@@ -186,17 +186,17 @@ POSITIVE_INT
 ;
 
 string_expression:
-string_expression TWO_PIPE string_id 
+string_expression TWO_PIPE string_column 
 {
     $$ = $1 + " || " + $3;
 }
-string_id 
+string_column 
 {
     $$ = $1;
 }
 ;
 
-string_id:
+string_column:
 ID
 {
     $$ = $1;

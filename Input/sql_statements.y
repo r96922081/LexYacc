@@ -5,8 +5,8 @@
 %token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
-%type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_id arithmetic_expression_id string_number_null column
-%type <List<string>> commaSep_column commaSep_id_star commaSep_string_number_null
+%type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column
+%type <List<string>> commaSep_column commaSep_column_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_condition
@@ -30,12 +30,12 @@ load_db: LOAD DB file_path
 };
 
 
-create_table_statement: CREATE TABLE ID '(' column_declare ')' 
+create_table_statement: CREATE TABLE table '(' column_declare ')' 
 {
     MyDBNs.SqlLexYaccCallback.CreateTable($3, $5);
 };
 
-drop_table_statement: DROP TABLE ID
+drop_table_statement: DROP TABLE table
 {
     MyDBNs.SqlLexYaccCallback.DropTable($3);
 };
@@ -51,35 +51,35 @@ column column_type ',' column_declare
 };
 
 insert_statement: 
-INSERT INTO ID VALUES '(' commaSep_string_number_null ')'
+INSERT INTO table VALUES '(' commaSep_string_number_null ')'
 {
     $$ = MyDBNs.SqlLexYaccCallback.Insert($3, null, $6);
 }
 |
-INSERT INTO ID '(' commaSep_column ')' VALUES '(' commaSep_string_number_null ')'
+INSERT INTO table '(' commaSep_column ')' VALUES '(' commaSep_string_number_null ')'
 {
     $$ = MyDBNs.SqlLexYaccCallback.Insert($3, $5, $9);
 };
 
 delete_statement:
-DELETE FROM ID
+DELETE FROM table
 {
     $$ = MyDBNs.SqlLexYaccCallback.Delete($3, null);
 }
 |
-DELETE FROM ID WHERE boolean_expression
+DELETE FROM table WHERE boolean_expression
 {
     $$ = MyDBNs.SqlLexYaccCallback.Delete($3, $5);
 }
 ;
 
 update_statement:
-UPDATE ID SET set_expression
+UPDATE table SET set_expression
 {
     $$ = MyDBNs.SqlLexYaccCallback.Update($2, $4, null);
 }
 |
-UPDATE ID SET set_expression WHERE boolean_expression
+UPDATE table SET set_expression WHERE boolean_expression
 {
     $$ = MyDBNs.SqlLexYaccCallback.Update($2, $4, $6);
 }
@@ -93,22 +93,22 @@ SHOW TABLES
 ;
 
 select_statement:
-SELECT commaSep_id_star FROM ID
+SELECT commaSep_column_star FROM table
 {
     $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, null, null);
 }
 |
-SELECT commaSep_id_star FROM ID ORDER BY order_by_condition
+SELECT commaSep_column_star FROM table ORDER BY order_by_condition
 {
     $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, null, $7);
 }
 |
-SELECT commaSep_id_star FROM ID WHERE boolean_expression
+SELECT commaSep_column_star FROM table WHERE boolean_expression
 {
     $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, null);
 }
 |
-SELECT commaSep_id_star FROM ID WHERE boolean_expression ORDER BY order_by_condition
+SELECT commaSep_column_star FROM table WHERE boolean_expression ORDER BY order_by_condition
 {
     $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, $9);
 }
@@ -160,32 +160,32 @@ string_expression GREATER_OR_EQUAL string_expression
     MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, ">=", $3);
 }
 | 
-arithmetic_expression_id '=' arithmetic_expression_id
+arithmeticExpression_column '=' arithmeticExpression_column
 {
     MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "=", $3);
 }
 | 
-arithmetic_expression_id '<' arithmetic_expression_id
+arithmeticExpression_column '<' arithmeticExpression_column
 {
     MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "<", $3);
 }
 | 
-arithmetic_expression_id '>' arithmetic_expression_id
+arithmeticExpression_column '>' arithmeticExpression_column
 {
     MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, ">", $3);
 }
 | 
-arithmetic_expression_id NOT_EQUAL arithmetic_expression_id
+arithmeticExpression_column NOT_EQUAL arithmeticExpression_column
 {
     MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "!=", $3);
 }
 | 
-arithmetic_expression_id LESS_OR_EQUAL arithmetic_expression_id
+arithmeticExpression_column LESS_OR_EQUAL arithmeticExpression_column
 {
     MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "<=", $3);
 }
 | 
-arithmetic_expression_id GREATER_OR_EQUAL arithmetic_expression_id
+arithmeticExpression_column GREATER_OR_EQUAL arithmeticExpression_column
 {
     MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, ">=", $3);
 }
@@ -236,22 +236,22 @@ column '=' NULL
 commaSep_column: 
 column 
 {
-    MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1);
+    MyDBNs.SqlLexYaccCallback.CommaSepColumn($$, $1);
 }
 | column ',' commaSep_column
 {
-    MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1, $3);
+    MyDBNs.SqlLexYaccCallback.CommaSepColumn($$, $1, $3);
 }
 ;
 
 commaSep_string_number_null: 
 string_number_null 
 {
-    MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1);
+    MyDBNs.SqlLexYaccCallback.CommaSepColumn($$, $1);
 }
 | string_number_null ',' commaSep_string_number_null
 {
-    MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1, $3);
+    MyDBNs.SqlLexYaccCallback.CommaSepColumn($$, $1, $3);
 }
 ;
 
@@ -266,13 +266,13 @@ order_by_column ',' order_by_condition
     MyDBNs.SqlLexYaccCallback.OrderByCondition($$, $1, $3);
 };
 
-commaSep_id_star: 
-ID 
+commaSep_column_star: 
+column 
 {
     MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1);
 }
 |
-ID ',' commaSep_id_star
+column ',' commaSep_column_star
 {
     MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1, $3);
 }
@@ -280,7 +280,7 @@ ID ',' commaSep_id_star
 {
     MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, "*");
 }
-| '*' ',' commaSep_id_star
+| '*' ',' commaSep_column_star
 {
     MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, "*", $3);
 }
@@ -334,18 +334,18 @@ number_column
 ;
 
 string_expression:
-string_expression TWO_PIPE string_id 
+string_expression TWO_PIPE string_column 
 {
     $$ = $1 + " || " + $3;
 }
-string_id 
+string_column 
 {
     $$ = $1;
 }
 ;
 
-arithmetic_expression_id:
-ID
+arithmeticExpression_column:
+column
 {
     $$ = $1;
 }
@@ -357,17 +357,17 @@ arithmetic_expression
 ;
 
 order_by_column:
-ID
+column
 {
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
 }
 | 
-ID ASC
+column ASC
 {
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
 }
 | 
-ID DESC
+column DESC
 {
     MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, false);
 }
@@ -439,8 +439,8 @@ number_double
 }
 ;
 
-string_id:
-ID
+string_column:
+column
 {
     $$ = $1;
 }
@@ -494,12 +494,21 @@ VARCHAR '(' POSITIVE_INT ')'
 NUMBER 
 {
     $$ = $1;
-};
+}
+;
+
+table:
+ID
+{
+    $$ = $1;
+}
+;
 
 column:
 ID
 {
     $$ = $1;
 }
+;
 
 %%
