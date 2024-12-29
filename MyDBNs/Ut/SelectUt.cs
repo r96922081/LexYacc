@@ -2,8 +2,6 @@
 {
     public class SelectUt : BaseUt
     {
-
-
         public void SelectUtBasic()
         {
             List<object[]> rows = RunSelectStatementAndConvertResult("SELECT * FROM A");

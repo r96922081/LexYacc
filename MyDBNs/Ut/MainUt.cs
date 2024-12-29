@@ -4,7 +4,7 @@
     {
         public static void Ut()
         {
-            Gv.ut = true;
+            Gv.ut = false;
 
             if (Gv.ut)
             {

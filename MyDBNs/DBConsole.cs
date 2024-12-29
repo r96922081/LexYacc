@@ -104,6 +104,11 @@
                 int count = (int)result;
                 Console.WriteLine(count + " row(s) deleted");
             }
+            else if (input.ToUpper().Trim().StartsWith("UPDATE"))
+            {
+                int count = (int)result;
+                Console.WriteLine(count + " row(s) updated");
+            }
             else
             {
                 System.Console.WriteLine(result.ToString());
