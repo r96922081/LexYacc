@@ -1,6 +1,6 @@
 ﻿namespace MyDBNs
 {
-    public class SaveLoadUt : Ut
+    public class SaveLoadUt : BaseUt
     {
         public void Ut()
         {
@@ -19,7 +19,7 @@
             Util.DeleteAllTable();
 
             sql_statements.Parse("load DB SaveLoadUt.db");
-            List<object[]> rows = (List<object[]>)sql_statements.Parse("SELECT * FROM A");
+            List<object[]> rows = RunSelectStatementAndConvertResult("SELECT * FROM A");
             Check(rows.Count == 7);
         }
     }

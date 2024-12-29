@@ -1,6 +1,6 @@
 ﻿namespace MyDBNs
 {
-    public class CreateDropUt : Ut
+    public class CreateDropUt : BaseUt
     {
         public void Ut()
         {

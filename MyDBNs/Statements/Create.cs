@@ -4,8 +4,6 @@
     {
         public static void CreateTable(string name, List<(string, string)> columnDeclare)
         {
-            Verifier.VerifyCreateTable(name, columnDeclare);
-
             Table table = new Table();
             table.originalTableName = name;
             table.tableName = name.ToUpper();

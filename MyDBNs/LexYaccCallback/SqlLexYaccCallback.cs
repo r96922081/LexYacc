@@ -27,19 +27,19 @@
             Show.ShowTables();
         }
 
-        public static void Insert(string tableName, List<string> columnNames, List<string> values)
+        public static int Insert(string tableName, List<string> columnNames, List<string> values)
         {
-            MyDBNs.Insert.InsertRows(tableName, columnNames, values);
+            return MyDBNs.Insert.InsertRows(tableName, columnNames, values);
         }
 
-        public static void Delete(string tableName, string condition)
+        public static int Delete(string tableName, string condition)
         {
-            MyDBNs.Delete.DeleteRows(tableName, condition);
+            return MyDBNs.Delete.DeleteRows(tableName, condition);
         }
 
-        public static void Update(string tableName, List<SetExpressionType> setExpression, string condition)
+        public static int Update(string tableName, List<SetExpressionType> setExpression, string condition)
         {
-            MyDBNs.Update.UpdateRows(tableName, setExpression, condition);
+            return MyDBNs.Update.UpdateRows(tableName, setExpression, condition);
         }
 
         public static List<SetExpressionType> SetExpressionVarchar(string id, string stringExpression, List<SetExpressionType> setExpression)
@@ -78,6 +78,24 @@
             return ret;
         }
 
+        public static List<SetExpressionType> SetExpressionNull(string id)
+        {
+            List<SetExpressionType> ret = new List<SetExpressionType>();
+            ret.Add(new SetExpressionType(id, StringType.Column, null));
+
+            return ret;
+        }
+
+        public static List<SetExpressionType> SetExpressionNull(string id, List<SetExpressionType> setExpression)
+        {
+            List<SetExpressionType> ret = new List<SetExpressionType>();
+
+            ret.AddRange(setExpression);
+            ret.Add(new SetExpressionType(id, StringType.Column, null));
+
+            return ret;
+        }
+
         public static void CommaSepID(List<string> l, string s)
         {
             l.Add(s);
@@ -110,7 +128,7 @@
             columnDeclare.AddRange(prevColumnDeclare);
         }
 
-        public static List<object[]> Select(List<string> columns, string tableName, string condition, List<List<object>> orders)
+        public static SelectedData Select(List<string> columns, string tableName, string condition, List<List<object>> orders)
         {
             return MyDBNs.Select.SelectRows(columns, tableName, condition, orders);
         }

@@ -1,6 +1,6 @@
 ﻿namespace MyDBNs
 {
-    public class SqlUt
+    public class MainUt
     {
         public static void Ut()
         {
@@ -16,10 +16,11 @@
                 new DeleteUt().Ut();
                 new UpdateUt().Ut();
                 new SaveLoadUt().Ut();
+                Console.WriteLine("Ut Done!");
             }
             else
             {
-                Console.Interactive();
+                DBConsole.Interactive();
             }
         }
 

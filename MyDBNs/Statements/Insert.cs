@@ -2,7 +2,7 @@
 {
     public class Insert
     {
-        public static void InsertRows(string tableName, List<string> columnNames, List<string> values)
+        public static int InsertRows(string tableName, List<string> columnNames, List<string> values)
         {
             if (columnNames != null)
                 columnNames = columnNames.Select(name => name.ToUpper()).ToList();
@@ -12,7 +12,7 @@
             if (columnNames == null || columnNames.Count == 0)
                 columnNames = table.columnNames.ToList();
 
-            object[] rows = new object[table.columnNames.Length];
+            object[] singleRow = new object[table.columnNames.Length];
 
             for (int i = 0; i < values.Count; i++)
             {
@@ -20,12 +20,10 @@
                 int columnIndex = table.GetColumnIndex(columnName);
                 ColumnType columnType = table.GetColumnType(columnName);
 
-
-
                 string value = values[i];
                 if (value == null)
                 {
-                    rows[columnIndex] = null;
+                    singleRow[columnIndex] = null;
                 }
                 else
                 {
@@ -36,19 +34,21 @@
                         if (type != StringType.Number)
                             throw new Exception("value = " + value + " is not a number");
 
-                        rows[columnIndex] = Util.GetNumber(value);
+                        singleRow[columnIndex] = Util.GetNumber(value);
                     }
                     else if (columnType == ColumnType.VARCHAR)
                     {
                         if (type != StringType.String)
                             throw new Exception("value = " + value + " is not a varchar");
 
-                        rows[columnIndex] = Util.ExtractStringFromSingleQuote(value);
+                        singleRow[columnIndex] = Util.ExtractStringFromSingleQuote(value);
                     }
                 }
             }
 
-            table.rows.Add(rows);
+            table.rows.Add(singleRow);
+
+            return 1;
         }
     }
 }

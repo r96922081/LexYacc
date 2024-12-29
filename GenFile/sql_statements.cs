@@ -23,13 +23,14 @@ public class YaccActions{
 %token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS
 %token <int> POSITIVE_INT
 %token <double> NUMBER_DOUBLE
-%type <string> column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_id update_statement file_path arithmetic_expression string_expression term number_double_id string_id arithmetic_expression_id string_number_null column_name
+%type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_id file_path arithmetic_expression string_expression term number_double_id string_id arithmetic_expression_id string_number_null column_name
 %type <List<string>> comma_sep_id commaSep_id_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_condition
 %type <List<MyDBNs.SetExpressionType>> set_expression
-%type <List<object[]>> select_statement
+%type <MyDBNs.SelectedData> select_statement
+%type <int> delete_statement insert_statement update_statement
 %type <object> statement
 %type <double> number_double
 %%
@@ -70,35 +71,35 @@ ID column_type ',' column_declare
 insert_statement: 
 INSERT INTO ID VALUES '(' commaSep_string_number_null ')'
 {
-    MyDBNs.SqlLexYaccCallback.Insert($3, null, $6);
+    $$ = MyDBNs.SqlLexYaccCallback.Insert($3, null, $6);
 }
 |
 INSERT INTO ID '(' comma_sep_id ')' VALUES '(' commaSep_string_number_null ')'
 {
-    MyDBNs.SqlLexYaccCallback.Insert($3, $5, $9);
+    $$ = MyDBNs.SqlLexYaccCallback.Insert($3, $5, $9);
 };
 
 delete_statement:
 DELETE FROM ID
 {
-    MyDBNs.SqlLexYaccCallback.Delete($3, null);
+    $$ = MyDBNs.SqlLexYaccCallback.Delete($3, null);
 }
 |
 DELETE FROM ID WHERE boolean_expression
 {
-    MyDBNs.SqlLexYaccCallback.Delete($3, $5);
+    $$ = MyDBNs.SqlLexYaccCallback.Delete($3, $5);
 }
 ;
 
 update_statement:
 UPDATE ID SET set_expression
 {
-    MyDBNs.SqlLexYaccCallback.Update($2, $4, null);
+    $$ = MyDBNs.SqlLexYaccCallback.Update($2, $4, null);
 }
 |
 UPDATE ID SET set_expression WHERE boolean_expression
 {
-    MyDBNs.SqlLexYaccCallback.Update($2, $4, $6);
+    $$ = MyDBNs.SqlLexYaccCallback.Update($2, $4, $6);
 }
 ;
 
@@ -237,6 +238,16 @@ ID '=' arithmetic_expression ',' set_expression
 ID '=' arithmetic_expression
 {
     $$ = MyDBNs.SqlLexYaccCallback.SetExpressionNumber($1, $3);
+}
+|
+ID '=' NULL ',' set_expression
+{
+    $$ = MyDBNs.SqlLexYaccCallback.SetExpressionNull($1, $5);
+}
+|
+ID '=' NULL
+{
+    $$ = MyDBNs.SqlLexYaccCallback.SetExpressionNull($1);
 }
 ;
 
@@ -562,6 +573,8 @@ ID
         actions.Add("Rule_set_expression_Producton_1", Rule_set_expression_Producton_1);
         actions.Add("Rule_set_expression_Producton_2", Rule_set_expression_Producton_2);
         actions.Add("Rule_set_expression_Producton_3", Rule_set_expression_Producton_3);
+        actions.Add("Rule_set_expression_Producton_4", Rule_set_expression_Producton_4);
+        actions.Add("Rule_set_expression_Producton_5", Rule_set_expression_Producton_5);
         actions.Add("Rule_comma_sep_id_Producton_0", Rule_comma_sep_id_Producton_0);
         actions.Add("Rule_comma_sep_id_Producton_1", Rule_comma_sep_id_Producton_1);
         actions.Add("Rule_commaSep_string_number_null_Producton_0", Rule_commaSep_string_number_null_Producton_0);
@@ -667,7 +680,7 @@ ID
 
     public static object Rule_statement_Producton_4(Dictionary<int, object> objects) { 
         object _0 = new object();
-        string _1 = (string)objects[1];
+        int _1 = (int)objects[1];
 
         // user-defined action
         _0 = _1; 
@@ -677,7 +690,7 @@ ID
 
     public static object Rule_statement_Producton_5(Dictionary<int, object> objects) { 
         object _0 = new object();
-        string _1 = (string)objects[1];
+        int _1 = (int)objects[1];
 
         // user-defined action
         _0 = _1; 
@@ -697,7 +710,7 @@ ID
 
     public static object Rule_statement_Producton_7(Dictionary<int, object> objects) { 
         object _0 = new object();
-        List<object[]> _1 = (List<object[]>)objects[1];
+        MyDBNs.SelectedData _1 = (MyDBNs.SelectedData)objects[1];
 
         // user-defined action
         _0 = _1; 
@@ -707,7 +720,7 @@ ID
 
     public static object Rule_statement_Producton_8(Dictionary<int, object> objects) { 
         object _0 = new object();
-        string _1 = (string)objects[1];
+        int _1 = (int)objects[1];
 
         // user-defined action
         _0 = _1; 
@@ -788,7 +801,7 @@ ID
     }
 
     public static object Rule_insert_statement_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+        int _0 = new int();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
         string _3 = (string)objects[3];
@@ -796,13 +809,13 @@ ID
         List<string> _6 = (List<string>)objects[6];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.Insert(_3, null, _6);
+        _0 = MyDBNs.SqlLexYaccCallback.Insert(_3, null, _6);
 
         return _0;
     }
 
     public static object Rule_insert_statement_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+        int _0 = new int();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
         string _3 = (string)objects[3];
@@ -811,25 +824,25 @@ ID
         List<string> _9 = (List<string>)objects[9];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.Insert(_3, _5, _9);
+        _0 = MyDBNs.SqlLexYaccCallback.Insert(_3, _5, _9);
 
         return _0;
     }
 
     public static object Rule_delete_statement_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+        int _0 = new int();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
         string _3 = (string)objects[3];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.Delete(_3, null);
+        _0 = MyDBNs.SqlLexYaccCallback.Delete(_3, null);
 
         return _0;
     }
 
     public static object Rule_delete_statement_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+        int _0 = new int();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
         string _3 = (string)objects[3];
@@ -837,26 +850,26 @@ ID
         string _5 = (string)objects[5];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.Delete(_3, _5);
+        _0 = MyDBNs.SqlLexYaccCallback.Delete(_3, _5);
 
         return _0;
     }
 
     public static object Rule_update_statement_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+        int _0 = new int();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
         string _3 = (string)objects[3];
         List<MyDBNs.SetExpressionType> _4 = (List<MyDBNs.SetExpressionType>)objects[4];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.Update(_2, _4, null);
+        _0 = MyDBNs.SqlLexYaccCallback.Update(_2, _4, null);
 
         return _0;
     }
 
     public static object Rule_update_statement_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+        int _0 = new int();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
         string _3 = (string)objects[3];
@@ -865,7 +878,7 @@ ID
         string _6 = (string)objects[6];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.Update(_2, _4, _6);
+        _0 = MyDBNs.SqlLexYaccCallback.Update(_2, _4, _6);
 
         return _0;
     }
@@ -882,7 +895,7 @@ ID
     }
 
     public static object Rule_select_statement_Producton_0(Dictionary<int, object> objects) { 
-        List<object[]> _0 = new List<object[]>();
+        MyDBNs.SelectedData _0 = new MyDBNs.SelectedData();
         string _1 = (string)objects[1];
         List<string> _2 = (List<string>)objects[2];
         string _3 = (string)objects[3];
@@ -895,7 +908,7 @@ ID
     }
 
     public static object Rule_select_statement_Producton_1(Dictionary<int, object> objects) { 
-        List<object[]> _0 = new List<object[]>();
+        MyDBNs.SelectedData _0 = new MyDBNs.SelectedData();
         string _1 = (string)objects[1];
         List<string> _2 = (List<string>)objects[2];
         string _3 = (string)objects[3];
@@ -911,7 +924,7 @@ ID
     }
 
     public static object Rule_select_statement_Producton_2(Dictionary<int, object> objects) { 
-        List<object[]> _0 = new List<object[]>();
+        MyDBNs.SelectedData _0 = new MyDBNs.SelectedData();
         string _1 = (string)objects[1];
         List<string> _2 = (List<string>)objects[2];
         string _3 = (string)objects[3];
@@ -926,7 +939,7 @@ ID
     }
 
     public static object Rule_select_statement_Producton_3(Dictionary<int, object> objects) { 
-        List<object[]> _0 = new List<object[]>();
+        MyDBNs.SelectedData _0 = new MyDBNs.SelectedData();
         string _1 = (string)objects[1];
         List<string> _2 = (List<string>)objects[2];
         string _3 = (string)objects[3];
@@ -1188,6 +1201,29 @@ ID
 
         // user-defined action
         _0 = MyDBNs.SqlLexYaccCallback.SetExpressionNumber(_1, _3);
+
+        return _0;
+    }
+
+    public static object Rule_set_expression_Producton_4(Dictionary<int, object> objects) { 
+        List<MyDBNs.SetExpressionType> _0 = new List<MyDBNs.SetExpressionType>();
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+        List<MyDBNs.SetExpressionType> _5 = (List<MyDBNs.SetExpressionType>)objects[5];
+
+        // user-defined action
+        _0 = MyDBNs.SqlLexYaccCallback.SetExpressionNull(_1, _5);
+
+        return _0;
+    }
+
+    public static object Rule_set_expression_Producton_5(Dictionary<int, object> objects) { 
+        List<MyDBNs.SetExpressionType> _0 = new List<MyDBNs.SetExpressionType>();
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlLexYaccCallback.SetExpressionNull(_1);
 
         return _0;
     }

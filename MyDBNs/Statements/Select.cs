@@ -47,32 +47,7 @@
             }
         }
 
-        private static int[] GetDisplayColumnWidth(Table table, List<string> columnNames, List<int> columnIndex)
-        {
-            int[] columnWidths = new int[columnNames.Count];
-            for (int i = 0; i < columnIndex.Count; i++)
-            {
-                columnWidths[i] = columnNames[i].Length;
-            }
 
-            // get column width
-            foreach (object[] row in table.rows)
-            {
-                for (int i = 0; i < columnIndex.Count; i++)
-                {
-                    if (row[columnIndex[i]] == null)
-                        continue;
-
-                    int cellLength = row[columnIndex[i]].ToString().Length;
-                    if (cellLength > columnWidths[i])
-                    {
-                        columnWidths[i] = cellLength;
-                    }
-                }
-            }
-
-            return columnWidths;
-        }
 
         private static SelectedData GetSelectedData(Table table, List<string> columnInput, string condition)
         {
@@ -85,37 +60,7 @@
             return s;
         }
 
-        private static void PrintTable(SelectedData s)
-        {
-            int[] columnWidths = GetDisplayColumnWidth(s.table, s.columnNames, s.columnIndex);
 
-            // show column name
-            System.Console.Write("| ");
-            for (int i = 0; i < s.columnNames.Count; i++)
-            {
-                System.Console.Write(s.columnNames[i].PadRight(columnWidths[i]));
-                System.Console.Write(" | ");
-            }
-            System.Console.WriteLine();
-
-            // show cell
-            for (int i = 0; i < s.selectedRows.Count; i++)
-            {
-                object[] row = s.table.rows[s.selectedRows[i]];
-                System.Console.Write("| ");
-                int k = 0;
-                foreach (int j in s.columnIndex)
-                {
-                    if (row[j] == null)
-                        System.Console.Write("".PadRight(columnWidths[k]));
-                    else
-                        System.Console.Write(row[j].ToString().PadRight(columnWidths[k]));
-                    k++;
-                    System.Console.Write(" | ");
-                }
-                System.Console.WriteLine();
-            }
-        }
 
         private static List<OrderBy> ConvertOrder(SelectedData s, List<List<object>> orders)
         {
@@ -188,7 +133,7 @@
             });
         }
 
-        public static SelectedData SelectRowsInternal(List<string> columnInput, string tableName, string whereCondition, List<List<object>> orders)
+        public static SelectedData SelectRows(List<string> columnInput, string tableName, string whereCondition, List<List<object>> orders)
         {
 #if !MarkUserOfSqlCodeGen
 
@@ -204,42 +149,6 @@
 
             return s;
 #endif
-        }
-
-        public static List<object[]> SelectRowsToList(List<string> columnInput, string tableName, string whereCondition, List<List<object>> orders)
-        {
-            SelectedData s = SelectRowsInternal(columnInput, tableName, whereCondition, orders);
-
-            List<object[]> rows = new List<object[]>();
-
-            Table t = Util.GetTable(tableName);
-            for (int i = 0; i < s.selectedRows.Count; i++)
-            {
-                object[] selectedRow = t.rows[s.selectedRows[i]];
-
-                object[] row = new object[s.columnIndex.Count];
-                for (int j = 0; j < s.columnIndex.Count; j++)
-                    row[j] = selectedRow[s.columnIndex[j]];
-
-                rows.Add(row);
-            }
-
-            return rows;
-        }
-
-        public static List<object[]> SelectRowsPrint(List<string> columnInput, string tableName, string whereCondition, List<List<object>> orders)
-        {
-            PrintTable(SelectRowsInternal(columnInput, tableName, whereCondition, orders));
-
-            return null;
-        }
-
-        public static List<object[]> SelectRows(List<string> columnInput, string tableName, string whereCondition, List<List<object>> orders)
-        {
-            if (Gv.ut)
-                return SelectRowsToList(columnInput, tableName, whereCondition, orders);
-            else
-                return SelectRowsPrint(columnInput, tableName, whereCondition, orders);
         }
     }
 }

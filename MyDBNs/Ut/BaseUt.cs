@@ -2,7 +2,7 @@
 
 namespace MyDBNs
 {
-    public class Ut
+    public class BaseUt
     {
         public void Check(bool b)
         {
@@ -15,9 +15,9 @@ namespace MyDBNs
             Check(result == null || (string)result == "");
         }
 
-        public void CheckError(object result)
+        public List<object[]> RunSelectStatementAndConvertResult(string s)
         {
-            Check(result != null);
+            return Util.GetSelectRows((SelectedData)sql_statements.Parse(s));
         }
 
         public void CheckException(Func<object> func)
@@ -35,7 +35,7 @@ namespace MyDBNs
             Check(hasException);
         }
 
-        public void CheckErrorOrException(Func<object> func)
+        public void CheckSyntaxErrorOrException(Func<object> func)
         {
             bool hasException = false;
             object result = null;
@@ -48,7 +48,7 @@ namespace MyDBNs
                 hasException = true;
             }
 
-            Check(result != null || hasException);
+            Check(hasException || (result is string && ((string)result).ToLower() == "syntax error"));
         }
 
     }

@@ -30,11 +30,23 @@
             }
         }
 
-        public static void UpdateRows(string tableName, List<SetExpressionType> setExpressions, string condition)
+        public static void UpdateRowsNull(Table table, int lhsColumnIndex, HashSet<int> selectedRows)
+        {
+            for (int i = 0; i < table.rows.Count; i++)
+            {
+                if (selectedRows != null && !selectedRows.Contains(i))
+                    continue;
+
+                object[] row = table.rows[i];
+                row[lhsColumnIndex] = null;
+            }
+        }
+
+
+
+        public static int UpdateRows(string tableName, List<SetExpressionType> setExpressions, string condition)
         {
             Table table = Util.GetTable(tableName);
-
-            //Verifier.VerifyUpdate(tableName, setExpressions);
 
 #if !MarkUserOfSqlCodeGen
             SqlBooleanExpressionLexYaccCallback.table = table;
@@ -49,15 +61,30 @@
             {
                 int lhsColumnIndex = table.GetColumnIndex(setExpression.lhsColumn);
 
-                if (setExpression.rhsType == StringType.String)
+                if (setExpression.rhs == null)
                 {
+                    UpdateRowsNull(table, lhsColumnIndex, selectedRows);
+                }
+                else if (setExpression.rhsType == StringType.String)
+                {
+                    if (table.columnTypes[lhsColumnIndex] != ColumnType.VARCHAR)
+                        throw new Exception("Update with wrong type");
+
                     UpdateRowsVarchar(table, lhsColumnIndex, setExpression, selectedRows);
                 }
                 else if (setExpression.rhsType == StringType.Number)
                 {
+                    if (table.columnTypes[lhsColumnIndex] != ColumnType.NUMBER)
+                        throw new Exception("Update with wrong type");
+
                     UpdateRowsNumber(table, lhsColumnIndex, setExpression, selectedRows);
                 }
             }
+
+            if (condition == null)
+                return table.rows.Count;
+            else
+                return selectedRows.Count;
 #endif
         }
     }

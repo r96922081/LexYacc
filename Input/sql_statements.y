@@ -5,13 +5,14 @@
 %token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS
 %token <int> POSITIVE_INT
 %token <double> NUMBER_DOUBLE
-%type <string> column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_id update_statement file_path arithmetic_expression string_expression term number_double_id string_id arithmetic_expression_id string_number_null column_name
+%type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_id file_path arithmetic_expression string_expression term number_double_id string_id arithmetic_expression_id string_number_null column_name
 %type <List<string>> comma_sep_id commaSep_id_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_condition
 %type <List<MyDBNs.SetExpressionType>> set_expression
-%type <List<object[]>> select_statement
+%type <MyDBNs.SelectedData> select_statement
+%type <int> delete_statement insert_statement update_statement
 %type <object> statement
 %type <double> number_double
 %%
@@ -52,35 +53,35 @@ ID column_type ',' column_declare
 insert_statement: 
 INSERT INTO ID VALUES '(' commaSep_string_number_null ')'
 {
-    MyDBNs.SqlLexYaccCallback.Insert($3, null, $6);
+    $$ = MyDBNs.SqlLexYaccCallback.Insert($3, null, $6);
 }
 |
 INSERT INTO ID '(' comma_sep_id ')' VALUES '(' commaSep_string_number_null ')'
 {
-    MyDBNs.SqlLexYaccCallback.Insert($3, $5, $9);
+    $$ = MyDBNs.SqlLexYaccCallback.Insert($3, $5, $9);
 };
 
 delete_statement:
 DELETE FROM ID
 {
-    MyDBNs.SqlLexYaccCallback.Delete($3, null);
+    $$ = MyDBNs.SqlLexYaccCallback.Delete($3, null);
 }
 |
 DELETE FROM ID WHERE boolean_expression
 {
-    MyDBNs.SqlLexYaccCallback.Delete($3, $5);
+    $$ = MyDBNs.SqlLexYaccCallback.Delete($3, $5);
 }
 ;
 
 update_statement:
 UPDATE ID SET set_expression
 {
-    MyDBNs.SqlLexYaccCallback.Update($2, $4, null);
+    $$ = MyDBNs.SqlLexYaccCallback.Update($2, $4, null);
 }
 |
 UPDATE ID SET set_expression WHERE boolean_expression
 {
-    MyDBNs.SqlLexYaccCallback.Update($2, $4, $6);
+    $$ = MyDBNs.SqlLexYaccCallback.Update($2, $4, $6);
 }
 ;
 
@@ -219,6 +220,16 @@ ID '=' arithmetic_expression ',' set_expression
 ID '=' arithmetic_expression
 {
     $$ = MyDBNs.SqlLexYaccCallback.SetExpressionNumber($1, $3);
+}
+|
+ID '=' NULL ',' set_expression
+{
+    $$ = MyDBNs.SqlLexYaccCallback.SetExpressionNull($1, $5);
+}
+|
+ID '=' NULL
+{
+    $$ = MyDBNs.SqlLexYaccCallback.SetExpressionNull($1);
 }
 ;
 

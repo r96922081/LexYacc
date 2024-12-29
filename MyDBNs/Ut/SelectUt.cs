@@ -1,21 +1,23 @@
 ﻿namespace MyDBNs
 {
-    public class SelectUt : Ut
+    public class SelectUt : BaseUt
     {
+
+
         public void SelectUtBasic()
         {
-            List<object[]> rows = (List<object[]>)sql_statements.Parse("SELECT * FROM A");
+            List<object[]> rows = RunSelectStatementAndConvertResult("SELECT * FROM A");
             Check(rows.Count == 5);
 
-            rows = (List<object[]>)sql_statements.Parse("SELECT C2 FROM A");
+            rows = RunSelectStatementAndConvertResult("SELECT C2 FROM A");
             int columnCount = rows[0].Length;
             Check(columnCount == 1);
             Check((double)rows[4][0] == 5);
 
-            rows = (List<object[]>)sql_statements.Parse("SELECT c1 FROM A");
+            rows = RunSelectStatementAndConvertResult("SELECT c1 FROM A");
             Check(rows[4][0] == null);
 
-            rows = (List<object[]>)sql_statements.Parse("SELECT *, C1, C2 FROM A");
+            rows = RunSelectStatementAndConvertResult("SELECT *, C1, C2 FROM A");
             columnCount = rows[0].Length;
             Check(columnCount == 4);
             Check((double)rows[4][3] == 5);
@@ -23,17 +25,17 @@
 
         public void SelectUtOrderBy()
         {
-            List<object[]> rows = (List<object[]>)sql_statements.Parse("SELECT C1 FROM A ORDER BY C1 DESC");
+            List<object[]> rows = RunSelectStatementAndConvertResult("SELECT C1 FROM A ORDER BY C1 DESC");
             Check((string)rows[0][0] == "D");
             Check(rows[4][0] == null);
 
-            rows = (List<object[]>)sql_statements.Parse("SELECT * FROM A ORDER BY C1 desc, 2 desc");
+            rows = RunSelectStatementAndConvertResult("SELECT * FROM A ORDER BY C1 desc, 2 desc");
             Check((double)rows[1][1] == 3);
             Check((double)rows[2][1] == 2);
 
-            rows = (List<object[]>)sql_statements.Parse("SELECT * FROM A ORDER BY C1, C2, 1,2,1,2");
+            rows = RunSelectStatementAndConvertResult("SELECT * FROM A ORDER BY C1, C2, 1,2,1,2");
 
-            CheckErrorOrException(() => { return sql_statements.Parse("SELECT C1 FROM A ORDER BY 2"); });
+            CheckSyntaxErrorOrException(() => { return sql_statements.Parse("SELECT C1 FROM A ORDER BY 2"); });
         }
 
         public void Ut()
