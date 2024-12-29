@@ -23,8 +23,8 @@ public class YaccActions{
 %token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
-%type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_id file_path arithmetic_expression string_expression term number_double_id string_id arithmetic_expression_id string_number_null column
-%type <List<string>> comma_sep_id commaSep_id_star commaSep_string_number_null
+%type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_id arithmetic_expression_id string_number_null column
+%type <List<string>> commaSep_column commaSep_id_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_condition
@@ -58,12 +58,12 @@ drop_table_statement: DROP TABLE ID
     MyDBNs.SqlLexYaccCallback.DropTable($3);
 };
 
-column_declare: ID column_type 
+column_declare: column column_type 
 {
     MyDBNs.SqlLexYaccCallback.ColumnDeclare($$, $1, $2);
 } 
 | 
-ID column_type ',' column_declare 
+column column_type ',' column_declare 
 {
     MyDBNs.SqlLexYaccCallback.ColumnDeclare($$, $1, $2, $4);
 };
@@ -74,7 +74,7 @@ INSERT INTO ID VALUES '(' commaSep_string_number_null ')'
     $$ = MyDBNs.SqlLexYaccCallback.Insert($3, null, $6);
 }
 |
-INSERT INTO ID '(' comma_sep_id ')' VALUES '(' commaSep_string_number_null ')'
+INSERT INTO ID '(' commaSep_column ')' VALUES '(' commaSep_string_number_null ')'
 {
     $$ = MyDBNs.SqlLexYaccCallback.Insert($3, $5, $9);
 };
@@ -220,43 +220,43 @@ column IS NOT NULL
 ;
 
 set_expression:
-ID '=' string_expression ',' set_expression
+column '=' string_expression ',' set_expression
 {
     $$ = MyDBNs.SqlLexYaccCallback.SetExpressionVarchar($1, $3, $5);
 }
 |
-ID '=' string_expression
+column '=' string_expression
 {
     $$ = MyDBNs.SqlLexYaccCallback.SetExpressionVarchar($1, $3);
 }
 |
-ID '=' arithmetic_expression ',' set_expression
+column '=' arithmetic_expression ',' set_expression
 {
     $$ = MyDBNs.SqlLexYaccCallback.SetExpressionNumber($1, $3, $5);
 }
 |
-ID '=' arithmetic_expression
+column '=' arithmetic_expression
 {
     $$ = MyDBNs.SqlLexYaccCallback.SetExpressionNumber($1, $3);
 }
 |
-ID '=' NULL ',' set_expression
+column '=' NULL ',' set_expression
 {
     $$ = MyDBNs.SqlLexYaccCallback.SetExpressionNull($1, $5);
 }
 |
-ID '=' NULL
+column '=' NULL
 {
     $$ = MyDBNs.SqlLexYaccCallback.SetExpressionNull($1);
 }
 ;
 
-comma_sep_id: 
-ID 
+commaSep_column: 
+column 
 {
     MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1);
 }
-| ID ',' comma_sep_id
+| column ',' commaSep_column
 {
     MyDBNs.SqlLexYaccCallback.CommaSepID($$, $1, $3);
 }
@@ -322,11 +322,11 @@ term
 ;
 
 term:
-term '*' number_double_id 
+term '*' number_column 
 {
     $$ = $1 + "" * "" + $3;
 }
-| term '/' number_double_id 
+| term '/' number_column 
 {
     $$ = $1 + "" / "" + $3;
 }
@@ -345,7 +345,7 @@ term '*' '(' arithmetic_expression ')'
     $$ = $2;
 }
 | 
-number_double_id
+number_column
 {
     $$ = $1;
 }
@@ -428,20 +428,20 @@ ID
 }
 ;
 
-number_double_id:
+number_column:
 number_double
 {
     $$ = """" + $1;
 }
 |
-ID
+column
 {
     $$ = $1;
 }
 ;
 
-string_number_id:
-ID
+string_number_column:
+column
 {
     $$ = $1;
 }
@@ -587,8 +587,8 @@ ID
         actions.Add("Rule_set_expression_Producton_3", Rule_set_expression_Producton_3);
         actions.Add("Rule_set_expression_Producton_4", Rule_set_expression_Producton_4);
         actions.Add("Rule_set_expression_Producton_5", Rule_set_expression_Producton_5);
-        actions.Add("Rule_comma_sep_id_Producton_0", Rule_comma_sep_id_Producton_0);
-        actions.Add("Rule_comma_sep_id_Producton_1", Rule_comma_sep_id_Producton_1);
+        actions.Add("Rule_commaSep_column_Producton_0", Rule_commaSep_column_Producton_0);
+        actions.Add("Rule_commaSep_column_Producton_1", Rule_commaSep_column_Producton_1);
         actions.Add("Rule_commaSep_string_number_null_Producton_0", Rule_commaSep_string_number_null_Producton_0);
         actions.Add("Rule_commaSep_string_number_null_Producton_1", Rule_commaSep_string_number_null_Producton_1);
         actions.Add("Rule_order_by_condition_Producton_0", Rule_order_by_condition_Producton_0);
@@ -623,11 +623,11 @@ ID
         actions.Add("Rule_file_path_Producton_1", Rule_file_path_Producton_1);
         actions.Add("Rule_file_path_Producton_2", Rule_file_path_Producton_2);
         actions.Add("Rule_file_path_Producton_3", Rule_file_path_Producton_3);
-        actions.Add("Rule_number_double_id_Producton_0", Rule_number_double_id_Producton_0);
-        actions.Add("Rule_number_double_id_Producton_1", Rule_number_double_id_Producton_1);
-        actions.Add("Rule_string_number_id_Producton_0", Rule_string_number_id_Producton_0);
-        actions.Add("Rule_string_number_id_Producton_1", Rule_string_number_id_Producton_1);
-        actions.Add("Rule_string_number_id_Producton_2", Rule_string_number_id_Producton_2);
+        actions.Add("Rule_number_column_Producton_0", Rule_number_column_Producton_0);
+        actions.Add("Rule_number_column_Producton_1", Rule_number_column_Producton_1);
+        actions.Add("Rule_string_number_column_Producton_0", Rule_string_number_column_Producton_0);
+        actions.Add("Rule_string_number_column_Producton_1", Rule_string_number_column_Producton_1);
+        actions.Add("Rule_string_number_column_Producton_2", Rule_string_number_column_Producton_2);
         actions.Add("Rule_string_id_Producton_0", Rule_string_id_Producton_0);
         actions.Add("Rule_string_id_Producton_1", Rule_string_id_Producton_1);
         actions.Add("Rule_string_number_null_Producton_0", Rule_string_number_null_Producton_0);
@@ -1240,7 +1240,7 @@ ID
         return _0;
     }
 
-    public static object Rule_comma_sep_id_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_commaSep_column_Producton_0(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         string _1 = (string)objects[1];
 
@@ -1250,7 +1250,7 @@ ID
         return _0;
     }
 
-    public static object Rule_comma_sep_id_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_commaSep_column_Producton_1(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         string _1 = (string)objects[1];
         List<string> _3 = (List<string>)objects[3];
@@ -1603,7 +1603,7 @@ ID
         return _0;
     }
 
-    public static object Rule_number_double_id_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_number_column_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
         double _1 = (double)objects[1];
 
@@ -1613,7 +1613,7 @@ ID
         return _0;
     }
 
-    public static object Rule_number_double_id_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_number_column_Producton_1(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 
@@ -1623,7 +1623,7 @@ ID
         return _0;
     }
 
-    public static object Rule_string_number_id_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_string_number_column_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 
@@ -1633,7 +1633,7 @@ ID
         return _0;
     }
 
-    public static object Rule_string_number_id_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_string_number_column_Producton_1(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 
@@ -1643,7 +1643,7 @@ ID
         return _0;
     }
 
-    public static object Rule_string_number_id_Producton_2(Dictionary<int, object> objects) { 
+    public static object Rule_string_number_column_Producton_2(Dictionary<int, object> objects) { 
         string _0 = new string("");
         double _1 = (double)objects[1];
 

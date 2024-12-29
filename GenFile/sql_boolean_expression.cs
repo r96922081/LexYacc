@@ -24,8 +24,8 @@ public class YaccActions{
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
 
-%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id arithmetic_expression_id arithmetic_expression term number_double_id string_expression string_id string_number_null column
-%type <List<string>> comma_sep_id commaSep_id_star commaSep_string_number_null
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_column arithmetic_expression_id arithmetic_expression term number_column string_expression string_id string_number_null column
+%type <List<string>> commaSep_column commaSep_id_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <HashSet<int>> boolean_expression
 %type <double> number_double
@@ -138,11 +138,11 @@ term
 ;
 
 term:
-term '*' number_double_id 
+term '*' number_column 
 {
     $$ = $1 + "" * "" + $3;
 }
-| term '/' number_double_id 
+| term '/' number_column 
 {
     $$ = $1 + "" / "" + $3;
 }
@@ -161,13 +161,13 @@ term '*' '(' arithmetic_expression ')'
     $$ = $2;
 }
 | 
-number_double_id
+number_column
 {
     $$ = $1;
 }
 ;
 
-number_double_id:
+number_column:
 number_double
 {
     $$ = """" + $1;
@@ -278,8 +278,8 @@ ID
         actions.Add("Rule_term_LeftRecursionExpand_Producton_2", Rule_term_LeftRecursionExpand_Producton_2);
         actions.Add("Rule_term_LeftRecursionExpand_Producton_3", Rule_term_LeftRecursionExpand_Producton_3);
         actions.Add("Rule_term_LeftRecursionExpand_Producton_4", Rule_term_LeftRecursionExpand_Producton_4);
-        actions.Add("Rule_number_double_id_Producton_0", Rule_number_double_id_Producton_0);
-        actions.Add("Rule_number_double_id_Producton_1", Rule_number_double_id_Producton_1);
+        actions.Add("Rule_number_column_Producton_0", Rule_number_column_Producton_0);
+        actions.Add("Rule_number_column_Producton_1", Rule_number_column_Producton_1);
         actions.Add("Rule_arithmetic_expression_id_Producton_0", Rule_arithmetic_expression_id_Producton_0);
         actions.Add("Rule_arithmetic_expression_id_Producton_1", Rule_arithmetic_expression_id_Producton_1);
         actions.Add("Rule_number_double_Producton_0", Rule_number_double_Producton_0);
@@ -615,7 +615,7 @@ ID
         return _0;
     }
 
-    public static object Rule_number_double_id_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_number_column_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
         double _1 = (double)objects[1];
 
@@ -625,7 +625,7 @@ ID
         return _0;
     }
 
-    public static object Rule_number_double_id_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_number_column_Producton_1(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 
