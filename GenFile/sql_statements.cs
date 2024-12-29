@@ -24,11 +24,12 @@ public class YaccActions{
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
 
-%type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start groupBy_column
+%type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start group_by_column
 %type <List<string>> commaSep_column commaSep_column_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
-%type <List<List<object>>> order_by_condition
+%type <List<List<object>>> commaSep_orderBy
+%type <List<string>> commaSep_groupBy
 %type <List<MyDBNs.SetExpressionType>> set_expression
 %type <MyDBNs.SelectedData> select_statement
 %type <int> delete_statement insert_statement update_statement commit rollback
@@ -134,9 +135,19 @@ SELECT commaSep_column_star FROM table
     $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, null, null);
 }
 |
-SELECT commaSep_column_star FROM table ORDER BY order_by_condition
+SELECT commaSep_column_star FROM table GROUP BY commaSep_column
+{
+    $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, null, null);
+}
+|
+SELECT commaSep_column_star FROM table ORDER BY commaSep_orderBy
 {
     $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, null, $7);
+}
+|
+SELECT commaSep_column_star FROM table GROUP BY commaSep_column ORDER BY commaSep_orderBy
+{
+    $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, null, $10);
 }
 |
 SELECT commaSep_column_star FROM table WHERE boolean_expression
@@ -144,9 +155,19 @@ SELECT commaSep_column_star FROM table WHERE boolean_expression
     $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, null);
 }
 |
-SELECT commaSep_column_star FROM table WHERE boolean_expression ORDER BY order_by_condition
+SELECT commaSep_column_star FROM table WHERE boolean_expression GROUP BY commaSep_column
+{
+    $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, null);
+}
+|
+SELECT commaSep_column_star FROM table WHERE boolean_expression ORDER BY commaSep_orderBy
 {
     $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, $9);
+}
+|
+SELECT commaSep_column_star FROM table WHERE boolean_expression GROUP BY commaSep_column ORDER BY commaSep_orderBy
+{
+    $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, $12);
 }
 ;
 
@@ -301,15 +322,26 @@ string_number_null
 }
 ;
 
-order_by_condition:
+commaSep_orderBy:
 order_by_column
 {
-    MyDBNs.SqlLexYaccCallback.OrderByCondition($$, $1, null);
+    MyDBNs.SqlLexYaccCallback.CommaSepOrderBy($$, $1, null);
 }
 |
-order_by_column ',' order_by_condition
+order_by_column ',' commaSep_orderBy
 {
-    MyDBNs.SqlLexYaccCallback.OrderByCondition($$, $1, $3);
+    MyDBNs.SqlLexYaccCallback.CommaSepOrderBy($$, $1, $3);
+};
+
+commaSep_groupBy:
+group_by_column
+{
+    MyDBNs.SqlLexYaccCallback.CommaSepGroupBy($$, $1, null);
+}
+|
+group_by_column ',' commaSep_groupBy
+{
+    MyDBNs.SqlLexYaccCallback.CommaSepGroupBy($$, $1, $3);
 };
 
 commaSep_column_star: 
@@ -456,7 +488,7 @@ ID
 }
 ;
 
-groupBy_column:
+group_by_column:
 MAX '(' column ')'
 {
 
@@ -628,6 +660,10 @@ ID
         actions.Add("Rule_select_statement_Producton_1", Rule_select_statement_Producton_1);
         actions.Add("Rule_select_statement_Producton_2", Rule_select_statement_Producton_2);
         actions.Add("Rule_select_statement_Producton_3", Rule_select_statement_Producton_3);
+        actions.Add("Rule_select_statement_Producton_4", Rule_select_statement_Producton_4);
+        actions.Add("Rule_select_statement_Producton_5", Rule_select_statement_Producton_5);
+        actions.Add("Rule_select_statement_Producton_6", Rule_select_statement_Producton_6);
+        actions.Add("Rule_select_statement_Producton_7", Rule_select_statement_Producton_7);
         actions.Add("Rule_boolean_expression_Producton_0", Rule_boolean_expression_Producton_0);
         actions.Add("Rule_boolean_expression_Producton_1", Rule_boolean_expression_Producton_1);
         actions.Add("Rule_boolean_expression_Producton_2", Rule_boolean_expression_Producton_2);
@@ -658,8 +694,10 @@ ID
         actions.Add("Rule_commaSep_column_Producton_1", Rule_commaSep_column_Producton_1);
         actions.Add("Rule_commaSep_string_number_null_Producton_0", Rule_commaSep_string_number_null_Producton_0);
         actions.Add("Rule_commaSep_string_number_null_Producton_1", Rule_commaSep_string_number_null_Producton_1);
-        actions.Add("Rule_order_by_condition_Producton_0", Rule_order_by_condition_Producton_0);
-        actions.Add("Rule_order_by_condition_Producton_1", Rule_order_by_condition_Producton_1);
+        actions.Add("Rule_commaSep_orderBy_Producton_0", Rule_commaSep_orderBy_Producton_0);
+        actions.Add("Rule_commaSep_orderBy_Producton_1", Rule_commaSep_orderBy_Producton_1);
+        actions.Add("Rule_commaSep_groupBy_Producton_0", Rule_commaSep_groupBy_Producton_0);
+        actions.Add("Rule_commaSep_groupBy_Producton_1", Rule_commaSep_groupBy_Producton_1);
         actions.Add("Rule_commaSep_column_star_Producton_0", Rule_commaSep_column_star_Producton_0);
         actions.Add("Rule_commaSep_column_star_Producton_1", Rule_commaSep_column_star_Producton_1);
         actions.Add("Rule_commaSep_column_star_Producton_2", Rule_commaSep_column_star_Producton_2);
@@ -690,10 +728,10 @@ ID
         actions.Add("Rule_file_path_Producton_1", Rule_file_path_Producton_1);
         actions.Add("Rule_file_path_Producton_2", Rule_file_path_Producton_2);
         actions.Add("Rule_file_path_Producton_3", Rule_file_path_Producton_3);
-        actions.Add("Rule_groupBy_column_Producton_0", Rule_groupBy_column_Producton_0);
-        actions.Add("Rule_groupBy_column_Producton_1", Rule_groupBy_column_Producton_1);
-        actions.Add("Rule_groupBy_column_Producton_2", Rule_groupBy_column_Producton_2);
-        actions.Add("Rule_groupBy_column_Producton_3", Rule_groupBy_column_Producton_3);
+        actions.Add("Rule_group_by_column_Producton_0", Rule_group_by_column_Producton_0);
+        actions.Add("Rule_group_by_column_Producton_1", Rule_group_by_column_Producton_1);
+        actions.Add("Rule_group_by_column_Producton_2", Rule_group_by_column_Producton_2);
+        actions.Add("Rule_group_by_column_Producton_3", Rule_group_by_column_Producton_3);
         actions.Add("Rule_number_column_Producton_0", Rule_number_column_Producton_0);
         actions.Add("Rule_number_column_Producton_1", Rule_number_column_Producton_1);
         actions.Add("Rule_string_number_column_Producton_0", Rule_string_number_column_Producton_0);
@@ -1060,6 +1098,22 @@ ID
         string _4 = (string)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
+        List<string> _7 = (List<string>)objects[7];
+
+        // user-defined action
+        _0 = MyDBNs.SqlLexYaccCallback.Select(_2, _4, null, null);
+
+        return _0;
+    }
+
+    public static object Rule_select_statement_Producton_2(Dictionary<int, object> objects) { 
+        MyDBNs.SelectedData _0 = new MyDBNs.SelectedData();
+        string _1 = (string)objects[1];
+        List<string> _2 = (List<string>)objects[2];
+        string _3 = (string)objects[3];
+        string _4 = (string)objects[4];
+        string _5 = (string)objects[5];
+        string _6 = (string)objects[6];
         List<List<object>> _7 = (List<List<object>>)objects[7];
 
         // user-defined action
@@ -1068,7 +1122,26 @@ ID
         return _0;
     }
 
-    public static object Rule_select_statement_Producton_2(Dictionary<int, object> objects) { 
+    public static object Rule_select_statement_Producton_3(Dictionary<int, object> objects) { 
+        MyDBNs.SelectedData _0 = new MyDBNs.SelectedData();
+        string _1 = (string)objects[1];
+        List<string> _2 = (List<string>)objects[2];
+        string _3 = (string)objects[3];
+        string _4 = (string)objects[4];
+        string _5 = (string)objects[5];
+        string _6 = (string)objects[6];
+        List<string> _7 = (List<string>)objects[7];
+        string _8 = (string)objects[8];
+        string _9 = (string)objects[9];
+        List<List<object>> _10 = (List<List<object>>)objects[10];
+
+        // user-defined action
+        _0 = MyDBNs.SqlLexYaccCallback.Select(_2, _4, null, _10);
+
+        return _0;
+    }
+
+    public static object Rule_select_statement_Producton_4(Dictionary<int, object> objects) { 
         MyDBNs.SelectedData _0 = new MyDBNs.SelectedData();
         string _1 = (string)objects[1];
         List<string> _2 = (List<string>)objects[2];
@@ -1083,7 +1156,25 @@ ID
         return _0;
     }
 
-    public static object Rule_select_statement_Producton_3(Dictionary<int, object> objects) { 
+    public static object Rule_select_statement_Producton_5(Dictionary<int, object> objects) { 
+        MyDBNs.SelectedData _0 = new MyDBNs.SelectedData();
+        string _1 = (string)objects[1];
+        List<string> _2 = (List<string>)objects[2];
+        string _3 = (string)objects[3];
+        string _4 = (string)objects[4];
+        string _5 = (string)objects[5];
+        string _6 = (string)objects[6];
+        string _7 = (string)objects[7];
+        string _8 = (string)objects[8];
+        List<string> _9 = (List<string>)objects[9];
+
+        // user-defined action
+        _0 = MyDBNs.SqlLexYaccCallback.Select(_2, _4, _6, null);
+
+        return _0;
+    }
+
+    public static object Rule_select_statement_Producton_6(Dictionary<int, object> objects) { 
         MyDBNs.SelectedData _0 = new MyDBNs.SelectedData();
         string _1 = (string)objects[1];
         List<string> _2 = (List<string>)objects[2];
@@ -1097,6 +1188,27 @@ ID
 
         // user-defined action
         _0 = MyDBNs.SqlLexYaccCallback.Select(_2, _4, _6, _9);
+
+        return _0;
+    }
+
+    public static object Rule_select_statement_Producton_7(Dictionary<int, object> objects) { 
+        MyDBNs.SelectedData _0 = new MyDBNs.SelectedData();
+        string _1 = (string)objects[1];
+        List<string> _2 = (List<string>)objects[2];
+        string _3 = (string)objects[3];
+        string _4 = (string)objects[4];
+        string _5 = (string)objects[5];
+        string _6 = (string)objects[6];
+        string _7 = (string)objects[7];
+        string _8 = (string)objects[8];
+        List<string> _9 = (List<string>)objects[9];
+        string _10 = (string)objects[10];
+        string _11 = (string)objects[11];
+        List<List<object>> _12 = (List<List<object>>)objects[12];
+
+        // user-defined action
+        _0 = MyDBNs.SqlLexYaccCallback.Select(_2, _4, _6, _12);
 
         return _0;
     }
@@ -1440,23 +1552,44 @@ ID
         return _0;
     }
 
-    public static object Rule_order_by_condition_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_commaSep_orderBy_Producton_0(Dictionary<int, object> objects) { 
         List<List<object>> _0 = new List<List<object>>();
         List<object> _1 = (List<object>)objects[1];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.OrderByCondition(_0, _1, null);
+        MyDBNs.SqlLexYaccCallback.CommaSepOrderBy(_0, _1, null);
 
         return _0;
     }
 
-    public static object Rule_order_by_condition_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_commaSep_orderBy_Producton_1(Dictionary<int, object> objects) { 
         List<List<object>> _0 = new List<List<object>>();
         List<object> _1 = (List<object>)objects[1];
         List<List<object>> _3 = (List<List<object>>)objects[3];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.OrderByCondition(_0, _1, _3);
+        MyDBNs.SqlLexYaccCallback.CommaSepOrderBy(_0, _1, _3);
+
+        return _0;
+    }
+
+    public static object Rule_commaSep_groupBy_Producton_0(Dictionary<int, object> objects) { 
+        List<string> _0 = new List<string>();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        MyDBNs.SqlLexYaccCallback.CommaSepGroupBy(_0, _1, null);
+
+        return _0;
+    }
+
+    public static object Rule_commaSep_groupBy_Producton_1(Dictionary<int, object> objects) { 
+        List<string> _0 = new List<string>();
+        string _1 = (string)objects[1];
+        List<string> _3 = (List<string>)objects[3];
+
+        // user-defined action
+        MyDBNs.SqlLexYaccCallback.CommaSepGroupBy(_0, _1, _3);
 
         return _0;
     }
@@ -1761,7 +1894,7 @@ ID
         return _0;
     }
 
-    public static object Rule_groupBy_column_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_group_by_column_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
         string _3 = (string)objects[3];
@@ -1769,7 +1902,7 @@ ID
         return _0;
     }
 
-    public static object Rule_groupBy_column_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_group_by_column_Producton_1(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
         string _3 = (string)objects[3];
@@ -1777,7 +1910,7 @@ ID
         return _0;
     }
 
-    public static object Rule_groupBy_column_Producton_2(Dictionary<int, object> objects) { 
+    public static object Rule_group_by_column_Producton_2(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
         string _3 = (string)objects[3];
@@ -1785,7 +1918,7 @@ ID
         return _0;
     }
 
-    public static object Rule_groupBy_column_Producton_3(Dictionary<int, object> objects) { 
+    public static object Rule_group_by_column_Producton_3(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
         string _3 = (string)objects[3];

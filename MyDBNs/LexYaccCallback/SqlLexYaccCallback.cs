@@ -144,12 +144,20 @@
             ret.Add(ascending);
         }
 
-        public static void OrderByCondition(List<List<object>> condition, List<object> order, List<List<object>> prevCondition)
+        public static void CommaSepOrderBy(List<List<object>> condition, List<object> order, List<List<object>> prevCondition)
         {
             condition.Add(order);
 
             if (prevCondition != null)
                 condition.AddRange(prevCondition);
+        }
+
+        public static void CommaSepGroupBy(List<string> groupByList, string groupBy, List<string> prevGroupByList)
+        {
+            groupByList.Add(groupBy);
+
+            if (prevGroupByList != null)
+                groupByList.AddRange(prevGroupByList);
         }
 
         public static string TransactionStart()
