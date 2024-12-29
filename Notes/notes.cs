@@ -4,13 +4,17 @@ Todo:
 1.
 indirect left recursive, action calling
 
-3. join, group by, in, with, like
+- join, group by, in, with
 
-4. group by min, max, count, sum
+- group by min, max, count, sum
 
-5. case when
+- case when
 
-6. UPPER, LOWER
+- UPPER, LOWER, LENGTH
+
+- select literal like 1 + 2 + 3, 'BAC' || 'def'
+
+- transaction, undo list for insert, delete, update
 
  */
 
