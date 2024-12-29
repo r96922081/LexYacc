@@ -24,7 +24,7 @@ public class YaccActions{
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
 
-%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id arithmetic_expression_id arithmetic_expression term number_double_id string_expression string_id string_number_null column_name
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_id arithmetic_expression_id arithmetic_expression term number_double_id string_expression string_id string_number_null column
 %type <List<string>> comma_sep_id commaSep_id_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <HashSet<int>> boolean_expression
@@ -109,12 +109,12 @@ arithmetic_expression_id GREATER_OR_EQUAL arithmetic_expression_id
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, "">="", $3);
 }
 |
-column_name IS NULL
+column IS NULL
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNullity($1, ""IS"");   
 }
 |
-column_name IS NOT NULL
+column IS NOT NULL
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNullity($1, ""IS NOT""); 
 }
@@ -226,7 +226,7 @@ STRING
 }
 ;
 
-column_name:
+column:
 ID
 {
     $$ = $1;
@@ -289,7 +289,7 @@ ID
         actions.Add("Rule_string_expression_LeftRecursionExpand_Producton_1", Rule_string_expression_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_string_id_Producton_0", Rule_string_id_Producton_0);
         actions.Add("Rule_string_id_Producton_1", Rule_string_id_Producton_1);
-        actions.Add("Rule_column_name_Producton_0", Rule_column_name_Producton_0);
+        actions.Add("Rule_column_Producton_0", Rule_column_Producton_0);
     }
 
     public static object Rule_start_Producton_0(Dictionary<int, object> objects) { 
@@ -723,7 +723,7 @@ ID
         return _0;
     }
 
-    public static object Rule_column_name_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_column_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 

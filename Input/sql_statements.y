@@ -5,7 +5,7 @@
 %token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
-%type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_id file_path arithmetic_expression string_expression term number_double_id string_id arithmetic_expression_id string_number_null column_name
+%type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_id file_path arithmetic_expression string_expression term number_double_id string_id arithmetic_expression_id string_number_null column
 %type <List<string>> comma_sep_id commaSep_id_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
@@ -190,12 +190,12 @@ arithmetic_expression_id GREATER_OR_EQUAL arithmetic_expression_id
     MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, ">=", $3);
 }
 |
-column_name IS NULL
+column IS NULL
 {
      MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "IS", "NULL");
 }
 |
-column_name IS NOT NULL
+column IS NOT NULL
 {
     MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "IS NOT", "NULL");
 }
@@ -496,7 +496,7 @@ NUMBER
     $$ = $1;
 };
 
-column_name:
+column:
 ID
 {
     $$ = $1;
