@@ -24,10 +24,15 @@
 [nN][oO][tT]                  { return NOT; }
 [oO][rR][dD][eE][rR]          { return ORDER; }
 [bB][yY]                      { return BY; }
+[mM][iI][nN]                  { return MIN; }
+[mM][aA][xX]                  { return MAX; }
+[sS][uU][mM]                  { return SUM; }
+[cC][oO][uU][nN][tT]          { return COUNT; }
 [aA][sS][cC]                  { return ASC; }
 [dD][eE][sS][cC]              { return DESC; }
 [nN][uU][lL][lL]              { return NULL; }
 [lL][iI][kK][eE]              { return LIKE; }
+[gG][rR][oO][uU][pP]          { return GROUP; }
 [iI][sS]                      { return IS; }
 [nN][uU][mM][bB][eE][rR]      { value = "NUMBER"; return NUMBER; }
 [vV][aA][rR][cC][hH][aA][rR]  { value = "VARCHAR"; return VARCHAR; }
