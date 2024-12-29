@@ -457,12 +457,12 @@ namespace sql_arithmetic_expressionNs
 ""-""  { return '-'; }
 ""/""  { return '/'; }
 
-\d+          { value = int.Parse(yytext); return POSITIVE_INT; }
+\d+                     { value = int.Parse(yytext); return POSITIVE_INT; }
 -?\d+(\.\d+)?           { value = double.Parse(yytext); return NUMBER_DOUBLE; }
-'([^']|'')*'               { value = yytext; return STRING; }
-[a-zA-Z0-9_]*      { value = yytext; return ID; }
-[a-zA-Z0-9_:\.\\]+  { value = yytext; return FILE_PATH; }
-[ \t\n]                      {}
+'([^']|'')*'            { value = yytext; return STRING; }
+[a-zA-Z0-9_]*           { value = yytext; return ID; }
+[a-zA-Z0-9_:\.\\]+      { value = yytext; return FILE_PATH; }
+[ \t\n]                 {}
 
 %%
 ";
