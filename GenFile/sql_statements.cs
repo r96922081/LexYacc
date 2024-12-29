@@ -287,20 +287,20 @@ order_by_column ',' order_by_condition
 commaSep_column_star: 
 column 
 {
-    MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1);
+    MyDBNs.SqlLexYaccCallback.CommaSep_Column_Star($$, $1);
 }
 |
 column ',' commaSep_column_star
 {
-    MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, $1, $3);
+    MyDBNs.SqlLexYaccCallback.CommaSep_Column_Star($$, $1, $3);
 }
 | '*'
 {
-    MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, ""*"");
+    MyDBNs.SqlLexYaccCallback.CommaSep_Column_Star($$, ""*"");
 }
 | '*' ',' commaSep_column_star
 {
-    MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar($$, ""*"", $3);
+    MyDBNs.SqlLexYaccCallback.CommaSep_Column_Star($$, ""*"", $3);
 }
 ;
 
@@ -1318,7 +1318,7 @@ ID
         string _1 = (string)objects[1];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, _1);
+        MyDBNs.SqlLexYaccCallback.CommaSep_Column_Star(_0, _1);
 
         return _0;
     }
@@ -1329,7 +1329,7 @@ ID
         List<string> _3 = (List<string>)objects[3];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, _1, _3);
+        MyDBNs.SqlLexYaccCallback.CommaSep_Column_Star(_0, _1, _3);
 
         return _0;
     }
@@ -1338,7 +1338,7 @@ ID
         List<string> _0 = new List<string>();
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, "*");
+        MyDBNs.SqlLexYaccCallback.CommaSep_Column_Star(_0, "*");
 
         return _0;
     }
@@ -1348,7 +1348,7 @@ ID
         List<string> _3 = (List<string>)objects[3];
 
         // user-defined action
-        MyDBNs.SqlLexYaccCallback.CommaSepIDIncludeStar(_0, "*", _3);
+        MyDBNs.SqlLexYaccCallback.CommaSep_Column_Star(_0, "*", _3);
 
         return _0;
     }

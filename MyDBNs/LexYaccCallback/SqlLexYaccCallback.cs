@@ -107,12 +107,12 @@
             list.AddRange(prevList);
         }
 
-        public static void CommaSepIDIncludeStar(List<string> l, string s)
+        public static void CommaSep_Column_Star(List<string> l, string s)
         {
             CommaSepColumn(l, s);
         }
 
-        public static void CommaSepIDIncludeStar(List<string> list, string s, List<string> prevList)
+        public static void CommaSep_Column_Star(List<string> list, string s, List<string> prevList)
         {
             CommaSepColumn(list, s, prevList);
         }
