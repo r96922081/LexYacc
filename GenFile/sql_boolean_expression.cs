@@ -173,7 +173,7 @@ number_double
     $$ = """" + $1;
 }
 |
-ID
+column
 {
     $$ = $1;
 }
@@ -215,7 +215,7 @@ string_column
 ;
 
 string_column:
-ID
+column
 {
     $$ = $1;
 }

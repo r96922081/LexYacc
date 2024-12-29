@@ -23,7 +23,7 @@ public class YaccActions{
 %token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
-%type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_column update_statement file_path string_number_null
+%type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_column update_statement file_path string_number_null column
 %type <List<string>> commaSep_column commaSep_column_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
@@ -86,7 +86,7 @@ number_double
     $$ = $1;
 }
 |
-ID
+column
 {
     $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.GetColumnValues($1);
 }
@@ -101,6 +101,13 @@ DOUBLE
 POSITIVE_INT
 {
     $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.GetColumnValues($1);
+}
+;
+
+column:
+ID
+{
+    $$ = $1;
 }
 ;
 %%";
@@ -135,6 +142,7 @@ POSITIVE_INT
         actions.Add("Rule_number_column_Producton_1", Rule_number_column_Producton_1);
         actions.Add("Rule_number_double_Producton_0", Rule_number_double_Producton_0);
         actions.Add("Rule_number_double_Producton_1", Rule_number_double_Producton_1);
+        actions.Add("Rule_column_Producton_0", Rule_column_Producton_0);
     }
 
     public static object Rule_start_Producton_0(Dictionary<int, object> objects) { 
@@ -291,6 +299,16 @@ POSITIVE_INT
 
         // user-defined action
         _0 = MyDBNs.SqlArithmeticExpressionLexYaccCallback.GetColumnValues(_1);
+
+        return _0;
+    }
+
+    public static object Rule_column_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
 
         return _0;
     }
