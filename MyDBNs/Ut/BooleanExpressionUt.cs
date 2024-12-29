@@ -25,6 +25,26 @@
 
             rows = RunSelectStatementAndConvertResult("SELECT * FROM A WHERE C2 = C1 || 'D' OR C1 = 'A' || C2 || 'C'");
             Check(rows.Count == 2);
+
+            rows = RunSelectStatementAndConvertResult("SELECT * FROM A WHERE C1 LIKE 'A_C' ");
+            Check(rows.Count == 2);
+
+            rows = RunSelectStatementAndConvertResult("SELECT * FROM A WHERE C1 LIKE 'AB%' ");
+            Check(rows.Count == 2);
+
+            rows = RunSelectStatementAndConvertResult("SELECT * FROM A WHERE C1 LIKE '%ABC%' ");
+            Check(rows.Count == 2);
+
+            rows = RunSelectStatementAndConvertResult("SELECT * FROM A WHERE C2 LIKE 'A%B%' ");
+            Check(rows.Count == 1);
+
+            rows = RunSelectStatementAndConvertResult("SELECT * FROM A WHERE C1 NOT LIKE 'D%' ");
+            Check(rows.Count == 3);
+
+            rows = RunSelectStatementAndConvertResult("SELECT * FROM A WHERE C1 NOT LIKE 'D%' AND C3 != 11");
+            Check(rows.Count == 2);
+
+            CheckSyntaxErrorOrException(() => { return sql_statements.Parse("SELECT * FROM A WHERE C3 NOT LIKE 'D%'"); });
         }
 
         public void Ut1()

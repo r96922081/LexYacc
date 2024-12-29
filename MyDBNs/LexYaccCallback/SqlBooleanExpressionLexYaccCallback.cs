@@ -162,6 +162,65 @@
             return rows;
         }
 
+        // Gen by ChatGPT
+        public static bool VarcharIsLike(string text, string pattern)
+        {
+            return Match(text, 0, pattern, 0);
+        }
+
+        private static bool Match(string text, int tIndex, string pattern, int pIndex)
+        {
+            if (tIndex == text.Length && pIndex == pattern.Length)
+                return true;
+
+            if (pIndex == pattern.Length)
+                return false;
+
+            if (pattern[pIndex] == '%')
+            {
+                for (int i = tIndex; i <= text.Length; i++)
+                {
+                    if (Match(text, i, pattern, pIndex + 1))
+                        return true;
+                }
+                return false;
+            }
+
+            if (pattern[pIndex] == '_')
+            {
+                return tIndex < text.Length && Match(text, tIndex + 1, pattern, pIndex + 1);
+            }
+
+            return tIndex < text.Length && text[tIndex] == pattern[pIndex] && Match(text, tIndex + 1, pattern, pIndex + 1);
+        }
+
+        public static HashSet<int> BooleanExpressionLike(string lhs, string op, string rhs)
+        {
+            bool not = op.ToUpper().Trim().StartsWith("NOT");
+
+            List<string> lhsValues = StringExpression.Parse(table, lhs);
+
+            string pattern = Util.ExtractStringFromSingleQuote(rhs);
+
+            HashSet<int> rows = new HashSet<int>();
+
+            for (int i = 0; i < lhsValues.Count; i++)
+            {
+                if (lhsValues[i] == null)
+                    continue;
+
+                bool like = VarcharIsLike(lhsValues[i], pattern);
+
+                if (like && !not)
+                    rows.Add(i);
+                else if (!like && not)
+                    rows.Add(i);
+            }
+
+            return rows;
+        }
+
+
         public static HashSet<int> BooleanExpressionNullity(string lhs, string op)
         {
             bool isNull = op.ToUpper() == "IS";

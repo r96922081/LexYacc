@@ -4,14 +4,13 @@ Todo:
 1.
 indirect left recursive, action calling
 
-2.
-boolean expression,  a is null, SET XXX = NULL
-
 3. join, group by, in, with, like
 
 4. group by min, max, count, sum
 
 5. case when
+
+6. UPPER, LOWER
 
  */
 

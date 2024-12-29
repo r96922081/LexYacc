@@ -2,7 +2,7 @@
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS
+%token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
 %type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column
@@ -198,6 +198,16 @@ column IS NULL
 column IS NOT NULL
 {
     MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "IS NOT", "NULL");
+}
+|
+column LIKE STRING
+{
+    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "LIKE", $3);
+}
+|
+column NOT LIKE STRING
+{
+    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "NOT LIKE", $4);
 }
 ;
 
