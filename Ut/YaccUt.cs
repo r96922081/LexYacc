@@ -458,7 +458,7 @@ a: VOID INT 'a'
 %{
 %}
 
-%token <int> NUMBER_DOUBLE
+%token <int> DOUBLE
 %type <int> exp term
 
 %%
@@ -467,7 +467,7 @@ b: 'D' c 'F';
 c: 'G' d 'H';
 d: 'I' 'J';
   
-term: NUMBER_DOUBLE;
+term: DOUBLE;
 %%
 ";
 
@@ -493,7 +493,7 @@ term: NUMBER_DOUBLE;
 %{
 %}
 
-%token <int> NUMBER_DOUBLE
+%token <int> DOUBLE
 %type <int> exp term
 
 %%
@@ -503,8 +503,8 @@ exp:
   ;
   
 term:
-  term '*' NUMBER_DOUBLE { $$ = $1 * $3;}
-  | NUMBER_DOUBLE {$$ = $1;}
+  term '*' DOUBLE { $$ = $1 * $3;}
+  | DOUBLE {$$ = $1;}
   ;
 %%
 ";
@@ -513,16 +513,16 @@ term:
 
         yacc.Rebuild();
         tokens.Clear();
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE"));
+        tokens.Add(Terminal.BuildToken("DOUBLE"));
         Check(yacc.Feed(tokens) == true);
 
         yacc.Rebuild();
         tokens.Clear();
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE"));
+        tokens.Add(Terminal.BuildToken("DOUBLE"));
         tokens.Add(Terminal.BuildConstCharTerminal('+'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE"));
+        tokens.Add(Terminal.BuildToken("DOUBLE"));
         tokens.Add(Terminal.BuildConstCharTerminal('*'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE"));
+        tokens.Add(Terminal.BuildToken("DOUBLE"));
         Check(yacc.Feed(tokens) == true);
     }
 
@@ -532,7 +532,7 @@ term:
 %{
 %}
 
-%token <int> NUMBER_DOUBLE
+%token <int> DOUBLE
 %type <int> exp term
 
 %%
@@ -547,9 +547,9 @@ exp:
   ;
   
 term:
-  term '*' NUMBER_DOUBLE { $$ = $1 * $3;}
-  | term '/' NUMBER_DOUBLE { $$ = $1 / $3;}
-  | NUMBER_DOUBLE {$$ = $1;}
+  term '*' DOUBLE { $$ = $1 * $3;}
+  | term '/' DOUBLE { $$ = $1 / $3;}
+  | DOUBLE {$$ = $1;}
   ;
 %%
 ";
@@ -558,44 +558,44 @@ term:
 
         yacc.Rebuild();
         tokens.Clear();
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE"));
+        tokens.Add(Terminal.BuildToken("DOUBLE"));
         tokens.Add(Terminal.BuildConstCharTerminal('-'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE"));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE"));
+        tokens.Add(Terminal.BuildToken("DOUBLE"));
+        tokens.Add(Terminal.BuildToken("DOUBLE"));
         Check(yacc.Feed(tokens) == false);
 
         yacc.Rebuild();
         tokens.Clear();
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE"));
+        tokens.Add(Terminal.BuildToken("DOUBLE"));
         tokens.Add(Terminal.BuildConstCharTerminal('-'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE"));
+        tokens.Add(Terminal.BuildToken("DOUBLE"));
         tokens.Add(Terminal.BuildConstCharTerminal('+'));
         Check(yacc.Feed(tokens) == false);
 
         yacc.Rebuild();
         tokens.Clear();
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE"));
+        tokens.Add(Terminal.BuildToken("DOUBLE"));
         tokens.Add(Terminal.BuildConstCharTerminal('-'));
         tokens.Add(Terminal.BuildConstCharTerminal('/'));
         Check(yacc.Feed(tokens) == false);
 
         yacc.Rebuild();
         tokens.Clear();
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE"));
+        tokens.Add(Terminal.BuildToken("DOUBLE"));
         tokens.Add(Terminal.BuildConstCharTerminal('-'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE"));
+        tokens.Add(Terminal.BuildToken("DOUBLE"));
         tokens.Add(Terminal.BuildConstCharTerminal('*'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE"));
+        tokens.Add(Terminal.BuildToken("DOUBLE"));
         tokens.Add(Terminal.BuildConstCharTerminal('+'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE"));
+        tokens.Add(Terminal.BuildToken("DOUBLE"));
         tokens.Add(Terminal.BuildConstCharTerminal('/'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE"));
+        tokens.Add(Terminal.BuildToken("DOUBLE"));
         tokens.Add(Terminal.BuildConstCharTerminal('/'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE"));
+        tokens.Add(Terminal.BuildToken("DOUBLE"));
         tokens.Add(Terminal.BuildConstCharTerminal('-'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE"));
+        tokens.Add(Terminal.BuildToken("DOUBLE"));
         tokens.Add(Terminal.BuildConstCharTerminal('-'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE"));
+        tokens.Add(Terminal.BuildToken("DOUBLE"));
         Check(yacc.Feed(tokens) == true);
     }
 
@@ -1232,19 +1232,19 @@ a: a 'A' {Console.WriteLine(""a with A"");}
         string s = @"
 %{        
 %}
-%token <int> NUMBER_DOUBLE
+%token <int> DOUBLE
 %type <int> cal exp term
 %%
 cal: exp {Console.WriteLine(""Result = "" + $1);} ;
-exp: exp '-' NUMBER_DOUBLE {$$ = $1 - $3;} | exp '+' NUMBER_DOUBLE {$$ = $1 + $3;} | NUMBER_DOUBLE {$$ = $1;};
+exp: exp '-' DOUBLE {$$ = $1 - $3;} | exp '+' DOUBLE {$$ = $1 + $3;} | DOUBLE {$$ = $1;};
 %%
 ";
         /*
 
         cal: exp
 
-        exp: NUMBER_DOUBLE exp'
-        exp': '-' NUMBER_DOUBLE exp' | empty
+        exp: DOUBLE exp'
+        exp': '-' DOUBLE exp' | empty
 
          */
 
@@ -1253,13 +1253,13 @@ exp: exp '-' NUMBER_DOUBLE {$$ = $1 - $3;} | exp '+' NUMBER_DOUBLE {$$ = $1 + $3
 
 #if !DisableGenCodeUt
         tokens.Clear();
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE", 2));
+        tokens.Add(Terminal.BuildToken("DOUBLE", 2));
         tokens.Add(Terminal.BuildConstCharTerminal('+'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE", 3));
+        tokens.Add(Terminal.BuildToken("DOUBLE", 3));
         tokens.Add(Terminal.BuildConstCharTerminal('+'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE", 4));
+        tokens.Add(Terminal.BuildToken("DOUBLE", 4));
         tokens.Add(Terminal.BuildConstCharTerminal('-'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE", 1));
+        tokens.Add(Terminal.BuildToken("DOUBLE", 1));
         yacc.Feed(tokens);
 
         Console.WriteLine("\n\nUtAction5 output");
@@ -1273,7 +1273,7 @@ exp: exp '-' NUMBER_DOUBLE {$$ = $1 - $3;} | exp '+' NUMBER_DOUBLE {$$ = $1 + $3
         string s = @"
 %{        
 %}
-%token <int> NUMBER_DOUBLE
+%token <int> DOUBLE
 %type <int> cal exp term
 %%
 cal: exp {Console.WriteLine(""Result = "" + $1); };
@@ -1282,7 +1282,7 @@ exp: exp '+' term {$$ = $1 + $3;}
   | term {$$ = $1;}
   ;
   
-term: NUMBER_DOUBLE {$$ = $1;}
+term: DOUBLE {$$ = $1;}
   ;
 %%
 ";
@@ -1292,11 +1292,11 @@ term: NUMBER_DOUBLE {$$ = $1;}
 
 #if !DisableGenCodeUt
         tokens.Clear();
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE", 1));
+        tokens.Add(Terminal.BuildToken("DOUBLE", 1));
         tokens.Add(Terminal.BuildConstCharTerminal('+'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE", 2));
+        tokens.Add(Terminal.BuildToken("DOUBLE", 2));
         tokens.Add(Terminal.BuildConstCharTerminal('+'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE", 4));
+        tokens.Add(Terminal.BuildToken("DOUBLE", 4));
         yacc.Feed(tokens);
 
         Console.WriteLine("\n\nUtAction6 output");
@@ -1309,7 +1309,7 @@ term: NUMBER_DOUBLE {$$ = $1;}
         string s = @"
 %{        
 %}
-%token <int> NUMBER_DOUBLE
+%token <int> DOUBLE
 %type <int> cal exp term
 %%
 cal: exp {$$ = $1; Console.WriteLine(""Result = "" + $1); };
@@ -1321,9 +1321,9 @@ exp:
   ;
   
 term:
-  term '*' NUMBER_DOUBLE { $$ = $1 * $3;}
-  | term '/' NUMBER_DOUBLE { $$ = $1 / $3;}
-  | NUMBER_DOUBLE {$$ = $1;}
+  term '*' DOUBLE { $$ = $1 * $3;}
+  | term '/' DOUBLE { $$ = $1 / $3;}
+  | DOUBLE {$$ = $1;}
   ;
 %%
 ";
@@ -1333,17 +1333,17 @@ term:
 
 #if !DisableGenCodeUt
         tokens.Clear();
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE", 2));
+        tokens.Add(Terminal.BuildToken("DOUBLE", 2));
         tokens.Add(Terminal.BuildConstCharTerminal('*'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE", 3));
+        tokens.Add(Terminal.BuildToken("DOUBLE", 3));
         tokens.Add(Terminal.BuildConstCharTerminal('-'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE", 4));
+        tokens.Add(Terminal.BuildToken("DOUBLE", 4));
         tokens.Add(Terminal.BuildConstCharTerminal('/'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE", 2));
+        tokens.Add(Terminal.BuildToken("DOUBLE", 2));
         tokens.Add(Terminal.BuildConstCharTerminal('+'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE", 10));
+        tokens.Add(Terminal.BuildToken("DOUBLE", 10));
         tokens.Add(Terminal.BuildConstCharTerminal('*'));
-        tokens.Add(Terminal.BuildToken("NUMBER_DOUBLE", 100));
+        tokens.Add(Terminal.BuildToken("DOUBLE", 100));
         yacc.Feed(tokens);
 
         Console.WriteLine("\n\nUtAction7 output");

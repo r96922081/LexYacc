@@ -22,7 +22,7 @@ public class YaccActions{
 
 %token <string> SELECT ID CREATE TABLE NUMBER_TYPE VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS
 %token <int> POSITIVE_INT
-%token <double> NUMBER_DOUBLE
+%token <double> DOUBLE
 %type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_id update_statement file_path string_number_null
 %type <List<string>> comma_sep_id commaSep_id_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
@@ -93,7 +93,7 @@ ID
 ;
 
 number_double:
-NUMBER_DOUBLE
+DOUBLE
 {
     $$ = MyDBNs.SqlArithmeticExpressionLexYaccCallback.GetColumnValues($1);
 }
@@ -349,7 +349,7 @@ namespace sql_arithmetic_expressionNs
             { 289, "NULL"},
             { 290, "IS"},
             { 291, "POSITIVE_INT"},
-            { 292, "NUMBER_DOUBLE"},
+            { 292, "DOUBLE"},
         };
 
         public static int SELECT = 256;
@@ -388,7 +388,7 @@ namespace sql_arithmetic_expressionNs
         public static int NULL = 289;
         public static int IS = 290;
         public static int POSITIVE_INT = 291;
-        public static int NUMBER_DOUBLE = 292;
+        public static int DOUBLE = 292;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -440,29 +440,30 @@ namespace sql_arithmetic_expressionNs
 [iI][sS]                      { return IS; }
 [nN][uU][mM][bB][eE][rR]      { value = ""NUMBER_TYPE""; return NUMBER_TYPE; }
 [vV][aA][rR][cC][hH][aA][rR]  { value = ""VARCHAR""; return VARCHAR; }
-""||""                          { return TWO_PIPE; }
-""!=""                     { return NOT_EQUAL; }
-""<=""                     { return LESS_OR_EQUAL; }
-"">=""                     { return GREATER_OR_EQUAL; }
-""{""  { return '{'; }
-""}""  { return '}'; }
-""(""  { return '('; }
-"")""  { return ')'; }
-"",""  { return ','; }
-""=""  { return '='; }
-""<""  { return '<'; }
-"">""  { return '>'; }
-""*""  { return '*'; }
-""+""  { return '+'; }
-""-""  { return '-'; }
-""/""  { return '/'; }
 
-\d+                     { value = int.Parse(yytext); return POSITIVE_INT; }
--?\d+(\.\d+)?           { value = double.Parse(yytext); return NUMBER_DOUBLE; }
-'([^']|'')*'            { value = yytext; return STRING; }
-[a-zA-Z0-9_]*           { value = yytext; return ID; }
-[a-zA-Z0-9_:\.\\]+      { value = yytext; return FILE_PATH; }
-[ \t\n]                 {}
+""||""                          { return TWO_PIPE; }
+""!=""                          { return NOT_EQUAL; }
+""<=""                          { return LESS_OR_EQUAL; }
+"">=""                          { return GREATER_OR_EQUAL; }
+""{""                           { return '{'; }
+""}""                           { return '}'; }
+""(""                           { return '('; }
+"")""                           { return ')'; }
+"",""                           { return ','; }
+""=""                           { return '='; }
+""<""                           { return '<'; }
+"">""                           { return '>'; }
+""*""                           { return '*'; }
+""+""                           { return '+'; }
+""-""                           { return '-'; }
+""/""                           { return '/'; }
+
+\d+                           { value = int.Parse(yytext); return POSITIVE_INT; }
+-?\d+(\.\d+)?                 { value = double.Parse(yytext); return DOUBLE; }
+'([^']|'')*'                  { value = yytext; return STRING; }
+[a-zA-Z0-9_]*                 { value = yytext; return ID; }
+[a-zA-Z0-9_:\.\\]+            { value = yytext; return FILE_PATH; }
+[ \t\n]                       {}
 
 %%
 ";
@@ -933,7 +934,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = double.Parse(yytext); return NUMBER_DOUBLE; 
+            value = double.Parse(yytext); return DOUBLE; 
 
             return 0;
         }

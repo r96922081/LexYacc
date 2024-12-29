@@ -30,28 +30,29 @@
 [iI][sS]                      { return IS; }
 [nN][uU][mM][bB][eE][rR]      { value = "NUMBER_TYPE"; return NUMBER_TYPE; }
 [vV][aA][rR][cC][hH][aA][rR]  { value = "VARCHAR"; return VARCHAR; }
-"||"                          { return TWO_PIPE; }
-"!="                     { return NOT_EQUAL; }
-"<="                     { return LESS_OR_EQUAL; }
-">="                     { return GREATER_OR_EQUAL; }
-"{"  { return '{'; }
-"}"  { return '}'; }
-"("  { return '('; }
-")"  { return ')'; }
-","  { return ','; }
-"="  { return '='; }
-"<"  { return '<'; }
-">"  { return '>'; }
-"*"  { return '*'; }
-"+"  { return '+'; }
-"-"  { return '-'; }
-"/"  { return '/'; }
 
-\d+                     { value = int.Parse(yytext); return POSITIVE_INT; }
--?\d+(\.\d+)?           { value = double.Parse(yytext); return NUMBER_DOUBLE; }
-'([^']|'')*'            { value = yytext; return STRING; }
-[a-zA-Z0-9_]*           { value = yytext; return ID; }
-[a-zA-Z0-9_:\.\\]+      { value = yytext; return FILE_PATH; }
-[ \t\n]                 {}
+"||"                          { return TWO_PIPE; }
+"!="                          { return NOT_EQUAL; }
+"<="                          { return LESS_OR_EQUAL; }
+">="                          { return GREATER_OR_EQUAL; }
+"{"                           { return '{'; }
+"}"                           { return '}'; }
+"("                           { return '('; }
+")"                           { return ')'; }
+","                           { return ','; }
+"="                           { return '='; }
+"<"                           { return '<'; }
+">"                           { return '>'; }
+"*"                           { return '*'; }
+"+"                           { return '+'; }
+"-"                           { return '-'; }
+"/"                           { return '/'; }
+
+\d+                           { value = int.Parse(yytext); return POSITIVE_INT; }
+-?\d+(\.\d+)?                 { value = double.Parse(yytext); return DOUBLE; }
+'([^']|'')*'                  { value = yytext; return STRING; }
+[a-zA-Z0-9_]*                 { value = yytext; return ID; }
+[a-zA-Z0-9_:\.\\]+            { value = yytext; return FILE_PATH; }
+[ \t\n]                       {}
 
 %%

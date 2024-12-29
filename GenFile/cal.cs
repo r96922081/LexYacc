@@ -18,7 +18,7 @@ public class YaccActions{
 
     public static string ruleInput = @"%{
 %}
-%token <int> NUMBER_DOUBLE
+%token <int> DOUBLE
 %type <int> cal exp term
 %%
 cal: exp {$$ = $1; Console.WriteLine(""Result = "" + $1); };
@@ -30,9 +30,9 @@ exp:
   ;
   
 term:
-  term '*' NUMBER_DOUBLE { $$ = $1 * $3;}
-  | term '/' NUMBER_DOUBLE { $$ = $1 / $3;}
-  | NUMBER_DOUBLE {$$ = $1;}
+  term '*' DOUBLE { $$ = $1 * $3;}
+  | term '/' DOUBLE { $$ = $1 / $3;}
+  | DOUBLE {$$ = $1;}
   ;
 %%";
 
@@ -176,10 +176,10 @@ namespace calNs
 
         public static Dictionary<int, string> tokenDict = new Dictionary<int, string>
         {
-            { 256, "NUMBER_DOUBLE"},
+            { 256, "DOUBLE"},
         };
 
-        public static int NUMBER_DOUBLE = 256;
+        public static int DOUBLE = 256;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -206,7 +206,7 @@ namespace calNs
 %%
 (\-)?[0-9]+ { 
             value = int.Parse(yytext);
-            return NUMBER_DOUBLE;
+            return DOUBLE;
 }
 [ \t\n]+   {}
 ""+""  {return '+';}
@@ -233,7 +233,7 @@ namespace calNs
 
             // user-defined action
             value = int.Parse(yytext);
-            return NUMBER_DOUBLE;
+            return DOUBLE;
 
             return 0;
         }

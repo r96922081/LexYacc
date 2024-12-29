@@ -5,7 +5,7 @@
 %%
 (\-)?[0-9]+ { 
             value = int.Parse(yytext);
-            return NUMBER_DOUBLE;
+            return DOUBLE;
 }
 [ \t\n]+   {}
 "+"  {return '+';}
