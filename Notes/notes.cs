@@ -14,8 +14,6 @@ indirect left recursive, action calling
 
 - select literal like 1 + 2 + 3, 'BAC' || 'def'
 
-- transaction, undo list for insert, delete, update
-
  */
 
 /*

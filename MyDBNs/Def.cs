@@ -81,4 +81,18 @@
         LessThanEqualTo,
         GreaterThanEqualTo
     }
+
+    public class UndoUpdateData
+    {
+        public object[] row;
+        public int columnIndex;
+        public object value;
+
+        public UndoUpdateData(object[] row, int columnIndex, object value)
+        {
+            this.row = row;
+            this.columnIndex = columnIndex;
+            this.value = value;
+        }
+    }
 }

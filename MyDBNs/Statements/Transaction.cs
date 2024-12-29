@@ -2,9 +2,8 @@
 {
     public class Transaction
     {
-        public static void UndoInsert(Table t, object param1)
+        public static void UndoInsert(Table t, object[] row)
         {
-            object[] row = (object[])param1;
             for (int i = 0; i < t.rows.Count; i++)
             {
                 if (t.rows[i] == row)
@@ -15,10 +14,18 @@
             }
         }
 
-        public static void UndoDelete(Table t, object param1)
+        public static void UndoDelete(Table t, List<object[]> rows)
         {
-            List<object[]> rows = (List<object[]>)param1;
             t.rows.AddRange(rows);
+        }
+
+        public static void UndoUpdate(Stack<UndoUpdateData> undos)
+        {
+            while (undos.Count > 0)
+            {
+                UndoUpdateData data = undos.Pop();
+                data.row[data.columnIndex] = data.value;
+            }
         }
 
         public static string TransactionStart()

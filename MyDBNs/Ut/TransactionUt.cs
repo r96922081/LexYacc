@@ -85,7 +85,34 @@
             Check(rows.Count == 4);
         }
 
+        public void UpdateUt()
+        {
+            /*
+            -------------------------
+            | C1  | C2   | C3 | C4  |
+            -------------------------
+            | ABC | ABCD | 11 | 22  |
+            | DE  | CDE  | 22 | 33  |
+            | GH  |      | 22 |     |
+            | ABC | B    | 44 | 555 |
+            -------------------------
+            */
+            sql_statements.Parse("LOAD DB TEST_TRANSACTION.DB");
 
+            sql_statements.Parse("TRANSACTION START");
+            sql_statements.Parse("UPDATE A SET C1 = 'A'");
+            sql_statements.Parse("UPDATE A SET C3 = 9");
+            sql_statements.Parse("UPDATE A SET C1 = 'B'");
+
+            List<object[]> rows = RunSelectStatementAndConvertResult("SELECT * FROM A");
+            Check((string)rows[0][0] == "B");
+            Check((double)rows[0][2] == 9);
+
+            sql_statements.Parse("ROLLBACK");
+            rows = RunSelectStatementAndConvertResult("SELECT * FROM A");
+            Check((string)rows[0][0] == "ABC");
+            Check((double)rows[0][2] == 11);
+        }
 
         public void BasicUt()
         {
@@ -100,6 +127,7 @@
             BasicUt();
             InsertUt();
             DeleteUt();
+            UpdateUt();
 
             CompositeUt();
         }
