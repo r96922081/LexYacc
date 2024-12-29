@@ -362,47 +362,6 @@ string_id
 }
 ;
 
-number_double_id:
-number_double
-{
-    $$ = """" + $1;
-}
-|
-ID
-{
-    $$ = $1;
-}
-;
-
-string_number_id:
-ID
-{
-    $$ = $1;
-}
-| 
-STRING
-{
-    $$ = $1;
-}
-| 
-number_double
-{
-    $$ = """" + $1;
-}
-;
-
-string_id:
-ID
-{
-    $$ = $1;
-}
-| 
-STRING
-{
-    $$ = $1;
-}
-;
-
 arithmetic_expression_id:
 ID
 {
@@ -464,6 +423,47 @@ DOUBLE
 }
 |
 ID
+{
+    $$ = $1;
+}
+;
+
+number_double_id:
+number_double
+{
+    $$ = """" + $1;
+}
+|
+ID
+{
+    $$ = $1;
+}
+;
+
+string_number_id:
+ID
+{
+    $$ = $1;
+}
+| 
+STRING
+{
+    $$ = $1;
+}
+| 
+number_double
+{
+    $$ = """" + $1;
+}
+;
+
+string_id:
+ID
+{
+    $$ = $1;
+}
+| 
+STRING
 {
     $$ = $1;
 }
@@ -611,13 +611,6 @@ ID
         actions.Add("Rule_string_expression_Producton_0", Rule_string_expression_Producton_0);
         actions.Add("Rule_string_expression_LeftRecursionExpand_Producton_0", Rule_string_expression_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_string_expression_LeftRecursionExpand_Producton_1", Rule_string_expression_LeftRecursionExpand_Producton_1);
-        actions.Add("Rule_number_double_id_Producton_0", Rule_number_double_id_Producton_0);
-        actions.Add("Rule_number_double_id_Producton_1", Rule_number_double_id_Producton_1);
-        actions.Add("Rule_string_number_id_Producton_0", Rule_string_number_id_Producton_0);
-        actions.Add("Rule_string_number_id_Producton_1", Rule_string_number_id_Producton_1);
-        actions.Add("Rule_string_number_id_Producton_2", Rule_string_number_id_Producton_2);
-        actions.Add("Rule_string_id_Producton_0", Rule_string_id_Producton_0);
-        actions.Add("Rule_string_id_Producton_1", Rule_string_id_Producton_1);
         actions.Add("Rule_arithmetic_expression_id_Producton_0", Rule_arithmetic_expression_id_Producton_0);
         actions.Add("Rule_arithmetic_expression_id_Producton_1", Rule_arithmetic_expression_id_Producton_1);
         actions.Add("Rule_order_by_column_Producton_0", Rule_order_by_column_Producton_0);
@@ -630,6 +623,13 @@ ID
         actions.Add("Rule_file_path_Producton_1", Rule_file_path_Producton_1);
         actions.Add("Rule_file_path_Producton_2", Rule_file_path_Producton_2);
         actions.Add("Rule_file_path_Producton_3", Rule_file_path_Producton_3);
+        actions.Add("Rule_number_double_id_Producton_0", Rule_number_double_id_Producton_0);
+        actions.Add("Rule_number_double_id_Producton_1", Rule_number_double_id_Producton_1);
+        actions.Add("Rule_string_number_id_Producton_0", Rule_string_number_id_Producton_0);
+        actions.Add("Rule_string_number_id_Producton_1", Rule_string_number_id_Producton_1);
+        actions.Add("Rule_string_number_id_Producton_2", Rule_string_number_id_Producton_2);
+        actions.Add("Rule_string_id_Producton_0", Rule_string_id_Producton_0);
+        actions.Add("Rule_string_id_Producton_1", Rule_string_id_Producton_1);
         actions.Add("Rule_string_number_null_Producton_0", Rule_string_number_null_Producton_0);
         actions.Add("Rule_string_number_null_Producton_1", Rule_string_number_null_Producton_1);
         actions.Add("Rule_string_number_null_Producton_2", Rule_string_number_null_Producton_2);
@@ -1479,76 +1479,6 @@ ID
         return _0;
     }
 
-    public static object Rule_number_double_id_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        double _1 = (double)objects[1];
-
-        // user-defined action
-        _0 = "" + _1;
-
-        return _0;
-    }
-
-    public static object Rule_number_double_id_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = _1;
-
-        return _0;
-    }
-
-    public static object Rule_string_number_id_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = _1;
-
-        return _0;
-    }
-
-    public static object Rule_string_number_id_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = _1;
-
-        return _0;
-    }
-
-    public static object Rule_string_number_id_Producton_2(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        double _1 = (double)objects[1];
-
-        // user-defined action
-        _0 = "" + _1;
-
-        return _0;
-    }
-
-    public static object Rule_string_id_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = _1;
-
-        return _0;
-    }
-
-    public static object Rule_string_id_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = _1;
-
-        return _0;
-    }
-
     public static object Rule_arithmetic_expression_id_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
@@ -1664,6 +1594,76 @@ ID
     }
 
     public static object Rule_file_path_Producton_3(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_number_double_id_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        double _1 = (double)objects[1];
+
+        // user-defined action
+        _0 = "" + _1;
+
+        return _0;
+    }
+
+    public static object Rule_number_double_id_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_string_number_id_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_string_number_id_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_string_number_id_Producton_2(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        double _1 = (double)objects[1];
+
+        // user-defined action
+        _0 = "" + _1;
+
+        return _0;
+    }
+
+    public static object Rule_string_id_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_string_id_Producton_1(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 

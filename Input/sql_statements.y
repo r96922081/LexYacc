@@ -344,47 +344,6 @@ string_id
 }
 ;
 
-number_double_id:
-number_double
-{
-    $$ = "" + $1;
-}
-|
-ID
-{
-    $$ = $1;
-}
-;
-
-string_number_id:
-ID
-{
-    $$ = $1;
-}
-| 
-STRING
-{
-    $$ = $1;
-}
-| 
-number_double
-{
-    $$ = "" + $1;
-}
-;
-
-string_id:
-ID
-{
-    $$ = $1;
-}
-| 
-STRING
-{
-    $$ = $1;
-}
-;
-
 arithmetic_expression_id:
 ID
 {
@@ -446,6 +405,47 @@ DOUBLE
 }
 |
 ID
+{
+    $$ = $1;
+}
+;
+
+number_double_id:
+number_double
+{
+    $$ = "" + $1;
+}
+|
+ID
+{
+    $$ = $1;
+}
+;
+
+string_number_id:
+ID
+{
+    $$ = $1;
+}
+| 
+STRING
+{
+    $$ = $1;
+}
+| 
+number_double
+{
+    $$ = "" + $1;
+}
+;
+
+string_id:
+ID
+{
+    $$ = $1;
+}
+| 
+STRING
 {
     $$ = $1;
 }
