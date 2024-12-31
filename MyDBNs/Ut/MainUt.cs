@@ -18,9 +18,9 @@
                 new SaveLoadUt().Ut();
                 new TransactionUt().Ut();
                 new GroupByUt().Ut();
-                Console.WriteLine("Ut Done!");
+                Console.WriteLine("MyDB Ut Done!");
 
-                DBConsole.Interactive();
+                //DBConsole.Interactive();
             }
             else
             {
