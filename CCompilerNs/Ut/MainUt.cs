@@ -86,7 +86,7 @@ int main()
             string src = @"
 int main()
 {
-	return 2 - (3 - 11) * 2 + 5 * 6 - 7 * 2 + 9;
+	return 2 - (3 - 11) / 2 + 5 * 6 - 7 * 2 + 9;
 }
 ";
             AsmEmitter.SetOutputFile("test.s");
@@ -98,28 +98,7 @@ int main()
             program.EmitAsm();
 
             int exitCode = CompileAndRun("test.s", "test.exe");
-            Check(exitCode == 43);
-        }
-
-        public void Ut6()
-        {
-            string src = @"
-int main()
-{
-	return (1 + 2) / 3;
-}
-";
-            AsmEmitter.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-            program.Print();
-
-            program.EmitAsm();
-
-            // hang
-            int exitCode = CompileAndRun("test.s", "test.exe");
-            Check(exitCode == 43);
+            Check(exitCode == 31);
         }
 
         public static void RunAllUt()
@@ -131,8 +110,6 @@ int main()
             mainUt.Ut3();
             mainUt.Ut4();
             mainUt.Ut5();
-            //hang
-            //mainUt.Ut6();
         }
 
         public static void Ut()

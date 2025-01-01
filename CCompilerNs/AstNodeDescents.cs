@@ -147,7 +147,10 @@ ret
                     else if (op == "*")
                         Emit(string.Format("mul %rbx"));
                     else if (op == "/")
+                    {
+                        Emit(string.Format("mov $0, % rdx"));
                         Emit(string.Format("div %rbx"));
+                    }
 
                     Emit(string.Format("push %rax\n"));
                 }
