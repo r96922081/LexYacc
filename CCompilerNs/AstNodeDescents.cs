@@ -70,7 +70,7 @@ mov %rsp, %rbp
 
     public class ReturnStatement : Statement
     {
-        public AddExpression returnValue;
+        public Expression returnValue;
 
         public ReturnStatement() : base("ReturnStatement")
         {
@@ -79,7 +79,11 @@ mov %rsp, %rbp
 
         public override void EmitAsm()
         {
-            EmitChildrenAsm();
+            if (returnValue != null)
+            {
+                returnValue.EmitAsm();
+                Emit("pop %rax");
+            }
 
             string leave = @"
 leave
@@ -89,51 +93,86 @@ ret
         }
     }
 
-    public class AddExpression : AstNode
+    public class Expression : AstNode
     {
-        public AddExpression lhs = null;
+        public Expression lhs = null;
         public string? op = null;
-        public AddExpression rhs = null;
+        public Expression rhs = null;
         public int? intValue = null;
 
-        public AddExpression() : base("AddExpression")
+        public Expression() : base("Expression")
         {
 
         }
 
         public override void EmitAsm()
         {
+            // case mulExpression: INT_VALUE
             if (intValue != null)
             {
                 Emit(string.Format("mov ${0}, %rax", intValue));
-                Emit(string.Format("push %rax"));
+                Emit(string.Format("push %rax\n"));
             }
             else
             {
-                lhs.EmitAsm();
-                rhs.EmitAsm();
+                if (rhs == null)
+                {
+                    lhs.EmitAsm();
+                    Emit(string.Format("pop %rax"));
+                    Emit(string.Format("push %rax\n"));
+                }
+                else
+                {
+                    lhs.EmitAsm();
 
-                Emit(string.Format("pop %rbx"));
-                Emit(string.Format("pop %rax"));
+                    // case addExpression: addExpression '+' mulExpression
+                    if (rhs is Expression)
+                    {
+                        rhs.EmitAsm();
+                    }
+                    // case mulExpression: mulExpression '*' INT_VALUE
+                    else
+                    {
+                        Emit(string.Format("mov ${0}, %rax", intValue));
+                        Emit(string.Format("push %rax\n"));
+                    }
 
-                if (op == "+")
-                    Emit(string.Format("add %rbx, %rax\n"));
-                else if (op == "-")
-                    Emit(string.Format("sub %rbx, %rax\n"));
+                    Emit(string.Format("pop %rbx"));
+                    Emit(string.Format("pop %rax"));
 
-                Emit(string.Format("push %rax"));
+                    if (op == "+")
+                        Emit(string.Format("add %rbx, %rax"));
+                    else if (op == "-")
+                        Emit(string.Format("sub %rbx, %rax"));
+                    else if (op == "*")
+                        Emit(string.Format("mul %rbx"));
+                    else if (op == "/")
+                        Emit(string.Format("div %rbx"));
+
+                    Emit(string.Format("push %rax\n"));
+                }
             }
         }
 
         public override string ToString()
         {
-            if (op != null)
+            // case mulExpression: INT_VALUE
+            if (intValue != null)
             {
-                s = "AddExpression(" + op + ")";
+                s = "Expression(" + intValue + ")";
             }
             else
             {
-                s = "AddExpression(" + intValue + ")";
+                // case mulExpression: '(' addExpression ')'
+                if (rhs == null)
+                {
+                    s = "Expression";
+                }
+                // case addExpression: addExpression '+' mulExpression
+                else
+                {
+                    s = "Expression(" + op + ")";
+                }
             }
 
             return base.ToString();

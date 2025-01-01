@@ -8,7 +8,7 @@
 %type <CCompilerNs.FunDecl>           funDecl
 %type <CCompilerNs.Statement>         statement
 %type <CCompilerNs.ReturnStatement>   returnStatement 
-%type <CCompilerNs.AddExpression>     addExpression
+%type <CCompilerNs.Expression>        addExpression mulExpression
 %type <string>                        typeSpec
 
 %%
@@ -51,19 +51,53 @@ RETURN addExpression ';'
 };
 
 addExpression: 
-addExpression '+' INT_VALUE
+addExpression '+' mulExpression
 {
-    $$ = CCompilerNs.CCLexYaccCallback.AddExpression($1, "+", $3);
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1, "+", $3);
 }
-| addExpression '-' INT_VALUE
+| addExpression '-' mulExpression
 {
-    $$ = CCompilerNs.CCLexYaccCallback.AddExpression($1, "-", $3);
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1, "-", $3);
+}
+|
+mulExpression
+{
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1);
+}
+;  
+
+mulExpression: 
+mulExpression '*' INT_VALUE
+{
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1, "*", $3);
+}
+| mulExpression '/' INT_VALUE
+{
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1, "/", $3);
+}
+| mulExpression '%' INT_VALUE
+{
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1, "%", $3);
+}
+|
+mulExpression '*' '(' addExpression ')' 
+{
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1, "*", $4);
+}
+| mulExpression '/' '(' addExpression ')' 
+{
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1, "/", $4);
+}
+|
+'(' addExpression ')'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($2);
 }
 |
 INT_VALUE
-{
-    $$ = CCompilerNs.CCLexYaccCallback.AddExpression($1);
+{   
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1);
 }
-;  
+;
 
 %%

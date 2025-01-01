@@ -24,34 +24,56 @@
             return f;
         }
 
-        public static ReturnStatement ReturnStatement(AddExpression addExpression)
+        public static ReturnStatement ReturnStatement(Expression expression)
         {
             ReturnStatement n = new ReturnStatement();
-            n.returnValue = addExpression;
-            n.children.Add(addExpression);
+            n.returnValue = expression;
+            n.children.Add(expression);
 
             return n;
         }
 
-        public static AddExpression AddExpression(int intValue)
+        public static Expression Expression(int intValue)
         {
-            AddExpression a = new AddExpression();
+            Expression a = new Expression();
             a.intValue = intValue;
 
             return a;
         }
 
-        public static AddExpression AddExpression(AddExpression lhs, string op, int rhsIntValue)
+        public static Expression Expression(Expression lhs)
         {
-            AddExpression a = new AddExpression();
+            Expression a = new Expression();
+            a.lhs = lhs;
+            a.children.Add(lhs);
+
+            return a;
+        }
+
+        public static Expression Expression(Expression lhs, string op, int rhsIntValue)
+        {
+            Expression a = new Expression();
             a.lhs = lhs;
             a.op = op;
 
-            a.rhs = new AddExpression();
+            a.rhs = new Expression();
             a.rhs.intValue = rhsIntValue;
 
             a.children.Add(lhs);
             a.children.Add(a.rhs);
+
+            return a;
+        }
+
+        public static Expression Expression(Expression lhs, string op, Expression rhs)
+        {
+            Expression a = new Expression();
+            a.lhs = lhs;
+            a.op = op;
+            a.rhs = rhs;
+
+            a.children.Add(lhs);
+            a.children.Add(rhs);
 
             return a;
         }
