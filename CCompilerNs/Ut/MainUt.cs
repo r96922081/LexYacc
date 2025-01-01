@@ -101,6 +101,31 @@ int main()
             Check(exitCode == 31);
         }
 
+        public void Ut6()
+        {
+            string src = @"
+int main()
+{
+	return (10 + 20) * (30 − 5);
+}
+";
+
+            // return 1 * (2-1);
+            //return ((10 + 20) * (30−5))/ (15 + 5)−(25−10);
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 22);
+        }
+
+
+
         public static void RunAllUt()
         {
             MainUt mainUt = new MainUt();
@@ -110,6 +135,7 @@ int main()
             mainUt.Ut3();
             mainUt.Ut4();
             mainUt.Ut5();
+            mainUt.Ut6();
         }
 
         public static void Ut()
