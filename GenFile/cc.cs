@@ -20,25 +20,26 @@ public class YaccActions{
 %}
 
 %token <int>         INT_VALUE
-%token <string>      RETURN ID INT
+%token <string>      RETURN ID INT_TYPE VOID_TYPE
 
-%type  <CCompilerNs.AstNode> program funDecl typeSpec funName statement assignmentExpression returnStatement id int_value
+%type <CCompilerNs.Program>           program 
+%type <CCompilerNs.FunDecl>           funDecl
+%type <CCompilerNs.Statement>         statement
+%type <CCompilerNs.ReturnStatement>   returnStatement 
+%type <int>          int_value
+%type <string>       id typeSpec funName
 
 %%
 program: 
 funDecl 
 {
-    $$ = new CCompilerNs.AstNode(""program"");
-    $$.children.Add($1);   
+    $$= CCompilerNs.CCLexYaccCallback.Program($1);
 };
 
 funDecl:
 typeSpec funName '(' ')' '{' statement '}'
-{
-    $$ = new CCompilerNs.AstNode(""funDecl"");
-    $$.children.Add($1);   
-    $$.children.Add($2);
-    $$.children.Add($6);    
+{  
+    $$= CCompilerNs.CCLexYaccCallback.FuncDecl($1, $2, $6);
 }
 ;
 
@@ -46,66 +47,46 @@ typeSpec funName '(' ')' '{' statement '}'
 funName:
 id
 {
-    $$ = new CCompilerNs.AstNode(""funName"");
-    $$.children.Add($1);
+    $$ = $1;
 }
 ;
 
 typeSpec:
-INT 
+INT_TYPE 
 {
-    $$ = new CCompilerNs.AstNode(""typeSpec"");
-    $$.children.Add(new CCompilerNs.AstNode(""int""));  
+    $$ = $1;
 }
 ;
 
 statement: 
-assignmentExpression
-{
-    $$ = new CCompilerNs.AstNode(""statement"");
-    $$.children.Add($1);       
-}
-| 
 returnStatement
-{
-    $$ = new CCompilerNs.AstNode(""statement"");
-    $$.children.Add($1);       
-}
-;
-
-assignmentExpression:
-typeSpec id '=' int_value
-{
+{     
+    $$ = $1;
 }
 ;
 
 returnStatement:
 RETURN ';'
 {
-    $$ = new CCompilerNs.AstNode(""returnStmt"");
-    $$.children.Add(new CCompilerNs.AstNode(""return""));
+    $$= CCompilerNs.CCLexYaccCallback.ReturnStatement(null);
 }
 |
 RETURN int_value ';'
 {
-    $$ = new CCompilerNs.AstNode(""returnStmt"");
-    $$.children.Add(new CCompilerNs.AstNode(""return""));
-    $$.children.Add($2);
+    $$= CCompilerNs.CCLexYaccCallback.ReturnStatement($2);
 };
 
 id: 
 ID
 {
-$$ = new CCompilerNs.AstNode(""id"");
-$$.children.Add(new CCompilerNs.AstNode($1));
+    $$=  $1;
 }
 ;
 
 int_value: 
 INT_VALUE
 {
-$$ = new CCompilerNs.AstNode(""int_value"");
-$$.children.Add(new CCompilerNs.AstNode("""" + $1));
+    $$ = $1;
 }
 ;
 %%";
@@ -130,8 +111,6 @@ $$.children.Add(new CCompilerNs.AstNode("""" + $1));
         actions.Add("Rule_funName_Producton_0", Rule_funName_Producton_0);
         actions.Add("Rule_typeSpec_Producton_0", Rule_typeSpec_Producton_0);
         actions.Add("Rule_statement_Producton_0", Rule_statement_Producton_0);
-        actions.Add("Rule_statement_Producton_1", Rule_statement_Producton_1);
-        actions.Add("Rule_assignmentExpression_Producton_0", Rule_assignmentExpression_Producton_0);
         actions.Add("Rule_returnStatement_Producton_0", Rule_returnStatement_Producton_0);
         actions.Add("Rule_returnStatement_Producton_1", Rule_returnStatement_Producton_1);
         actions.Add("Rule_id_Producton_0", Rule_id_Producton_0);
@@ -139,8 +118,8 @@ $$.children.Add(new CCompilerNs.AstNode("""" + $1));
     }
 
     public static object Rule_start_Producton_0(Dictionary<int, object> objects) { 
-        CCompilerNs.AstNode _0 = new CCompilerNs.AstNode();
-        CCompilerNs.AstNode _1 = (CCompilerNs.AstNode)objects[1];
+        CCompilerNs.Program _0 = new CCompilerNs.Program();
+        CCompilerNs.Program _1 = (CCompilerNs.Program)objects[1];
 
         // user-defined action
         _0 = _1;
@@ -149,126 +128,94 @@ $$.children.Add(new CCompilerNs.AstNode("""" + $1));
     }
 
     public static object Rule_program_Producton_0(Dictionary<int, object> objects) { 
-        CCompilerNs.AstNode _0 = new CCompilerNs.AstNode();
-        CCompilerNs.AstNode _1 = (CCompilerNs.AstNode)objects[1];
+        CCompilerNs.Program _0 = new CCompilerNs.Program();
+        CCompilerNs.FunDecl _1 = (CCompilerNs.FunDecl)objects[1];
 
         // user-defined action
-        _0 = new CCompilerNs.AstNode("program");
-        _0.children.Add(_1);   
+        _0= CCompilerNs.CCLexYaccCallback.Program(_1);
 
         return _0;
     }
 
     public static object Rule_funDecl_Producton_0(Dictionary<int, object> objects) { 
-        CCompilerNs.AstNode _0 = new CCompilerNs.AstNode();
-        CCompilerNs.AstNode _1 = (CCompilerNs.AstNode)objects[1];
-        CCompilerNs.AstNode _2 = (CCompilerNs.AstNode)objects[2];
-        CCompilerNs.AstNode _6 = (CCompilerNs.AstNode)objects[6];
+        CCompilerNs.FunDecl _0 = new CCompilerNs.FunDecl();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        CCompilerNs.Statement _6 = (CCompilerNs.Statement)objects[6];
 
         // user-defined action
-        _0 = new CCompilerNs.AstNode("funDecl");
-        _0.children.Add(_1);   
-        _0.children.Add(_2);
-        _0.children.Add(_6);    
+        _0= CCompilerNs.CCLexYaccCallback.FuncDecl(_1, _2, _6);
 
         return _0;
     }
 
     public static object Rule_funName_Producton_0(Dictionary<int, object> objects) { 
-        CCompilerNs.AstNode _0 = new CCompilerNs.AstNode();
-        CCompilerNs.AstNode _1 = (CCompilerNs.AstNode)objects[1];
+        string _0 = new string("");
+        string _1 = (string)objects[1];
 
         // user-defined action
-        _0 = new CCompilerNs.AstNode("funName");
-        _0.children.Add(_1);
+        _0 = _1;
 
         return _0;
     }
 
     public static object Rule_typeSpec_Producton_0(Dictionary<int, object> objects) { 
-        CCompilerNs.AstNode _0 = new CCompilerNs.AstNode();
+        string _0 = new string("");
         string _1 = (string)objects[1];
 
         // user-defined action
-        _0 = new CCompilerNs.AstNode("typeSpec");
-        _0.children.Add(new CCompilerNs.AstNode("int"));  
+        _0 = _1;
 
         return _0;
     }
 
     public static object Rule_statement_Producton_0(Dictionary<int, object> objects) { 
-        CCompilerNs.AstNode _0 = new CCompilerNs.AstNode();
-        CCompilerNs.AstNode _1 = (CCompilerNs.AstNode)objects[1];
+        CCompilerNs.Statement _0 = new CCompilerNs.Statement();
+        CCompilerNs.ReturnStatement _1 = (CCompilerNs.ReturnStatement)objects[1];
 
         // user-defined action
-        _0 = new CCompilerNs.AstNode("statement");
-        _0.children.Add(_1);       
-
-        return _0;
-    }
-
-    public static object Rule_statement_Producton_1(Dictionary<int, object> objects) { 
-        CCompilerNs.AstNode _0 = new CCompilerNs.AstNode();
-        CCompilerNs.AstNode _1 = (CCompilerNs.AstNode)objects[1];
-
-        // user-defined action
-        _0 = new CCompilerNs.AstNode("statement");
-        _0.children.Add(_1);       
-
-        return _0;
-    }
-
-    public static object Rule_assignmentExpression_Producton_0(Dictionary<int, object> objects) { 
-        CCompilerNs.AstNode _0 = new CCompilerNs.AstNode();
-        CCompilerNs.AstNode _1 = (CCompilerNs.AstNode)objects[1];
-        CCompilerNs.AstNode _2 = (CCompilerNs.AstNode)objects[2];
-        CCompilerNs.AstNode _4 = (CCompilerNs.AstNode)objects[4];
+        _0 = _1;
 
         return _0;
     }
 
     public static object Rule_returnStatement_Producton_0(Dictionary<int, object> objects) { 
-        CCompilerNs.AstNode _0 = new CCompilerNs.AstNode();
+        CCompilerNs.ReturnStatement _0 = new CCompilerNs.ReturnStatement();
         string _1 = (string)objects[1];
 
         // user-defined action
-        _0 = new CCompilerNs.AstNode("returnStmt");
-        _0.children.Add(new CCompilerNs.AstNode("return"));
+        _0= CCompilerNs.CCLexYaccCallback.ReturnStatement(null);
 
         return _0;
     }
 
     public static object Rule_returnStatement_Producton_1(Dictionary<int, object> objects) { 
-        CCompilerNs.AstNode _0 = new CCompilerNs.AstNode();
+        CCompilerNs.ReturnStatement _0 = new CCompilerNs.ReturnStatement();
         string _1 = (string)objects[1];
-        CCompilerNs.AstNode _2 = (CCompilerNs.AstNode)objects[2];
+        int _2 = (int)objects[2];
 
         // user-defined action
-        _0 = new CCompilerNs.AstNode("returnStmt");
-        _0.children.Add(new CCompilerNs.AstNode("return"));
-        _0.children.Add(_2);
+        _0= CCompilerNs.CCLexYaccCallback.ReturnStatement(_2);
 
         return _0;
     }
 
     public static object Rule_id_Producton_0(Dictionary<int, object> objects) { 
-        CCompilerNs.AstNode _0 = new CCompilerNs.AstNode();
+        string _0 = new string("");
         string _1 = (string)objects[1];
 
         // user-defined action
-        _0 = new CCompilerNs.AstNode("id");
-        _0.children.Add(new CCompilerNs.AstNode(_1));
+        _0=  _1;
 
         return _0;
     }
 
     public static object Rule_int_value_Producton_0(Dictionary<int, object> objects) { 
-        CCompilerNs.AstNode _0 = new CCompilerNs.AstNode();
+        int _0 = new int();
         int _1 = (int)objects[1];
 
         // user-defined action
-        _0 = new CCompilerNs.AstNode("int_value");
-        _0.children.Add(new CCompilerNs.AstNode("" + _1));
+        _0 = _1;
 
         return _0;
     }
@@ -294,13 +241,15 @@ namespace ccNs
             { 256, "INT_VALUE"},
             { 257, "RETURN"},
             { 258, "ID"},
-            { 259, "INT"},
+            { 259, "INT_TYPE"},
+            { 260, "VOID_TYPE"},
         };
 
         public static int INT_VALUE = 256;
         public static int RETURN = 257;
         public static int ID = 258;
-        public static int INT = 259;
+        public static int INT_TYPE = 259;
+        public static int VOID_TYPE = 260;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -324,7 +273,8 @@ namespace ccNs
 %}
 
 %% 
-""int""                     { return INT; }
+""int""                     { value = ""int""; return INT_TYPE; }
+""void""                    { value = ""void""; return VOID_TYPE; }
 ""return""                  { return RETURN; }
 (\-)?[0-9]+               { value = int.Parse(yytext); return INT_VALUE; }
 [_a-zA-Z][a-zA-Z0-9]*     { value = yytext; return ID; }
@@ -366,13 +316,14 @@ namespace ccNs
             actions.Add("LexRule14", LexAction14);
             actions.Add("LexRule15", LexAction15);
             actions.Add("LexRule16", LexAction16);
+            actions.Add("LexRule17", LexAction17);
         }
         public static object LexAction0(string yytext)
         {
             value = null;
 
             // user-defined action
-            return INT; 
+            value = "int"; return INT_TYPE; 
 
             return 0;
         }
@@ -381,7 +332,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return RETURN; 
+            value = "void"; return VOID_TYPE; 
 
             return 0;
         }
@@ -390,7 +341,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = int.Parse(yytext); return INT_VALUE; 
+            return RETURN; 
 
             return 0;
         }
@@ -399,7 +350,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            value = int.Parse(yytext); return INT_VALUE; 
 
             return 0;
         }
@@ -407,14 +358,14 @@ namespace ccNs
         {
             value = null;
 
+            // user-defined action
+            value = yytext; return ID; 
+
             return 0;
         }
         public static object LexAction5(string yytext)
         {
             value = null;
-
-            // user-defined action
-            return '{'; 
 
             return 0;
         }
@@ -423,7 +374,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '}'; 
+            return '{'; 
 
             return 0;
         }
@@ -432,7 +383,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '('; 
+            return '}'; 
 
             return 0;
         }
@@ -441,7 +392,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return ')'; 
+            return '('; 
 
             return 0;
         }
@@ -450,7 +401,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return ';'; 
+            return ')'; 
 
             return 0;
         }
@@ -459,7 +410,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '+'; 
+            return ';'; 
 
             return 0;
         }
@@ -468,7 +419,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '-'; 
+            return '+'; 
 
             return 0;
         }
@@ -477,7 +428,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '*'; 
+            return '-'; 
 
             return 0;
         }
@@ -486,7 +437,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '/'; 
+            return '*'; 
 
             return 0;
         }
@@ -495,7 +446,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '='; 
+            return '/'; 
 
             return 0;
         }
@@ -504,11 +455,20 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '%'; 
+            return '='; 
 
             return 0;
         }
         public static object LexAction16(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '%'; 
+
+            return 0;
+        }
+        public static object LexAction17(string yytext)
         {
             value = null;
 

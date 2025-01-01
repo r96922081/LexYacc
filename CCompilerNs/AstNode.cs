@@ -57,6 +57,28 @@
             Console.Write(GetPrintString());
         }
 
+        public void EmitChildrenAsm()
+        {
+            foreach (var child in children)
+                child.EmitAsm();
+        }
+
+        public virtual void EmitCurrentAsm()
+        {
+
+        }
+
+        public virtual void EmitAsm()
+        {
+            EmitCurrentAsm();
+            EmitChildrenAsm();
+        }
+
+        public void Emit(string asm)
+        {
+            AsmEmitter.Emit(asm);
+        }
+
         private int GetTreeString(int level, int xPos, List<List<NodeString>> nodeStringByLevel)
         {
             if (level == nodeStringByLevel.Count)
@@ -83,5 +105,4 @@
             return s + "  ";
         }
     }
-
 }
