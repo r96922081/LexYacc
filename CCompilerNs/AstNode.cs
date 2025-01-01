@@ -86,7 +86,7 @@
 
             var s = new NodeString
             {
-                S = GetString(),
+                S = ToString(),
                 XPos = xPos
             };
             nodeStringByLevel[level].Add(s);
@@ -100,7 +100,7 @@
             return Math.Max(xPos + s.S.Length, childMaxXPos);
         }
 
-        private string GetString()
+        public override string ToString()
         {
             return s + "  ";
         }

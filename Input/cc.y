@@ -8,8 +8,8 @@
 %type <CCompilerNs.FunDecl>           funDecl
 %type <CCompilerNs.Statement>         statement
 %type <CCompilerNs.ReturnStatement>   returnStatement 
-%type <int>          int_value
-%type <string>       id typeSpec funName
+%type <CCompilerNs.AddExpression>     addExpression
+%type <string>                        typeSpec
 
 %%
 program: 
@@ -19,17 +19,9 @@ funDecl
 };
 
 funDecl:
-typeSpec funName '(' ')' '{' statement '}'
+typeSpec ID '(' ')' '{' statement '}'
 {  
     $$= CCompilerNs.CCLexYaccCallback.FuncDecl($1, $2, $6);
-}
-;
-
-
-funName:
-id
-{
-    $$ = $1;
 }
 ;
 
@@ -53,22 +45,25 @@ RETURN ';'
     $$= CCompilerNs.CCLexYaccCallback.ReturnStatement(null);
 }
 |
-RETURN int_value ';'
+RETURN addExpression ';'
 {
     $$= CCompilerNs.CCLexYaccCallback.ReturnStatement($2);
 };
 
-id: 
-ID
+addExpression: 
+addExpression '+' INT_VALUE
 {
-    $$=  $1;
+    $$ = CCompilerNs.CCLexYaccCallback.AddExpression($1, "+", $3);
 }
-;
-
-int_value: 
+| addExpression '-' INT_VALUE
+{
+    $$ = CCompilerNs.CCLexYaccCallback.AddExpression($1, "-", $3);
+}
+|
 INT_VALUE
 {
-    $$ = $1;
+    $$ = CCompilerNs.CCLexYaccCallback.AddExpression($1);
 }
-;
+;  
+
 %%

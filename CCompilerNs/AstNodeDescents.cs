@@ -23,6 +23,12 @@ mov %rsp, %rbp
 ";
             Emit(asm);
         }
+
+        public override void EmitAsm()
+        {
+            base.EmitAsm();
+            Emit("");
+        }
     }
 
     public enum VariableType
@@ -64,27 +70,73 @@ mov %rsp, %rbp
 
     public class ReturnStatement : Statement
     {
-        public VariableType returnType;
-        public object returnValue;
+        public AddExpression returnValue;
 
         public ReturnStatement() : base("ReturnStatement")
         {
 
         }
 
-        public override void EmitCurrentAsm()
+        public override void EmitAsm()
         {
-            if (returnType == VariableType.int_type)
-            {
-                Emit(string.Format("mov ${0}, % rax", (int)returnValue));
-            }
-
+            EmitChildrenAsm();
 
             string leave = @"
 leave
 ret
 ";
             Emit(leave);
+        }
+    }
+
+    public class AddExpression : AstNode
+    {
+        public AddExpression lhs = null;
+        public string? op = null;
+        public AddExpression rhs = null;
+        public int? intValue = null;
+
+        public AddExpression() : base("AddExpression")
+        {
+
+        }
+
+        public override void EmitAsm()
+        {
+            if (intValue != null)
+            {
+                Emit(string.Format("mov ${0}, %rax", intValue));
+                Emit(string.Format("push %rax"));
+            }
+            else
+            {
+                lhs.EmitAsm();
+                rhs.EmitAsm();
+
+                Emit(string.Format("pop %rbx"));
+                Emit(string.Format("pop %rax"));
+
+                if (op == "+")
+                    Emit(string.Format("add %rbx, %rax\n"));
+                else if (op == "-")
+                    Emit(string.Format("sub %rbx, %rax\n"));
+
+                Emit(string.Format("push %rax"));
+            }
+        }
+
+        public override string ToString()
+        {
+            if (op != null)
+            {
+                s = "AddExpression(" + op + ")";
+            }
+            else
+            {
+                s = "AddExpression(" + intValue + ")";
+            }
+
+            return base.ToString();
         }
     }
 }

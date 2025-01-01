@@ -8,7 +8,7 @@
         public static void Emit(string asm)
         {
             Console.WriteLine(asm);
-            File.AppendAllText(outputFilePath, asm);
+            File.AppendAllText(outputFilePath, asm + "\n");
         }
 
         public static void SetOutputFile(string filePath)
