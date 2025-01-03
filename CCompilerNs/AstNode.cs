@@ -10,18 +10,18 @@
     public class AstNode
     {
         public string s { get; set; }
-        public List<AstNode> children { get; private set; }
+        public List<AstNode> childrenForPrint { get; private set; }
 
         public AstNode()
         {
             this.s = "";
-            children = new List<AstNode>();
+            childrenForPrint = new List<AstNode>();
         }
 
         public AstNode(string s)
         {
             this.s = s;
-            children = new List<AstNode>();
+            childrenForPrint = new List<AstNode>();
         }
 
         public string GetPrintString()
@@ -59,7 +59,7 @@
 
         public void EmitChildrenAsm()
         {
-            foreach (var child in children)
+            foreach (var child in childrenForPrint)
                 child.EmitAsm();
         }
 
@@ -92,7 +92,7 @@
             nodeStringByLevel[level].Add(s);
 
             int childMaxXPos = xPos;
-            foreach (var child in children)
+            foreach (var child in childrenForPrint)
             {
                 childMaxXPos = child.GetTreeString(level + 1, childMaxXPos, nodeStringByLevel);
             }
