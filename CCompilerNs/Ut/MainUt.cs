@@ -319,14 +319,16 @@ int main()
         public void Ut14()
         {
             string src = @"
-int f1()
+void f1()
 {
     return;
 }
 
 int main()
 {
-    f1()
+    f1();
+
+    return 1;
 }
 ";
             AsmEmitter.SetOutputFile("test.s");

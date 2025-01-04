@@ -65,7 +65,9 @@
         {
             ReturnStatement n = new ReturnStatement();
             n.returnValue = expression;
-            n.childrenForPrint.Add(expression);
+
+            if (expression != null)
+                n.childrenForPrint.Add(expression);
 
             return n;
         }
@@ -109,10 +111,10 @@
             return a;
         }
 
-        public static Expression Expression(FunctionCallStatement functionCallStatement)
+        public static Expression Expression(FunctionCallExpression functionCallExpression)
         {
             Expression a = new Expression();
-            a.functionCall = functionCallStatement;
+            a.functionCall = functionCallExpression;
 
             return a;
         }
@@ -142,14 +144,14 @@
         }
 
 
-        public static Expression Expression(Expression lhs, string op, FunctionCallStatement functionCallStatement)
+        public static Expression Expression(Expression lhs, string op, FunctionCallExpression functionCallExpression)
         {
             Expression a = new Expression();
             a.lhs = lhs;
             a.op = op;
 
             a.rhs = new Expression();
-            a.rhs.functionCall = functionCallStatement;
+            a.rhs.functionCall = functionCallExpression;
 
             a.childrenForPrint.Add(lhs);
             a.childrenForPrint.Add(a.rhs);
@@ -210,9 +212,9 @@
             return funcParams;
         }
 
-        public static FunctionCallStatement FunctionCallStatement(string name, List<Expression> parameters)
+        public static FunctionCallExpression FunctionCallExpression(string name, List<Expression> parameters)
         {
-            FunctionCallStatement f = new FunctionCallStatement();
+            FunctionCallExpression f = new FunctionCallExpression();
             f.name = name;
             f.parameters = parameters;
 

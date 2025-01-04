@@ -182,19 +182,19 @@ ret";
         }
     }
 
-    public class FunctionCallStatement : Statement
+    public class FunctionCallExpression : Statement
     {
         public string name;
         public List<Expression> parameters;
 
-        public FunctionCallStatement() : base("FunctionCallStatement")
+        public FunctionCallExpression() : base("FunctionCallExpression")
         {
 
         }
 
         public override void EmitAsm()
         {
-            Emit("#FunctionCallStatement =>");
+            Emit("#FunctionCallExpression =>");
 
             int localSize = Context.funDecl.localSize;
 
@@ -228,7 +228,7 @@ ret";
             /*if (alignStackSize != 0)
                 Emit(string.Format("add ${0}, %rsp", alignStackSize));*/
 
-            Emit("#<= FunctionCallStatement\n");
+            Emit("#<= FunctionCallExpression\n");
         }
     }
 
@@ -241,7 +241,7 @@ ret";
         public Expression rhs = null;
         public int? intValue = null;
         public string? variableName = null;
-        public FunctionCallStatement? functionCall = null;
+        public FunctionCallExpression? functionCall = null;
 
         public Expression() : base("Expression")
         {

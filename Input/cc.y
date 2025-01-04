@@ -13,7 +13,8 @@
 %type <CCompilerNs.ReturnStatement>            returnStatement 
 %type <CCompilerNs.DeclareStatement>           declareStatement
 %type <CCompilerNs.AssignmentStatement>        assignmentStatement
-%type <CCompilerNs.FunctionCallStatement>      functionCallStatement
+%type <CCompilerNs.FunctionCallExpression>     functionCallExpression
+%type <CCompilerNs.FunctionCallExpression>     functionCallStatement
 %type <List<CCompilerNs.Expression>>           funcCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
 %type <string>                                 typeSpec
@@ -158,11 +159,11 @@ mulExpression '*' INT_VALUE
 {
     $$ = CCompilerNs.CCLexYaccCallback.Expression($1, "/", $3);
 }
-| mulExpression '*' functionCallStatement
+| mulExpression '*' functionCallExpression
 {
     $$ = CCompilerNs.CCLexYaccCallback.Expression($1, "*", $3);
 }
-| mulExpression '/' functionCallStatement
+| mulExpression '/' functionCallExpression
 {
     $$ = CCompilerNs.CCLexYaccCallback.Expression($1, "/", $3);
 }
@@ -191,7 +192,7 @@ ID
     $$ = CCompilerNs.CCLexYaccCallback.Expression($1);
 }
 |
-functionCallStatement
+functionCallExpression
 {
     $$ = CCompilerNs.CCLexYaccCallback.Expression($1);
 }
@@ -222,14 +223,21 @@ addExpression
 ;
 
 functionCallStatement:
+functionCallExpression ';'
+{
+    $$ = $1;
+}
+;
+
+functionCallExpression:
 ID '(' ')'
 {
-    $$ = CCompilerNs.CCLexYaccCallback.FunctionCallStatement($1, null);
+    $$ = CCompilerNs.CCLexYaccCallback.FunctionCallExpression($1, null);
 }
 |
 ID '(' funcCallParams ')'
 {
-    $$ = CCompilerNs.CCLexYaccCallback.FunctionCallStatement($1, $3);
+    $$ = CCompilerNs.CCLexYaccCallback.FunctionCallExpression($1, $3);
 }
 ;
 
