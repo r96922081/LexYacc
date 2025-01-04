@@ -25,13 +25,16 @@ public class YaccActions{
 %type <CCompilerNs.Program>                    program 
 %type <List<CCompilerNs.FunDecl>>              funDecls
 %type <CCompilerNs.FunDecl>                    funDecl
+%type <List<CCompilerNs.LocalVariable>>        funcParams
 %type <List<CCompilerNs.Statement>>            statements
 %type <CCompilerNs.Statement>                  statement
 %type <CCompilerNs.ReturnStatement>            returnStatement 
 %type <CCompilerNs.DeclareStatement>           declareStatement
 %type <CCompilerNs.AssignmentStatement>        assignmentStatement
+%type <CCompilerNs.FunctionCallStatement>      functionCallStatement
+%type <List<CCompilerNs.Expression>>           funcCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
-%type <string>                                 typeSpec functionCall
+%type <string>                                 typeSpec
 
 %%
 program: 
@@ -55,12 +58,22 @@ funDecl
 funDecl:
 typeSpec ID '(' ')' '{' statements '}'
 {  
-    $$= CCompilerNs.CCLexYaccCallback.FuncDecl($1, $2, $6);
+    $$= CCompilerNs.CCLexYaccCallback.FuncDecl($1, $2, null, $6);
+}
+|
+typeSpec ID '(' funcParams ')' '{' statements '}'
+{  
+    $$= CCompilerNs.CCLexYaccCallback.FuncDecl($1, $2, $4, $7);
 }
 ;
 
 typeSpec:
 INT_TYPE 
+{
+    $$ = $1;
+}
+|
+VOID_TYPE
 {
     $$ = $1;
 }
@@ -90,6 +103,11 @@ declareStatement
 }
 |
 assignmentStatement
+{
+    $$ = $1;
+}
+|
+functionCallStatement
 {
     $$ = $1;
 }
@@ -158,13 +176,13 @@ mulExpression '*' INT_VALUE
 {
     $$ = CCompilerNs.CCLexYaccCallback.Expression($1, ""/"", $3);
 }
-| mulExpression '*' functionCall
+| mulExpression '*' functionCallStatement
 {
-    $$ = CCompilerNs.CCLexYaccCallback.ExpressionCallFunc($1, ""*"", $3);
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1, ""*"", $3);
 }
-| mulExpression '/' functionCall
+| mulExpression '/' functionCallStatement
 {
-    $$ = CCompilerNs.CCLexYaccCallback.ExpressionCallFunc($1, ""/"", $3);
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1, ""/"", $3);
 }
 |
 mulExpression '*' '(' addExpression ')' 
@@ -191,16 +209,45 @@ ID
     $$ = CCompilerNs.CCLexYaccCallback.Expression($1);
 }
 |
-functionCall
+functionCallStatement
 {
-    $$ = CCompilerNs.CCLexYaccCallback.ExpressionCallFunc($1);
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1);
 }
 ;
 
-functionCall:
+funcParams:
+funcParams ',' typeSpec ID
+{
+    $$ = CCompilerNs.CCLexYaccCallback.FuncParams($3, $4, $1);
+}
+|
+typeSpec ID
+{
+    $$ = CCompilerNs.CCLexYaccCallback.FuncParams($1, $2, null);
+}
+;
+
+funcCallParams:
+funcCallParams ',' addExpression
+{
+    $$ = CCompilerNs.CCLexYaccCallback.FuncCallParams($3, $1);
+}
+|
+addExpression
+{
+    $$ = CCompilerNs.CCLexYaccCallback.FuncCallParams($1, null);
+}
+;
+
+functionCallStatement:
 ID '(' ')'
 {
-    $$ = $1;
+    $$ = CCompilerNs.CCLexYaccCallback.FunctionCallStatement($1, null);
+}
+|
+ID '(' funcCallParams ')'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.FunctionCallStatement($1, $3);
 }
 ;
 
@@ -226,13 +273,16 @@ ID '(' ')'
         actions.Add("Rule_funDecls_LeftRecursionExpand_Producton_0", Rule_funDecls_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_funDecls_LeftRecursionExpand_Producton_1", Rule_funDecls_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_funDecl_Producton_0", Rule_funDecl_Producton_0);
+        actions.Add("Rule_funDecl_Producton_1", Rule_funDecl_Producton_1);
         actions.Add("Rule_typeSpec_Producton_0", Rule_typeSpec_Producton_0);
+        actions.Add("Rule_typeSpec_Producton_1", Rule_typeSpec_Producton_1);
         actions.Add("Rule_statements_Producton_0", Rule_statements_Producton_0);
         actions.Add("Rule_statements_LeftRecursionExpand_Producton_0", Rule_statements_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_statements_LeftRecursionExpand_Producton_1", Rule_statements_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_statement_Producton_0", Rule_statement_Producton_0);
         actions.Add("Rule_statement_Producton_1", Rule_statement_Producton_1);
         actions.Add("Rule_statement_Producton_2", Rule_statement_Producton_2);
+        actions.Add("Rule_statement_Producton_3", Rule_statement_Producton_3);
         actions.Add("Rule_returnStatement_Producton_0", Rule_returnStatement_Producton_0);
         actions.Add("Rule_returnStatement_Producton_1", Rule_returnStatement_Producton_1);
         actions.Add("Rule_declareStatement_Producton_0", Rule_declareStatement_Producton_0);
@@ -255,7 +305,14 @@ ID '(' ')'
         actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_6", Rule_mulExpression_LeftRecursionExpand_Producton_6);
         actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_7", Rule_mulExpression_LeftRecursionExpand_Producton_7);
         actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_8", Rule_mulExpression_LeftRecursionExpand_Producton_8);
-        actions.Add("Rule_functionCall_Producton_0", Rule_functionCall_Producton_0);
+        actions.Add("Rule_funcParams_Producton_0", Rule_funcParams_Producton_0);
+        actions.Add("Rule_funcParams_LeftRecursionExpand_Producton_0", Rule_funcParams_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_funcParams_LeftRecursionExpand_Producton_1", Rule_funcParams_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_funcCallParams_Producton_0", Rule_funcCallParams_Producton_0);
+        actions.Add("Rule_funcCallParams_LeftRecursionExpand_Producton_0", Rule_funcCallParams_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_funcCallParams_LeftRecursionExpand_Producton_1", Rule_funcCallParams_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_functionCallStatement_Producton_0", Rule_functionCallStatement_Producton_0);
+        actions.Add("Rule_functionCallStatement_Producton_1", Rule_functionCallStatement_Producton_1);
     }
 
     public static object Rule_start_Producton_0(Dictionary<int, object> objects) { 
@@ -312,12 +369,35 @@ ID '(' ')'
         List<CCompilerNs.Statement> _6 = (List<CCompilerNs.Statement>)objects[6];
 
         // user-defined action
-        _0= CCompilerNs.CCLexYaccCallback.FuncDecl(_1, _2, _6);
+        _0= CCompilerNs.CCLexYaccCallback.FuncDecl(_1, _2, null, _6);
+
+        return _0;
+    }
+
+    public static object Rule_funDecl_Producton_1(Dictionary<int, object> objects) { 
+        CCompilerNs.FunDecl _0 = new CCompilerNs.FunDecl();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        List<CCompilerNs.LocalVariable> _4 = (List<CCompilerNs.LocalVariable>)objects[4];
+        List<CCompilerNs.Statement> _7 = (List<CCompilerNs.Statement>)objects[7];
+
+        // user-defined action
+        _0= CCompilerNs.CCLexYaccCallback.FuncDecl(_1, _2, _4, _7);
 
         return _0;
     }
 
     public static object Rule_typeSpec_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_typeSpec_Producton_1(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 
@@ -377,6 +457,16 @@ ID '(' ')'
     public static object Rule_statement_Producton_2(Dictionary<int, object> objects) { 
         CCompilerNs.Statement _0 = new CCompilerNs.Statement();
         CCompilerNs.AssignmentStatement _1 = (CCompilerNs.AssignmentStatement)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_3(Dictionary<int, object> objects) { 
+        CCompilerNs.Statement _0 = new CCompilerNs.Statement();
+        CCompilerNs.FunctionCallStatement _1 = (CCompilerNs.FunctionCallStatement)objects[1];
 
         // user-defined action
         _0 = _1;
@@ -509,10 +599,10 @@ ID '(' ')'
 
     public static object Rule_mulExpression_Producton_3(Dictionary<int, object> objects) { 
         CCompilerNs.Expression _0 = new CCompilerNs.Expression();
-        string _1 = (string)objects[1];
+        CCompilerNs.FunctionCallStatement _1 = (CCompilerNs.FunctionCallStatement)objects[1];
 
         // user-defined action
-        _0 = CCompilerNs.CCLexYaccCallback.ExpressionCallFunc(_1);
+        _0 = CCompilerNs.CCLexYaccCallback.Expression(_1);
 
         return _0;
     }
@@ -564,10 +654,10 @@ ID '(' ')'
     public static object Rule_mulExpression_LeftRecursionExpand_Producton_4(Dictionary<int, object> objects) { 
         CCompilerNs.Expression _0 = new CCompilerNs.Expression();
         CCompilerNs.Expression _1 =(CCompilerNs.Expression)objects[1];
-        string _3 = (string)objects[3];
+        CCompilerNs.FunctionCallStatement _3 = (CCompilerNs.FunctionCallStatement)objects[3];
 
         // user-defined action
-        _0 = CCompilerNs.CCLexYaccCallback.ExpressionCallFunc(_1, "*", _3);
+        _0 = CCompilerNs.CCLexYaccCallback.Expression(_1, "*", _3);
 
         return _0;
     }
@@ -575,10 +665,10 @@ ID '(' ')'
     public static object Rule_mulExpression_LeftRecursionExpand_Producton_5(Dictionary<int, object> objects) { 
         CCompilerNs.Expression _0 = new CCompilerNs.Expression();
         CCompilerNs.Expression _1 =(CCompilerNs.Expression)objects[1];
-        string _3 = (string)objects[3];
+        CCompilerNs.FunctionCallStatement _3 = (CCompilerNs.FunctionCallStatement)objects[3];
 
         // user-defined action
-        _0 = CCompilerNs.CCLexYaccCallback.ExpressionCallFunc(_1, "/", _3);
+        _0 = CCompilerNs.CCLexYaccCallback.Expression(_1, "/", _3);
 
         return _0;
     }
@@ -611,12 +701,79 @@ ID '(' ')'
         return _0;
     }
 
-    public static object Rule_functionCall_Producton_0(Dictionary<int, object> objects) { 
-        string _0 = new string("");
+    public static object Rule_funcParams_Producton_0(Dictionary<int, object> objects) { 
+        List<CCompilerNs.LocalVariable> _0 = new List<CCompilerNs.LocalVariable>();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.FuncParams(_1, _2, null);
+
+        return _0;
+    }
+
+    public static object Rule_funcParams_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        List<CCompilerNs.LocalVariable> _0 = new List<CCompilerNs.LocalVariable>();
+        List<CCompilerNs.LocalVariable> _1 =(List<CCompilerNs.LocalVariable>)objects[1];
+        string _3 = (string)objects[3];
+        string _4 = (string)objects[4];
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.FuncParams(_3, _4, _1);
+
+        return _0;
+    }
+
+    public static object Rule_funcParams_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        List<CCompilerNs.LocalVariable> _0 = new List<CCompilerNs.LocalVariable>();
+
+        return _0;
+    }
+
+    public static object Rule_funcCallParams_Producton_0(Dictionary<int, object> objects) { 
+        List<CCompilerNs.Expression> _0 = new List<CCompilerNs.Expression>();
+        CCompilerNs.Expression _1 = (CCompilerNs.Expression)objects[1];
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.FuncCallParams(_1, null);
+
+        return _0;
+    }
+
+    public static object Rule_funcCallParams_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        List<CCompilerNs.Expression> _0 = new List<CCompilerNs.Expression>();
+        List<CCompilerNs.Expression> _1 =(List<CCompilerNs.Expression>)objects[1];
+        CCompilerNs.Expression _3 = (CCompilerNs.Expression)objects[3];
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.FuncCallParams(_3, _1);
+
+        return _0;
+    }
+
+    public static object Rule_funcCallParams_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        List<CCompilerNs.Expression> _0 = new List<CCompilerNs.Expression>();
+
+        return _0;
+    }
+
+    public static object Rule_functionCallStatement_Producton_0(Dictionary<int, object> objects) { 
+        CCompilerNs.FunctionCallStatement _0 = new CCompilerNs.FunctionCallStatement();
         string _1 = (string)objects[1];
 
         // user-defined action
-        _0 = _1;
+        _0 = CCompilerNs.CCLexYaccCallback.FunctionCallStatement(_1, null);
+
+        return _0;
+    }
+
+    public static object Rule_functionCallStatement_Producton_1(Dictionary<int, object> objects) { 
+        CCompilerNs.FunctionCallStatement _0 = new CCompilerNs.FunctionCallStatement();
+        string _1 = (string)objects[1];
+        List<CCompilerNs.Expression> _3 = (List<CCompilerNs.Expression>)objects[3];
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.FunctionCallStatement(_1, _3);
 
         return _0;
     }

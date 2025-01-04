@@ -7,13 +7,16 @@
 %type <CCompilerNs.Program>                    program 
 %type <List<CCompilerNs.FunDecl>>              funDecls
 %type <CCompilerNs.FunDecl>                    funDecl
+%type <List<CCompilerNs.LocalVariable>>        funcParams
 %type <List<CCompilerNs.Statement>>            statements
 %type <CCompilerNs.Statement>                  statement
 %type <CCompilerNs.ReturnStatement>            returnStatement 
 %type <CCompilerNs.DeclareStatement>           declareStatement
 %type <CCompilerNs.AssignmentStatement>        assignmentStatement
+%type <CCompilerNs.FunctionCallStatement>      functionCallStatement
+%type <List<CCompilerNs.Expression>>           funcCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
-%type <string>                                 typeSpec functionCall
+%type <string>                                 typeSpec
 
 %%
 program: 
@@ -37,12 +40,22 @@ funDecl
 funDecl:
 typeSpec ID '(' ')' '{' statements '}'
 {  
-    $$= CCompilerNs.CCLexYaccCallback.FuncDecl($1, $2, $6);
+    $$= CCompilerNs.CCLexYaccCallback.FuncDecl($1, $2, null, $6);
+}
+|
+typeSpec ID '(' funcParams ')' '{' statements '}'
+{  
+    $$= CCompilerNs.CCLexYaccCallback.FuncDecl($1, $2, $4, $7);
 }
 ;
 
 typeSpec:
 INT_TYPE 
+{
+    $$ = $1;
+}
+|
+VOID_TYPE
 {
     $$ = $1;
 }
@@ -72,6 +85,11 @@ declareStatement
 }
 |
 assignmentStatement
+{
+    $$ = $1;
+}
+|
+functionCallStatement
 {
     $$ = $1;
 }
@@ -140,13 +158,13 @@ mulExpression '*' INT_VALUE
 {
     $$ = CCompilerNs.CCLexYaccCallback.Expression($1, "/", $3);
 }
-| mulExpression '*' functionCall
+| mulExpression '*' functionCallStatement
 {
-    $$ = CCompilerNs.CCLexYaccCallback.ExpressionCallFunc($1, "*", $3);
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1, "*", $3);
 }
-| mulExpression '/' functionCall
+| mulExpression '/' functionCallStatement
 {
-    $$ = CCompilerNs.CCLexYaccCallback.ExpressionCallFunc($1, "/", $3);
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1, "/", $3);
 }
 |
 mulExpression '*' '(' addExpression ')' 
@@ -173,16 +191,45 @@ ID
     $$ = CCompilerNs.CCLexYaccCallback.Expression($1);
 }
 |
-functionCall
+functionCallStatement
 {
-    $$ = CCompilerNs.CCLexYaccCallback.ExpressionCallFunc($1);
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1);
 }
 ;
 
-functionCall:
+funcParams:
+funcParams ',' typeSpec ID
+{
+    $$ = CCompilerNs.CCLexYaccCallback.FuncParams($3, $4, $1);
+}
+|
+typeSpec ID
+{
+    $$ = CCompilerNs.CCLexYaccCallback.FuncParams($1, $2, null);
+}
+;
+
+funcCallParams:
+funcCallParams ',' addExpression
+{
+    $$ = CCompilerNs.CCLexYaccCallback.FuncCallParams($3, $1);
+}
+|
+addExpression
+{
+    $$ = CCompilerNs.CCLexYaccCallback.FuncCallParams($1, null);
+}
+;
+
+functionCallStatement:
 ID '(' ')'
 {
-    $$ = $1;
+    $$ = CCompilerNs.CCLexYaccCallback.FunctionCallStatement($1, null);
+}
+|
+ID '(' funcCallParams ')'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.FunctionCallStatement($1, $3);
 }
 ;
 

@@ -24,25 +24,14 @@
         }
     }
 
-    public enum VariableType
-    {
-        void_type,
-        int_type
-    }
-
-    public class LocalVariable
-    {
-        public string name;
-        public int stackAddress = 0;
-    }
-
     public class FunDecl : AstNode
     {
         public VariableType returnType;
         public string functionName;
+        public Dictionary<string, LocalVariable> paramMap = new Dictionary<string, LocalVariable>();
         public List<Statement> statements;
 
-        public Dictionary<string, LocalVariable> locals = new Dictionary<string, LocalVariable>();
+        public Dictionary<string, LocalVariable> localMap = new Dictionary<string, LocalVariable>();
         public int localSize = 0;
 
         public FunDecl() : base("FunDecl")
@@ -50,50 +39,61 @@
 
         }
 
+        public void AddParamVariable(LocalVariable p)
+        {
+            paramMap.Add(p.name, p);
+            p.stackOffset = 8 + paramMap.Count * 8; // skip the first 8 byte of return address in stack
+        }
+
         public void AddLocalVariable(DeclareStatement a)
         {
             LocalVariable l = new LocalVariable();
             l.name = a.name;
-            locals.Add(l.name, l);
+            l.type = a.type;
+            localMap.Add(l.name, l);
 
+            localSize += a.type.size;
 
-            if (a.type == VariableType.int_type)
-            {
-                localSize += 8;
-            }
-
-            l.stackAddress = localSize;
-            a.stackAddress = localSize;
+            l.stackOffset = -localSize;
+            a.stackOffset = -localSize;
         }
 
         public override void EmitAsm()
         {
-            Context.locals = locals;
+            Context.funDecl = this;
 
             string asm = string.Format(@"
 #FunDecl =>
 .global {0}
 {1}:
-push % rbp
-mov % rsp, % rbp
+push %rbp
+mov %rsp, %rbp
 
 add ${2}, %rsp
 ", functionName, functionName, -localSize);
 
             Emit(asm);
             foreach (Statement s in statements)
+            {
                 s.EmitAsm();
-            Context.locals = null;
+            }
 
-            asm = @"
+            /*int alignStackSize = localSize % 16 == 0 ? 0 : 16 - localSize % 16;
+            if (alignStackSize != 0)
+                Emit(string.Format("add ${0}, %rsp", -alignStackSize));*/
+
+            asm = string.Format(@"
 leave
 ret
 #<= FunDecl
-";
+");
             Emit(asm);
+
+            Context.funDecl = this;
         }
     }
 
+    // Statement clear all result
     public class Statement : AstNode
     {
         public Statement() : base("Statement")
@@ -148,10 +148,10 @@ ret";
             Emit("#AssignmentStatement =>");
 
             value.EmitAsm();
-            LocalVariable l = Context.locals[name];
+            LocalVariable l = Context.funDecl.localMap[name];
 
             Emit("pop %rax");
-            Emit(string.Format("mov %rax, -{0}(%rbp)", l.stackAddress));
+            Emit(string.Format("mov %rax, {0}(%rbp)", l.stackOffset));
             Emit("#<= AssignmentStatement\n");
         }
     }
@@ -161,7 +161,7 @@ ret";
         public VariableType type;
         public string name;
         public Expression value;
-        public int stackAddress;
+        public int stackOffset;
 
         public DeclareStatement() : base("DeclareStatement")
         {
@@ -177,13 +177,63 @@ ret";
                 Emit("pop %rax");
             }
 
-            Emit(string.Format("mov %rax, -{0}(%rbp)", stackAddress));
+            Emit(string.Format("mov %rax, {0}(%rbp)", stackOffset));
             Emit("#<= DeclareStatement\n");
         }
     }
 
+    public class FunctionCallStatement : Statement
+    {
+        public string name;
+        public List<Expression> parameters;
+
+        public FunctionCallStatement() : base("FunctionCallStatement")
+        {
+
+        }
+
+        public override void EmitAsm()
+        {
+            Emit("#FunctionCallStatement =>");
+
+            int localSize = Context.funDecl.localSize;
+
+            if (parameters != null)
+            {
+                // Caller push in reserve order, callee pop in order
+                for (int i = parameters.Count - 1; i >= 0; i--)
+                {
+                    parameters[i].EmitAsm();
+                    Emit(string.Format("pop %rax"));
+                    Emit(string.Format("push %rax # push parameter onto stack"));
+                    localSize += 8;
+                }
+            }
+
+            /*int alignStackSize = localSize % 16 == 0 ? 0 : 16 - localSize % 16;
+            if (alignStackSize != 0)
+                Emit(string.Format("add ${0}, %rsp # align stack 16-byte boundary", -alignStackSize));*/
+
+            Emit(string.Format("call {0}", name));
+
+            if (parameters != null)
+            {
+                // Clear parameters
+                for (int i = 0; i < parameters.Count; i++)
+                {
+                    Emit(string.Format("pop %rbx # clear parameter on stack"));
+                }
+            }
+
+            /*if (alignStackSize != 0)
+                Emit(string.Format("add ${0}, %rsp", alignStackSize));*/
+
+            Emit("#<= FunctionCallStatement\n");
+        }
+    }
 
 
+    // save result in stack
     public class Expression : AstNode
     {
         public Expression lhs = null;
@@ -191,7 +241,7 @@ ret";
         public Expression rhs = null;
         public int? intValue = null;
         public string? variableName = null;
-        public string? functionName = null;
+        public FunctionCallStatement? functionCall = null;
 
         public Expression() : base("Expression")
         {
@@ -209,14 +259,22 @@ ret";
             // case mulExpression: ID
             else if (variableName != null)
             {
-                LocalVariable local = Context.locals[variableName];
-                Emit(string.Format("mov -{0}(%rbp), %rax", local.stackAddress));
+                LocalVariable local = null;
+
+                if (Context.funDecl.localMap.ContainsKey(variableName))
+                    local = Context.funDecl.localMap[variableName];
+                else if (Context.funDecl.paramMap.ContainsKey(variableName))
+                    local = Context.funDecl.paramMap[variableName];
+                else
+                    throw new Exception("unknown variable " + variableName);
+
+                Emit(string.Format("mov {0}(%rbp), %rax", local.stackOffset));
                 Emit(string.Format("push %rax\n"));
             }
             // case mulExpression: functionCall
-            else if (functionName != null)
+            else if (functionCall != null)
             {
-                Emit(string.Format("call {0}", functionName));
+                functionCall.EmitAsm();
                 Emit(string.Format("push %rax\n"));
             }
             else
@@ -254,7 +312,7 @@ ret";
                         Emit(string.Format("mul %rbx"));
                     else if (op == "/")
                     {
-                        Emit(string.Format("mov $0, % rdx"));
+                        Emit(string.Format("mov $0, %rdx"));
                         Emit(string.Format("div %rbx"));
                     }
 
@@ -276,9 +334,9 @@ ret";
                 s = "Expression(" + variableName + ")";
             }
             // case mulExpression: functionCall
-            else if (functionName != null)
+            else if (functionCall != null)
             {
-                s = "Expression(" + functionName + ")";
+                s = "Expression(" + functionCall.name + "())";
             }
             else
             {

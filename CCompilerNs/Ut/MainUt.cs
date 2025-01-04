@@ -262,6 +262,85 @@ int main()
             Check(exitCode == 17);
         }
 
+        public void Ut12()
+        {
+            string src = @"
+int f1(int a, int b, int c)
+{
+    return a + b + c;
+}
+int main()
+{
+    return f1(1, 2, 3);
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 6);
+        }
+
+        public void Ut13()
+        {
+            string src = @"
+int f1(int a, int b, int c)
+{
+    return a + b + c;
+}
+
+int f2()
+{
+    return 5;
+}
+
+int main()
+{
+    return f1(2 * 3,  1 + 2 * 4, f2());
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 20);
+        }
+
+        public void Ut14()
+        {
+            string src = @"
+int f1()
+{
+    return;
+}
+
+int main()
+{
+    f1()
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 1);
+        }
+
         public static void RunAllUt()
         {
             MainUt mainUt = new MainUt();
@@ -277,6 +356,9 @@ int main()
             mainUt.Ut9();
             mainUt.Ut10();
             mainUt.Ut11();
+            mainUt.Ut12();
+            mainUt.Ut13();
+            mainUt.Ut14();
         }
 
         public static void Ut()

@@ -2,6 +2,6 @@
 {
     public class Context
     {
-        public static Dictionary<string, LocalVariable> locals = null;
+        public static FunDecl funDecl;
     }
 }
