@@ -20,30 +20,34 @@ public class YaccActions{
 %}
 
 %token <int>         INT_VALUE
-%token <string>      RETURN ID INT_TYPE VOID_TYPE IF EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN
+%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN
 
 %type <CCompilerNs.Program>                    program 
 %type <List<CCompilerNs.FunDecl>>              funDecls
 %type <CCompilerNs.FunDecl>                    funDecl
 %type <List<CCompilerNs.LocalVariable>>        funcParams
-%type <List<CCompilerNs.Statement>>            statements
+%type <List<CCompilerNs.Statement>>            statements 
+%type <CCompilerNs.IfSubstatementGroup>        ifSubstatementGroup
 %type <CCompilerNs.Statement>                  statement
 %type <CCompilerNs.ReturnStatement>            returnStatement 
 %type <CCompilerNs.DeclareStatement>           declareStatement
 %type <CCompilerNs.AssignmentStatement>        assignmentStatement
 %type <CCompilerNs.FunctionCallExpression>     functionCallExpression
 %type <CCompilerNs.FunctionCallExpression>     functionCallStatement
-%type <CCompilerNs.IfStatement>                ifStatement
+%type <CCompilerNs.CompoundIfStatement>        compoundIfStatement
+%type <CCompilerNs.IfStatement>                ifStatement elseIfStatement elseStatement
+%type <List<CCompilerNs.IfStatement>>          elseIfStatements
 %type <List<CCompilerNs.Expression>>           funcCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
-%type <string>                                 typeSpec relationlOp
+%type <string>                                 typeSpec relationlOp  
 
 %%
 program: 
 funDecls 
 {
     $$= CCompilerNs.CCLexYaccCallback.Program($1);
-};
+}
+;
 
 funDecls:
 funDecls funDecl
@@ -114,16 +118,66 @@ functionCallStatement
     $$ = $1;
 }
 |
-ifStatement
+compoundIfStatement
 {
     $$ = $1;
 }
 ;
 
-ifStatement:
-IF '(' addExpression relationlOp addExpression ')' statement
+compoundIfStatement:
+ifStatement
 {
-    $$= CCompilerNs.CCLexYaccCallback.IfStatement($3, $4, $5, $7);
+    $$ = CCompilerNs.CCLexYaccCallback.CompoundIfStatement($1);
+}
+|
+ifStatement elseIfStatements
+{
+    $$ = CCompilerNs.CCLexYaccCallback.CompoundIfStatement($1, $2);
+}
+;
+
+ifStatement:
+IF '(' addExpression relationlOp addExpression ')' ifSubstatementGroup
+{
+    $$ = CCompilerNs.CCLexYaccCallback.IfStatement($3, $4, $5, $7);
+}
+;
+
+elseIfStatements:
+elseIfStatements elseIfStatement 
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ElseIfStatements($1, $2);
+}
+|
+elseIfStatement
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ElseIfStatements(null, $1);
+}
+;
+
+elseIfStatement:
+ELSE IF '(' addExpression relationlOp addExpression ')' ifSubstatementGroup
+{
+    $$= CCompilerNs.CCLexYaccCallback.IfStatement($4, $5, $6, $8);
+}
+;
+
+elseStatement:
+ELSE ifSubstatementGroup
+{
+    $$= CCompilerNs.CCLexYaccCallback.IfStatement(null, null, null, $2);
+}
+;
+
+ifSubstatementGroup:
+statement
+{
+    $$= CCompilerNs.CCLexYaccCallback.IfSubstatementGroup($1);
+}
+|
+'{' statements '}'
+{
+    $$= CCompilerNs.CCLexYaccCallback.IfSubstatementGroup($2);
 }
 ;
 
@@ -336,7 +390,16 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_statement_Producton_2", Rule_statement_Producton_2);
         actions.Add("Rule_statement_Producton_3", Rule_statement_Producton_3);
         actions.Add("Rule_statement_Producton_4", Rule_statement_Producton_4);
+        actions.Add("Rule_compoundIfStatement_Producton_0", Rule_compoundIfStatement_Producton_0);
+        actions.Add("Rule_compoundIfStatement_Producton_1", Rule_compoundIfStatement_Producton_1);
         actions.Add("Rule_ifStatement_Producton_0", Rule_ifStatement_Producton_0);
+        actions.Add("Rule_elseIfStatements_Producton_0", Rule_elseIfStatements_Producton_0);
+        actions.Add("Rule_elseIfStatements_LeftRecursionExpand_Producton_0", Rule_elseIfStatements_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_elseIfStatements_LeftRecursionExpand_Producton_1", Rule_elseIfStatements_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_elseIfStatement_Producton_0", Rule_elseIfStatement_Producton_0);
+        actions.Add("Rule_elseStatement_Producton_0", Rule_elseStatement_Producton_0);
+        actions.Add("Rule_ifSubstatementGroup_Producton_0", Rule_ifSubstatementGroup_Producton_0);
+        actions.Add("Rule_ifSubstatementGroup_Producton_1", Rule_ifSubstatementGroup_Producton_1);
         actions.Add("Rule_returnStatement_Producton_0", Rule_returnStatement_Producton_0);
         actions.Add("Rule_returnStatement_Producton_1", Rule_returnStatement_Producton_1);
         actions.Add("Rule_declareStatement_Producton_0", Rule_declareStatement_Producton_0);
@@ -537,10 +600,31 @@ GREATER_OR_EQUAL_SIGN
 
     public static object Rule_statement_Producton_4(Dictionary<int, object> objects) { 
         CCompilerNs.Statement _0 = new CCompilerNs.Statement();
-        CCompilerNs.IfStatement _1 = (CCompilerNs.IfStatement)objects[1];
+        CCompilerNs.CompoundIfStatement _1 = (CCompilerNs.CompoundIfStatement)objects[1];
 
         // user-defined action
         _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_compoundIfStatement_Producton_0(Dictionary<int, object> objects) { 
+        CCompilerNs.CompoundIfStatement _0 = new CCompilerNs.CompoundIfStatement();
+        CCompilerNs.IfStatement _1 = (CCompilerNs.IfStatement)objects[1];
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.CompoundIfStatement(_1);
+
+        return _0;
+    }
+
+    public static object Rule_compoundIfStatement_Producton_1(Dictionary<int, object> objects) { 
+        CCompilerNs.CompoundIfStatement _0 = new CCompilerNs.CompoundIfStatement();
+        CCompilerNs.IfStatement _1 = (CCompilerNs.IfStatement)objects[1];
+        List<CCompilerNs.IfStatement> _2 = (List<CCompilerNs.IfStatement>)objects[2];
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.CompoundIfStatement(_1, _2);
 
         return _0;
     }
@@ -551,10 +635,83 @@ GREATER_OR_EQUAL_SIGN
         CCompilerNs.Expression _3 = (CCompilerNs.Expression)objects[3];
         string _4 = (string)objects[4];
         CCompilerNs.Expression _5 = (CCompilerNs.Expression)objects[5];
-        CCompilerNs.Statement _7 = (CCompilerNs.Statement)objects[7];
+        CCompilerNs.IfSubstatementGroup _7 = (CCompilerNs.IfSubstatementGroup)objects[7];
 
         // user-defined action
-        _0= CCompilerNs.CCLexYaccCallback.IfStatement(_3, _4, _5, _7);
+        _0 = CCompilerNs.CCLexYaccCallback.IfStatement(_3, _4, _5, _7);
+
+        return _0;
+    }
+
+    public static object Rule_elseIfStatements_Producton_0(Dictionary<int, object> objects) { 
+        List<CCompilerNs.IfStatement> _0 = new List<CCompilerNs.IfStatement>();
+        CCompilerNs.IfStatement _1 = (CCompilerNs.IfStatement)objects[1];
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.ElseIfStatements(null, _1);
+
+        return _0;
+    }
+
+    public static object Rule_elseIfStatements_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        List<CCompilerNs.IfStatement> _0 = new List<CCompilerNs.IfStatement>();
+        List<CCompilerNs.IfStatement> _1 =(List<CCompilerNs.IfStatement>)objects[1];
+        CCompilerNs.IfStatement _2 = (CCompilerNs.IfStatement)objects[2];
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.ElseIfStatements(_1, _2);
+
+        return _0;
+    }
+
+    public static object Rule_elseIfStatements_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        List<CCompilerNs.IfStatement> _0 = new List<CCompilerNs.IfStatement>();
+
+        return _0;
+    }
+
+    public static object Rule_elseIfStatement_Producton_0(Dictionary<int, object> objects) { 
+        CCompilerNs.IfStatement _0 = new CCompilerNs.IfStatement();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
+        string _5 = (string)objects[5];
+        CCompilerNs.Expression _6 = (CCompilerNs.Expression)objects[6];
+        CCompilerNs.IfSubstatementGroup _8 = (CCompilerNs.IfSubstatementGroup)objects[8];
+
+        // user-defined action
+        _0= CCompilerNs.CCLexYaccCallback.IfStatement(_4, _5, _6, _8);
+
+        return _0;
+    }
+
+    public static object Rule_elseStatement_Producton_0(Dictionary<int, object> objects) { 
+        CCompilerNs.IfStatement _0 = new CCompilerNs.IfStatement();
+        string _1 = (string)objects[1];
+        CCompilerNs.IfSubstatementGroup _2 = (CCompilerNs.IfSubstatementGroup)objects[2];
+
+        // user-defined action
+        _0= CCompilerNs.CCLexYaccCallback.IfStatement(null, null, null, _2);
+
+        return _0;
+    }
+
+    public static object Rule_ifSubstatementGroup_Producton_0(Dictionary<int, object> objects) { 
+        CCompilerNs.IfSubstatementGroup _0 = new CCompilerNs.IfSubstatementGroup();
+        CCompilerNs.Statement _1 = (CCompilerNs.Statement)objects[1];
+
+        // user-defined action
+        _0= CCompilerNs.CCLexYaccCallback.IfSubstatementGroup(_1);
+
+        return _0;
+    }
+
+    public static object Rule_ifSubstatementGroup_Producton_1(Dictionary<int, object> objects) { 
+        CCompilerNs.IfSubstatementGroup _0 = new CCompilerNs.IfSubstatementGroup();
+        List<CCompilerNs.Statement> _2 = (List<CCompilerNs.Statement>)objects[2];
+
+        // user-defined action
+        _0= CCompilerNs.CCLexYaccCallback.IfSubstatementGroup(_2);
 
         return _0;
     }
@@ -955,10 +1112,11 @@ namespace ccNs
             { 259, "INT_TYPE"},
             { 260, "VOID_TYPE"},
             { 261, "IF"},
-            { 262, "EQUAL_SIGN"},
-            { 263, "NOT_EQUAL_SIGN"},
-            { 264, "LESS_OR_EQUAL_SIGN"},
-            { 265, "GREATER_OR_EQUAL_SIGN"},
+            { 262, "ELSE"},
+            { 263, "EQUAL_SIGN"},
+            { 264, "NOT_EQUAL_SIGN"},
+            { 265, "LESS_OR_EQUAL_SIGN"},
+            { 266, "GREATER_OR_EQUAL_SIGN"},
         };
 
         public static int INT_VALUE = 256;
@@ -967,10 +1125,11 @@ namespace ccNs
         public static int INT_TYPE = 259;
         public static int VOID_TYPE = 260;
         public static int IF = 261;
-        public static int EQUAL_SIGN = 262;
-        public static int NOT_EQUAL_SIGN = 263;
-        public static int LESS_OR_EQUAL_SIGN = 264;
-        public static int GREATER_OR_EQUAL_SIGN = 265;
+        public static int ELSE = 262;
+        public static int EQUAL_SIGN = 263;
+        public static int NOT_EQUAL_SIGN = 264;
+        public static int LESS_OR_EQUAL_SIGN = 265;
+        public static int GREATER_OR_EQUAL_SIGN = 266;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -998,6 +1157,7 @@ namespace ccNs
 ""void""                    { value = ""void""; return VOID_TYPE; }
 ""return""                  { return RETURN; }
 ""if""                      { return IF; }
+""else""                    { return ELSE; }
 ""==""                      { value = ""==""; return EQUAL_SIGN; }
 ""!=""                      { value = ""!=""; return NOT_EQUAL_SIGN; }
 ""<=""                      { value = ""<=""; return LESS_OR_EQUAL_SIGN; }
@@ -1052,6 +1212,7 @@ namespace ccNs
             actions.Add("LexRule22", LexAction22);
             actions.Add("LexRule23", LexAction23);
             actions.Add("LexRule24", LexAction24);
+            actions.Add("LexRule25", LexAction25);
         }
         public static object LexAction0(string yytext)
         {
@@ -1094,7 +1255,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "=="; return EQUAL_SIGN; 
+            return ELSE; 
 
             return 0;
         }
@@ -1103,7 +1264,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "!="; return NOT_EQUAL_SIGN; 
+            value = "=="; return EQUAL_SIGN; 
 
             return 0;
         }
@@ -1112,7 +1273,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "<="; return LESS_OR_EQUAL_SIGN; 
+            value = "!="; return NOT_EQUAL_SIGN; 
 
             return 0;
         }
@@ -1121,7 +1282,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = ">="; return GREATER_OR_EQUAL_SIGN; 
+            value = "<="; return LESS_OR_EQUAL_SIGN; 
 
             return 0;
         }
@@ -1130,7 +1291,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = int.Parse(yytext); return INT_VALUE; 
+            value = ">="; return GREATER_OR_EQUAL_SIGN; 
 
             return 0;
         }
@@ -1139,7 +1300,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            value = int.Parse(yytext); return INT_VALUE; 
 
             return 0;
         }
@@ -1147,14 +1308,14 @@ namespace ccNs
         {
             value = null;
 
+            // user-defined action
+            value = yytext; return ID; 
+
             return 0;
         }
         public static object LexAction11(string yytext)
         {
             value = null;
-
-            // user-defined action
-            return '{'; 
 
             return 0;
         }
@@ -1163,7 +1324,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '}'; 
+            return '{'; 
 
             return 0;
         }
@@ -1172,7 +1333,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '<'; 
+            return '}'; 
 
             return 0;
         }
@@ -1181,7 +1342,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '>'; 
+            return '<'; 
 
             return 0;
         }
@@ -1190,7 +1351,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '('; 
+            return '>'; 
 
             return 0;
         }
@@ -1199,7 +1360,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return ')'; 
+            return '('; 
 
             return 0;
         }
@@ -1208,7 +1369,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return ';'; 
+            return ')'; 
 
             return 0;
         }
@@ -1217,7 +1378,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '+'; 
+            return ';'; 
 
             return 0;
         }
@@ -1226,7 +1387,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '-'; 
+            return '+'; 
 
             return 0;
         }
@@ -1235,7 +1396,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '*'; 
+            return '-'; 
 
             return 0;
         }
@@ -1244,7 +1405,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '/'; 
+            return '*'; 
 
             return 0;
         }
@@ -1253,7 +1414,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '='; 
+            return '/'; 
 
             return 0;
         }
@@ -1262,11 +1423,20 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '%'; 
+            return '='; 
 
             return 0;
         }
         public static object LexAction24(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '%'; 
+
+            return 0;
+        }
+        public static object LexAction25(string yytext)
         {
             value = null;
 

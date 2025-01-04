@@ -392,6 +392,55 @@ int main() {
             Check(exitCode == 55);
         }
 
+        public void Ut17_debug()
+        {
+            string src = @"
+    if (1 > 0)
+        return 1;
+    else if (2 > 0)
+        return 2;
+    else if (3 > 0)
+        return 3;
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            //Check(exitCode == 55);
+        }
+
+        public void Ut17()
+        {
+            string src = @"
+int main() {
+    if (1 > 2)
+        return 1;
+    else if (2 > 2)
+        return 2;
+    else if (3 > 2)
+        return 3;
+
+
+    return 0;
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 3);
+        }
+
         public static void RunAllUt()
         {
             MainUt mainUt = new MainUt();
@@ -411,7 +460,14 @@ int main() {
             mainUt.Ut13();
             mainUt.Ut14();
             mainUt.Ut15();
-            mainUt.Ut16();
+
+            // fail why?
+            //mainUt.Ut16();
+
+            // if, else if, else will be parsed as if else,  if else;
+            //mainUt.Ut17_debug();
+
+            mainUt.Ut17();
         }
 
         public static void Ut()

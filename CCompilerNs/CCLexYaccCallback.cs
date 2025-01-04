@@ -10,6 +10,14 @@
             return p;
         }
 
+        public static Program Program(AstNode n)
+        {
+            Program p = new Program();
+            p.childrenForPrint.Add(n);
+
+            return p;
+        }
+
         public static List<FunDecl> FunDecls(FunDecl funcDecl, List<FunDecl> prevFuncDecls)
         {
             List<FunDecl> funcDecls = new List<FunDecl>();
@@ -221,15 +229,81 @@
             return f;
         }
 
-        public static IfStatement IfStatement(Expression lhs, string op, Expression rhs, Statement statement)
+        public static IfStatement IfStatement(Expression lhs, string op, Expression rhs, IfSubstatementGroup substatements)
         {
             IfStatement i = new IfStatement();
             i.lhs = lhs;
             i.op = op;
             i.rhs = rhs;
-            i.statement = statement;
+            i.substatements = substatements;
 
             return i;
+        }
+
+        public static List<IfStatement> ElseIfStatements(List<IfStatement> prevStatements, IfStatement statement)
+        {
+            List<IfStatement> statements = new List<IfStatement>();
+            if (prevStatements != null)
+                statements.AddRange(prevStatements);
+
+            statements.Add(statement);
+
+            return statements;
+        }
+
+        public static IfSubstatementGroup IfSubstatementGroup(List<Statement> statements)
+        {
+            IfSubstatementGroup i = new IfSubstatementGroup();
+            i.substatementGroup = statements;
+
+            return i;
+        }
+
+        public static IfSubstatementGroup IfSubstatementGroup(Statement statement)
+        {
+            IfSubstatementGroup i = new IfSubstatementGroup();
+            i.substatementGroup.Add(statement);
+
+            return i;
+        }
+        public static CompoundIfStatement CompoundIfStatement(IfStatement ifStatement)
+        {
+            CompoundIfStatement c = new CompoundIfStatement();
+
+            c.ifStatement = ifStatement;
+
+            return c;
+        }
+
+        public static CompoundIfStatement CompoundIfStatement(IfStatement ifStatement, List<IfStatement> elseIfStatements)
+        {
+            CompoundIfStatement c = new CompoundIfStatement();
+
+            c.ifStatement = ifStatement;
+            c.elseIfStatements = elseIfStatements;
+
+            return c;
+        }
+
+        public static CompoundIfStatement CompoundIfStatement(IfStatement ifStatement, List<IfStatement> elseIfStatements, IfStatement elseStatement)
+        {
+            CompoundIfStatement c = new CompoundIfStatement();
+
+            c.ifStatement = ifStatement;
+            c.elseIfStatements = elseIfStatements;
+            c.elseStatement = elseStatement;
+
+            return c;
+        }
+
+        public static CompoundIfStatement CompoundIfStatement(IfStatement ifStatement, IfStatement elseStatement)
+        {
+            CompoundIfStatement c = new CompoundIfStatement();
+
+            c.ifStatement = ifStatement;
+            c.elseStatement = elseStatement;
+
+            return c;
         }
     }
 }

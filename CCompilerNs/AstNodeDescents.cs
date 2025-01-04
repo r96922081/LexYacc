@@ -107,49 +107,123 @@ ret
         }
     }
 
-    public class IfStatement : Statement
+    /*
+     statement or '{' statements '}'
+     */
+    public class IfSubstatementGroup : Statement
     {
-        public Expression lhs;
-        public string op;
-        public Expression rhs;
-        public Statement statement;
+        public List<Statement> substatementGroup = new List<Statement>();
 
-        public IfStatement() : base("IfStatement")
+        public IfSubstatementGroup() : base("ifSubstatementGroup")
         {
 
         }
 
         public override void EmitAsm()
         {
-            string label = "branch_" + (Gv.sn++);
+            foreach (Statement s in substatementGroup)
+                s.EmitAsm();
+        }
+    }
 
-            // expression saves result in stack
-            lhs.EmitAsm();
-            rhs.EmitAsm();
+    public class CompoundIfStatement : Statement
+    {
+        public IfStatement ifStatement;
+        public List<IfStatement> elseIfStatements;
+        public IfStatement elseStatement;
 
-            Emit("pop %rbx");
-            Emit("pop %rax");
+        public CompoundIfStatement() : base("CompoundIfStatement")
+        {
 
-            Emit("cmp %rbx, %rax");
+        }
 
+        public override void EmitAsm()
+        {
+            ifStatement.EmitCmpAsm();
+
+            if (elseIfStatements != null)
+            {
+                foreach (IfStatement s in elseIfStatements)
+                    s.EmitCmpAsm();
+            }
+
+            if (elseStatement != null)
+                elseStatement.EmitCmpAsm();
+
+
+            string endCompoundIfLabel = "branch_compound_if_end_" + +(Gv.sn++);
+
+            ifStatement.EmitSubstatementsAsm(endCompoundIfLabel);
+
+            if (elseIfStatements != null)
+            {
+                foreach (IfStatement s in elseIfStatements)
+                    s.EmitSubstatementsAsm(endCompoundIfLabel);
+            }
+
+            if (elseStatement != null)
+                elseStatement.EmitSubstatementsAsm(endCompoundIfLabel);
+
+
+            Emit("\n" + endCompoundIfLabel + ":");
+        }
+    }
+
+    public class IfStatement : Statement
+    {
+        public Expression lhs;
+        public string op;
+        public Expression rhs;
+        public IfSubstatementGroup substatements;
+        public string matchLabel;
+
+        public IfStatement() : base("IfStatement")
+        {
+
+        }
+
+        public void EmitCmpAsm()
+        {
+            matchLabel = "branch_" + (Gv.sn++);
+
+            // else case. no lhs, rhs
+            if (op == null || op.Length == 0)
+            {
+
+            }
+            else
+            {
+                // expression saves result in stack
+                lhs.EmitAsm();
+                rhs.EmitAsm();
+
+                Emit("pop %rbx");
+                Emit("pop %rax");
+
+                Emit("cmp %rbx, %rax");
+            }
 
             if (op == "==")
-                Emit("jne " + label);
+                Emit("je " + matchLabel);
             else if (op == "!=")
-                Emit("je " + label);
+                Emit("jne " + matchLabel);
             else if (op == ">")
-                Emit("jle " + label);
+                Emit("jg " + matchLabel);
             else if (op == "<")
-                Emit("jge " + label);
+                Emit("jl " + matchLabel);
             else if (op == "<=")
-                Emit("jg " + label);
+                Emit("jle " + matchLabel);
             else if (op == ">=")
-                Emit("jl " + label);
+                Emit("jge " + matchLabel);
+            else
+                Emit("jmp " + matchLabel);
+        }
 
-            statement.EmitAsm();
-
-            Emit("\n" + label + ":");
-
+        public void EmitSubstatementsAsm(string endCompoundIfLabel)
+        {
+            Emit("\n" + matchLabel + ":");
+            substatements.EmitAsm();
+            Emit("jmp " + endCompoundIfLabel + "\n");
         }
     }
 

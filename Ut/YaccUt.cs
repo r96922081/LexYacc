@@ -704,7 +704,7 @@ b:
         Check(yacc.Feed(tokens) == false);
     }
 
-    public static void UtFeed26()
+    public static void UtFeed27()
     {
         string line0 = "a: b 'A' | 'X'; "; //  a: a 'C' 'B' 'A' | 'X'
         string line1 = "b: c 'B'; ";
@@ -764,7 +764,7 @@ b:
         UtFeed23();
         UtFeed24();
         UtFeed25();
-        UtFeed26();
+        UtFeed27();
     }
 
     private static void UtBuild1()

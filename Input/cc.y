@@ -2,30 +2,34 @@
 %}
 
 %token <int>         INT_VALUE
-%token <string>      RETURN ID INT_TYPE VOID_TYPE IF EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN
+%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN
 
 %type <CCompilerNs.Program>                    program 
 %type <List<CCompilerNs.FunDecl>>              funDecls
 %type <CCompilerNs.FunDecl>                    funDecl
 %type <List<CCompilerNs.LocalVariable>>        funcParams
-%type <List<CCompilerNs.Statement>>            statements
+%type <List<CCompilerNs.Statement>>            statements 
+%type <CCompilerNs.IfSubstatementGroup>        ifSubstatementGroup
 %type <CCompilerNs.Statement>                  statement
 %type <CCompilerNs.ReturnStatement>            returnStatement 
 %type <CCompilerNs.DeclareStatement>           declareStatement
 %type <CCompilerNs.AssignmentStatement>        assignmentStatement
 %type <CCompilerNs.FunctionCallExpression>     functionCallExpression
 %type <CCompilerNs.FunctionCallExpression>     functionCallStatement
-%type <CCompilerNs.IfStatement>                ifStatement
+%type <CCompilerNs.CompoundIfStatement>        compoundIfStatement
+%type <CCompilerNs.IfStatement>                ifStatement elseIfStatement elseStatement
+%type <List<CCompilerNs.IfStatement>>          elseIfStatements
 %type <List<CCompilerNs.Expression>>           funcCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
-%type <string>                                 typeSpec relationlOp
+%type <string>                                 typeSpec relationlOp  
 
 %%
 program: 
 funDecls 
 {
     $$= CCompilerNs.CCLexYaccCallback.Program($1);
-};
+}
+;
 
 funDecls:
 funDecls funDecl
@@ -96,16 +100,66 @@ functionCallStatement
     $$ = $1;
 }
 |
-ifStatement
+compoundIfStatement
 {
     $$ = $1;
 }
 ;
 
-ifStatement:
-IF '(' addExpression relationlOp addExpression ')' statement
+compoundIfStatement:
+ifStatement
 {
-    $$= CCompilerNs.CCLexYaccCallback.IfStatement($3, $4, $5, $7);
+    $$ = CCompilerNs.CCLexYaccCallback.CompoundIfStatement($1);
+}
+|
+ifStatement elseIfStatements
+{
+    $$ = CCompilerNs.CCLexYaccCallback.CompoundIfStatement($1, $2);
+}
+;
+
+ifStatement:
+IF '(' addExpression relationlOp addExpression ')' ifSubstatementGroup
+{
+    $$ = CCompilerNs.CCLexYaccCallback.IfStatement($3, $4, $5, $7);
+}
+;
+
+elseIfStatements:
+elseIfStatements elseIfStatement 
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ElseIfStatements($1, $2);
+}
+|
+elseIfStatement
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ElseIfStatements(null, $1);
+}
+;
+
+elseIfStatement:
+ELSE IF '(' addExpression relationlOp addExpression ')' ifSubstatementGroup
+{
+    $$= CCompilerNs.CCLexYaccCallback.IfStatement($4, $5, $6, $8);
+}
+;
+
+elseStatement:
+ELSE ifSubstatementGroup
+{
+    $$= CCompilerNs.CCLexYaccCallback.IfStatement(null, null, null, $2);
+}
+;
+
+ifSubstatementGroup:
+statement
+{
+    $$= CCompilerNs.CCLexYaccCallback.IfSubstatementGroup($1);
+}
+|
+'{' statements '}'
+{
+    $$= CCompilerNs.CCLexYaccCallback.IfSubstatementGroup($2);
 }
 ;
 

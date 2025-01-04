@@ -6,6 +6,7 @@
 "void"                    { value = "void"; return VOID_TYPE; }
 "return"                  { return RETURN; }
 "if"                      { return IF; }
+"else"                    { return ELSE; }
 "=="                      { value = "=="; return EQUAL_SIGN; }
 "!="                      { value = "!="; return NOT_EQUAL_SIGN; }
 "<="                      { value = "<="; return LESS_OR_EQUAL_SIGN; }
