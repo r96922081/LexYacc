@@ -107,6 +107,52 @@ ret
         }
     }
 
+    public class IfStatement : Statement
+    {
+        public Expression lhs;
+        public string op;
+        public Expression rhs;
+        public Statement statement;
+
+        public IfStatement() : base("IfStatement")
+        {
+
+        }
+
+        public override void EmitAsm()
+        {
+            string label = "branch_" + (Gv.sn++);
+
+            // expression saves result in stack
+            lhs.EmitAsm();
+            rhs.EmitAsm();
+
+            Emit("pop %rbx");
+            Emit("pop %rax");
+
+            Emit("cmp %rbx, %rax");
+
+
+            if (op == "==")
+                Emit("jne " + label);
+            else if (op == "!=")
+                Emit("je " + label);
+            else if (op == ">")
+                Emit("jle " + label);
+            else if (op == "<")
+                Emit("jge " + label);
+            else if (op == "<=")
+                Emit("jg " + label);
+            else if (op == ">=")
+                Emit("jl " + label);
+
+            statement.EmitAsm();
+
+            Emit("\n" + label + ":");
+
+        }
+    }
+
     public class ReturnStatement : Statement
     {
         public Expression returnValue;

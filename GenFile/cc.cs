@@ -20,7 +20,7 @@ public class YaccActions{
 %}
 
 %token <int>         INT_VALUE
-%token <string>      RETURN ID INT_TYPE VOID_TYPE
+%token <string>      RETURN ID INT_TYPE VOID_TYPE IF EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN
 
 %type <CCompilerNs.Program>                    program 
 %type <List<CCompilerNs.FunDecl>>              funDecls
@@ -33,9 +33,10 @@ public class YaccActions{
 %type <CCompilerNs.AssignmentStatement>        assignmentStatement
 %type <CCompilerNs.FunctionCallExpression>     functionCallExpression
 %type <CCompilerNs.FunctionCallExpression>     functionCallStatement
+%type <CCompilerNs.IfStatement>                ifStatement
 %type <List<CCompilerNs.Expression>>           funcCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
-%type <string>                                 typeSpec
+%type <string>                                 typeSpec relationlOp
 
 %%
 program: 
@@ -111,6 +112,18 @@ assignmentStatement
 functionCallStatement
 {
     $$ = $1;
+}
+|
+ifStatement
+{
+    $$ = $1;
+}
+;
+
+ifStatement:
+IF '(' addExpression relationlOp addExpression ')' statement
+{
+    $$= CCompilerNs.CCLexYaccCallback.IfStatement($3, $4, $5, $7);
 }
 ;
 
@@ -259,6 +272,37 @@ ID '(' funcCallParams ')'
 }
 ;
 
+relationlOp:
+'<'
+{
+    $$ = ""<"";
+}
+|
+'>'
+{
+    $$ = "">"";
+}
+|
+EQUAL_SIGN
+{
+    $$ = ""=="";
+}
+|
+NOT_EQUAL_SIGN
+{
+    $$ = ""!="";
+}
+|
+LESS_OR_EQUAL_SIGN
+{
+    $$ = ""<="";
+}
+|
+GREATER_OR_EQUAL_SIGN
+{
+    $$ = "">="";
+}
+
 %%";
 
 
@@ -291,6 +335,8 @@ ID '(' funcCallParams ')'
         actions.Add("Rule_statement_Producton_1", Rule_statement_Producton_1);
         actions.Add("Rule_statement_Producton_2", Rule_statement_Producton_2);
         actions.Add("Rule_statement_Producton_3", Rule_statement_Producton_3);
+        actions.Add("Rule_statement_Producton_4", Rule_statement_Producton_4);
+        actions.Add("Rule_ifStatement_Producton_0", Rule_ifStatement_Producton_0);
         actions.Add("Rule_returnStatement_Producton_0", Rule_returnStatement_Producton_0);
         actions.Add("Rule_returnStatement_Producton_1", Rule_returnStatement_Producton_1);
         actions.Add("Rule_declareStatement_Producton_0", Rule_declareStatement_Producton_0);
@@ -322,6 +368,12 @@ ID '(' funcCallParams ')'
         actions.Add("Rule_functionCallStatement_Producton_0", Rule_functionCallStatement_Producton_0);
         actions.Add("Rule_functionCallExpression_Producton_0", Rule_functionCallExpression_Producton_0);
         actions.Add("Rule_functionCallExpression_Producton_1", Rule_functionCallExpression_Producton_1);
+        actions.Add("Rule_relationlOp_Producton_0", Rule_relationlOp_Producton_0);
+        actions.Add("Rule_relationlOp_Producton_1", Rule_relationlOp_Producton_1);
+        actions.Add("Rule_relationlOp_Producton_2", Rule_relationlOp_Producton_2);
+        actions.Add("Rule_relationlOp_Producton_3", Rule_relationlOp_Producton_3);
+        actions.Add("Rule_relationlOp_Producton_4", Rule_relationlOp_Producton_4);
+        actions.Add("Rule_relationlOp_Producton_5", Rule_relationlOp_Producton_5);
     }
 
     public static object Rule_start_Producton_0(Dictionary<int, object> objects) { 
@@ -479,6 +531,30 @@ ID '(' funcCallParams ')'
 
         // user-defined action
         _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_4(Dictionary<int, object> objects) { 
+        CCompilerNs.Statement _0 = new CCompilerNs.Statement();
+        CCompilerNs.IfStatement _1 = (CCompilerNs.IfStatement)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_ifStatement_Producton_0(Dictionary<int, object> objects) { 
+        CCompilerNs.IfStatement _0 = new CCompilerNs.IfStatement();
+        string _1 = (string)objects[1];
+        CCompilerNs.Expression _3 = (CCompilerNs.Expression)objects[3];
+        string _4 = (string)objects[4];
+        CCompilerNs.Expression _5 = (CCompilerNs.Expression)objects[5];
+        CCompilerNs.Statement _7 = (CCompilerNs.Statement)objects[7];
+
+        // user-defined action
+        _0= CCompilerNs.CCLexYaccCallback.IfStatement(_3, _4, _5, _7);
 
         return _0;
     }
@@ -796,6 +872,64 @@ ID '(' funcCallParams ')'
 
         return _0;
     }
+
+    public static object Rule_relationlOp_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+
+        // user-defined action
+        _0 = "<";
+
+        return _0;
+    }
+
+    public static object Rule_relationlOp_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+
+        // user-defined action
+        _0 = ">";
+
+        return _0;
+    }
+
+    public static object Rule_relationlOp_Producton_2(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = "==";
+
+        return _0;
+    }
+
+    public static object Rule_relationlOp_Producton_3(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = "!=";
+
+        return _0;
+    }
+
+    public static object Rule_relationlOp_Producton_4(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = "<=";
+
+        return _0;
+    }
+
+    public static object Rule_relationlOp_Producton_5(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = ">=";
+
+        return _0;
+    }
 }
 
 }
@@ -820,6 +954,11 @@ namespace ccNs
             { 258, "ID"},
             { 259, "INT_TYPE"},
             { 260, "VOID_TYPE"},
+            { 261, "IF"},
+            { 262, "EQUAL_SIGN"},
+            { 263, "NOT_EQUAL_SIGN"},
+            { 264, "LESS_OR_EQUAL_SIGN"},
+            { 265, "GREATER_OR_EQUAL_SIGN"},
         };
 
         public static int INT_VALUE = 256;
@@ -827,6 +966,11 @@ namespace ccNs
         public static int ID = 258;
         public static int INT_TYPE = 259;
         public static int VOID_TYPE = 260;
+        public static int IF = 261;
+        public static int EQUAL_SIGN = 262;
+        public static int NOT_EQUAL_SIGN = 263;
+        public static int LESS_OR_EQUAL_SIGN = 264;
+        public static int GREATER_OR_EQUAL_SIGN = 265;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -853,12 +997,19 @@ namespace ccNs
 ""int""                     { value = ""int""; return INT_TYPE; }
 ""void""                    { value = ""void""; return VOID_TYPE; }
 ""return""                  { return RETURN; }
+""if""                      { return IF; }
+""==""                      { value = ""==""; return EQUAL_SIGN; }
+""!=""                      { value = ""!=""; return NOT_EQUAL_SIGN; }
+""<=""                      { value = ""<=""; return LESS_OR_EQUAL_SIGN; }
+"">=""                      { value = "">=""; return GREATER_OR_EQUAL_SIGN; }
 [0-9]+                    { value = int.Parse(yytext); return INT_VALUE; }
 [_a-zA-Z][a-zA-Z0-9]*     { value = yytext; return ID; }
 [ \t\n\r]+                {}
 
 ""{""                       { return '{'; }
 ""}""                       { return '}'; }
+""<""                       { return '<'; }
+"">""                       { return '>'; }
 ""(""                       { return '('; }
 "")""                       { return ')'; }
 "";""                       { return ';'; }
@@ -894,6 +1045,13 @@ namespace ccNs
             actions.Add("LexRule15", LexAction15);
             actions.Add("LexRule16", LexAction16);
             actions.Add("LexRule17", LexAction17);
+            actions.Add("LexRule18", LexAction18);
+            actions.Add("LexRule19", LexAction19);
+            actions.Add("LexRule20", LexAction20);
+            actions.Add("LexRule21", LexAction21);
+            actions.Add("LexRule22", LexAction22);
+            actions.Add("LexRule23", LexAction23);
+            actions.Add("LexRule24", LexAction24);
         }
         public static object LexAction0(string yytext)
         {
@@ -927,7 +1085,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = int.Parse(yytext); return INT_VALUE; 
+            return IF; 
 
             return 0;
         }
@@ -936,13 +1094,16 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            value = "=="; return EQUAL_SIGN; 
 
             return 0;
         }
         public static object LexAction5(string yytext)
         {
             value = null;
+
+            // user-defined action
+            value = "!="; return NOT_EQUAL_SIGN; 
 
             return 0;
         }
@@ -951,7 +1112,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '{'; 
+            value = "<="; return LESS_OR_EQUAL_SIGN; 
 
             return 0;
         }
@@ -960,7 +1121,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '}'; 
+            value = ">="; return GREATER_OR_EQUAL_SIGN; 
 
             return 0;
         }
@@ -969,7 +1130,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '('; 
+            value = int.Parse(yytext); return INT_VALUE; 
 
             return 0;
         }
@@ -978,16 +1139,13 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return ')'; 
+            value = yytext; return ID; 
 
             return 0;
         }
         public static object LexAction10(string yytext)
         {
             value = null;
-
-            // user-defined action
-            return ';'; 
 
             return 0;
         }
@@ -996,7 +1154,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '+'; 
+            return '{'; 
 
             return 0;
         }
@@ -1005,7 +1163,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '-'; 
+            return '}'; 
 
             return 0;
         }
@@ -1014,7 +1172,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '*'; 
+            return '<'; 
 
             return 0;
         }
@@ -1023,7 +1181,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '/'; 
+            return '>'; 
 
             return 0;
         }
@@ -1032,7 +1190,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '='; 
+            return '('; 
 
             return 0;
         }
@@ -1041,11 +1199,74 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '%'; 
+            return ')'; 
 
             return 0;
         }
         public static object LexAction17(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return ';'; 
+
+            return 0;
+        }
+        public static object LexAction18(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '+'; 
+
+            return 0;
+        }
+        public static object LexAction19(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '-'; 
+
+            return 0;
+        }
+        public static object LexAction20(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '*'; 
+
+            return 0;
+        }
+        public static object LexAction21(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '/'; 
+
+            return 0;
+        }
+        public static object LexAction22(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '='; 
+
+            return 0;
+        }
+        public static object LexAction23(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '%'; 
+
+            return 0;
+        }
+        public static object LexAction24(string yytext)
         {
             value = null;
 

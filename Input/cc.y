@@ -2,7 +2,7 @@
 %}
 
 %token <int>         INT_VALUE
-%token <string>      RETURN ID INT_TYPE VOID_TYPE
+%token <string>      RETURN ID INT_TYPE VOID_TYPE IF EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN
 
 %type <CCompilerNs.Program>                    program 
 %type <List<CCompilerNs.FunDecl>>              funDecls
@@ -15,9 +15,10 @@
 %type <CCompilerNs.AssignmentStatement>        assignmentStatement
 %type <CCompilerNs.FunctionCallExpression>     functionCallExpression
 %type <CCompilerNs.FunctionCallExpression>     functionCallStatement
+%type <CCompilerNs.IfStatement>                ifStatement
 %type <List<CCompilerNs.Expression>>           funcCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
-%type <string>                                 typeSpec
+%type <string>                                 typeSpec relationlOp
 
 %%
 program: 
@@ -93,6 +94,18 @@ assignmentStatement
 functionCallStatement
 {
     $$ = $1;
+}
+|
+ifStatement
+{
+    $$ = $1;
+}
+;
+
+ifStatement:
+IF '(' addExpression relationlOp addExpression ')' statement
+{
+    $$= CCompilerNs.CCLexYaccCallback.IfStatement($3, $4, $5, $7);
 }
 ;
 
@@ -240,5 +253,36 @@ ID '(' funcCallParams ')'
     $$ = CCompilerNs.CCLexYaccCallback.FunctionCallExpression($1, $3);
 }
 ;
+
+relationlOp:
+'<'
+{
+    $$ = "<";
+}
+|
+'>'
+{
+    $$ = ">";
+}
+|
+EQUAL_SIGN
+{
+    $$ = "==";
+}
+|
+NOT_EQUAL_SIGN
+{
+    $$ = "!=";
+}
+|
+LESS_OR_EQUAL_SIGN
+{
+    $$ = "<=";
+}
+|
+GREATER_OR_EQUAL_SIGN
+{
+    $$ = ">=";
+}
 
 %%

@@ -343,6 +343,55 @@ int main()
             Check(exitCode == 1);
         }
 
+        public void Ut15()
+        {
+            string src = @"
+int main()
+{
+    if (2 > 1)
+        return 3;
+
+    return 2;
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 3);
+        }
+
+        public void Ut16()
+        {
+            string src = @"
+int fib(int n) {
+    if (n <= 1)
+        return n;
+
+    return fib(n - 1) + fib(n - 2);
+}
+
+int main() {
+    return fib(10);
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 55);
+        }
+
         public static void RunAllUt()
         {
             MainUt mainUt = new MainUt();
@@ -361,6 +410,8 @@ int main()
             mainUt.Ut12();
             mainUt.Ut13();
             mainUt.Ut14();
+            mainUt.Ut15();
+            mainUt.Ut16();
         }
 
         public static void Ut()

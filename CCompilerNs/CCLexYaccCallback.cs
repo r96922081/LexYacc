@@ -221,6 +221,15 @@
             return f;
         }
 
+        public static IfStatement IfStatement(Expression lhs, string op, Expression rhs, Statement statement)
+        {
+            IfStatement i = new IfStatement();
+            i.lhs = lhs;
+            i.op = op;
+            i.rhs = rhs;
+            i.statement = statement;
 
+            return i;
+        }
     }
 }

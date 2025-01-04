@@ -1,5 +1,15 @@
 ﻿namespace CCompilerNs
 {
+    public class Context
+    {
+        public static FunDecl funDecl;
+    }
+
+    public class Gv
+    {
+        public static int sn = 0;
+    }
+
     public class VariableType
     {
         public VariableTypeEnum type;
