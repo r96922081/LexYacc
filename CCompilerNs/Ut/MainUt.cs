@@ -349,7 +349,9 @@ int main()
 int main()
 {
     if (2 > 1)
+{
         return 3;
+}
 
     return 2;
 }
@@ -371,7 +373,9 @@ int main()
             string src = @"
 int fib(int n) {
     if (n <= 1)
+{
         return n;
+}
 
     return fib(n - 1) + fib(n - 2);
 }
@@ -380,6 +384,7 @@ int main() {
     return fib(10);
 }
 ";
+
             AsmEmitter.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
@@ -392,15 +397,26 @@ int main() {
             Check(exitCode == 55);
         }
 
-        public void Ut17_debug()
+        public void Ut17()
         {
             string src = @"
-    if (1 > 0)
+int main() {
+    if (1 > 2)
+{
         return 1;
-    else if (2 > 0)
+}
+    else if (2 > 2)
+{
         return 2;
-    else if (3 > 0)
+}
+    else if (3 > 2)
+{
         return 3;
+}
+
+
+    return 0;
+}
 ";
             AsmEmitter.SetOutputFile("test.s");
 
@@ -411,19 +427,54 @@ int main() {
             program.EmitAsm();
 
             int exitCode = CompileAndRun("test.s", "test.exe");
-            //Check(exitCode == 55);
+            Check(exitCode == 3);
         }
 
-        public void Ut17()
+        public void Ut18()
         {
             string src = @"
 int main() {
     if (1 > 2)
+{
         return 1;
-    else if (2 > 2)
+}
+    else
+{
         return 2;
-    else if (3 > 2)
-        return 3;
+}
+
+
+    return 0;
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 2);
+        }
+
+        public void Ut19()
+        {
+            string src = @"
+int main() {
+    if (1 > 5)
+{
+        return 1;
+}
+    else if (2 > 5)
+{
+        return 2;
+}
+else
+{
+    return 3;
+}
 
 
     return 0;
@@ -460,14 +511,10 @@ int main() {
             mainUt.Ut13();
             mainUt.Ut14();
             mainUt.Ut15();
-
-            // fail why?
-            //mainUt.Ut16();
-
-            // if, else if, else will be parsed as if else,  if else;
-            //mainUt.Ut17_debug();
-
+            mainUt.Ut16();
             mainUt.Ut17();
+            mainUt.Ut18();
+            mainUt.Ut19();
         }
 
         public static void Ut()

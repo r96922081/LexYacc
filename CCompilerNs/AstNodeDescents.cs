@@ -107,25 +107,6 @@ ret
         }
     }
 
-    /*
-     statement or '{' statements '}'
-     */
-    public class IfSubstatementGroup : Statement
-    {
-        public List<Statement> substatementGroup = new List<Statement>();
-
-        public IfSubstatementGroup() : base("ifSubstatementGroup")
-        {
-
-        }
-
-        public override void EmitAsm()
-        {
-            foreach (Statement s in substatementGroup)
-                s.EmitAsm();
-        }
-    }
-
     public class CompoundIfStatement : Statement
     {
         public IfStatement ifStatement;
@@ -153,6 +134,8 @@ ret
 
             string endCompoundIfLabel = "branch_compound_if_end_" + +(Gv.sn++);
 
+            Emit("jmp " + endCompoundIfLabel);
+
             ifStatement.EmitSubstatementsAsm(endCompoundIfLabel);
 
             if (elseIfStatements != null)
@@ -174,7 +157,7 @@ ret
         public Expression lhs;
         public string op;
         public Expression rhs;
-        public IfSubstatementGroup substatements;
+        public List<Statement> statements = new List<Statement>();
         public string matchLabel;
 
         public IfStatement() : base("IfStatement")
@@ -222,7 +205,8 @@ ret
         public void EmitSubstatementsAsm(string endCompoundIfLabel)
         {
             Emit("\n" + matchLabel + ":");
-            substatements.EmitAsm();
+            foreach (Statement s in statements)
+                s.EmitAsm();
             Emit("jmp " + endCompoundIfLabel + "\n");
         }
     }

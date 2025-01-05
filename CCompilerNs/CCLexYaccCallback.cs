@@ -229,13 +229,13 @@
             return f;
         }
 
-        public static IfStatement IfStatement(Expression lhs, string op, Expression rhs, IfSubstatementGroup substatements)
+        public static IfStatement IfStatement(Expression lhs, string op, Expression rhs, List<Statement> statements)
         {
             IfStatement i = new IfStatement();
             i.lhs = lhs;
             i.op = op;
             i.rhs = rhs;
-            i.substatements = substatements;
+            i.statements = statements;
 
             return i;
         }
@@ -251,21 +251,6 @@
             return statements;
         }
 
-        public static IfSubstatementGroup IfSubstatementGroup(List<Statement> statements)
-        {
-            IfSubstatementGroup i = new IfSubstatementGroup();
-            i.substatementGroup = statements;
-
-            return i;
-        }
-
-        public static IfSubstatementGroup IfSubstatementGroup(Statement statement)
-        {
-            IfSubstatementGroup i = new IfSubstatementGroup();
-            i.substatementGroup.Add(statement);
-
-            return i;
-        }
         public static CompoundIfStatement CompoundIfStatement(IfStatement ifStatement)
         {
             CompoundIfStatement c = new CompoundIfStatement();

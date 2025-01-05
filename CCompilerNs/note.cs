@@ -14,4 +14,13 @@ TODO:
 - struct
 - point
 
+- if statements must be followed by {} because currently,
+  if 
+  else if
+  else
+
+will be parsed as 
+if else
+if else
+
  */ 

@@ -9,7 +9,6 @@
 %type <CCompilerNs.FunDecl>                    funDecl
 %type <List<CCompilerNs.LocalVariable>>        funcParams
 %type <List<CCompilerNs.Statement>>            statements 
-%type <CCompilerNs.IfSubstatementGroup>        ifSubstatementGroup
 %type <CCompilerNs.Statement>                  statement
 %type <CCompilerNs.ReturnStatement>            returnStatement 
 %type <CCompilerNs.DeclareStatement>           declareStatement
@@ -116,12 +115,22 @@ ifStatement elseIfStatements
 {
     $$ = CCompilerNs.CCLexYaccCallback.CompoundIfStatement($1, $2);
 }
+|
+ifStatement elseIfStatements elseStatement
+{
+    $$ = CCompilerNs.CCLexYaccCallback.CompoundIfStatement($1, $2, $3);
+}
+|
+ifStatement elseStatement
+{
+    $$ = CCompilerNs.CCLexYaccCallback.CompoundIfStatement($1, $2);
+}
 ;
 
 ifStatement:
-IF '(' addExpression relationlOp addExpression ')' ifSubstatementGroup
+IF '(' addExpression relationlOp addExpression ')' '{' statements '}'
 {
-    $$ = CCompilerNs.CCLexYaccCallback.IfStatement($3, $4, $5, $7);
+    $$ = CCompilerNs.CCLexYaccCallback.IfStatement($3, $4, $5, $8);
 }
 ;
 
@@ -138,28 +147,16 @@ elseIfStatement
 ;
 
 elseIfStatement:
-ELSE IF '(' addExpression relationlOp addExpression ')' ifSubstatementGroup
+ELSE IF '(' addExpression relationlOp addExpression ')' '{' statements '}'
 {
-    $$= CCompilerNs.CCLexYaccCallback.IfStatement($4, $5, $6, $8);
+    $$= CCompilerNs.CCLexYaccCallback.IfStatement($4, $5, $6, $9);
 }
 ;
 
 elseStatement:
-ELSE ifSubstatementGroup
+ELSE '{' statements '}'
 {
-    $$= CCompilerNs.CCLexYaccCallback.IfStatement(null, null, null, $2);
-}
-;
-
-ifSubstatementGroup:
-statement
-{
-    $$= CCompilerNs.CCLexYaccCallback.IfSubstatementGroup($1);
-}
-|
-'{' statements '}'
-{
-    $$= CCompilerNs.CCLexYaccCallback.IfSubstatementGroup($2);
+    $$= CCompilerNs.CCLexYaccCallback.IfStatement(null, null, null, $3);
 }
 ;
 

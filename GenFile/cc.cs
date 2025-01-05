@@ -27,7 +27,6 @@ public class YaccActions{
 %type <CCompilerNs.FunDecl>                    funDecl
 %type <List<CCompilerNs.LocalVariable>>        funcParams
 %type <List<CCompilerNs.Statement>>            statements 
-%type <CCompilerNs.IfSubstatementGroup>        ifSubstatementGroup
 %type <CCompilerNs.Statement>                  statement
 %type <CCompilerNs.ReturnStatement>            returnStatement 
 %type <CCompilerNs.DeclareStatement>           declareStatement
@@ -134,12 +133,22 @@ ifStatement elseIfStatements
 {
     $$ = CCompilerNs.CCLexYaccCallback.CompoundIfStatement($1, $2);
 }
+|
+ifStatement elseIfStatements elseStatement
+{
+    $$ = CCompilerNs.CCLexYaccCallback.CompoundIfStatement($1, $2, $3);
+}
+|
+ifStatement elseStatement
+{
+    $$ = CCompilerNs.CCLexYaccCallback.CompoundIfStatement($1, $2);
+}
 ;
 
 ifStatement:
-IF '(' addExpression relationlOp addExpression ')' ifSubstatementGroup
+IF '(' addExpression relationlOp addExpression ')' '{' statements '}'
 {
-    $$ = CCompilerNs.CCLexYaccCallback.IfStatement($3, $4, $5, $7);
+    $$ = CCompilerNs.CCLexYaccCallback.IfStatement($3, $4, $5, $8);
 }
 ;
 
@@ -156,28 +165,16 @@ elseIfStatement
 ;
 
 elseIfStatement:
-ELSE IF '(' addExpression relationlOp addExpression ')' ifSubstatementGroup
+ELSE IF '(' addExpression relationlOp addExpression ')' '{' statements '}'
 {
-    $$= CCompilerNs.CCLexYaccCallback.IfStatement($4, $5, $6, $8);
+    $$= CCompilerNs.CCLexYaccCallback.IfStatement($4, $5, $6, $9);
 }
 ;
 
 elseStatement:
-ELSE ifSubstatementGroup
+ELSE '{' statements '}'
 {
-    $$= CCompilerNs.CCLexYaccCallback.IfStatement(null, null, null, $2);
-}
-;
-
-ifSubstatementGroup:
-statement
-{
-    $$= CCompilerNs.CCLexYaccCallback.IfSubstatementGroup($1);
-}
-|
-'{' statements '}'
-{
-    $$= CCompilerNs.CCLexYaccCallback.IfSubstatementGroup($2);
+    $$= CCompilerNs.CCLexYaccCallback.IfStatement(null, null, null, $3);
 }
 ;
 
@@ -392,14 +389,14 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_statement_Producton_4", Rule_statement_Producton_4);
         actions.Add("Rule_compoundIfStatement_Producton_0", Rule_compoundIfStatement_Producton_0);
         actions.Add("Rule_compoundIfStatement_Producton_1", Rule_compoundIfStatement_Producton_1);
+        actions.Add("Rule_compoundIfStatement_Producton_2", Rule_compoundIfStatement_Producton_2);
+        actions.Add("Rule_compoundIfStatement_Producton_3", Rule_compoundIfStatement_Producton_3);
         actions.Add("Rule_ifStatement_Producton_0", Rule_ifStatement_Producton_0);
         actions.Add("Rule_elseIfStatements_Producton_0", Rule_elseIfStatements_Producton_0);
         actions.Add("Rule_elseIfStatements_LeftRecursionExpand_Producton_0", Rule_elseIfStatements_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_elseIfStatements_LeftRecursionExpand_Producton_1", Rule_elseIfStatements_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_elseIfStatement_Producton_0", Rule_elseIfStatement_Producton_0);
         actions.Add("Rule_elseStatement_Producton_0", Rule_elseStatement_Producton_0);
-        actions.Add("Rule_ifSubstatementGroup_Producton_0", Rule_ifSubstatementGroup_Producton_0);
-        actions.Add("Rule_ifSubstatementGroup_Producton_1", Rule_ifSubstatementGroup_Producton_1);
         actions.Add("Rule_returnStatement_Producton_0", Rule_returnStatement_Producton_0);
         actions.Add("Rule_returnStatement_Producton_1", Rule_returnStatement_Producton_1);
         actions.Add("Rule_declareStatement_Producton_0", Rule_declareStatement_Producton_0);
@@ -629,16 +626,39 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
+    public static object Rule_compoundIfStatement_Producton_2(Dictionary<int, object> objects) { 
+        CCompilerNs.CompoundIfStatement _0 = new CCompilerNs.CompoundIfStatement();
+        CCompilerNs.IfStatement _1 = (CCompilerNs.IfStatement)objects[1];
+        List<CCompilerNs.IfStatement> _2 = (List<CCompilerNs.IfStatement>)objects[2];
+        CCompilerNs.IfStatement _3 = (CCompilerNs.IfStatement)objects[3];
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.CompoundIfStatement(_1, _2, _3);
+
+        return _0;
+    }
+
+    public static object Rule_compoundIfStatement_Producton_3(Dictionary<int, object> objects) { 
+        CCompilerNs.CompoundIfStatement _0 = new CCompilerNs.CompoundIfStatement();
+        CCompilerNs.IfStatement _1 = (CCompilerNs.IfStatement)objects[1];
+        CCompilerNs.IfStatement _2 = (CCompilerNs.IfStatement)objects[2];
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.CompoundIfStatement(_1, _2);
+
+        return _0;
+    }
+
     public static object Rule_ifStatement_Producton_0(Dictionary<int, object> objects) { 
         CCompilerNs.IfStatement _0 = new CCompilerNs.IfStatement();
         string _1 = (string)objects[1];
         CCompilerNs.Expression _3 = (CCompilerNs.Expression)objects[3];
         string _4 = (string)objects[4];
         CCompilerNs.Expression _5 = (CCompilerNs.Expression)objects[5];
-        CCompilerNs.IfSubstatementGroup _7 = (CCompilerNs.IfSubstatementGroup)objects[7];
+        List<CCompilerNs.Statement> _8 = (List<CCompilerNs.Statement>)objects[8];
 
         // user-defined action
-        _0 = CCompilerNs.CCLexYaccCallback.IfStatement(_3, _4, _5, _7);
+        _0 = CCompilerNs.CCLexYaccCallback.IfStatement(_3, _4, _5, _8);
 
         return _0;
     }
@@ -677,10 +697,10 @@ GREATER_OR_EQUAL_SIGN
         CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
         string _5 = (string)objects[5];
         CCompilerNs.Expression _6 = (CCompilerNs.Expression)objects[6];
-        CCompilerNs.IfSubstatementGroup _8 = (CCompilerNs.IfSubstatementGroup)objects[8];
+        List<CCompilerNs.Statement> _9 = (List<CCompilerNs.Statement>)objects[9];
 
         // user-defined action
-        _0= CCompilerNs.CCLexYaccCallback.IfStatement(_4, _5, _6, _8);
+        _0= CCompilerNs.CCLexYaccCallback.IfStatement(_4, _5, _6, _9);
 
         return _0;
     }
@@ -688,30 +708,10 @@ GREATER_OR_EQUAL_SIGN
     public static object Rule_elseStatement_Producton_0(Dictionary<int, object> objects) { 
         CCompilerNs.IfStatement _0 = new CCompilerNs.IfStatement();
         string _1 = (string)objects[1];
-        CCompilerNs.IfSubstatementGroup _2 = (CCompilerNs.IfSubstatementGroup)objects[2];
+        List<CCompilerNs.Statement> _3 = (List<CCompilerNs.Statement>)objects[3];
 
         // user-defined action
-        _0= CCompilerNs.CCLexYaccCallback.IfStatement(null, null, null, _2);
-
-        return _0;
-    }
-
-    public static object Rule_ifSubstatementGroup_Producton_0(Dictionary<int, object> objects) { 
-        CCompilerNs.IfSubstatementGroup _0 = new CCompilerNs.IfSubstatementGroup();
-        CCompilerNs.Statement _1 = (CCompilerNs.Statement)objects[1];
-
-        // user-defined action
-        _0= CCompilerNs.CCLexYaccCallback.IfSubstatementGroup(_1);
-
-        return _0;
-    }
-
-    public static object Rule_ifSubstatementGroup_Producton_1(Dictionary<int, object> objects) { 
-        CCompilerNs.IfSubstatementGroup _0 = new CCompilerNs.IfSubstatementGroup();
-        List<CCompilerNs.Statement> _2 = (List<CCompilerNs.Statement>)objects[2];
-
-        // user-defined action
-        _0= CCompilerNs.CCLexYaccCallback.IfSubstatementGroup(_2);
+        _0= CCompilerNs.CCLexYaccCallback.IfStatement(null, null, null, _3);
 
         return _0;
     }
