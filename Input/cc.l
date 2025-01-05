@@ -4,12 +4,12 @@
 %% 
 "int"                     { value = "int"; return INT_TYPE; }
 "void"                    { value = "void"; return VOID_TYPE; }
-"return"                  { return RETURN; }
-"if"                      { return IF; }
-"else"                    { return ELSE; }
-"for"                     { return FOR; }
-"break"                   { return BREAK; }
-"continue"                { return CONTINUE; }
+"return"                  { value = "return"; return RETURN; }
+"if"                      { value = "if"; return IF; }
+"else"                    { value = "else"; return ELSE; }
+"for"                     { value = "for"; return FOR; }
+"break"                   { value = "break"; return BREAK; }
+"continue"                { value = "continue"; return CONTINUE; }
 "=="                      { value = "=="; return EQUAL_SIGN; }
 "!="                      { value = "!="; return NOT_EQUAL_SIGN; }
 "<="                      { value = "<="; return LESS_OR_EQUAL_SIGN; }

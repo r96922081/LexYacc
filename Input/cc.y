@@ -9,6 +9,8 @@
 %type <CCompilerNs.FunDecl>                    funDecl
 %type <List<CCompilerNs.LocalVariable>>        funcParams
 %type <List<CCompilerNs.Statement>>            statements 
+%type <CCompilerNs.ForLoopStatement>           forLoopStatement
+%type <List<CCompilerNs.Statement>>            forLoopBody
 %type <CCompilerNs.Statement>                  statement
 %type <CCompilerNs.ReturnStatement>            returnStatement 
 %type <CCompilerNs.DeclareStatement>           declareStatement
@@ -20,7 +22,7 @@
 %type <List<CCompilerNs.IfStatement>>          elseIfStatements
 %type <List<CCompilerNs.Expression>>           funcCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
-%type <string>                                 typeSpec relationlOp  
+%type <string>                                 typeSpec relationlOp
 
 %%
 program: 
@@ -100,6 +102,11 @@ functionCallStatement
 }
 |
 compoundIfStatement
+{
+    $$ = $1;
+}
+|
+forLoopStatement
 {
     $$ = $1;
 }
@@ -302,6 +309,45 @@ ID '(' ')'
 ID '(' funcCallParams ')'
 {
     $$ = CCompilerNs.CCLexYaccCallback.FunctionCallExpression($1, $3);
+}
+;
+
+forLoopStatement:
+FOR '(' declareStatement addExpression relationlOp addExpression ';' ID '=' addExpression ')' '{' forLoopBody '}'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10, $13);
+}
+;
+
+forLoopBody:
+forLoopBody BREAK ';'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ForLoopBody("break", $1);
+}
+|
+forLoopBody CONTINUE ';'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ForLoopBody("continue", $1);
+}
+|
+forLoopBody statements
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ForLoopBody($2, $1);
+}
+|
+statements
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ForLoopBody((string)null, $1);
+}
+|
+BREAK ';'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ForLoopBody("break", null);
+}
+|
+CONTINUE ';'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ForLoopBody("continue", null);
 }
 ;
 

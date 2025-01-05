@@ -438,4 +438,44 @@ ret";
             return base.ToString();
         }
     }
+
+    public class ForLoopStatement : Statement
+    {
+        public DeclareStatement initializer;
+        public Expression conditionLhs;
+        public string conditionOp;
+        public Expression conditionrhs;
+        public AssignmentStatement updater;
+
+        public List<Statement> statements;
+
+        public ForLoopStatement() : base("ForLoopStatement")
+        {
+
+        }
+    }
+
+    public class BreakStatement : Statement
+    {
+        public BreakStatement() : base("BreakStatement")
+        {
+
+        }
+
+        public override void EmitAsm()
+        {
+        }
+    }
+
+    public class ContinueStatement : Statement
+    {
+        public ContinueStatement() : base("ContinueStatement")
+        {
+
+        }
+
+        public override void EmitAsm()
+        {
+        }
+    }
 }

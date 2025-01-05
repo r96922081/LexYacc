@@ -9,6 +9,7 @@ notes
 TODO:
 - add type char, double
 - for break continue
+- empty statements: {},  ;
 - array
 - char array, and print
 - struct

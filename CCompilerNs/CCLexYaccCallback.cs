@@ -290,5 +290,47 @@
 
             return c;
         }
+
+        public static ForLoopStatement ForLoopStatement(DeclareStatement initializer, Expression conditionLhs, string conditionOp, Expression conditionrhs, string updateId, Expression updateExpression, List<Statement> statements)
+        {
+            ForLoopStatement f = new ForLoopStatement();
+            f.initializer = initializer;
+            f.conditionLhs = conditionLhs;
+            f.conditionOp = conditionOp;
+            f.conditionrhs = conditionrhs;
+            f.updater = AssignmentStatement(updateId, updateExpression);
+            f.statements = statements;
+
+            return f;
+        }
+
+        public static List<Statement> ForLoopBody(string s, List<Statement> prevStatements)
+        {
+            List<Statement> statements = new List<Statement>();
+            if (prevStatements != null)
+                statements.AddRange(prevStatements);
+
+            if (s == null)
+                ;
+            else if (s == "break")
+                statements.Add(new BreakStatement());
+            else if (s == "continue")
+                statements.Add(new ContinueStatement());
+
+            return statements;
+        }
+
+        public static List<Statement> ForLoopBody(List<Statement> currentStatements, List<Statement> prevStatements)
+        {
+            List<Statement> statements = new List<Statement>();
+
+            if (prevStatements != null)
+                statements.AddRange(prevStatements);
+
+            if (currentStatements != null)
+                statements.AddRange(currentStatements);
+
+            return statements;
+        }
     }
 }

@@ -492,6 +492,35 @@ else
             Check(exitCode == 3);
         }
 
+        public void Ut20()
+        {
+            string src = @"
+int main() {
+
+    for (int i = 0; i < 10; i = i + 1)
+{
+    int a = 1;
+    int b = 2 + 3;
+    continue;
+    break;
+}
+
+
+    return 0;
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            //Check(exitCode == 3);
+        }
+
         public static void RunAllUt()
         {
             MainUt mainUt = new MainUt();
@@ -515,6 +544,7 @@ else
             mainUt.Ut17();
             mainUt.Ut18();
             mainUt.Ut19();
+            mainUt.Ut20();
         }
 
         public static void Ut()
