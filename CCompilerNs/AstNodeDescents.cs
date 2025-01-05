@@ -9,18 +9,14 @@
 
         public override void EmitCurrentAsm()
         {
-            string asm = @"
-.data
-
-.text
-";
+            string asm = @".data
+.text";
             Emit(asm);
         }
 
         public override void EmitAsm()
         {
             base.EmitAsm();
-            Emit("");
         }
     }
 
@@ -62,15 +58,12 @@
         {
             Context.funDecl = this;
 
-            string asm = string.Format(@"
-#FunDecl =>
+            string asm = string.Format(@"#FunDecl =>
 .global {0}
 {1}:
 push %rbp
 mov %rsp, %rbp
-
-add ${2}, %rsp
-", functionName, functionName, -localSize);
+add ${2}, %rsp", functionName, functionName, -localSize);
 
             Emit(asm);
             foreach (Statement s in statements)
@@ -78,15 +71,9 @@ add ${2}, %rsp
                 s.EmitAsm();
             }
 
-            /*int alignStackSize = localSize % 16 == 0 ? 0 : 16 - localSize % 16;
-            if (alignStackSize != 0)
-                Emit(string.Format("add ${0}, %rsp", -alignStackSize));*/
-
-            asm = string.Format(@"
-leave
+            asm = string.Format(@"leave
 ret
-#<= FunDecl
-");
+#<= FunDecl");
             Emit(asm);
 
             Context.funDecl = this;
@@ -148,7 +135,7 @@ ret
                 elseStatement.EmitSubstatementsAsm(endCompoundIfLabel);
 
 
-            Emit("\n" + endCompoundIfLabel + ":");
+            Emit(endCompoundIfLabel + ":");
         }
     }
 
@@ -204,10 +191,10 @@ ret
 
         public void EmitSubstatementsAsm(string endCompoundIfLabel)
         {
-            Emit("\n" + matchLabel + ":");
+            Emit(matchLabel + ":");
             foreach (Statement s in statements)
                 s.EmitAsm();
-            Emit("jmp " + endCompoundIfLabel + "\n");
+            Emit("jmp " + endCompoundIfLabel);
         }
     }
 
@@ -229,11 +216,10 @@ ret
                 Emit("pop %rax");
             }
 
-            string leave = @"
-leave
+            string leave = @"leave
 ret";
             Emit(leave);
-            Emit("#<= ReturnStatement\n");
+            Emit("#<= ReturnStatement");
         }
     }
 
@@ -256,7 +242,7 @@ ret";
 
             Emit("pop %rax");
             Emit(string.Format("mov %rax, {0}(%rbp)", l.stackOffset));
-            Emit("#<= AssignmentStatement\n");
+            Emit("#<= AssignmentStatement");
         }
     }
 
@@ -282,7 +268,7 @@ ret";
             }
 
             Emit(string.Format("mov %rax, {0}(%rbp)", stackOffset));
-            Emit("#<= DeclareStatement\n");
+            Emit("#<= DeclareStatement");
         }
     }
 
@@ -314,10 +300,6 @@ ret";
                 }
             }
 
-            /*int alignStackSize = localSize % 16 == 0 ? 0 : 16 - localSize % 16;
-            if (alignStackSize != 0)
-                Emit(string.Format("add ${0}, %rsp # align stack 16-byte boundary", -alignStackSize));*/
-
             Emit(string.Format("call {0}", name));
 
             if (parameters != null)
@@ -329,10 +311,7 @@ ret";
                 }
             }
 
-            /*if (alignStackSize != 0)
-                Emit(string.Format("add ${0}, %rsp", alignStackSize));*/
-
-            Emit("#<= FunctionCallExpression\n");
+            Emit("#<= FunctionCallExpression");
         }
     }
 
@@ -358,7 +337,7 @@ ret";
             if (intValue != null)
             {
                 Emit(string.Format("mov ${0}, %rax", intValue));
-                Emit(string.Format("push %rax\n"));
+                Emit(string.Format("push %rax"));
             }
             // case mulExpression: ID
             else if (variableName != null)
@@ -373,13 +352,13 @@ ret";
                     throw new Exception("unknown variable " + variableName);
 
                 Emit(string.Format("mov {0}(%rbp), %rax", local.stackOffset));
-                Emit(string.Format("push %rax\n"));
+                Emit(string.Format("push %rax"));
             }
             // case mulExpression: functionCall
             else if (functionCall != null)
             {
                 functionCall.EmitAsm();
-                Emit(string.Format("push %rax\n"));
+                Emit(string.Format("push %rax"));
             }
             else
             {
@@ -387,7 +366,7 @@ ret";
                 {
                     lhs.EmitAsm();
                     Emit(string.Format("pop %rax"));
-                    Emit(string.Format("push %rax\n"));
+                    Emit(string.Format("push %rax"));
                 }
                 else
                 {
@@ -402,7 +381,7 @@ ret";
                     else
                     {
                         Emit(string.Format("mov ${0}, %rax", intValue));
-                        Emit(string.Format("push %rax\n"));
+                        Emit(string.Format("push %rax"));
                     }
 
                     Emit(string.Format("pop %rbx"));
@@ -420,7 +399,7 @@ ret";
                         Emit(string.Format("div %rbx"));
                     }
 
-                    Emit(string.Format("push %rax\n"));
+                    Emit(string.Format("push %rax"));
                 }
             }
         }

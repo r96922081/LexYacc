@@ -20,7 +20,7 @@ public class YaccActions{
 %}
 
 %token <int>         INT_VALUE
-%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN
+%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR BREAK CONTINUE
 
 %type <CCompilerNs.Program>                    program 
 %type <List<CCompilerNs.FunDecl>>              funDecls
@@ -1117,6 +1117,9 @@ namespace ccNs
             { 264, "NOT_EQUAL_SIGN"},
             { 265, "LESS_OR_EQUAL_SIGN"},
             { 266, "GREATER_OR_EQUAL_SIGN"},
+            { 267, "FOR"},
+            { 268, "BREAK"},
+            { 269, "CONTINUE"},
         };
 
         public static int INT_VALUE = 256;
@@ -1130,6 +1133,9 @@ namespace ccNs
         public static int NOT_EQUAL_SIGN = 264;
         public static int LESS_OR_EQUAL_SIGN = 265;
         public static int GREATER_OR_EQUAL_SIGN = 266;
+        public static int FOR = 267;
+        public static int BREAK = 268;
+        public static int CONTINUE = 269;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -1158,6 +1164,9 @@ namespace ccNs
 ""return""                  { return RETURN; }
 ""if""                      { return IF; }
 ""else""                    { return ELSE; }
+""for""                     { return FOR; }
+""break""                   { return BREAK; }
+""continue""                { return CONTINUE; }
 ""==""                      { value = ""==""; return EQUAL_SIGN; }
 ""!=""                      { value = ""!=""; return NOT_EQUAL_SIGN; }
 ""<=""                      { value = ""<=""; return LESS_OR_EQUAL_SIGN; }
@@ -1213,6 +1222,9 @@ namespace ccNs
             actions.Add("LexRule23", LexAction23);
             actions.Add("LexRule24", LexAction24);
             actions.Add("LexRule25", LexAction25);
+            actions.Add("LexRule26", LexAction26);
+            actions.Add("LexRule27", LexAction27);
+            actions.Add("LexRule28", LexAction28);
         }
         public static object LexAction0(string yytext)
         {
@@ -1264,7 +1276,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "=="; return EQUAL_SIGN; 
+            return FOR; 
 
             return 0;
         }
@@ -1273,7 +1285,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "!="; return NOT_EQUAL_SIGN; 
+            return BREAK; 
 
             return 0;
         }
@@ -1282,7 +1294,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "<="; return LESS_OR_EQUAL_SIGN; 
+            return CONTINUE; 
 
             return 0;
         }
@@ -1291,7 +1303,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = ">="; return GREATER_OR_EQUAL_SIGN; 
+            value = "=="; return EQUAL_SIGN; 
 
             return 0;
         }
@@ -1300,7 +1312,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = int.Parse(yytext); return INT_VALUE; 
+            value = "!="; return NOT_EQUAL_SIGN; 
 
             return 0;
         }
@@ -1309,13 +1321,16 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            value = "<="; return LESS_OR_EQUAL_SIGN; 
 
             return 0;
         }
         public static object LexAction11(string yytext)
         {
             value = null;
+
+            // user-defined action
+            value = ">="; return GREATER_OR_EQUAL_SIGN; 
 
             return 0;
         }
@@ -1324,7 +1339,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '{'; 
+            value = int.Parse(yytext); return INT_VALUE; 
 
             return 0;
         }
@@ -1333,16 +1348,13 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '}'; 
+            value = yytext; return ID; 
 
             return 0;
         }
         public static object LexAction14(string yytext)
         {
             value = null;
-
-            // user-defined action
-            return '<'; 
 
             return 0;
         }
@@ -1351,7 +1363,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '>'; 
+            return '{'; 
 
             return 0;
         }
@@ -1360,7 +1372,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '('; 
+            return '}'; 
 
             return 0;
         }
@@ -1369,7 +1381,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return ')'; 
+            return '<'; 
 
             return 0;
         }
@@ -1378,7 +1390,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return ';'; 
+            return '>'; 
 
             return 0;
         }
@@ -1387,7 +1399,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '+'; 
+            return '('; 
 
             return 0;
         }
@@ -1396,7 +1408,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '-'; 
+            return ')'; 
 
             return 0;
         }
@@ -1405,7 +1417,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '*'; 
+            return ';'; 
 
             return 0;
         }
@@ -1414,7 +1426,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '/'; 
+            return '+'; 
 
             return 0;
         }
@@ -1423,7 +1435,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '='; 
+            return '-'; 
 
             return 0;
         }
@@ -1432,11 +1444,38 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '%'; 
+            return '*'; 
 
             return 0;
         }
         public static object LexAction25(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '/'; 
+
+            return 0;
+        }
+        public static object LexAction26(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '='; 
+
+            return 0;
+        }
+        public static object LexAction27(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '%'; 
+
+            return 0;
+        }
+        public static object LexAction28(string yytext)
         {
             value = null;
 

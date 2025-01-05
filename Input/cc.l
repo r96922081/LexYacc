@@ -7,6 +7,9 @@
 "return"                  { return RETURN; }
 "if"                      { return IF; }
 "else"                    { return ELSE; }
+"for"                     { return FOR; }
+"break"                   { return BREAK; }
+"continue"                { return CONTINUE; }
 "=="                      { value = "=="; return EQUAL_SIGN; }
 "!="                      { value = "!="; return NOT_EQUAL_SIGN; }
 "<="                      { value = "<="; return LESS_OR_EQUAL_SIGN; }

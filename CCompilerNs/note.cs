@@ -7,7 +7,7 @@ notes
 ====
 
 TODO:
-- if else
+- add type char, double
 - for break continue
 - array
 - char array, and print
