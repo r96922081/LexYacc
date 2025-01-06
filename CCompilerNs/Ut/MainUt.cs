@@ -497,16 +497,14 @@ else
             string src = @"
 int main() {
 
-    for (int i = 0; i < 10; i = i + 1)
+    int a = 0;
+    int i = 0;
+    for (i = 1; i <= 10; i = i + 1)
 {
-    int a = 1;
-    int b = 2 + 3;
-    continue;
-    break;
+    a = a + i;
 }
 
-
-    return 0;
+    return a;
 }
 ";
             AsmEmitter.SetOutputFile("test.s");
@@ -518,7 +516,108 @@ int main() {
             program.EmitAsm();
 
             int exitCode = CompileAndRun("test.s", "test.exe");
-            //Check(exitCode == 3);
+            Check(exitCode == 55);
+        }
+
+        public void Ut21()
+        {
+            string src = @"
+int main() {
+
+    int a = 0;
+    int i = 0;
+    for (i = 1; i <= 10; i = i + 1)
+{
+    if (i == 5)
+    {
+       continue;
+    }
+
+    a = a + i;
+}
+
+    return a;
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 50);
+        }
+
+        public void Ut22()
+        {
+            string src = @"
+int main() {
+
+    int a = 0;
+    int i = 0;
+    for (i = 1; i <= 10; i = i + 1)
+{
+    if (i == 5)
+    {
+       break;
+    }
+
+    a = a + i;
+}
+
+    return a;
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 10);
+        }
+
+        public void Ut23()
+        {
+            string src = @"
+int main() {
+
+    int a = 0;
+    int i = 0;
+    for (i = 1; i <= 10; i = i + 1)
+{
+    if (i == 5)
+    {
+       break;
+    }
+
+    if (i == 3)
+    {
+       continue;
+    }
+
+    a = a + i;
+}
+
+    return a;
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 7);
         }
 
         public static void RunAllUt()
@@ -545,6 +644,9 @@ int main() {
             mainUt.Ut18();
             mainUt.Ut19();
             mainUt.Ut20();
+            mainUt.Ut21();
+            mainUt.Ut22();
+            mainUt.Ut23();
         }
 
         public static void Ut()

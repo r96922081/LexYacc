@@ -291,7 +291,7 @@
             return c;
         }
 
-        public static ForLoopStatement ForLoopStatement(DeclareStatement initializer, Expression conditionLhs, string conditionOp, Expression conditionrhs, string updateId, Expression updateExpression, List<Statement> statements)
+        public static ForLoopStatement ForLoopStatement(AssignmentStatement initializer, Expression conditionLhs, string conditionOp, Expression conditionrhs, string updateId, Expression updateExpression, List<Statement> statements)
         {
             ForLoopStatement f = new ForLoopStatement();
             f.initializer = initializer;
@@ -303,6 +303,17 @@
 
             return f;
         }
+
+        public static BreakStatement BreakStatement()
+        {
+            return new BreakStatement();
+        }
+
+        public static ContinueStatement ContinueStatement()
+        {
+            return new ContinueStatement();
+        }
+
 
         public static List<Statement> ForLoopBody(string s, List<Statement> prevStatements)
         {

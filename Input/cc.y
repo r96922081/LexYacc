@@ -10,7 +10,6 @@
 %type <List<CCompilerNs.LocalVariable>>        funcParams
 %type <List<CCompilerNs.Statement>>            statements 
 %type <CCompilerNs.ForLoopStatement>           forLoopStatement
-%type <List<CCompilerNs.Statement>>            forLoopBody
 %type <CCompilerNs.Statement>                  statement
 %type <CCompilerNs.ReturnStatement>            returnStatement 
 %type <CCompilerNs.DeclareStatement>           declareStatement
@@ -20,9 +19,12 @@
 %type <CCompilerNs.CompoundIfStatement>        compoundIfStatement
 %type <CCompilerNs.IfStatement>                ifStatement elseIfStatement elseStatement
 %type <List<CCompilerNs.IfStatement>>          elseIfStatements
+%type <CCompilerNs.BreakStatement>             breakStatement
+%type <CCompilerNs.ContinueStatement>          continueStatement
 %type <List<CCompilerNs.Expression>>           funcCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
 %type <string>                                 typeSpec relationlOp
+
 
 %%
 program: 
@@ -107,6 +109,16 @@ compoundIfStatement
 }
 |
 forLoopStatement
+{
+    $$ = $1;
+}
+|
+breakStatement
+{
+    $$ = $1;
+}
+|
+continueStatement
 {
     $$ = $1;
 }
@@ -312,42 +324,24 @@ ID '(' funcCallParams ')'
 }
 ;
 
-forLoopStatement:
-FOR '(' declareStatement addExpression relationlOp addExpression ';' ID '=' addExpression ')' '{' forLoopBody '}'
+breakStatement:
+BREAK ';'
 {
-    $$ = CCompilerNs.CCLexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10, $13);
+    $$ = CCompilerNs.CCLexYaccCallback.BreakStatement();
 }
 ;
 
-forLoopBody:
-forLoopBody BREAK ';'
-{
-    $$ = CCompilerNs.CCLexYaccCallback.ForLoopBody("break", $1);
-}
-|
-forLoopBody CONTINUE ';'
-{
-    $$ = CCompilerNs.CCLexYaccCallback.ForLoopBody("continue", $1);
-}
-|
-forLoopBody statements
-{
-    $$ = CCompilerNs.CCLexYaccCallback.ForLoopBody($2, $1);
-}
-|
-statements
-{
-    $$ = CCompilerNs.CCLexYaccCallback.ForLoopBody((string)null, $1);
-}
-|
-BREAK ';'
-{
-    $$ = CCompilerNs.CCLexYaccCallback.ForLoopBody("break", null);
-}
-|
+continueStatement:
 CONTINUE ';'
 {
-    $$ = CCompilerNs.CCLexYaccCallback.ForLoopBody("continue", null);
+    $$ = CCompilerNs.CCLexYaccCallback.ContinueStatement();
+}
+;
+
+forLoopStatement:
+FOR '(' assignmentStatement addExpression relationlOp addExpression ';' ID '=' addExpression ')' '{' statements '}'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10, $13);
 }
 ;
 

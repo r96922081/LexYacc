@@ -28,7 +28,6 @@ public class YaccActions{
 %type <List<CCompilerNs.LocalVariable>>        funcParams
 %type <List<CCompilerNs.Statement>>            statements 
 %type <CCompilerNs.ForLoopStatement>           forLoopStatement
-%type <List<CCompilerNs.Statement>>            forLoopBody
 %type <CCompilerNs.Statement>                  statement
 %type <CCompilerNs.ReturnStatement>            returnStatement 
 %type <CCompilerNs.DeclareStatement>           declareStatement
@@ -38,9 +37,12 @@ public class YaccActions{
 %type <CCompilerNs.CompoundIfStatement>        compoundIfStatement
 %type <CCompilerNs.IfStatement>                ifStatement elseIfStatement elseStatement
 %type <List<CCompilerNs.IfStatement>>          elseIfStatements
+%type <CCompilerNs.BreakStatement>             breakStatement
+%type <CCompilerNs.ContinueStatement>          continueStatement
 %type <List<CCompilerNs.Expression>>           funcCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
 %type <string>                                 typeSpec relationlOp
+
 
 %%
 program: 
@@ -125,6 +127,16 @@ compoundIfStatement
 }
 |
 forLoopStatement
+{
+    $$ = $1;
+}
+|
+breakStatement
+{
+    $$ = $1;
+}
+|
+continueStatement
 {
     $$ = $1;
 }
@@ -330,42 +342,24 @@ ID '(' funcCallParams ')'
 }
 ;
 
-forLoopStatement:
-FOR '(' declareStatement addExpression relationlOp addExpression ';' ID '=' addExpression ')' '{' forLoopBody '}'
+breakStatement:
+BREAK ';'
 {
-    $$ = CCompilerNs.CCLexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10, $13);
+    $$ = CCompilerNs.CCLexYaccCallback.BreakStatement();
 }
 ;
 
-forLoopBody:
-forLoopBody BREAK ';'
-{
-    $$ = CCompilerNs.CCLexYaccCallback.ForLoopBody(""break"", $1);
-}
-|
-forLoopBody CONTINUE ';'
-{
-    $$ = CCompilerNs.CCLexYaccCallback.ForLoopBody(""continue"", $1);
-}
-|
-forLoopBody statements
-{
-    $$ = CCompilerNs.CCLexYaccCallback.ForLoopBody($2, $1);
-}
-|
-statements
-{
-    $$ = CCompilerNs.CCLexYaccCallback.ForLoopBody((string)null, $1);
-}
-|
-BREAK ';'
-{
-    $$ = CCompilerNs.CCLexYaccCallback.ForLoopBody(""break"", null);
-}
-|
+continueStatement:
 CONTINUE ';'
 {
-    $$ = CCompilerNs.CCLexYaccCallback.ForLoopBody(""continue"", null);
+    $$ = CCompilerNs.CCLexYaccCallback.ContinueStatement();
+}
+;
+
+forLoopStatement:
+FOR '(' assignmentStatement addExpression relationlOp addExpression ';' ID '=' addExpression ')' '{' statements '}'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10, $13);
 }
 ;
 
@@ -434,6 +428,8 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_statement_Producton_3", Rule_statement_Producton_3);
         actions.Add("Rule_statement_Producton_4", Rule_statement_Producton_4);
         actions.Add("Rule_statement_Producton_5", Rule_statement_Producton_5);
+        actions.Add("Rule_statement_Producton_6", Rule_statement_Producton_6);
+        actions.Add("Rule_statement_Producton_7", Rule_statement_Producton_7);
         actions.Add("Rule_compoundIfStatement_Producton_0", Rule_compoundIfStatement_Producton_0);
         actions.Add("Rule_compoundIfStatement_Producton_1", Rule_compoundIfStatement_Producton_1);
         actions.Add("Rule_compoundIfStatement_Producton_2", Rule_compoundIfStatement_Producton_2);
@@ -475,14 +471,9 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_functionCallStatement_Producton_0", Rule_functionCallStatement_Producton_0);
         actions.Add("Rule_functionCallExpression_Producton_0", Rule_functionCallExpression_Producton_0);
         actions.Add("Rule_functionCallExpression_Producton_1", Rule_functionCallExpression_Producton_1);
+        actions.Add("Rule_breakStatement_Producton_0", Rule_breakStatement_Producton_0);
+        actions.Add("Rule_continueStatement_Producton_0", Rule_continueStatement_Producton_0);
         actions.Add("Rule_forLoopStatement_Producton_0", Rule_forLoopStatement_Producton_0);
-        actions.Add("Rule_forLoopBody_Producton_0", Rule_forLoopBody_Producton_0);
-        actions.Add("Rule_forLoopBody_Producton_1", Rule_forLoopBody_Producton_1);
-        actions.Add("Rule_forLoopBody_Producton_2", Rule_forLoopBody_Producton_2);
-        actions.Add("Rule_forLoopBody_LeftRecursionExpand_Producton_0", Rule_forLoopBody_LeftRecursionExpand_Producton_0);
-        actions.Add("Rule_forLoopBody_LeftRecursionExpand_Producton_1", Rule_forLoopBody_LeftRecursionExpand_Producton_1);
-        actions.Add("Rule_forLoopBody_LeftRecursionExpand_Producton_2", Rule_forLoopBody_LeftRecursionExpand_Producton_2);
-        actions.Add("Rule_forLoopBody_LeftRecursionExpand_Producton_3", Rule_forLoopBody_LeftRecursionExpand_Producton_3);
         actions.Add("Rule_relationlOp_Producton_0", Rule_relationlOp_Producton_0);
         actions.Add("Rule_relationlOp_Producton_1", Rule_relationlOp_Producton_1);
         actions.Add("Rule_relationlOp_Producton_2", Rule_relationlOp_Producton_2);
@@ -663,6 +654,26 @@ GREATER_OR_EQUAL_SIGN
     public static object Rule_statement_Producton_5(Dictionary<int, object> objects) { 
         CCompilerNs.Statement _0 = new CCompilerNs.Statement();
         CCompilerNs.ForLoopStatement _1 = (CCompilerNs.ForLoopStatement)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_6(Dictionary<int, object> objects) { 
+        CCompilerNs.Statement _0 = new CCompilerNs.Statement();
+        CCompilerNs.BreakStatement _1 = (CCompilerNs.BreakStatement)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_7(Dictionary<int, object> objects) { 
+        CCompilerNs.Statement _0 = new CCompilerNs.Statement();
+        CCompilerNs.ContinueStatement _1 = (CCompilerNs.ContinueStatement)objects[1];
 
         // user-defined action
         _0 = _1;
@@ -1095,10 +1106,30 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
+    public static object Rule_breakStatement_Producton_0(Dictionary<int, object> objects) { 
+        CCompilerNs.BreakStatement _0 = new CCompilerNs.BreakStatement();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.BreakStatement();
+
+        return _0;
+    }
+
+    public static object Rule_continueStatement_Producton_0(Dictionary<int, object> objects) { 
+        CCompilerNs.ContinueStatement _0 = new CCompilerNs.ContinueStatement();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.ContinueStatement();
+
+        return _0;
+    }
+
     public static object Rule_forLoopStatement_Producton_0(Dictionary<int, object> objects) { 
         CCompilerNs.ForLoopStatement _0 = new CCompilerNs.ForLoopStatement();
         string _1 = (string)objects[1];
-        CCompilerNs.DeclareStatement _3 = (CCompilerNs.DeclareStatement)objects[3];
+        CCompilerNs.AssignmentStatement _3 = (CCompilerNs.AssignmentStatement)objects[3];
         CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
         string _5 = (string)objects[5];
         CCompilerNs.Expression _6 = (CCompilerNs.Expression)objects[6];
@@ -1108,75 +1139,6 @@ GREATER_OR_EQUAL_SIGN
 
         // user-defined action
         _0 = CCompilerNs.CCLexYaccCallback.ForLoopStatement(_3, _4, _5, _6, _8, _10, _13);
-
-        return _0;
-    }
-
-    public static object Rule_forLoopBody_Producton_0(Dictionary<int, object> objects) { 
-        List<CCompilerNs.Statement> _0 = new List<CCompilerNs.Statement>();
-        List<CCompilerNs.Statement> _1 = (List<CCompilerNs.Statement>)objects[1];
-
-        // user-defined action
-        _0 = CCompilerNs.CCLexYaccCallback.ForLoopBody((string)null, _1);
-
-        return _0;
-    }
-
-    public static object Rule_forLoopBody_Producton_1(Dictionary<int, object> objects) { 
-        List<CCompilerNs.Statement> _0 = new List<CCompilerNs.Statement>();
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = CCompilerNs.CCLexYaccCallback.ForLoopBody("break", null);
-
-        return _0;
-    }
-
-    public static object Rule_forLoopBody_Producton_2(Dictionary<int, object> objects) { 
-        List<CCompilerNs.Statement> _0 = new List<CCompilerNs.Statement>();
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = CCompilerNs.CCLexYaccCallback.ForLoopBody("continue", null);
-
-        return _0;
-    }
-
-    public static object Rule_forLoopBody_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
-        List<CCompilerNs.Statement> _0 = new List<CCompilerNs.Statement>();
-        List<CCompilerNs.Statement> _1 =(List<CCompilerNs.Statement>)objects[1];
-        string _2 = (string)objects[2];
-
-        // user-defined action
-        _0 = CCompilerNs.CCLexYaccCallback.ForLoopBody("break", _1);
-
-        return _0;
-    }
-
-    public static object Rule_forLoopBody_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
-        List<CCompilerNs.Statement> _0 = new List<CCompilerNs.Statement>();
-        List<CCompilerNs.Statement> _1 =(List<CCompilerNs.Statement>)objects[1];
-        string _2 = (string)objects[2];
-
-        // user-defined action
-        _0 = CCompilerNs.CCLexYaccCallback.ForLoopBody("continue", _1);
-
-        return _0;
-    }
-
-    public static object Rule_forLoopBody_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
-        List<CCompilerNs.Statement> _0 = new List<CCompilerNs.Statement>();
-        List<CCompilerNs.Statement> _1 =(List<CCompilerNs.Statement>)objects[1];
-        List<CCompilerNs.Statement> _2 = (List<CCompilerNs.Statement>)objects[2];
-
-        // user-defined action
-        _0 = CCompilerNs.CCLexYaccCallback.ForLoopBody(_2, _1);
-
-        return _0;
-    }
-
-    public static object Rule_forLoopBody_LeftRecursionExpand_Producton_3(Dictionary<int, object> objects) { 
-        List<CCompilerNs.Statement> _0 = new List<CCompilerNs.Statement>();
 
         return _0;
     }

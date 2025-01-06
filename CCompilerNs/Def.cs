@@ -3,6 +3,7 @@
     public class Context
     {
         public static FunDecl funDecl;
+        public static Stack<ForLoopStatement> forLoopStatementStack = new Stack<ForLoopStatement>();
     }
 
     public class Gv

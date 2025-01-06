@@ -441,7 +441,7 @@ ret";
 
     public class ForLoopStatement : Statement
     {
-        public DeclareStatement initializer;
+        public AssignmentStatement initializer;
         public Expression conditionLhs;
         public string conditionOp;
         public Expression conditionrhs;
@@ -449,9 +449,56 @@ ret";
 
         public List<Statement> statements;
 
+        public string loopStartLabel;
+        public string loopEndLabel;
+        public string updaterLabel;
+
         public ForLoopStatement() : base("ForLoopStatement")
         {
 
+        }
+
+        public override void EmitAsm()
+        {
+            loopStartLabel = "loop_start_" + (Gv.sn++);
+            loopEndLabel = "loop_end_" + (Gv.sn++);
+            updaterLabel = "updater_" + (Gv.sn++);
+
+            initializer.EmitAsm();
+            Emit("push %rax");
+            Emit(loopStartLabel + ":");
+
+            // check condition
+            conditionLhs.EmitAsm();
+            conditionrhs.EmitAsm();
+
+            Emit("pop %rbx");
+            Emit("pop %rax");
+
+            Emit("cmp %rbx, %rax");
+
+            if (conditionOp == "==")
+                Emit("jne " + loopEndLabel);
+            else if (conditionOp == "!=")
+                Emit("je " + loopEndLabel);
+            else if (conditionOp == ">")
+                Emit("jle " + loopEndLabel);
+            else if (conditionOp == "<")
+                Emit("jge " + loopEndLabel);
+            else if (conditionOp == "<=")
+                Emit("jg " + loopEndLabel);
+            else if (conditionOp == ">=")
+                Emit("jl " + loopEndLabel);
+
+            Context.forLoopStatementStack.Push(this);
+            foreach (Statement s in statements)
+                s.EmitAsm();
+            Context.forLoopStatementStack.Pop();
+
+            Emit(updaterLabel + ":");
+            updater.EmitAsm();
+            Emit("jmp " + loopStartLabel);
+            Emit(loopEndLabel + ":");
         }
     }
 
@@ -464,6 +511,7 @@ ret";
 
         public override void EmitAsm()
         {
+            Emit("jmp " + Context.forLoopStatementStack.Peek().loopEndLabel);
         }
     }
 
@@ -476,6 +524,7 @@ ret";
 
         public override void EmitAsm()
         {
+            Emit("jmp " + Context.forLoopStatementStack.Peek().updaterLabel);
         }
     }
 }
