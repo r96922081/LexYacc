@@ -41,6 +41,7 @@ public class YaccActions{
 %type <CCompilerNs.ContinueStatement>          continueStatement
 %type <List<CCompilerNs.Expression>>           funcCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
+%type <List<int>>                              arraySize
 %type <string>                                 typeSpec relationlOp
 
 
@@ -211,19 +212,28 @@ RETURN addExpression ';'
 declareStatement:
 typeSpec ID '=' addExpression ';'
 {
-    $$= CCompilerNs.CCLexYaccCallback.DeclareStatement($1, $2, $4);
+    $$= CCompilerNs.CCLexYaccCallback.DeclareStatement($1, $2, $4, null);
 }
 |
 typeSpec ID ';'
 {
-    $$= CCompilerNs.CCLexYaccCallback.DeclareStatement($1, $2, null);
+    $$= CCompilerNs.CCLexYaccCallback.DeclareStatement($1, $2, null, null);
+}
+|
+typeSpec ID arraySize ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.DeclareStatement($1, $2, null, $3);
 }
 ;
 
 assignmentStatement:
 ID '=' addExpression ';'
 {
-    $$= CCompilerNs.CCLexYaccCallback.AssignmentStatement($1, $3);
+    $$= CCompilerNs.CCLexYaccCallback.AssignmentStatement($1, $3, null);
+}
+ID arraySize '=' addExpression ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.AssignmentStatement($1, $4, $2);
 }
 ;
 
@@ -291,6 +301,10 @@ INT_VALUE
 ID
 {   
     $$ = CCompilerNs.CCLexYaccCallback.Expression($1);
+}
+ID arraySize
+{   
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1, $2);
 }
 |
 functionCallExpression
@@ -360,6 +374,18 @@ forLoopStatement:
 FOR '(' assignmentStatement addExpression relationlOp addExpression ';' ID '=' addExpression ')' '{' statements '}'
 {
     $$ = CCompilerNs.CCLexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10, $13);
+}
+;
+
+arraySize:
+arraySize '[' INT_VALUE ']'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ArraySize($3, $1);
+}
+|
+'[' INT_VALUE ']'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ArraySize($2, null);
 }
 ;
 
@@ -444,7 +470,9 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_returnStatement_Producton_1", Rule_returnStatement_Producton_1);
         actions.Add("Rule_declareStatement_Producton_0", Rule_declareStatement_Producton_0);
         actions.Add("Rule_declareStatement_Producton_1", Rule_declareStatement_Producton_1);
+        actions.Add("Rule_declareStatement_Producton_2", Rule_declareStatement_Producton_2);
         actions.Add("Rule_assignmentStatement_Producton_0", Rule_assignmentStatement_Producton_0);
+        actions.Add("Rule_assignmentStatement_Producton_1", Rule_assignmentStatement_Producton_1);
         actions.Add("Rule_addExpression_Producton_0", Rule_addExpression_Producton_0);
         actions.Add("Rule_addExpression_LeftRecursionExpand_Producton_0", Rule_addExpression_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_addExpression_LeftRecursionExpand_Producton_1", Rule_addExpression_LeftRecursionExpand_Producton_1);
@@ -453,6 +481,7 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_mulExpression_Producton_1", Rule_mulExpression_Producton_1);
         actions.Add("Rule_mulExpression_Producton_2", Rule_mulExpression_Producton_2);
         actions.Add("Rule_mulExpression_Producton_3", Rule_mulExpression_Producton_3);
+        actions.Add("Rule_mulExpression_Producton_4", Rule_mulExpression_Producton_4);
         actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_0", Rule_mulExpression_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_1", Rule_mulExpression_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_2", Rule_mulExpression_LeftRecursionExpand_Producton_2);
@@ -474,6 +503,9 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_breakStatement_Producton_0", Rule_breakStatement_Producton_0);
         actions.Add("Rule_continueStatement_Producton_0", Rule_continueStatement_Producton_0);
         actions.Add("Rule_forLoopStatement_Producton_0", Rule_forLoopStatement_Producton_0);
+        actions.Add("Rule_arraySize_Producton_0", Rule_arraySize_Producton_0);
+        actions.Add("Rule_arraySize_LeftRecursionExpand_Producton_0", Rule_arraySize_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_arraySize_LeftRecursionExpand_Producton_1", Rule_arraySize_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_relationlOp_Producton_0", Rule_relationlOp_Producton_0);
         actions.Add("Rule_relationlOp_Producton_1", Rule_relationlOp_Producton_1);
         actions.Add("Rule_relationlOp_Producton_2", Rule_relationlOp_Producton_2);
@@ -820,7 +852,7 @@ GREATER_OR_EQUAL_SIGN
         CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
 
         // user-defined action
-        _0= CCompilerNs.CCLexYaccCallback.DeclareStatement(_1, _2, _4);
+        _0= CCompilerNs.CCLexYaccCallback.DeclareStatement(_1, _2, _4, null);
 
         return _0;
     }
@@ -831,7 +863,19 @@ GREATER_OR_EQUAL_SIGN
         string _2 = (string)objects[2];
 
         // user-defined action
-        _0= CCompilerNs.CCLexYaccCallback.DeclareStatement(_1, _2, null);
+        _0= CCompilerNs.CCLexYaccCallback.DeclareStatement(_1, _2, null, null);
+
+        return _0;
+    }
+
+    public static object Rule_declareStatement_Producton_2(Dictionary<int, object> objects) { 
+        CCompilerNs.DeclareStatement _0 = new CCompilerNs.DeclareStatement();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        List<int> _3 = (List<int>)objects[3];
+
+        // user-defined action
+        _0= CCompilerNs.CCLexYaccCallback.DeclareStatement(_1, _2, null, _3);
 
         return _0;
     }
@@ -842,7 +886,19 @@ GREATER_OR_EQUAL_SIGN
         CCompilerNs.Expression _3 = (CCompilerNs.Expression)objects[3];
 
         // user-defined action
-        _0= CCompilerNs.CCLexYaccCallback.AssignmentStatement(_1, _3);
+        _0= CCompilerNs.CCLexYaccCallback.AssignmentStatement(_1, _3, null);
+
+        return _0;
+    }
+
+    public static object Rule_assignmentStatement_Producton_1(Dictionary<int, object> objects) { 
+        CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
+        string _1 = (string)objects[1];
+        List<int> _2 = (List<int>)objects[2];
+        CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
+
+        // user-defined action
+        _0= CCompilerNs.CCLexYaccCallback.AssignmentStatement(_1, _4, _2);
 
         return _0;
     }
@@ -916,6 +972,17 @@ GREATER_OR_EQUAL_SIGN
     }
 
     public static object Rule_mulExpression_Producton_3(Dictionary<int, object> objects) { 
+        CCompilerNs.Expression _0 = new CCompilerNs.Expression();
+        string _1 = (string)objects[1];
+        List<int> _2 = (List<int>)objects[2];
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.Expression(_1, _2);
+
+        return _0;
+    }
+
+    public static object Rule_mulExpression_Producton_4(Dictionary<int, object> objects) { 
         CCompilerNs.Expression _0 = new CCompilerNs.Expression();
         CCompilerNs.FunctionCallExpression _1 = (CCompilerNs.FunctionCallExpression)objects[1];
 
@@ -1143,6 +1210,33 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
+    public static object Rule_arraySize_Producton_0(Dictionary<int, object> objects) { 
+        List<int> _0 = new List<int>();
+        int _2 = (int)objects[2];
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.ArraySize(_2, null);
+
+        return _0;
+    }
+
+    public static object Rule_arraySize_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        List<int> _0 = new List<int>();
+        List<int> _1 =(List<int>)objects[1];
+        int _3 = (int)objects[3];
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.ArraySize(_3, _1);
+
+        return _0;
+    }
+
+    public static object Rule_arraySize_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        List<int> _0 = new List<int>();
+
+        return _0;
+    }
+
     public static object Rule_relationlOp_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
 
@@ -1290,6 +1384,8 @@ namespace ccNs
 
 ""{""                       { return '{'; }
 ""}""                       { return '}'; }
+""[""                       { return '['; }
+""]""                       { return ']'; }
 ""<""                       { return '<'; }
 "">""                       { return '>'; }
 ""(""                       { return '('; }
@@ -1338,6 +1434,8 @@ namespace ccNs
             actions.Add("LexRule26", LexAction26);
             actions.Add("LexRule27", LexAction27);
             actions.Add("LexRule28", LexAction28);
+            actions.Add("LexRule29", LexAction29);
+            actions.Add("LexRule30", LexAction30);
         }
         public static object LexAction0(string yytext)
         {
@@ -1494,7 +1592,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '<'; 
+            return '['; 
 
             return 0;
         }
@@ -1503,7 +1601,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '>'; 
+            return ']'; 
 
             return 0;
         }
@@ -1512,7 +1610,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '('; 
+            return '<'; 
 
             return 0;
         }
@@ -1521,7 +1619,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return ')'; 
+            return '>'; 
 
             return 0;
         }
@@ -1530,7 +1628,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return ';'; 
+            return '('; 
 
             return 0;
         }
@@ -1539,7 +1637,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '+'; 
+            return ')'; 
 
             return 0;
         }
@@ -1548,7 +1646,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '-'; 
+            return ';'; 
 
             return 0;
         }
@@ -1557,7 +1655,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '*'; 
+            return '+'; 
 
             return 0;
         }
@@ -1566,7 +1664,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '/'; 
+            return '-'; 
 
             return 0;
         }
@@ -1575,7 +1673,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '='; 
+            return '*'; 
 
             return 0;
         }
@@ -1584,11 +1682,29 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '%'; 
+            return '/'; 
 
             return 0;
         }
         public static object LexAction28(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '='; 
+
+            return 0;
+        }
+        public static object LexAction29(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '%'; 
+
+            return 0;
+        }
+        public static object LexAction30(string yytext)
         {
             value = null;
 

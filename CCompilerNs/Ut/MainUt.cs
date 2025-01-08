@@ -343,7 +343,7 @@ int main()
             Check(exitCode == 1);
         }
 
-        public void Ut15()
+        public void Ut15_if()
         {
             string src = @"
 int main()
@@ -368,7 +368,7 @@ int main()
             Check(exitCode == 3);
         }
 
-        public void Ut16()
+        public void Ut16_if()
         {
             string src = @"
 int fib(int n) {
@@ -397,7 +397,7 @@ int main() {
             Check(exitCode == 55);
         }
 
-        public void Ut17()
+        public void Ut17_if()
         {
             string src = @"
 int main() {
@@ -430,7 +430,7 @@ int main() {
             Check(exitCode == 3);
         }
 
-        public void Ut18()
+        public void Ut18_if()
         {
             string src = @"
 int main() {
@@ -459,7 +459,7 @@ int main() {
             Check(exitCode == 2);
         }
 
-        public void Ut19()
+        public void Ut19_if()
         {
             string src = @"
 int main() {
@@ -492,7 +492,7 @@ else
             Check(exitCode == 3);
         }
 
-        public void Ut20()
+        public void Ut20_for()
         {
             string src = @"
 int main() {
@@ -519,7 +519,7 @@ int main() {
             Check(exitCode == 55);
         }
 
-        public void Ut21()
+        public void Ut21_for()
         {
             string src = @"
 int main() {
@@ -551,7 +551,7 @@ int main() {
             Check(exitCode == 50);
         }
 
-        public void Ut22()
+        public void Ut22_for()
         {
             string src = @"
 int main() {
@@ -583,7 +583,7 @@ int main() {
             Check(exitCode == 10);
         }
 
-        public void Ut23()
+        public void Ut23_for()
         {
             string src = @"
 int main() {
@@ -620,10 +620,131 @@ int main() {
             Check(exitCode == 7);
         }
 
+        public void Ut24_for()
+        {
+            string src = @"
+int main() {
+
+    int i = 0;
+    int j = 0;
+    int k = 0;
+
+    for (i = 0; i < 10; i = i + 1)
+{
+    for (j = 0; j < 10; j = j + 1)
+    {
+         if (j == 9)
+         {
+             break;
+         }
+         k = k + 1;
+    }
+}
+
+    return k;
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 90);
+        }
+
+        public void Ut25()
+        {
+            string src = @"
+int main() {
+    int a[6];
+    int b = 1;
+
+    a[0] = 1;
+    a[2] = 2;
+    a[4] = 3;
+    b = a[0] + a[2] + a[4];
+    
+
+    return b;
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 6);
+        }
+
+        public void Ut26()
+        {
+            string src = @"
+int main() {
+    int a[5][4][3];
+
+    a[4][3][2] = 9;   
+
+    return a[4][3][2] - 2;
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 7);
+        }
+
+        public void Ut27()
+        {
+            string src = @"
+int main() {
+    int a[5][4][3];
+    int sum = 0;
+
+    for (i = 0; i < 5; i = i + 1)
+    {
+        for (j = 0; j < 4; j = j + 1)
+        {
+            for (k = 0; k < 3; k = k + 1)
+            {
+                a[2][3][1] = 2;
+            }
+        }
+    }
+
+    return sum;
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 7);
+        }
+
         public static void RunAllUt()
         {
             MainUt mainUt = new MainUt();
 
+            mainUt.Ut27();
             mainUt.Ut1();
             mainUt.Ut2();
             mainUt.Ut3();
@@ -638,15 +759,18 @@ int main() {
             mainUt.Ut12();
             mainUt.Ut13();
             mainUt.Ut14();
-            mainUt.Ut15();
-            mainUt.Ut16();
-            mainUt.Ut17();
-            mainUt.Ut18();
-            mainUt.Ut19();
-            mainUt.Ut20();
-            mainUt.Ut21();
-            mainUt.Ut22();
-            mainUt.Ut23();
+            mainUt.Ut15_if();
+            mainUt.Ut16_if();
+            mainUt.Ut17_if();
+            mainUt.Ut18_if();
+            mainUt.Ut19_if();
+            mainUt.Ut20_for();
+            mainUt.Ut21_for();
+            mainUt.Ut22_for();
+            mainUt.Ut23_for();
+            mainUt.Ut24_for();
+            mainUt.Ut25();
+            mainUt.Ut26();
         }
 
         public static void Ut()

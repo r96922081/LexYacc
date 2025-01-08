@@ -7,12 +7,13 @@ notes
 ====
 
 TODO:
+- array, 2d array, n-d array
 - add type char, double
 - empty statements: {},  ;
-- array
 - char array, and print
 - struct
-- point
+- point, malloc
+- global variable
 
 - if statements must be followed by {} because currently,
   if 

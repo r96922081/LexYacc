@@ -46,9 +46,15 @@
             LocalVariable l = new LocalVariable();
             l.name = a.name;
             l.type = a.type;
+            l.arraySize = a.arraySize;
             localMap.Add(l.name, l);
 
-            localSize += a.type.size;
+            int count = 1;
+
+            foreach (int size in a.arraySize)
+                count *= size;
+
+            localSize += a.type.size * count;
 
             l.stackOffset = -localSize;
             a.stackOffset = -localSize;
@@ -227,6 +233,7 @@ ret";
     {
         public string name;
         public Expression value;
+        public List<int> arrayIndex = new List<int>();
 
         public AssignmentStatement() : base("AssignmentStatement")
         {
@@ -240,8 +247,19 @@ ret";
             value.EmitAsm();
             LocalVariable l = Context.funDecl.localMap[name];
 
+            int stackOffset = l.stackOffset;
+            for (int i = 0; i < arrayIndex.Count; i++)
+            {
+                int levelCount = 1;
+                for (int j = i + 1; j < l.arraySize.Count; j++)
+                {
+                    levelCount *= l.arraySize[j];
+                }
+                stackOffset += arrayIndex[i] * levelCount * l.type.size;
+            }
+
             Emit("pop %rax");
-            Emit(string.Format("mov %rax, {0}(%rbp)", l.stackOffset));
+            Emit(string.Format("mov %rax, {0}(%rbp)", stackOffset));
             Emit("#<= AssignmentStatement");
         }
     }
@@ -252,6 +270,7 @@ ret";
         public string name;
         public Expression value;
         public int stackOffset;
+        public List<int> arraySize = new List<int>();
 
         public DeclareStatement() : base("DeclareStatement")
         {
@@ -324,6 +343,7 @@ ret";
         public Expression rhs = null;
         public int? intValue = null;
         public string? variableName = null;
+        public List<int> arrayIndex = new List<int>();
         public FunctionCallExpression? functionCall = null;
 
         public Expression() : base("Expression")
@@ -340,6 +360,7 @@ ret";
                 Emit(string.Format("push %rax"));
             }
             // case mulExpression: ID
+            // case mulExpression: ID '[' INT_VALUE ']'
             else if (variableName != null)
             {
                 LocalVariable local = null;
@@ -351,7 +372,18 @@ ret";
                 else
                     throw new Exception("unknown variable " + variableName);
 
-                Emit(string.Format("mov {0}(%rbp), %rax", local.stackOffset));
+                int stackOffset = local.stackOffset;
+                for (int i = 0; i < arrayIndex.Count; i++)
+                {
+                    int levelCount = 1;
+                    for (int j = i + 1; j < local.arraySize.Count; j++)
+                    {
+                        levelCount *= local.arraySize[j];
+                    }
+                    stackOffset += arrayIndex[i] * levelCount * local.type.size;
+                }
+
+                Emit(string.Format("mov {0}(%rbp), %rax", stackOffset));
                 Emit(string.Format("push %rax"));
             }
             // case mulExpression: functionCall

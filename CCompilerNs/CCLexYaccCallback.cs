@@ -80,12 +80,15 @@
             return n;
         }
 
-        public static DeclareStatement DeclareStatement(string type, string id, Expression expression)
+        public static DeclareStatement DeclareStatement(string type, string id, Expression expression, List<int> arraySize)
         {
             DeclareStatement n = new DeclareStatement();
             n.type = Util.GetType(type);
             n.name = id;
             n.value = expression;
+
+            if (arraySize != null)
+                n.arraySize.AddRange(arraySize);
 
             if (expression != null)
                 n.childrenForPrint.Add(expression);
@@ -93,12 +96,15 @@
             return n;
         }
 
-        public static AssignmentStatement AssignmentStatement(string id, Expression expression)
+        public static AssignmentStatement AssignmentStatement(string id, Expression expression, List<int> arraySize)
         {
             AssignmentStatement a = new AssignmentStatement();
             a.name = id;
             a.value = expression;
             a.childrenForPrint.Add(expression);
+
+            if (arraySize != null)
+                a.arrayIndex.AddRange(arraySize);
 
             return a;
         }
@@ -115,6 +121,15 @@
         {
             Expression a = new Expression();
             a.variableName = id;
+
+            return a;
+        }
+
+        public static Expression Expression(string id, List<int> arrayIndex)
+        {
+            Expression a = new Expression();
+            a.variableName = id;
+            a.arrayIndex.AddRange(arrayIndex);
 
             return a;
         }
@@ -205,6 +220,17 @@
             paramList.Add(param);
 
             return paramList;
+        }
+
+        public static List<int> ArraySize(int size, List<int> prev)
+        {
+            List<int> arraySize = new List<int>();
+            if (prev != null)
+                arraySize.AddRange(prev);
+
+            arraySize.Add(size);
+
+            return arraySize;
         }
 
         public static List<LocalVariable> FuncParams(string type, string name, List<LocalVariable> prevFunParams)
@@ -298,7 +324,7 @@
             f.conditionLhs = conditionLhs;
             f.conditionOp = conditionOp;
             f.conditionrhs = conditionrhs;
-            f.updater = AssignmentStatement(updateId, updateExpression);
+            f.updater = AssignmentStatement(updateId, updateExpression, null);
             f.statements = statements;
 
             return f;

@@ -23,6 +23,7 @@
 %type <CCompilerNs.ContinueStatement>          continueStatement
 %type <List<CCompilerNs.Expression>>           funcCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
+%type <List<int>>                              arraySize
 %type <string>                                 typeSpec relationlOp
 
 
@@ -193,19 +194,28 @@ RETURN addExpression ';'
 declareStatement:
 typeSpec ID '=' addExpression ';'
 {
-    $$= CCompilerNs.CCLexYaccCallback.DeclareStatement($1, $2, $4);
+    $$= CCompilerNs.CCLexYaccCallback.DeclareStatement($1, $2, $4, null);
 }
 |
 typeSpec ID ';'
 {
-    $$= CCompilerNs.CCLexYaccCallback.DeclareStatement($1, $2, null);
+    $$= CCompilerNs.CCLexYaccCallback.DeclareStatement($1, $2, null, null);
+}
+|
+typeSpec ID arraySize ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.DeclareStatement($1, $2, null, $3);
 }
 ;
 
 assignmentStatement:
 ID '=' addExpression ';'
 {
-    $$= CCompilerNs.CCLexYaccCallback.AssignmentStatement($1, $3);
+    $$= CCompilerNs.CCLexYaccCallback.AssignmentStatement($1, $3, null);
+}
+ID arraySize '=' addExpression ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.AssignmentStatement($1, $4, $2);
 }
 ;
 
@@ -273,6 +283,10 @@ INT_VALUE
 ID
 {   
     $$ = CCompilerNs.CCLexYaccCallback.Expression($1);
+}
+ID arraySize
+{   
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1, $2);
 }
 |
 functionCallExpression
@@ -342,6 +356,18 @@ forLoopStatement:
 FOR '(' assignmentStatement addExpression relationlOp addExpression ';' ID '=' addExpression ')' '{' statements '}'
 {
     $$ = CCompilerNs.CCLexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10, $13);
+}
+;
+
+arraySize:
+arraySize '[' INT_VALUE ']'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ArraySize($3, $1);
+}
+|
+'[' INT_VALUE ']'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ArraySize($2, null);
 }
 ;
 
