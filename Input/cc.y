@@ -13,7 +13,7 @@
 %type <CCompilerNs.Statement>                  statement
 %type <CCompilerNs.ReturnStatement>            returnStatement 
 %type <CCompilerNs.DeclareStatement>           declareStatement
-%type <CCompilerNs.AssignmentStatement>        assignmentStatement
+%type <CCompilerNs.AssignmentStatement>        assignmentStatement assignmentNoSemicolon
 %type <CCompilerNs.FunctionCallExpression>     functionCallExpression
 %type <CCompilerNs.FunctionCallExpression>     functionCallStatement
 %type <CCompilerNs.CompoundIfStatement>        compoundIfStatement
@@ -225,71 +225,78 @@ typeSpec ID arraySize ';'
 ;
 
 assignmentStatement:
-ID '=' addExpression ';'
+assignmentNoSemicolon ';'
+{
+    $$ = $1;
+}
+;
+
+assignmentNoSemicolon: 
+ID '=' addExpression
 {
     $$= CCompilerNs.CCLexYaccCallback.AssignmentStatement($1, $3, null);
 }
-ID arrayIndex '=' addExpression ';'
+ID arrayIndex '=' addExpression
 {
     $$= CCompilerNs.CCLexYaccCallback.AssignmentStatement($1, $4, $2);
 }
 |
-ID PLUS_ASSIGN addExpression ';'
+ID PLUS_ASSIGN addExpression
 {
     $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $3, null, "+");
 }
 |
-ID arrayIndex PLUS_ASSIGN addExpression ';'
+ID arrayIndex PLUS_ASSIGN addExpression
 {
     $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $4, $2, "+");
 }
 |
-ID MINUS_ASSIGN addExpression ';'
+ID MINUS_ASSIGN addExpression
 {
     $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $3, null, "-");
 }
 |
-ID arrayIndex MINUS_ASSIGN addExpression ';'
+ID arrayIndex MINUS_ASSIGN addExpression
 {
     $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $4, $2, "-");
 }
 |
-ID  MULTIPLY_ASSIGN addExpression ';'
+ID  MULTIPLY_ASSIGN addExpression 
 {
     $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $3, null, "*");
 }
 |
-ID arrayIndex MULTIPLY_ASSIGN addExpression ';'
+ID arrayIndex MULTIPLY_ASSIGN addExpression
 {
     $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $4, $2, "*");
 }
 |
-ID  DIVIDE_ASSIGN addExpression ';'
+ID  DIVIDE_ASSIGN addExpression
 {
     $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $3, null, "/");
 }
 |
-ID arrayIndex DIVIDE_ASSIGN addExpression ';'
+ID arrayIndex DIVIDE_ASSIGN addExpression
 {
     $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $4, $2, "/");
 }
 |
-ID  INCREMENT ';'
+ID  INCREMENT
 {
     $$= CCompilerNs.CCLexYaccCallback.IncrementDecrement($1, null, "+");
 }
 |
-ID arrayIndex INCREMENT ';'
+ID arrayIndex INCREMENT
 {
     $$= CCompilerNs.CCLexYaccCallback.IncrementDecrement($1, $2, "+");
 }
 |
-ID DECREMENT ';'
+ID DECREMENT
 {
     $$= CCompilerNs.CCLexYaccCallback.IncrementDecrement($1, null, "-");
 }
 |
-ID arrayIndex DECREMENT ';'
+ID arrayIndex DECREMENT
 {
     $$= CCompilerNs.CCLexYaccCallback.IncrementDecrement($1, $2, "-");
 }
@@ -429,14 +436,14 @@ CONTINUE ';'
 ;
 
 forLoopStatement:
-FOR '(' assignmentStatement addExpression relationlOp addExpression ';' ID '=' addExpression ')' '{' statements '}'
+FOR '(' assignmentStatement addExpression relationlOp addExpression ';' assignmentNoSemicolon ')' '{' statements '}'
 {
-    $$ = CCompilerNs.CCLexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10, $13);
+    $$ = CCompilerNs.CCLexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $11);
 }
 |
-FOR '(' assignmentStatement addExpression relationlOp addExpression ';' ID '=' addExpression ')' statement
+FOR '(' assignmentStatement addExpression relationlOp addExpression ';' assignmentNoSemicolon ')' statement
 {
-    $$ = CCompilerNs.CCLexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10, $12);
+    $$ = CCompilerNs.CCLexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10);
 }
 ;
 

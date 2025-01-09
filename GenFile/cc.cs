@@ -31,7 +31,7 @@ public class YaccActions{
 %type <CCompilerNs.Statement>                  statement
 %type <CCompilerNs.ReturnStatement>            returnStatement 
 %type <CCompilerNs.DeclareStatement>           declareStatement
-%type <CCompilerNs.AssignmentStatement>        assignmentStatement
+%type <CCompilerNs.AssignmentStatement>        assignmentStatement assignmentNoSemicolon
 %type <CCompilerNs.FunctionCallExpression>     functionCallExpression
 %type <CCompilerNs.FunctionCallExpression>     functionCallStatement
 %type <CCompilerNs.CompoundIfStatement>        compoundIfStatement
@@ -243,71 +243,78 @@ typeSpec ID arraySize ';'
 ;
 
 assignmentStatement:
-ID '=' addExpression ';'
+assignmentNoSemicolon ';'
+{
+    $$ = $1;
+}
+;
+
+assignmentNoSemicolon: 
+ID '=' addExpression
 {
     $$= CCompilerNs.CCLexYaccCallback.AssignmentStatement($1, $3, null);
 }
-ID arrayIndex '=' addExpression ';'
+ID arrayIndex '=' addExpression
 {
     $$= CCompilerNs.CCLexYaccCallback.AssignmentStatement($1, $4, $2);
 }
 |
-ID PLUS_ASSIGN addExpression ';'
+ID PLUS_ASSIGN addExpression
 {
     $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $3, null, ""+"");
 }
 |
-ID arrayIndex PLUS_ASSIGN addExpression ';'
+ID arrayIndex PLUS_ASSIGN addExpression
 {
     $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $4, $2, ""+"");
 }
 |
-ID MINUS_ASSIGN addExpression ';'
+ID MINUS_ASSIGN addExpression
 {
     $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $3, null, ""-"");
 }
 |
-ID arrayIndex MINUS_ASSIGN addExpression ';'
+ID arrayIndex MINUS_ASSIGN addExpression
 {
     $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $4, $2, ""-"");
 }
 |
-ID  MULTIPLY_ASSIGN addExpression ';'
+ID  MULTIPLY_ASSIGN addExpression 
 {
     $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $3, null, ""*"");
 }
 |
-ID arrayIndex MULTIPLY_ASSIGN addExpression ';'
+ID arrayIndex MULTIPLY_ASSIGN addExpression
 {
     $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $4, $2, ""*"");
 }
 |
-ID  DIVIDE_ASSIGN addExpression ';'
+ID  DIVIDE_ASSIGN addExpression
 {
     $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $3, null, ""/"");
 }
 |
-ID arrayIndex DIVIDE_ASSIGN addExpression ';'
+ID arrayIndex DIVIDE_ASSIGN addExpression
 {
     $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $4, $2, ""/"");
 }
 |
-ID  INCREMENT ';'
+ID  INCREMENT
 {
     $$= CCompilerNs.CCLexYaccCallback.IncrementDecrement($1, null, ""+"");
 }
 |
-ID arrayIndex INCREMENT ';'
+ID arrayIndex INCREMENT
 {
     $$= CCompilerNs.CCLexYaccCallback.IncrementDecrement($1, $2, ""+"");
 }
 |
-ID DECREMENT ';'
+ID DECREMENT
 {
     $$= CCompilerNs.CCLexYaccCallback.IncrementDecrement($1, null, ""-"");
 }
 |
-ID arrayIndex DECREMENT ';'
+ID arrayIndex DECREMENT
 {
     $$= CCompilerNs.CCLexYaccCallback.IncrementDecrement($1, $2, ""-"");
 }
@@ -447,14 +454,14 @@ CONTINUE ';'
 ;
 
 forLoopStatement:
-FOR '(' assignmentStatement addExpression relationlOp addExpression ';' ID '=' addExpression ')' '{' statements '}'
+FOR '(' assignmentStatement addExpression relationlOp addExpression ';' assignmentNoSemicolon ')' '{' statements '}'
 {
-    $$ = CCompilerNs.CCLexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10, $13);
+    $$ = CCompilerNs.CCLexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $11);
 }
 |
-FOR '(' assignmentStatement addExpression relationlOp addExpression ';' ID '=' addExpression ')' statement
+FOR '(' assignmentStatement addExpression relationlOp addExpression ';' assignmentNoSemicolon ')' statement
 {
-    $$ = CCompilerNs.CCLexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10, $12);
+    $$ = CCompilerNs.CCLexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10);
 }
 ;
 
@@ -568,19 +575,20 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_declareStatement_Producton_1", Rule_declareStatement_Producton_1);
         actions.Add("Rule_declareStatement_Producton_2", Rule_declareStatement_Producton_2);
         actions.Add("Rule_assignmentStatement_Producton_0", Rule_assignmentStatement_Producton_0);
-        actions.Add("Rule_assignmentStatement_Producton_1", Rule_assignmentStatement_Producton_1);
-        actions.Add("Rule_assignmentStatement_Producton_2", Rule_assignmentStatement_Producton_2);
-        actions.Add("Rule_assignmentStatement_Producton_3", Rule_assignmentStatement_Producton_3);
-        actions.Add("Rule_assignmentStatement_Producton_4", Rule_assignmentStatement_Producton_4);
-        actions.Add("Rule_assignmentStatement_Producton_5", Rule_assignmentStatement_Producton_5);
-        actions.Add("Rule_assignmentStatement_Producton_6", Rule_assignmentStatement_Producton_6);
-        actions.Add("Rule_assignmentStatement_Producton_7", Rule_assignmentStatement_Producton_7);
-        actions.Add("Rule_assignmentStatement_Producton_8", Rule_assignmentStatement_Producton_8);
-        actions.Add("Rule_assignmentStatement_Producton_9", Rule_assignmentStatement_Producton_9);
-        actions.Add("Rule_assignmentStatement_Producton_10", Rule_assignmentStatement_Producton_10);
-        actions.Add("Rule_assignmentStatement_Producton_11", Rule_assignmentStatement_Producton_11);
-        actions.Add("Rule_assignmentStatement_Producton_12", Rule_assignmentStatement_Producton_12);
-        actions.Add("Rule_assignmentStatement_Producton_13", Rule_assignmentStatement_Producton_13);
+        actions.Add("Rule_assignmentNoSemicolon_Producton_0", Rule_assignmentNoSemicolon_Producton_0);
+        actions.Add("Rule_assignmentNoSemicolon_Producton_1", Rule_assignmentNoSemicolon_Producton_1);
+        actions.Add("Rule_assignmentNoSemicolon_Producton_2", Rule_assignmentNoSemicolon_Producton_2);
+        actions.Add("Rule_assignmentNoSemicolon_Producton_3", Rule_assignmentNoSemicolon_Producton_3);
+        actions.Add("Rule_assignmentNoSemicolon_Producton_4", Rule_assignmentNoSemicolon_Producton_4);
+        actions.Add("Rule_assignmentNoSemicolon_Producton_5", Rule_assignmentNoSemicolon_Producton_5);
+        actions.Add("Rule_assignmentNoSemicolon_Producton_6", Rule_assignmentNoSemicolon_Producton_6);
+        actions.Add("Rule_assignmentNoSemicolon_Producton_7", Rule_assignmentNoSemicolon_Producton_7);
+        actions.Add("Rule_assignmentNoSemicolon_Producton_8", Rule_assignmentNoSemicolon_Producton_8);
+        actions.Add("Rule_assignmentNoSemicolon_Producton_9", Rule_assignmentNoSemicolon_Producton_9);
+        actions.Add("Rule_assignmentNoSemicolon_Producton_10", Rule_assignmentNoSemicolon_Producton_10);
+        actions.Add("Rule_assignmentNoSemicolon_Producton_11", Rule_assignmentNoSemicolon_Producton_11);
+        actions.Add("Rule_assignmentNoSemicolon_Producton_12", Rule_assignmentNoSemicolon_Producton_12);
+        actions.Add("Rule_assignmentNoSemicolon_Producton_13", Rule_assignmentNoSemicolon_Producton_13);
         actions.Add("Rule_addExpression_Producton_0", Rule_addExpression_Producton_0);
         actions.Add("Rule_addExpression_LeftRecursionExpand_Producton_0", Rule_addExpression_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_addExpression_LeftRecursionExpand_Producton_1", Rule_addExpression_LeftRecursionExpand_Producton_1);
@@ -1034,6 +1042,16 @@ GREATER_OR_EQUAL_SIGN
 
     public static object Rule_assignmentStatement_Producton_0(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
+        CCompilerNs.AssignmentStatement _1 = (CCompilerNs.AssignmentStatement)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_assignmentNoSemicolon_Producton_0(Dictionary<int, object> objects) { 
+        CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
         CCompilerNs.Expression _3 = (CCompilerNs.Expression)objects[3];
 
@@ -1043,7 +1061,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_assignmentStatement_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_assignmentNoSemicolon_Producton_1(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
         List<CCompilerNs.Expression> _2 = (List<CCompilerNs.Expression>)objects[2];
@@ -1055,7 +1073,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_assignmentStatement_Producton_2(Dictionary<int, object> objects) { 
+    public static object Rule_assignmentNoSemicolon_Producton_2(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
@@ -1067,7 +1085,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_assignmentStatement_Producton_3(Dictionary<int, object> objects) { 
+    public static object Rule_assignmentNoSemicolon_Producton_3(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
         List<CCompilerNs.Expression> _2 = (List<CCompilerNs.Expression>)objects[2];
@@ -1080,7 +1098,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_assignmentStatement_Producton_4(Dictionary<int, object> objects) { 
+    public static object Rule_assignmentNoSemicolon_Producton_4(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
@@ -1092,7 +1110,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_assignmentStatement_Producton_5(Dictionary<int, object> objects) { 
+    public static object Rule_assignmentNoSemicolon_Producton_5(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
         List<CCompilerNs.Expression> _2 = (List<CCompilerNs.Expression>)objects[2];
@@ -1105,7 +1123,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_assignmentStatement_Producton_6(Dictionary<int, object> objects) { 
+    public static object Rule_assignmentNoSemicolon_Producton_6(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
@@ -1117,7 +1135,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_assignmentStatement_Producton_7(Dictionary<int, object> objects) { 
+    public static object Rule_assignmentNoSemicolon_Producton_7(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
         List<CCompilerNs.Expression> _2 = (List<CCompilerNs.Expression>)objects[2];
@@ -1130,7 +1148,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_assignmentStatement_Producton_8(Dictionary<int, object> objects) { 
+    public static object Rule_assignmentNoSemicolon_Producton_8(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
@@ -1142,7 +1160,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_assignmentStatement_Producton_9(Dictionary<int, object> objects) { 
+    public static object Rule_assignmentNoSemicolon_Producton_9(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
         List<CCompilerNs.Expression> _2 = (List<CCompilerNs.Expression>)objects[2];
@@ -1155,7 +1173,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_assignmentStatement_Producton_10(Dictionary<int, object> objects) { 
+    public static object Rule_assignmentNoSemicolon_Producton_10(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
@@ -1166,7 +1184,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_assignmentStatement_Producton_11(Dictionary<int, object> objects) { 
+    public static object Rule_assignmentNoSemicolon_Producton_11(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
         List<CCompilerNs.Expression> _2 = (List<CCompilerNs.Expression>)objects[2];
@@ -1178,7 +1196,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_assignmentStatement_Producton_12(Dictionary<int, object> objects) { 
+    public static object Rule_assignmentNoSemicolon_Producton_12(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
@@ -1189,7 +1207,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_assignmentStatement_Producton_13(Dictionary<int, object> objects) { 
+    public static object Rule_assignmentNoSemicolon_Producton_13(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
         List<CCompilerNs.Expression> _2 = (List<CCompilerNs.Expression>)objects[2];
@@ -1498,12 +1516,11 @@ GREATER_OR_EQUAL_SIGN
         CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
         string _5 = (string)objects[5];
         CCompilerNs.Expression _6 = (CCompilerNs.Expression)objects[6];
-        string _8 = (string)objects[8];
-        CCompilerNs.Expression _10 = (CCompilerNs.Expression)objects[10];
-        List<CCompilerNs.Statement> _13 = (List<CCompilerNs.Statement>)objects[13];
+        CCompilerNs.AssignmentStatement _8 = (CCompilerNs.AssignmentStatement)objects[8];
+        List<CCompilerNs.Statement> _11 = (List<CCompilerNs.Statement>)objects[11];
 
         // user-defined action
-        _0 = CCompilerNs.CCLexYaccCallback.ForLoopStatement(_3, _4, _5, _6, _8, _10, _13);
+        _0 = CCompilerNs.CCLexYaccCallback.ForLoopStatement(_3, _4, _5, _6, _8, _11);
 
         return _0;
     }
@@ -1515,12 +1532,11 @@ GREATER_OR_EQUAL_SIGN
         CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
         string _5 = (string)objects[5];
         CCompilerNs.Expression _6 = (CCompilerNs.Expression)objects[6];
-        string _8 = (string)objects[8];
-        CCompilerNs.Expression _10 = (CCompilerNs.Expression)objects[10];
-        CCompilerNs.Statement _12 = (CCompilerNs.Statement)objects[12];
+        CCompilerNs.AssignmentStatement _8 = (CCompilerNs.AssignmentStatement)objects[8];
+        CCompilerNs.Statement _10 = (CCompilerNs.Statement)objects[10];
 
         // user-defined action
-        _0 = CCompilerNs.CCLexYaccCallback.ForLoopStatement(_3, _4, _5, _6, _8, _10, _12);
+        _0 = CCompilerNs.CCLexYaccCallback.ForLoopStatement(_3, _4, _5, _6, _8, _10);
 
         return _0;
     }

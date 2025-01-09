@@ -552,7 +552,7 @@ int main() {
 
     int a = 0;
     int i = 0;
-    for (i = 1; i <= 10; i = i + 1)
+    for (i = 1; i <= 10; i++)
 {
     a = a + i;
 }
@@ -579,7 +579,7 @@ int main() {
 
     int a = 0;
     int i = 0;
-    for (i = 1; i <= 10; i = i + 1)
+    for (i = 1; i <= 10; i++)
 {
     if (i == 5)
     {
@@ -611,12 +611,10 @@ int main() {
 
     int a = 0;
     int i = 0;
-    for (i = 1; i <= 10; i = i + 1)
+    for (i = 1; i <= 10; i++)
 {
     if (i == 5)
-    {
        break;
-    }
 
     a += i;
 }
@@ -643,7 +641,7 @@ int main() {
 
     int a = 0;
     int i = 0;
-    for (i = 1; i <= 10; i = i + 1)
+    for (i = 1; i <= 10; i++)
 {
     if (i == 5)
     {
@@ -682,8 +680,8 @@ int main() {
     int j = 0;
     int k = 0;
 
-    for (i = 0; i < 10; i = i + 1)
-        for (j = 0; j < 10; j = j + 1)
+    for (i = 0; i < 10; i++)
+        for (j = 0; j < 10; j++)
         {
              if (j == 9)
                  break;

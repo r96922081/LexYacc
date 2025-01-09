@@ -381,22 +381,22 @@
             return c;
         }
 
-        public static ForLoopStatement ForLoopStatement(AssignmentStatement initializer, Expression conditionLhs, string conditionOp, Expression conditionrhs, string updateId, Expression updateExpression, List<Statement> statements)
+        public static ForLoopStatement ForLoopStatement(AssignmentStatement initializer, Expression conditionLhs, string conditionOp, Expression conditionrhs, AssignmentStatement updater, List<Statement> statements)
         {
             ForLoopStatement f = new ForLoopStatement();
             f.initializer = initializer;
             f.conditionLhs = conditionLhs;
             f.conditionOp = conditionOp;
             f.conditionrhs = conditionrhs;
-            f.updater = AssignmentStatement(updateId, updateExpression, null);
+            f.updater = updater;
             f.statements = statements;
 
             return f;
         }
 
-        public static ForLoopStatement ForLoopStatement(AssignmentStatement initializer, Expression conditionLhs, string conditionOp, Expression conditionrhs, string updateId, Expression updateExpression, Statement statement)
+        public static ForLoopStatement ForLoopStatement(AssignmentStatement initializer, Expression conditionLhs, string conditionOp, Expression conditionrhs, AssignmentStatement updater, Statement statement)
         {
-            return ForLoopStatement(initializer, conditionLhs, conditionOp, conditionrhs, updateId, updateExpression, new List<Statement>() { statement });
+            return ForLoopStatement(initializer, conditionLhs, conditionOp, conditionrhs, updater, new List<Statement>() { statement });
         }
 
         public static BreakStatement BreakStatement()
