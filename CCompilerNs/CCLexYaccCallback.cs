@@ -109,6 +109,46 @@
             return a;
         }
 
+        public static AssignmentStatement OpAssignmentStatement(string id, Expression rhs, List<Expression> arrayIndex, string op)
+        {
+            AssignmentStatement a = new AssignmentStatement();
+            a.name = id;
+            if (arrayIndex != null)
+                a.arrayIndex.AddRange(arrayIndex);
+
+            Expression lhs = null;
+
+            if (arrayIndex == null)
+                lhs = Expression(id);
+            else
+                lhs = Expression(id, arrayIndex);
+
+            a.value = Expression(lhs, op, rhs);
+
+            return a;
+        }
+
+        public static AssignmentStatement IncrementDecrement(string id, List<Expression> arrayIndex, string op)
+        {
+            AssignmentStatement a = new AssignmentStatement();
+            a.name = id;
+            if (arrayIndex != null)
+                a.arrayIndex.AddRange(arrayIndex);
+
+            Expression rhs = Expression(1);
+
+            Expression lhs = null;
+
+            if (arrayIndex == null)
+                lhs = Expression(id);
+            else
+                lhs = Expression(id, arrayIndex);
+
+            a.value = Expression(lhs, op, rhs);
+
+            return a;
+        }
+
         public static Expression Expression(int intValue)
         {
             Expression a = new Expression();

@@ -255,10 +255,10 @@ ret";
             // a[2][3] = xxx;
             else
             {
+                value.EmitAsm();
                 Util.SaveArrayIndexAddressToRbx(l, arrayIndex);
 
-                value.EmitAsm();
-                Emit("pop %rax");
+                Emit("pop %rax"); // value to %rax
                 Emit("mov %rax, (%rbx)");
             }
 

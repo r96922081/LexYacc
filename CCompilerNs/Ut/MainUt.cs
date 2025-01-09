@@ -343,6 +343,47 @@ int main()
             Check(exitCode == 1);
         }
 
+        public void Ut15()
+        {
+            string src = @"
+int main()
+{
+    int a = 0;
+    int b[1];
+
+    a += 10;
+    a -= 2;
+    a *= 3;
+    a /= 6;
+    a++;
+    a++;
+    a++;
+    a--;
+
+    b[0] += 10;
+    b[0] -= 2;
+    b[0] *= 3;
+    b[0] /= 6;
+    b[0]++;
+    b[0]++;
+    b[0]++;
+    b[0]--;
+
+    return a + b[0];
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 12);
+        }
+
         public void if_1()
         {
             string src = @"
@@ -545,7 +586,7 @@ int main() {
        continue;
     }
 
-    a = a + i;
+    a += i;
 }
 
     return a;
@@ -577,7 +618,7 @@ int main() {
        break;
     }
 
-    a = a + i;
+    a += i;
 }
 
     return a;
@@ -614,7 +655,7 @@ int main() {
        continue;
     }
 
-    a = a + i;
+    a += i;
 }
 
     return a;
@@ -645,10 +686,9 @@ int main() {
         for (j = 0; j < 10; j = j + 1)
         {
              if (j == 9)
-             {
                  break;
-             }
-             k = k + 1;
+
+             k += 1;
         }
 
     return k;
@@ -775,6 +815,10 @@ int main() {
             for (k = 0; k < 3; k = k + 1)
                 a[i][j][k] = 2;
 
+    a[3][2][1] = a[3][2][1] + 1;
+    a[2][2][2] = a[2][2][2] + 2;
+    a[1][1][1] = a[1][1][1] * 3;
+
     for (i = 0; i < 5; i = i + 1)
         for (j = 0; j < 4; j = j + 1)
             for (k = 0; k < 3; k = k + 1)
@@ -792,7 +836,7 @@ int main() {
             program.EmitAsm();
 
             int exitCode = CompileAndRun("test.s", "test.exe");
-            Check(exitCode == 120);
+            Check(exitCode == 127);
         }
 
         public static void RunAllUt()
@@ -813,6 +857,7 @@ int main() {
             mainUt.Ut12();
             mainUt.Ut13();
             mainUt.Ut14();
+            mainUt.Ut15();
 
             mainUt.if_1();
             mainUt.if_2();

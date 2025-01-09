@@ -2,7 +2,7 @@
 %}
 
 %token <int>         INT_VALUE
-%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR BREAK CONTINUE
+%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN
 
 %type <CCompilerNs.Program>                    program 
 %type <List<CCompilerNs.FunDecl>>              funDecls
@@ -232,6 +232,66 @@ ID '=' addExpression ';'
 ID arrayIndex '=' addExpression ';'
 {
     $$= CCompilerNs.CCLexYaccCallback.AssignmentStatement($1, $4, $2);
+}
+|
+ID PLUS_ASSIGN addExpression ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $3, null, "+");
+}
+|
+ID arrayIndex PLUS_ASSIGN addExpression ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $4, $2, "+");
+}
+|
+ID MINUS_ASSIGN addExpression ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $3, null, "-");
+}
+|
+ID arrayIndex MINUS_ASSIGN addExpression ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $4, $2, "-");
+}
+|
+ID  MULTIPLY_ASSIGN addExpression ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $3, null, "*");
+}
+|
+ID arrayIndex MULTIPLY_ASSIGN addExpression ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $4, $2, "*");
+}
+|
+ID  DIVIDE_ASSIGN addExpression ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $3, null, "/");
+}
+|
+ID arrayIndex DIVIDE_ASSIGN addExpression ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.OpAssignmentStatement($1, $4, $2, "/");
+}
+|
+ID  INCREMENT ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.IncrementDecrement($1, null, "+");
+}
+|
+ID arrayIndex INCREMENT ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.IncrementDecrement($1, $2, "+");
+}
+|
+ID DECREMENT ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.IncrementDecrement($1, null, "-");
+}
+|
+ID arrayIndex DECREMENT ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.IncrementDecrement($1, $2, "-");
 }
 ;
 

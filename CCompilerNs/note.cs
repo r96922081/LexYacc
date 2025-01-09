@@ -7,7 +7,8 @@ notes
 ====
 
 TODO:
-- array, 2d array, n-d array
+- Change for loop statement's updater to assignment, so that is can use ++, --, +=, ...
+- binary operation in if, if (a > b && a != c && c <d )
 - add type char, double
 - global variable
 - empty statements: {},  ;
