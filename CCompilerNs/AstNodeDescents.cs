@@ -233,7 +233,7 @@ ret";
     {
         public string name;
         public Expression value;
-        public List<int> arrayIndex = new List<int>();
+        public List<Expression> arrayIndex = new List<Expression>();
 
         public AssignmentStatement() : base("AssignmentStatement")
         {
@@ -244,22 +244,24 @@ ret";
         {
             Emit("#AssignmentStatement =>");
 
-            value.EmitAsm();
             LocalVariable l = Context.funDecl.localMap[name];
 
-            int stackOffset = l.stackOffset;
-            for (int i = 0; i < arrayIndex.Count; i++)
+            if (arrayIndex.Count == 0)
             {
-                int levelCount = 1;
-                for (int j = i + 1; j < l.arraySize.Count; j++)
-                {
-                    levelCount *= l.arraySize[j];
-                }
-                stackOffset += arrayIndex[i] * levelCount * l.type.size;
+                value.EmitAsm();
+                Emit("pop %rax");  // pop value
+                Emit(string.Format("mov %rax, {0}(%rbp)", l.stackOffset));
+            }
+            // a[2][3] = xxx;
+            else
+            {
+                Util.SaveArrayIndexAddressToRbx(l, arrayIndex);
+
+                value.EmitAsm();
+                Emit("pop %rax");
+                Emit("mov %rax, (%rbx)");
             }
 
-            Emit("pop %rax");
-            Emit(string.Format("mov %rax, {0}(%rbp)", stackOffset));
             Emit("#<= AssignmentStatement");
         }
     }
@@ -343,7 +345,7 @@ ret";
         public Expression rhs = null;
         public int? intValue = null;
         public string? variableName = null;
-        public List<int> arrayIndex = new List<int>();
+        public List<Expression> arrayIndex = new List<Expression>();
         public FunctionCallExpression? functionCall = null;
 
         public Expression() : base("Expression")
@@ -360,8 +362,7 @@ ret";
                 Emit(string.Format("push %rax"));
             }
             // case mulExpression: ID
-            // case mulExpression: ID '[' INT_VALUE ']'
-            else if (variableName != null)
+            else if (variableName != null && arrayIndex.Count == 0)
             {
                 LocalVariable local = null;
 
@@ -373,18 +374,26 @@ ret";
                     throw new Exception("unknown variable " + variableName);
 
                 int stackOffset = local.stackOffset;
-                for (int i = 0; i < arrayIndex.Count; i++)
-                {
-                    int levelCount = 1;
-                    for (int j = i + 1; j < local.arraySize.Count; j++)
-                    {
-                        levelCount *= local.arraySize[j];
-                    }
-                    stackOffset += arrayIndex[i] * levelCount * local.type.size;
-                }
-
                 Emit(string.Format("mov {0}(%rbp), %rax", stackOffset));
                 Emit(string.Format("push %rax"));
+            }
+            // case mulExpression: ID arrayIndex
+            else if (variableName != null && arrayIndex.Count > 0)
+            {
+                LocalVariable local = null;
+
+                if (Context.funDecl.localMap.ContainsKey(variableName))
+                    local = Context.funDecl.localMap[variableName];
+                else if (Context.funDecl.paramMap.ContainsKey(variableName))
+                    local = Context.funDecl.paramMap[variableName];
+                else
+                    throw new Exception("unknown variable " + variableName);
+
+                Util.SaveArrayIndexAddressToRbx(local, arrayIndex);
+
+                Emit(string.Format("mov (%rbx), %rax"));
+                Emit(string.Format("push %rax"));
+
             }
             // case mulExpression: functionCall
             else if (functionCall != null)
@@ -479,7 +488,7 @@ ret";
         public Expression conditionrhs;
         public AssignmentStatement updater;
 
-        public List<Statement> statements;
+        public List<Statement> statements = new List<Statement>();
 
         public string loopStartLabel;
         public string loopEndLabel;

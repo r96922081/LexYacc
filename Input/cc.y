@@ -24,6 +24,7 @@
 %type <List<CCompilerNs.Expression>>           funcCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
 %type <List<int>>                              arraySize
+%type <List<CCompilerNs.Expression>>           arrayIndex
 %type <string>                                 typeSpec relationlOp
 
 
@@ -152,6 +153,11 @@ IF '(' addExpression relationlOp addExpression ')' '{' statements '}'
 {
     $$ = CCompilerNs.CCLexYaccCallback.IfStatement($3, $4, $5, $8);
 }
+|
+IF '(' addExpression relationlOp addExpression ')' statement
+{
+    $$ = CCompilerNs.CCLexYaccCallback.IfStatement($3, $4, $5, $7);
+}
 ;
 
 elseIfStatements:
@@ -171,12 +177,22 @@ ELSE IF '(' addExpression relationlOp addExpression ')' '{' statements '}'
 {
     $$= CCompilerNs.CCLexYaccCallback.IfStatement($4, $5, $6, $9);
 }
+|
+ELSE IF '(' addExpression relationlOp addExpression ')' statement
+{
+    $$= CCompilerNs.CCLexYaccCallback.IfStatement($4, $5, $6, $8);
+}
 ;
 
 elseStatement:
 ELSE '{' statements '}'
 {
     $$= CCompilerNs.CCLexYaccCallback.IfStatement(null, null, null, $3);
+}
+|
+ELSE statement
+{
+    $$= CCompilerNs.CCLexYaccCallback.IfStatement(null, null, null, $2);
 }
 ;
 
@@ -213,7 +229,7 @@ ID '=' addExpression ';'
 {
     $$= CCompilerNs.CCLexYaccCallback.AssignmentStatement($1, $3, null);
 }
-ID arraySize '=' addExpression ';'
+ID arrayIndex '=' addExpression ';'
 {
     $$= CCompilerNs.CCLexYaccCallback.AssignmentStatement($1, $4, $2);
 }
@@ -284,7 +300,7 @@ ID
 {   
     $$ = CCompilerNs.CCLexYaccCallback.Expression($1);
 }
-ID arraySize
+ID arrayIndex
 {   
     $$ = CCompilerNs.CCLexYaccCallback.Expression($1, $2);
 }
@@ -357,6 +373,11 @@ FOR '(' assignmentStatement addExpression relationlOp addExpression ';' ID '=' a
 {
     $$ = CCompilerNs.CCLexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10, $13);
 }
+|
+FOR '(' assignmentStatement addExpression relationlOp addExpression ';' ID '=' addExpression ')' statement
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10, $12);
+}
 ;
 
 arraySize:
@@ -368,6 +389,18 @@ arraySize '[' INT_VALUE ']'
 '[' INT_VALUE ']'
 {
     $$ = CCompilerNs.CCLexYaccCallback.ArraySize($2, null);
+}
+;
+
+arrayIndex:
+arrayIndex '[' addExpression ']'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ArrayIndex($3, $1);
+}
+|
+'[' addExpression ']'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ArrayIndex($2, null);
 }
 ;
 

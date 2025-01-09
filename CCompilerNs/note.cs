@@ -9,19 +9,10 @@ notes
 TODO:
 - array, 2d array, n-d array
 - add type char, double
-- empty statements: {},  ;
-- char array, and print
-- struct
-- point, malloc
 - global variable
-
-- if statements must be followed by {} because currently,
-  if 
-  else if
-  else
-
-will be parsed as 
-if else
-if else
+- empty statements: {},  ;
+- c lib like  printf, strlen, memcpy, strcpy, malloc
+- struct
+- point, malloc, pass array as parameter
 
  */ 

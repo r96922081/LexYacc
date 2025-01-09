@@ -96,15 +96,15 @@
             return n;
         }
 
-        public static AssignmentStatement AssignmentStatement(string id, Expression expression, List<int> arraySize)
+        public static AssignmentStatement AssignmentStatement(string id, Expression expression, List<Expression> arrayIndex)
         {
             AssignmentStatement a = new AssignmentStatement();
             a.name = id;
             a.value = expression;
             a.childrenForPrint.Add(expression);
 
-            if (arraySize != null)
-                a.arrayIndex.AddRange(arraySize);
+            if (arrayIndex != null)
+                a.arrayIndex.AddRange(arrayIndex);
 
             return a;
         }
@@ -125,7 +125,7 @@
             return a;
         }
 
-        public static Expression Expression(string id, List<int> arrayIndex)
+        public static Expression Expression(string id, List<Expression> arrayIndex)
         {
             Expression a = new Expression();
             a.variableName = id;
@@ -233,6 +233,19 @@
             return arraySize;
         }
 
+        public static List<Expression> ArrayIndex(Expression exp, List<Expression> prev)
+        {
+            List<Expression> arrayIndex = new List<Expression>();
+            if (prev != null)
+                arrayIndex.AddRange(prev);
+
+            arrayIndex.Add(exp);
+
+            return arrayIndex;
+        }
+
+
+
         public static List<LocalVariable> FuncParams(string type, string name, List<LocalVariable> prevFunParams)
         {
             List<LocalVariable> funcParams = new List<LocalVariable>();
@@ -262,6 +275,17 @@
             i.op = op;
             i.rhs = rhs;
             i.statements = statements;
+
+            return i;
+        }
+
+        public static IfStatement IfStatement(Expression lhs, string op, Expression rhs, Statement statement)
+        {
+            IfStatement i = new IfStatement();
+            i.lhs = lhs;
+            i.op = op;
+            i.rhs = rhs;
+            i.statements.Add(statement);
 
             return i;
         }
@@ -328,6 +352,11 @@
             f.statements = statements;
 
             return f;
+        }
+
+        public static ForLoopStatement ForLoopStatement(AssignmentStatement initializer, Expression conditionLhs, string conditionOp, Expression conditionrhs, string updateId, Expression updateExpression, Statement statement)
+        {
+            return ForLoopStatement(initializer, conditionLhs, conditionOp, conditionrhs, updateId, updateExpression, new List<Statement>() { statement });
         }
 
         public static BreakStatement BreakStatement()
