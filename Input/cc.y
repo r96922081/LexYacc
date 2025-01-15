@@ -1,8 +1,9 @@
 %{
 %}
 
+%token <char>        CHAR_VALUE
 %token <int>         INT_VALUE
-%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN
+%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE
 
 %type <CCompilerNs.Program>                    program 
 %type <List<CCompilerNs.FunDecl>>              funDecls
@@ -62,6 +63,11 @@ typeSpec ID '(' funcParams ')' '{' statements '}'
 
 typeSpec:
 INT_TYPE 
+{
+    $$ = $1;
+}
+|
+CHAR_TYPE
 {
     $$ = $1;
 }
@@ -327,6 +333,14 @@ mulExpression '*' INT_VALUE
 {
     $$ = CCompilerNs.CCLexYaccCallback.Expression($1, "/", $3);
 }
+| mulExpression '*' CHAR_VALUE
+{
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1, "*", $3);
+}
+| mulExpression '/' CHAR_VALUE
+{
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1, "/", $3);
+}
 | mulExpression '*' ID
 {
     $$ = CCompilerNs.CCLexYaccCallback.Expression($1, "*", $3);
@@ -373,6 +387,11 @@ ID arrayIndex
 }
 |
 functionCallExpression
+{
+    $$ = CCompilerNs.CCLexYaccCallback.Expression($1);
+}
+|
+CHAR_VALUE
 {
     $$ = CCompilerNs.CCLexYaccCallback.Expression($1);
 }
@@ -484,22 +503,22 @@ relationlOp:
 |
 EQUAL_SIGN
 {
-    $$ = "==";
+    $$ = $1;
 }
 |
 NOT_EQUAL_SIGN
 {
-    $$ = "!=";
+    $$ = $1;
 }
 |
 LESS_OR_EQUAL_SIGN
 {
-    $$ = "<=";
+    $$ = $1;
 }
 |
 GREATER_OR_EQUAL_SIGN
 {
-    $$ = ">=";
+    $$ = $1;
 }
 
 %%

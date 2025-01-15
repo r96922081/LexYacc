@@ -20,7 +20,8 @@
     public enum VariableTypeEnum
     {
         void_type,
-        int_type
+        int_type,
+        char_type
     }
 
     public class LocalVariable

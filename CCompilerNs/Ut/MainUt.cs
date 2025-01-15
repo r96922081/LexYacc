@@ -837,9 +837,35 @@ int main() {
             Check(exitCode == 127);
         }
 
+        public void char_1()
+        {
+            string src = @"
+int main() {
+    char a;
+    char b = 1;
+    char c = 'c';
+    char d = 'd';
+
+    return d - c;
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 1);
+        }
+
         public static void RunAllUt()
         {
             MainUt mainUt = new MainUt();
+
+            mainUt.char_1();
 
             mainUt.Ut1();
             mainUt.Ut2();

@@ -4,6 +4,7 @@
 %% 
 "int"                     { value = "int"; return INT_TYPE; }
 "void"                    { value = "void"; return VOID_TYPE; }
+"char"                    { value = "char"; return CHAR_TYPE; }
 "return"                  { value = "return"; return RETURN; }
 "if"                      { value = "if"; return IF; }
 "else"                    { value = "else"; return ELSE; }
@@ -21,6 +22,7 @@
 "*="                      { value = "+="; return MULTIPLY_ASSIGN; }
 "/="                      { value = "+="; return DIVIDE_ASSIGN; }
 [0-9]+                    { value = int.Parse(yytext); return INT_VALUE; }
+'[ -~]'                   { value = yytext[0]; return CHAR_VALUE; }
 [_a-zA-Z][a-zA-Z0-9]*     { value = yytext; return ID; }
 [ \t\n\r]+                {}
 

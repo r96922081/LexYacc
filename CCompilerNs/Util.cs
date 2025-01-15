@@ -18,6 +18,13 @@
                 t.size = 8;
                 return t;
             }
+            else if (type == "char")
+            {
+                VariableType t = new VariableType();
+                t.type = VariableTypeEnum.char_type;
+                t.size = 1;
+                return t;
+            }
             else
                 throw new Exception("invalid type: " + type);
         }
