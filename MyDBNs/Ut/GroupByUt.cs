@@ -15,7 +15,7 @@
             -------------------------
             */
 
-            sql_statements.Parse("LOAD DB TEST_GROUP_BY.DB");
+            sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_GROUP_BY.DB"));
 
             //sql_statements.Parse("SELECT MAX(C3) FROM A GROUP BY C3");
         }

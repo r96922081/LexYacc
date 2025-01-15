@@ -12,7 +12,7 @@
             | 100| 10 | 1   |
             */
 
-            sql_statements.Parse("LOAD DB TEST_ARITHMETIC_EXPRESSION.DB");
+            sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_ARITHMETIC_EXPRESSION.DB"));
 
 
             List<object[]> rows = RunSelectStatementAndConvertResult("SELECT * FROM A WHERE C3 = 90 + 40 - 6 * 4 - 6");

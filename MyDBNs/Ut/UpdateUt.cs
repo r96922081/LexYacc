@@ -15,21 +15,21 @@
             -------------------------
             */
 
-            sql_statements.Parse("LOAD DB TEST_UPDATE.DB");
+            sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_UPDATE.DB"));
             int count = (int)sql_statements.Parse("UPDATE A SET C2 = 'ABC'");
             Check(count == 4);
 
-            sql_statements.Parse("LOAD DB TEST_UPDATE.DB");
+            sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_UPDATE.DB"));
             count = (int)sql_statements.Parse("UPDATE A SET C2 = 'ABC' where c4 is null");
             Check(count == 1);
 
-            sql_statements.Parse("LOAD DB TEST_UPDATE.DB");
+            sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_UPDATE.DB"));
             CheckSyntaxErrorOrException(() => { return sql_statements.Parse("UPDATE A SET C2 = 1"); });
 
-            sql_statements.Parse("LOAD DB TEST_UPDATE.DB");
+            sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_UPDATE.DB"));
             CheckSyntaxErrorOrException(() => { return sql_statements.Parse("UPDATE A SET C3 = 'A'"); });
 
-            sql_statements.Parse("LOAD DB TEST_UPDATE.DB");
+            sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_UPDATE.DB"));
             count = (int)sql_statements.Parse("UPDATE A SET C1 = 'XD', C2 = NULL, C3 = NULL, C4 = 33");
             Check(count == 4);
 

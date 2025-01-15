@@ -10,6 +10,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
 
   <ItemGroup>
+    <Compile Remove="MyDBNs\NewFolder\**" />
+    <EmbeddedResource Remove="MyDBNs\NewFolder\**" />
+    <None Remove="MyDBNs\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="GenFile\" />
   </ItemGroup>
 

@@ -16,7 +16,7 @@
             | ABC | B    | 44 | 555 |
             -------------------------
             */
-            sql_statements.Parse("LOAD DB TEST_TRANSACTION.DB");
+            sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_TRANSACTION.DB"));
 
             sql_statements.Parse("TRANSACTION START");
             sql_statements.Parse("INSERT INTO A VALUES (NULL, NULL, 1, 1)");
@@ -48,7 +48,7 @@
             | ABC | B    | 44 | 555 |
             -------------------------
             */
-            sql_statements.Parse("LOAD DB TEST_TRANSACTION.DB");
+            sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_TRANSACTION.DB"));
 
             sql_statements.Parse("TRANSACTION START");
             sql_statements.Parse("DELETE FROM A WHERE C3 < 30");
@@ -73,7 +73,7 @@
             | ABC | B    | 44 | 555 |
             -------------------------
             */
-            sql_statements.Parse("LOAD DB TEST_TRANSACTION.DB");
+            sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_TRANSACTION.DB"));
 
             sql_statements.Parse("TRANSACTION START");
             sql_statements.Parse("DELETE FROM A WHERE C3 < 30");
@@ -97,7 +97,7 @@
             | ABC | B    | 44 | 555 |
             -------------------------
             */
-            sql_statements.Parse("LOAD DB TEST_TRANSACTION.DB");
+            sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_TRANSACTION.DB"));
 
             sql_statements.Parse("TRANSACTION START");
             sql_statements.Parse("UPDATE A SET C1 = 'A'");
@@ -116,7 +116,7 @@
 
         public void BasicUt()
         {
-            sql_statements.Parse("LOAD DB TEST_TRANSACTION.DB");
+            sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_TRANSACTION.DB"));
             CheckOk(sql_statements.Parse("TRANSACTION START"));
             CheckOk(sql_statements.Parse("COMMIT"));
             CheckOk(sql_statements.Parse("ROLLBACK"));

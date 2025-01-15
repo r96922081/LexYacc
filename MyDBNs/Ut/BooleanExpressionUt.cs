@@ -12,7 +12,9 @@
             | ABC | B     | 44 | 555|
             */
 
-            sql_statements.Parse("LOAD DB TEST_BOOLEAN_EXPRESSION.DB");
+
+
+            sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_BOOLEAN_EXPRESSION.DB"));
 
             List<object[]> rows = RunSelectStatementAndConvertResult("SELECT * FROM A WHERE C3 = C4 - 11 AND C4 = 22");
             Check(rows.Count == 1);
