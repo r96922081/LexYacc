@@ -305,6 +305,7 @@
 
             LocalVariable funParam = new LocalVariable();
             funParam.name = name;
+            funParam.type = Util.GetType(type);
             funcParams.Add(funParam);
 
             return funcParams;
@@ -319,6 +320,7 @@
             LocalVariable funParam = new LocalVariable();
             funParam.name = name;
             funParam.arraySize.AddRange(arraySize);
+            funParam.type = Util.GetType(type);
             funcParams.Add(funParam);
 
             return funcParams;

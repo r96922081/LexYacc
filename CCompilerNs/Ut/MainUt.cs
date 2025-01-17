@@ -262,6 +262,31 @@ int main()
             Check(exitCode == 17);
         }
 
+        public void call_function_5()
+        {
+            string src = @"
+int f1(int a, char b, int c, char d)
+{
+    return a + b + c + d;
+}
+
+int main()
+{
+    return f1(1, 'A', 2, 'B');
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 134);
+        }
+
         public void call_function_2()
         {
             string src = @"
@@ -872,12 +897,8 @@ int main() {
         public void array_6()
         {
             string src = @"
-int f1(int a, int b) {
-    int c = 1;
-    a =2;
-    b = 3;
-
-    return c;
+int f1(int[] a) {
+    return a[2];
 }
 
 int main() {
@@ -887,7 +908,7 @@ int main() {
     for (i = 0; i < 5; i++)
         a[i] = i * 2;
 
-    return f1(2,3);
+    return f1(a);
 }
 ";
             /*
@@ -1013,6 +1034,7 @@ int main() {
         {
             MainUt mainUt = new MainUt();
 
+
             //mainUt.array_6();
 
             mainUt.Ut1();
@@ -1032,6 +1054,7 @@ int main() {
             mainUt.call_function_2();
             mainUt.call_function_3();
             mainUt.call_function_4();
+            mainUt.call_function_5();
 
             mainUt.Ut15();
 

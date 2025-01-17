@@ -268,7 +268,14 @@ ret";
         {
             Emit("#AssignmentStatement =>");
 
-            LocalVariable l = Context.funDecl.localMap[name];
+            LocalVariable l = null;
+
+            if (Context.funDecl.localMap.ContainsKey(name))
+                l = Context.funDecl.localMap[name];
+            else if (Context.funDecl.paramMap.ContainsKey(name))
+                l = Context.funDecl.paramMap[name];
+            else
+                throw new Exception("unknown variable " + name);
 
             if (arrayIndex.Count == 0)
             {
