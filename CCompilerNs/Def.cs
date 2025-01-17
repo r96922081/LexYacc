@@ -28,7 +28,6 @@
     {
         public string name;
         public VariableType type;
-        public int typeSize;
         public List<int> arraySize = new List<int>();
         public int stackOffset = 0;
     }

@@ -22,7 +22,7 @@
 "*="                      { value = "+="; return MULTIPLY_ASSIGN; }
 "/="                      { value = "+="; return DIVIDE_ASSIGN; }
 [0-9]+                    { value = int.Parse(yytext); return INT_VALUE; }
-'[ -~]'                   { value = yytext[0]; return CHAR_VALUE; }
+'[ -~]'                   { value = yytext[1]; return CHAR_VALUE; }
 [_a-zA-Z][a-zA-Z0-9]*     { value = yytext; return ID; }
 [ \t\n\r]+                {}
 

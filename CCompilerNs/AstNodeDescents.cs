@@ -51,10 +51,19 @@
 
             int count = 1;
 
-            foreach (int size in a.arraySize)
-                count *= size;
+            if (a.arraySize.Count == 0)
+            {
+                localSize += 8 * count;
+            }
+            else
+            {
+                foreach (int arraySize in a.arraySize)
+                    count *= arraySize;
 
-            localSize += a.type.size * count;
+                int size = count * l.type.size;
+                size = (size + 7) / 8 * 8;
+                localSize += size;
+            }
 
             l.stackOffset = -localSize;
             a.stackOffset = -localSize;
@@ -258,8 +267,13 @@ ret";
                 value.EmitAsm();
                 Util.SaveArrayIndexAddressToRbx(l, arrayIndex);
 
-                Emit("pop %rax"); // value to %rax
-                Emit("mov %rax, (%rbx)");
+                Emit("movq $0, (%rbx)");
+                Emit("pop %rax"); // value to %rax                
+
+                if (l.type.size == 1)
+                    Emit("mov %al, (%rbx)");
+                else
+                    Emit("mov %rax, (%rbx)");
             }
 
             Emit("#<= AssignmentStatement");
@@ -391,7 +405,13 @@ ret";
 
                 Util.SaveArrayIndexAddressToRbx(local, arrayIndex);
 
-                Emit(string.Format("mov (%rbx), %rax"));
+                Emit(string.Format("movq $0, %rax"));
+
+                if (local.type.size == 1)
+                    Emit(string.Format("movzbq (%rbx), %rax"));
+                else
+                    Emit(string.Format("mov (%rbx), %rax"));
+
                 Emit(string.Format("push %rax"));
 
             }
@@ -436,7 +456,7 @@ ret";
                         Emit(string.Format("mul %rbx"));
                     else if (op == "/")
                     {
-                        Emit(string.Format("mov $0, %rdx"));
+                        Emit(string.Format("movq $0, %rdx"));
                         Emit(string.Format("div %rbx"));
                     }
 

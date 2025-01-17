@@ -846,7 +846,7 @@ int main() {
     char c = 'c';
     char d = 'd';
 
-    return d - c;
+    return d - c + b;
 }
 ";
             AsmEmitter.SetOutputFile("test.s");
@@ -858,14 +858,67 @@ int main() {
             program.EmitAsm();
 
             int exitCode = CompileAndRun("test.s", "test.exe");
-            //Check(exitCode == 1);
+            Check(exitCode == 2);
+        }
+
+        public void char_2()
+        {
+            string src = @"
+int main() {
+    char a[10];
+    a[3] = 'a';
+    a[4] = 'b';
+    a[5] = 'c';
+
+    return a[5] -a[3];
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 2);
+        }
+
+        public void char_3()
+        {
+            string src = @"
+int main() {
+    int b =6;
+    char a[10];
+    a[3] = 'a';
+    a[4] = 'b';
+    a[5] = 'c';
+
+    return b + a[5] -a[3];
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 8);
         }
 
         public static void RunAllUt()
         {
             MainUt mainUt = new MainUt();
 
+
             mainUt.char_1();
+            mainUt.char_2();
+            mainUt.char_3();
+
 
             mainUt.Ut1();
             mainUt.Ut2();

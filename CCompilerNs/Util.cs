@@ -51,7 +51,7 @@
                 Emit("push %rax");
             }
 
-            Emit("mov $0, %rax");
+            Emit("movq $0, %rax");
             for (int i = 0; i < arrayIndex.Count; i++)
             {
                 Emit("pop %rbx");

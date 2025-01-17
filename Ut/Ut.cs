@@ -6,7 +6,6 @@
         LexUt.RunAllUt();
         LexYaccUt.RunAllUt();
 
-
         MyDBNs.MainUt.Ut();
         CCompilerNs.MainUt.Ut();
     }

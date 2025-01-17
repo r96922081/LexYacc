@@ -8,7 +8,7 @@ notes
 
 TODO:
 - binary operation in if, if (a > b && a != c && c <d )
-- add type char, double
+- double
 - global variable
 - empty statements: {},  ;
 - c lib like printf, strlen, memcpy, strcpy, malloc
