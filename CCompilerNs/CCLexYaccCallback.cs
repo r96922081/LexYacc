@@ -34,7 +34,7 @@
             FunDecl f = new FunDecl();
             f.returnType = Util.GetType(returnType);
 
-            f.functionName = functionName;
+            f.SetFunctionName(functionName);
             f.statements = statements;
 
             if (paramList != null)
@@ -273,6 +273,17 @@
             return arraySize;
         }
 
+        public static List<int> ParamArraySize(List<int> size)
+        {
+            List<int> arraySize = new List<int>();
+            arraySize.Add(-1);
+
+            if (size != null)
+                arraySize.AddRange(size);
+
+            return arraySize;
+        }
+
         public static List<Expression> ArrayIndex(Expression exp, List<Expression> prev)
         {
             List<Expression> arrayIndex = new List<Expression>();
@@ -294,6 +305,20 @@
 
             LocalVariable funParam = new LocalVariable();
             funParam.name = name;
+            funcParams.Add(funParam);
+
+            return funcParams;
+        }
+
+        public static List<LocalVariable> FuncParamsArray(string type, string name, List<int> arraySize, List<LocalVariable> prevFunParams)
+        {
+            List<LocalVariable> funcParams = new List<LocalVariable>();
+            if (prevFunParams != null)
+                funcParams.AddRange(prevFunParams);
+
+            LocalVariable funParam = new LocalVariable();
+            funParam.name = name;
+            funParam.arraySize.AddRange(arraySize);
             funcParams.Add(funParam);
 
             return funcParams;

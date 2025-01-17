@@ -24,7 +24,7 @@
 %type <CCompilerNs.ContinueStatement>          continueStatement
 %type <List<CCompilerNs.Expression>>           funcCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
-%type <List<int>>                              arraySize
+%type <List<int>>                              arraySize paramArraySize
 %type <List<CCompilerNs.Expression>>           arrayIndex
 %type <string>                                 typeSpec relationlOp
 
@@ -407,6 +407,16 @@ typeSpec ID
 {
     $$ = CCompilerNs.CCLexYaccCallback.FuncParams($1, $2, null);
 }
+|
+funcParams ',' typeSpec paramArraySize ID
+{
+    $$ = CCompilerNs.CCLexYaccCallback.FuncParamsArray($3, $5, $4, $1);
+}
+|
+typeSpec paramArraySize ID
+{
+    $$ = CCompilerNs.CCLexYaccCallback.FuncParamsArray($1, $3, $2, null);
+}
 ;
 
 funcCallParams:
@@ -475,6 +485,18 @@ arraySize '[' INT_VALUE ']'
 '[' INT_VALUE ']'
 {
     $$ = CCompilerNs.CCLexYaccCallback.ArraySize($2, null);
+}
+;
+
+paramArraySize:
+'[' ']'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ParamArraySize(null);
+}
+|
+'[' ']' arraySize
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ParamArraySize($3);
 }
 ;
 

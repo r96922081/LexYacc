@@ -227,7 +227,7 @@ int main()
             Check(exitCode == 31);
         }
 
-        public void Ut11()
+        public void call_function_4()
         {
             string src = @"
 int f1()
@@ -262,7 +262,7 @@ int main()
             Check(exitCode == 17);
         }
 
-        public void Ut12()
+        public void call_function_2()
         {
             string src = @"
 int f1(int a, int b, int c)
@@ -286,7 +286,7 @@ int main()
             Check(exitCode == 6);
         }
 
-        public void Ut13()
+        public void call_function_3()
         {
             string src = @"
 int f1(int a, int b, int c)
@@ -316,7 +316,7 @@ int main()
             Check(exitCode == 20);
         }
 
-        public void Ut14()
+        public void call_function_1()
         {
             string src = @"
 void f1()
@@ -869,6 +869,43 @@ int main() {
             Check(exitCode == 127);
         }
 
+        public void array_6()
+        {
+            string src = @"
+int f1(int a, int b) {
+    int c = 1;
+    a =2;
+    b = 3;
+
+    return c;
+}
+
+int main() {
+    int a[5];
+    int i;
+
+    for (i = 0; i < 5; i++)
+        a[i] = i * 2;
+
+    return f1(2,3);
+}
+";
+            /*
+
+             */
+
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 3);
+        }
+
         public void char_1()
         {
             string src = @"
@@ -976,6 +1013,8 @@ int main() {
         {
             MainUt mainUt = new MainUt();
 
+            //mainUt.array_6();
+
             mainUt.Ut1();
             mainUt.Ut2();
             mainUt.Ut3();
@@ -986,10 +1025,14 @@ int main() {
             mainUt.Ut8();
             mainUt.Ut9();
             mainUt.Ut10();
-            mainUt.Ut11();
-            mainUt.Ut12();
-            mainUt.Ut13();
-            mainUt.Ut14();
+
+
+
+            mainUt.call_function_1();
+            mainUt.call_function_2();
+            mainUt.call_function_3();
+            mainUt.call_function_4();
+
             mainUt.Ut15();
 
             mainUt.if_1();

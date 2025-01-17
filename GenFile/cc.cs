@@ -42,7 +42,7 @@ public class YaccActions{
 %type <CCompilerNs.ContinueStatement>          continueStatement
 %type <List<CCompilerNs.Expression>>           funcCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
-%type <List<int>>                              arraySize
+%type <List<int>>                              arraySize paramArraySize
 %type <List<CCompilerNs.Expression>>           arrayIndex
 %type <string>                                 typeSpec relationlOp
 
@@ -425,6 +425,16 @@ typeSpec ID
 {
     $$ = CCompilerNs.CCLexYaccCallback.FuncParams($1, $2, null);
 }
+|
+funcParams ',' typeSpec paramArraySize ID
+{
+    $$ = CCompilerNs.CCLexYaccCallback.FuncParamsArray($3, $5, $4, $1);
+}
+|
+typeSpec paramArraySize ID
+{
+    $$ = CCompilerNs.CCLexYaccCallback.FuncParamsArray($1, $3, $2, null);
+}
 ;
 
 funcCallParams:
@@ -493,6 +503,18 @@ arraySize '[' INT_VALUE ']'
 '[' INT_VALUE ']'
 {
     $$ = CCompilerNs.CCLexYaccCallback.ArraySize($2, null);
+}
+;
+
+paramArraySize:
+'[' ']'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ParamArraySize(null);
+}
+|
+'[' ']' arraySize
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ParamArraySize($3);
 }
 ;
 
@@ -631,8 +653,10 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_9", Rule_mulExpression_LeftRecursionExpand_Producton_9);
         actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_10", Rule_mulExpression_LeftRecursionExpand_Producton_10);
         actions.Add("Rule_funcParams_Producton_0", Rule_funcParams_Producton_0);
+        actions.Add("Rule_funcParams_Producton_1", Rule_funcParams_Producton_1);
         actions.Add("Rule_funcParams_LeftRecursionExpand_Producton_0", Rule_funcParams_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_funcParams_LeftRecursionExpand_Producton_1", Rule_funcParams_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_funcParams_LeftRecursionExpand_Producton_2", Rule_funcParams_LeftRecursionExpand_Producton_2);
         actions.Add("Rule_funcCallParams_Producton_0", Rule_funcCallParams_Producton_0);
         actions.Add("Rule_funcCallParams_LeftRecursionExpand_Producton_0", Rule_funcCallParams_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_funcCallParams_LeftRecursionExpand_Producton_1", Rule_funcCallParams_LeftRecursionExpand_Producton_1);
@@ -646,6 +670,8 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_arraySize_Producton_0", Rule_arraySize_Producton_0);
         actions.Add("Rule_arraySize_LeftRecursionExpand_Producton_0", Rule_arraySize_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_arraySize_LeftRecursionExpand_Producton_1", Rule_arraySize_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_paramArraySize_Producton_0", Rule_paramArraySize_Producton_0);
+        actions.Add("Rule_paramArraySize_Producton_1", Rule_paramArraySize_Producton_1);
         actions.Add("Rule_arrayIndex_Producton_0", Rule_arrayIndex_Producton_0);
         actions.Add("Rule_arrayIndex_LeftRecursionExpand_Producton_0", Rule_arrayIndex_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_arrayIndex_LeftRecursionExpand_Producton_1", Rule_arrayIndex_LeftRecursionExpand_Producton_1);
@@ -1478,6 +1504,18 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
+    public static object Rule_funcParams_Producton_1(Dictionary<int, object> objects) { 
+        List<CCompilerNs.LocalVariable> _0 = new List<CCompilerNs.LocalVariable>();
+        string _1 = (string)objects[1];
+        List<int> _2 = (List<int>)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.FuncParamsArray(_1, _3, _2, null);
+
+        return _0;
+    }
+
     public static object Rule_funcParams_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
         List<CCompilerNs.LocalVariable> _0 = new List<CCompilerNs.LocalVariable>();
         List<CCompilerNs.LocalVariable> _1 =(List<CCompilerNs.LocalVariable>)objects[1];
@@ -1491,6 +1529,19 @@ GREATER_OR_EQUAL_SIGN
     }
 
     public static object Rule_funcParams_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        List<CCompilerNs.LocalVariable> _0 = new List<CCompilerNs.LocalVariable>();
+        List<CCompilerNs.LocalVariable> _1 =(List<CCompilerNs.LocalVariable>)objects[1];
+        string _3 = (string)objects[3];
+        List<int> _4 = (List<int>)objects[4];
+        string _5 = (string)objects[5];
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.FuncParamsArray(_3, _5, _4, _1);
+
+        return _0;
+    }
+
+    public static object Rule_funcParams_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
         List<CCompilerNs.LocalVariable> _0 = new List<CCompilerNs.LocalVariable>();
 
         return _0;
@@ -1629,6 +1680,25 @@ GREATER_OR_EQUAL_SIGN
 
     public static object Rule_arraySize_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
         List<int> _0 = new List<int>();
+
+        return _0;
+    }
+
+    public static object Rule_paramArraySize_Producton_0(Dictionary<int, object> objects) { 
+        List<int> _0 = new List<int>();
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.ParamArraySize(null);
+
+        return _0;
+    }
+
+    public static object Rule_paramArraySize_Producton_1(Dictionary<int, object> objects) { 
+        List<int> _0 = new List<int>();
+        List<int> _3 = (List<int>)objects[3];
+
+        // user-defined action
+        _0 = CCompilerNs.CCLexYaccCallback.ParamArraySize(_3);
 
         return _0;
     }

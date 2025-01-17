@@ -23,7 +23,7 @@
     public class FunDecl : AstNode
     {
         public VariableType returnType;
-        public string functionName;
+        private string functionName;
         public Dictionary<string, LocalVariable> paramMap = new Dictionary<string, LocalVariable>();
         public List<Statement> statements;
 
@@ -35,10 +35,25 @@
 
         }
 
+        public void SetFunctionName(string name)
+        {
+            functionName = name;
+            if (functionName != "main")
+                localSize += 8;
+        }
+
+        /*
+        stack:
+        param1
+        param2
+%rbp->  return address
+        local1
+        local2
+         */
         public void AddParamVariable(LocalVariable p)
         {
             paramMap.Add(p.name, p);
-            p.stackOffset = 8 + paramMap.Count * 8; // skip the first 8 byte of return address in stack
+            p.stackOffset = 8 + paramMap.Count * 8;
         }
 
         public void AddLocalVariable(DeclareStatement a)
@@ -320,8 +335,6 @@ ret";
         {
             Emit("#FunctionCallExpression =>");
 
-            int localSize = Context.funDecl.localSize;
-
             if (parameters != null)
             {
                 // Caller push in reserve order, callee pop in order
@@ -330,7 +343,6 @@ ret";
                     parameters[i].EmitAsm();
                     Emit(string.Format("pop %rax"));
                     Emit(string.Format("push %rax # push parameter onto stack"));
-                    localSize += 8;
                 }
             }
 
