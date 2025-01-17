@@ -34,19 +34,21 @@
             AsmEmitter.Emit(asm);
         }
 
-        public static void SaveArrayIndexAddressToRbx(LocalVariable l, List<Expression> arrayIndex)
+        public static void SaveArrayIndexAddressToRbx(LocalVariable l, LocalVariable p, List<Expression> arrayIndex)
         {
+            LocalVariable v = l != null ? l : p;
+
             for (int i = arrayIndex.Count - 1; i >= 0; i--)
             {
                 int levelCount = 1;
                 for (int j = i + 1; j < arrayIndex.Count; j++)
-                    levelCount *= l.arraySize[j];
+                    levelCount *= v.arraySize[j];
 
                 arrayIndex[i].EmitAsm();
                 Emit("pop %rax");
                 Emit(string.Format("mov ${0}, %rbx", levelCount));
                 Emit("mul %rbx");
-                Emit(string.Format("mov ${0}, %rbx", l.type.size));
+                Emit(string.Format("mov ${0}, %rbx", v.type.size));
                 Emit("mul %rbx");
                 Emit("push %rax");
             }
@@ -58,8 +60,12 @@
                 Emit("add %rbx, %rax");
             }
 
+
             Emit("mov %rbp, %rbx");
-            Emit(string.Format("add ${0}, %rbx", l.stackOffset));
+            Emit(string.Format("add ${0}, %rbx", v.stackOffset));
+            if (p != null)
+                Emit("mov (%rbx), %rbx");
+
             Emit("add %rax, %rbx"); // save address at %rbx
         }
     }

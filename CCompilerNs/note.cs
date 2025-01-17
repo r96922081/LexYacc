@@ -13,6 +13,6 @@ TODO:
 - empty statements: {},  ;
 - c lib like printf, strlen, memcpy, strcpy, malloc
 - struct
-- point, malloc, pass array as parameter
+- point, malloc
 
  */ 

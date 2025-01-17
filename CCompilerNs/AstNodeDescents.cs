@@ -269,29 +269,35 @@ ret";
             Emit("#AssignmentStatement =>");
 
             LocalVariable l = null;
+            LocalVariable p = null;
+            LocalVariable v = null;
 
             if (Context.funDecl.localMap.ContainsKey(name))
+            {
                 l = Context.funDecl.localMap[name];
+                v = l;
+            }
             else if (Context.funDecl.paramMap.ContainsKey(name))
-                l = Context.funDecl.paramMap[name];
-            else
-                throw new Exception("unknown variable " + name);
+            {
+                p = Context.funDecl.paramMap[name];
+                v = p;
+            }
 
             if (arrayIndex.Count == 0)
             {
                 value.EmitAsm();
                 Emit("pop %rax");  // pop value
-                Emit(string.Format("mov %rax, {0}(%rbp)", l.stackOffset));
+                Emit(string.Format("mov %rax, {0}(%rbp)", v.stackOffset));
             }
             // a[2][3] = xxx;
             else
             {
                 value.EmitAsm();
-                Util.SaveArrayIndexAddressToRbx(l, arrayIndex);
+                Util.SaveArrayIndexAddressToRbx(l, p, arrayIndex);
 
                 Emit("pop %rax"); // value to %rax                
 
-                if (l.type.size == 1)
+                if (v.type.size == 1)
                     Emit("mov %al, (%rbx)");
                 else
                     Emit("mov %rax, (%rbx)");
@@ -397,35 +403,67 @@ ret";
             else if (variableName != null && arrayIndex.Count == 0)
             {
                 LocalVariable local = null;
+                LocalVariable param = null;
+                LocalVariable variable = null;
 
                 if (Context.funDecl.localMap.ContainsKey(variableName))
+                {
                     local = Context.funDecl.localMap[variableName];
+                    variable = local;
+                }
                 else if (Context.funDecl.paramMap.ContainsKey(variableName))
-                    local = Context.funDecl.paramMap[variableName];
-                else
-                    throw new Exception("unknown variable " + variableName);
+                {
+                    param = Context.funDecl.paramMap[variableName];
+                    variable = param;
+                }
 
-                int stackOffset = local.stackOffset;
-                Emit(string.Format("mov {0}(%rbp), %rax", stackOffset));
-                Emit(string.Format("push %rax"));
+                // If ID is array, then push address of array
+                if (variable.arraySize.Count != 0)
+                {
+                    if (local != null)
+                    {
+                        Emit(string.Format("mov %rbp, %rax"));
+                        Emit(string.Format("add ${0}, %rax", local.stackOffset));
+                        Emit(string.Format("push %rax"));
+                    }
+                    else if (param != null)
+                    {
+                        Emit(string.Format("mov %rbp, %rax"));
+                        Emit(string.Format("add ${0}, %rax", param.stackOffset));
+                        Emit(string.Format("mov (%rax), %rax"));
+                        Emit(string.Format("push %rax"));
+                    }
+                }
+                else
+                {
+                    int stackOffset = variable.stackOffset;
+                    Emit(string.Format("mov {0}(%rbp), %rax", stackOffset));
+                    Emit(string.Format("push %rax"));
+                }
             }
             // case mulExpression: ID arrayIndex
             else if (variableName != null && arrayIndex.Count > 0)
             {
                 LocalVariable local = null;
+                LocalVariable param = null;
+                LocalVariable variable = null;
 
                 if (Context.funDecl.localMap.ContainsKey(variableName))
+                {
                     local = Context.funDecl.localMap[variableName];
+                    variable = local;
+                }
                 else if (Context.funDecl.paramMap.ContainsKey(variableName))
-                    local = Context.funDecl.paramMap[variableName];
-                else
-                    throw new Exception("unknown variable " + variableName);
+                {
+                    param = Context.funDecl.paramMap[variableName];
+                    variable = param;
+                }
 
-                Util.SaveArrayIndexAddressToRbx(local, arrayIndex);
+                Util.SaveArrayIndexAddressToRbx(local, param, arrayIndex);
 
                 Emit(string.Format("movq $0, %rax"));
 
-                if (local.type.size == 1)
+                if (variable.type.size == 1)
                     Emit(string.Format("movzbq (%rbx), %rax"));
                 else
                     Emit(string.Format("mov (%rbx), %rax"));

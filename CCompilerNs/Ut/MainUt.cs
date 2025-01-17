@@ -897,8 +897,11 @@ int main() {
         public void array_6()
         {
             string src = @"
-int f1(int[] a) {
-    return a[2];
+void f1(int[] a, int len) {
+    int i = 0;
+    
+    for (i = 0; i < len; i++)
+        a[i]++;
 }
 
 int main() {
@@ -908,7 +911,8 @@ int main() {
     for (i = 0; i < 5; i++)
         a[i] = i * 2;
 
-    return f1(a);
+    f1(a, 5);
+    return a[3];
 }
 ";
             /*
@@ -924,7 +928,111 @@ int main() {
             program.EmitAsm();
 
             int exitCode = CompileAndRun("test.s", "test.exe");
-            Check(exitCode == 3);
+            Check(exitCode == 7);
+        }
+
+        public void array_7()
+        {
+            string src = @"
+void f1(int[][4][5] a, char[][4][5] b) 
+{
+    int i = 0;
+    int j = 0;
+    int k = 0;
+    
+    for (i = 0; i < 3; i++)
+        for (j = 0; j < 4; j++)
+            for (k = 0; k < 5; k++)
+            {
+                a[i][j][k] += (i * 4 * 5 + j * 5 + k) * 3;
+                b[i][j][k] += (i * 4 * 5 + j * 5 + k) * 2; 
+            }
+}
+
+int main() {
+    int i = 0;
+    int j = 0;
+    int k = 0;
+    int a[3][4][5];
+    char b[3][4][5];
+
+    for (i = 0; i < 3; i++)
+        for (j = 0; j < 4; j++)
+            for (k = 0; k < 5; k++)
+            {
+                a[i][j][k] = (i * 4 * 5 + j * 5 + k) * 2;
+                b[i][j][k] = i * 4 * 5 + j * 5 + k; 
+            }
+
+    f1(a, b);
+    return a[1][2][3] - b[0][1][2];
+}
+";
+            // 165 - 21
+
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 144);
+        }
+
+        public void array_8()
+        {
+            string src = @"
+int f1(int[][4][5] a, char[][4][5] b) 
+{
+    int i = 0;
+    int j = 0;
+    int k = 0;
+    
+    for (i = 0; i < 3; i++)
+        for (j = 0; j < 4; j++)
+            for (k = 0; k < 5; k++)
+            {
+                a[i][j][k] += (i * 4 * 5 + j * 5 + k) * 3;
+                b[i][j][k] += (i * 4 * 5 + j * 5 + k) * 2; 
+            }
+    return b[0][1][3];
+}
+
+int main() {
+    int i = 0;
+    int j = 0;
+    int k = 0;
+    int l;
+    int a[3][4][5];
+    char b[3][4][5];
+
+    for (i = 0; i < 3; i++)
+        for (j = 0; j < 4; j++)
+            for (k = 0; k < 5; k++)
+            {
+                a[i][j][k] = (i * 4 * 5 + j * 5 + k) * 2;
+                b[i][j][k] = i * 4 * 5 + j * 5 + k; 
+            }
+
+    l = f1(a, b);
+    return l + a[1][2][3] - b[0][1][2];
+}
+";
+            // 24 + 165 - 21
+
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 168);
         }
 
         public void char_1()
@@ -1034,8 +1142,7 @@ int main() {
         {
             MainUt mainUt = new MainUt();
 
-
-            //mainUt.array_6();
+            mainUt.array_8();
 
             mainUt.Ut1();
             mainUt.Ut2();
@@ -1077,6 +1184,9 @@ int main() {
             mainUt.array_3();
             mainUt.array_4();
             mainUt.array_5();
+            mainUt.array_6();
+            mainUt.array_7();
+
 
             mainUt.char_1();
             mainUt.char_2();
