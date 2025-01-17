@@ -267,7 +267,6 @@ ret";
                 value.EmitAsm();
                 Util.SaveArrayIndexAddressToRbx(l, arrayIndex);
 
-                Emit("movq $0, (%rbx)");
                 Emit("pop %rax"); // value to %rax                
 
                 if (l.type.size == 1)
@@ -521,6 +520,7 @@ ret";
 
         public override void EmitAsm()
         {
+            Emit("#ForLoopStatement =>");
             loopStartLabel = "loop_start_" + (Gv.sn++);
             loopEndLabel = "loop_end_" + (Gv.sn++);
             updaterLabel = "updater_" + (Gv.sn++);
@@ -560,6 +560,8 @@ ret";
             updater.EmitAsm();
             Emit("jmp " + loopStartLabel);
             Emit(loopEndLabel + ":");
+
+            Emit("#<= ForLoopStatement");
         }
     }
 

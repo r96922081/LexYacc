@@ -692,6 +692,7 @@ int main() {
     return k;
 }
 ";
+
             AsmEmitter.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
@@ -703,6 +704,37 @@ int main() {
             int exitCode = CompileAndRun("test.s", "test.exe");
             Check(exitCode == 90);
         }
+
+        public void for_6()
+        {
+            string src = @"
+int main() {
+    int i = 0;
+    int j = 0;
+    int k = 0;
+    int a[3][4][5];
+
+    for (i = 0; i < 3; i++)
+        for (j = 0; j < 4; j++)
+           for (k = 0; k < 5; k++)
+               a[i][j][k] = i * 4 * 5 + j * 5 + k;
+
+    return a[2][3][4];
+}
+";
+
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 59);
+        }
+
 
         public void array_1()
         {
@@ -910,15 +942,39 @@ int main() {
             Check(exitCode == 8);
         }
 
+        public void char_4()
+        {
+            string src = @"
+int main() {
+    int i;
+    int j;
+    int k;
+    char a[2][3][4];
+
+    for (i = 0; i < 2; i++)
+        for (j = 0;j < 3;j++)
+            for (k = 0; k < 4; k++)
+                a[i][j][k] = 'a' + i * 3 * 4 + j * 4 + k;
+
+
+    return a[1][2][3];
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 120);
+        }
+
         public static void RunAllUt()
         {
             MainUt mainUt = new MainUt();
-
-
-            mainUt.char_1();
-            mainUt.char_2();
-            mainUt.char_3();
-
 
             mainUt.Ut1();
             mainUt.Ut2();
@@ -948,12 +1004,18 @@ int main() {
             mainUt.for_3();
             mainUt.for_4();
             mainUt.for_5();
+            mainUt.for_6();
 
             mainUt.array_1();
             mainUt.array_2();
             mainUt.array_3();
             mainUt.array_4();
             mainUt.array_5();
+
+            mainUt.char_1();
+            mainUt.char_2();
+            mainUt.char_3();
+            mainUt.char_4();
         }
 
         public static void Ut()
