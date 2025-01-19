@@ -2,32 +2,159 @@
 {
     public class Program : AstNode
     {
+        public List<TopLevel> topLevels = new List<TopLevel>();
+
+        private List<GlobalVariable> uninitedGv = new List<GlobalVariable>();
+        private List<GlobalVariable> initedGv = new List<GlobalVariable>();
+        private List<FunDecl> funDecls = new List<FunDecl>();
+
+
         public Program() : base("Program")
         {
 
         }
 
-        public override void EmitCurrentAsm()
+        private void Reset()
         {
-            string asm = @".data
-.text";
-            Emit(asm);
+            if (funDecls.Count != 0)
+                return;
+
+            Context.gv.Clear();
+
+            foreach (TopLevel t in topLevels)
+            {
+                if (t.funDecl != null)
+                    funDecls.Add(t.funDecl);
+                else if (t.gv.int_value == null)
+                {
+                    uninitedGv.Add(t.gv);
+                    Variable v = new Variable();
+                    v.name = t.gv.name;
+                    v.type = t.gv.type;
+                    v.arraySize.AddRange(t.gv.arraySize);
+                    Context.gv.Add(v.name, v);
+                }
+                else
+                {
+                    initedGv.Add(t.gv);
+                    Variable v = new Variable();
+                    v.name = t.gv.name;
+                    v.type = t.gv.type;
+                    v.arraySize.AddRange(t.gv.arraySize);
+                    Context.gv.Add(v.name, v);
+                }
+            }
         }
 
         public override void EmitAsm()
         {
-            base.EmitAsm();
+            Reset();
+
+            if (uninitedGv.Count != 0)
+            {
+                Emit(".bss");
+                foreach (GlobalVariable gv in uninitedGv)
+                    gv.EmitAsm();
+                Emit("");
+            }
+
+            if (initedGv.Count != 0)
+            {
+                Emit(".data\n");
+                foreach (GlobalVariable gv in initedGv)
+                    gv.EmitAsm();
+                Emit("");
+            }
+
+            Emit(".text\n");
+            foreach (FunDecl f in funDecls)
+                f.EmitAsm();
+            Emit("");
+        }
+
+        public override string ToString()
+        {
+            Reset();
+
+            if (childrenForPrint.Count == 0)
+                childrenForPrint.AddRange(topLevels);
+
+            return base.ToString();
         }
     }
+
+    public class TopLevel : AstNode
+    {
+        public FunDecl funDecl;
+        public GlobalVariable gv;
+
+        public TopLevel() : base("TopLevel")
+        {
+
+        }
+
+        public override void EmitAsm()
+        {
+            if (funDecl != null)
+                funDecl.EmitAsm();
+            else if (gv != null)
+                gv.EmitAsm();
+        }
+
+        public override string ToString()
+        {
+            if (childrenForPrint.Count == 0)
+            {
+                if (funDecl != null)
+                    childrenForPrint.Add(funDecl);
+                else if (gv != null)
+                    childrenForPrint.Add(gv);
+            }
+
+            return base.ToString();
+        }
+    }
+
+    public class GlobalVariable : AstNode
+    {
+        public VariableType type;
+        public string name;
+        public int? int_value;
+        public List<int> arraySize = new List<int>();
+
+        public GlobalVariable() : base("GlobalVariable")
+        {
+
+        }
+
+        public override void EmitAsm()
+        {
+            if (int_value == null)
+            {
+                if (arraySize.Count == 0)
+                    Emit(string.Format(".lcomm {0}, 8", name));
+                else
+                {
+                    int count = 1;
+                    foreach (int arraySize in arraySize)
+                        count *= arraySize;
+                    Emit(string.Format(".lcomm {0}, {1}", name, count * type.size));
+                }
+            }
+            else
+                Emit(string.Format("{0}: .quad {1}", name, int_value));
+        }
+    }
+
 
     public class FunDecl : AstNode
     {
         public VariableType returnType;
         private string functionName;
-        public Dictionary<string, LocalVariable> paramMap = new Dictionary<string, LocalVariable>();
+        public Dictionary<string, Variable> paramMap = new Dictionary<string, Variable>();
         public List<Statement> statements;
 
-        public Dictionary<string, LocalVariable> localMap = new Dictionary<string, LocalVariable>();
+        public Dictionary<string, Variable> localMap = new Dictionary<string, Variable>();
         public int localSize = 0;
 
         public FunDecl() : base("FunDecl")
@@ -50,7 +177,7 @@
         local1
         local2
          */
-        public void AddParamVariable(LocalVariable p)
+        public void AddParamVariable(Variable p)
         {
             paramMap.Add(p.name, p);
             p.stackOffset = 8 + paramMap.Count * 8;
@@ -58,7 +185,7 @@
 
         public void AddLocalVariable(DeclareStatement a)
         {
-            LocalVariable l = new LocalVariable();
+            Variable l = new Variable();
             l.name = a.name;
             l.type = a.type;
             l.arraySize = a.arraySize;
@@ -268,9 +395,11 @@ ret";
         {
             Emit("#AssignmentStatement =>");
 
-            LocalVariable l = null;
-            LocalVariable p = null;
-            LocalVariable v = null;
+            Variable l = null;
+            Variable p = null;
+            Variable gv = null;
+
+            Variable v = null;
 
             if (Context.funDecl.localMap.ContainsKey(name))
             {
@@ -282,18 +411,27 @@ ret";
                 p = Context.funDecl.paramMap[name];
                 v = p;
             }
+            else if (Context.gv.ContainsKey(name))
+            {
+                gv = Context.gv[name];
+                v = gv;
+            }
 
             if (arrayIndex.Count == 0)
             {
                 value.EmitAsm();
                 Emit("pop %rax");  // pop value
-                Emit(string.Format("mov %rax, {0}(%rbp)", v.stackOffset));
+
+                if (v.stackOffset != -1)
+                    Emit(string.Format("mov %rax, {0}(%rbp)", v.stackOffset));
+                else
+                    Emit(string.Format("mov %rax, {0}(%rip)", name));
             }
             // a[2][3] = xxx;
             else
             {
                 value.EmitAsm();
-                Util.SaveArrayIndexAddressToRbx(l, p, arrayIndex);
+                Util.SaveArrayIndexAddressToRbx(l, p, gv, arrayIndex);
 
                 Emit("pop %rax"); // value to %rax                
 
@@ -402,9 +540,12 @@ ret";
             // case mulExpression: ID
             else if (variableName != null && arrayIndex.Count == 0)
             {
-                LocalVariable local = null;
-                LocalVariable param = null;
-                LocalVariable variable = null;
+                Variable local = null;
+                Variable param = null;
+                Variable gv = null;
+
+                Variable variable = null;
+
 
                 if (Context.funDecl.localMap.ContainsKey(variableName))
                 {
@@ -415,6 +556,11 @@ ret";
                 {
                     param = Context.funDecl.paramMap[variableName];
                     variable = param;
+                }
+                else if (Context.gv.ContainsKey(variableName))
+                {
+                    gv = Context.gv[variableName];
+                    variable = gv;
                 }
 
                 // If ID is array, then push address of array
@@ -433,20 +579,32 @@ ret";
                         Emit(string.Format("mov (%rax), %rax"));
                         Emit(string.Format("push %rax"));
                     }
+                    else if (gv != null)
+                    {
+                        Emit(string.Format("lea {0}(%rip), %rax", variableName));
+                        Emit(string.Format("push %rax"));
+                    }
                 }
                 else
                 {
-                    int stackOffset = variable.stackOffset;
-                    Emit(string.Format("mov {0}(%rbp), %rax", stackOffset));
+                    if (variable.stackOffset != -1)
+                        // local variable
+                        Emit(string.Format("mov {0}(%rbp), %rax", variable.stackOffset));
+                    else
+                        // global variable
+                        Emit(string.Format("mov {0}(%rip), %rax", variableName));
+
                     Emit(string.Format("push %rax"));
                 }
             }
             // case mulExpression: ID arrayIndex
             else if (variableName != null && arrayIndex.Count > 0)
             {
-                LocalVariable local = null;
-                LocalVariable param = null;
-                LocalVariable variable = null;
+                Variable local = null;
+                Variable param = null;
+                Variable globalVariable = null;
+
+                Variable variable = null;
 
                 if (Context.funDecl.localMap.ContainsKey(variableName))
                 {
@@ -458,8 +616,13 @@ ret";
                     param = Context.funDecl.paramMap[variableName];
                     variable = param;
                 }
+                else if (Context.gv.ContainsKey(variableName))
+                {
+                    globalVariable = Context.gv[variableName];
+                    variable = globalVariable;
+                }
 
-                Util.SaveArrayIndexAddressToRbx(local, param, arrayIndex);
+                Util.SaveArrayIndexAddressToRbx(local, param, globalVariable, arrayIndex);
 
                 Emit(string.Format("movq $0, %rax"));
 
@@ -645,6 +808,18 @@ ret";
         public override void EmitAsm()
         {
             Emit("jmp " + Context.forLoopStatementStack.Peek().updaterLabel);
+        }
+    }
+
+    public class EmptyStatement : Statement
+    {
+        public EmptyStatement() : base("EmptyStatement")
+        {
+
+        }
+
+        public override void EmitAsm()
+        {
         }
     }
 }

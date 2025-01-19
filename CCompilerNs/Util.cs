@@ -34,9 +34,15 @@
             AsmEmitter.Emit(asm);
         }
 
-        public static void SaveArrayIndexAddressToRbx(LocalVariable l, LocalVariable p, List<Expression> arrayIndex)
+        public static void SaveArrayIndexAddressToRbx(Variable l, Variable p, Variable gv, List<Expression> arrayIndex)
         {
-            LocalVariable v = l != null ? l : p;
+            Variable v = null;
+            if (l != null)
+                v = l;
+            else if (p != null)
+                v = p;
+            else if (gv != null)
+                v = gv;
 
             for (int i = arrayIndex.Count - 1; i >= 0; i--)
             {
@@ -60,11 +66,18 @@
                 Emit("add %rbx, %rax");
             }
 
+            if (gv != null)
+            {
+                Emit(string.Format("lea {0}(%rip), %rbx", v.name));
+            }
+            else
+            {
+                Emit("mov %rbp, %rbx");
+                Emit(string.Format("add ${0}, %rbx", v.stackOffset));
+                if (p != null)
+                    Emit("mov (%rbx), %rbx");
+            }
 
-            Emit("mov %rbp, %rbx");
-            Emit(string.Format("add ${0}, %rbx", v.stackOffset));
-            if (p != null)
-                Emit("mov (%rbx), %rbx");
 
             Emit("add %rax, %rbx"); // save address at %rbx
         }

@@ -5,15 +5,16 @@
 %token <int>         INT_VALUE
 %token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE
 
-%type <CCompilerNs.Program>                    program 
-%type <List<CCompilerNs.FunDecl>>              funDecls
+%type <CCompilerNs.Program>                    program
+%type <CCompilerNs.TopLevel>                   topLevel
 %type <CCompilerNs.FunDecl>                    funDecl
-%type <List<CCompilerNs.LocalVariable>>        funcParams
+%type <List<CCompilerNs.Variable>>             funcParams
 %type <List<CCompilerNs.Statement>>            statements 
 %type <CCompilerNs.ForLoopStatement>           forLoopStatement
 %type <CCompilerNs.Statement>                  statement
 %type <CCompilerNs.ReturnStatement>            returnStatement 
-%type <CCompilerNs.DeclareStatement>           declareStatement
+%type <CCompilerNs.DeclareStatement>           declareStatement 
+%type <CCompilerNs.GlobalVariable>             globalVariable
 %type <CCompilerNs.AssignmentStatement>        assignmentStatement assignmentNoSemicolon
 %type <CCompilerNs.FunctionCallExpression>     functionCallExpression
 %type <CCompilerNs.FunctionCallExpression>     functionCallStatement
@@ -22,6 +23,7 @@
 %type <List<CCompilerNs.IfStatement>>          elseIfStatements
 %type <CCompilerNs.BreakStatement>             breakStatement
 %type <CCompilerNs.ContinueStatement>          continueStatement
+%type <CCompilerNs.EmptyStatement>             emptyStatement
 %type <List<CCompilerNs.Expression>>           funcCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
 %type <List<int>>                              arraySize paramArraySize
@@ -30,22 +32,28 @@
 
 
 %%
-program: 
-funDecls 
+program:
+program topLevel
 {
-    $$= CCompilerNs.CCLexYaccCallback.Program($1);
+    $$= CCompilerNs.CCLexYaccCallback.Program($1, $2);
+}
+|
+topLevel
+{
+    $$= CCompilerNs.CCLexYaccCallback.Program(null, $1);
 }
 ;
 
-funDecls:
-funDecls funDecl
+
+topLevel:
+globalVariable
 {
-    $$= CCompilerNs.CCLexYaccCallback.FunDecls($2, $1);
+    $$= CCompilerNs.CCLexYaccCallback.TopLevel($1);
 }
 |
 funDecl
 {
-    $$= CCompilerNs.CCLexYaccCallback.FunDecls($1, null);
+    $$= CCompilerNs.CCLexYaccCallback.TopLevel($1);
 }
 ;
 
@@ -58,6 +66,15 @@ typeSpec ID '(' ')' '{' statements '}'
 typeSpec ID '(' funcParams ')' '{' statements '}'
 {  
     $$= CCompilerNs.CCLexYaccCallback.FuncDecl($1, $2, $4, $7);
+}
+typeSpec ID '(' ')' '{' '}'
+{  
+    $$= CCompilerNs.CCLexYaccCallback.FuncDecl($1, $2, null, null);
+}
+|
+typeSpec ID '(' funcParams ')' '{' '}'
+{  
+    $$= CCompilerNs.CCLexYaccCallback.FuncDecl($1, $2, $4, null);
 }
 ;
 
@@ -130,6 +147,11 @@ continueStatement
 {
     $$ = $1;
 }
+|
+emptyStatement
+{
+    $$ = $1;
+}
 ;
 
 compoundIfStatement:
@@ -164,6 +186,11 @@ IF '(' addExpression relationlOp addExpression ')' statement
 {
     $$ = CCompilerNs.CCLexYaccCallback.IfStatement($3, $4, $5, $7);
 }
+|
+IF '(' addExpression relationlOp addExpression ')' '{' '}'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.IfStatement($3, $4, $5);
+}
 ;
 
 elseIfStatements:
@@ -188,6 +215,11 @@ ELSE IF '(' addExpression relationlOp addExpression ')' statement
 {
     $$= CCompilerNs.CCLexYaccCallback.IfStatement($4, $5, $6, $8);
 }
+|
+ELSE IF '(' addExpression relationlOp addExpression ')' '{' '}'
+{
+    $$= CCompilerNs.CCLexYaccCallback.IfStatement($4, $5, $6);
+}
 ;
 
 elseStatement:
@@ -199,6 +231,11 @@ ELSE '{' statements '}'
 ELSE statement
 {
     $$= CCompilerNs.CCLexYaccCallback.IfStatement(null, null, null, $2);
+}
+|
+ELSE '{' '}'
+{
+    $$= CCompilerNs.CCLexYaccCallback.IfStatement(null, null, null);
 }
 ;
 
@@ -234,6 +271,13 @@ assignmentStatement:
 assignmentNoSemicolon ';'
 {
     $$ = $1;
+}
+;
+
+emptyStatement:
+';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.EmptyStatement();
 }
 ;
 
@@ -474,6 +518,11 @@ FOR '(' assignmentStatement addExpression relationlOp addExpression ';' assignme
 {
     $$ = CCompilerNs.CCLexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10);
 }
+|
+FOR '(' assignmentStatement addExpression relationlOp addExpression ';' assignmentNoSemicolon ')' '{' '}'
+{
+    $$ = CCompilerNs.CCLexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8);
+}
 ;
 
 arraySize:
@@ -509,6 +558,28 @@ arrayIndex '[' addExpression ']'
 '[' addExpression ']'
 {
     $$ = CCompilerNs.CCLexYaccCallback.ArrayIndex($2, null);
+}
+;
+
+globalVariable:
+typeSpec ID ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.GlobalVariable($1, $2, null, null);
+}
+|
+typeSpec ID arraySize ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.GlobalVariable($1, $2, null, $3);
+}
+|
+typeSpec ID '=' INT_VALUE ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.GlobalVariable($1, $2, $4, null);
+}
+|
+typeSpec ID '=' CHAR_VALUE ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.GlobalVariable($1, $2, $4, null);
 }
 ;
 

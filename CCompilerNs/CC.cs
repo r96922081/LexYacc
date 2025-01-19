@@ -2,19 +2,19 @@
 {
     public class CC
     {
-        public class LocalVariable
+        public class Variable
         {
             public string name;
             public int position;
 
-            public LocalVariable(string name, int position)
+            public Variable(string name, int position)
             {
                 this.name = name;
                 this.position = position;
             }
         }
 
-        private static void MainAsm(List<LocalVariable> locals)
+        private static void MainAsm(List<Variable> locals)
         {
             // 15 * 6 - 7 / 2 = 41
 
@@ -47,10 +47,10 @@
 
 
 
-            LocalVariable v1 = new LocalVariable("a", -8);
-            LocalVariable v2 = new LocalVariable("b", -16);
+            Variable v1 = new Variable("a", -8);
+            Variable v2 = new Variable("b", -16);
 
-            List<LocalVariable> locals = new List<LocalVariable>();
+            List<Variable> locals = new List<Variable>();
             locals.Add(v1);
             locals.Add(v2);
 

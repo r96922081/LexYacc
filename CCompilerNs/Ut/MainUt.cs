@@ -2,6 +2,131 @@
 {
     public class MainUt : BaseUt
     {
+        public void gv_1()
+        {
+            string src = @"
+int a;
+char b;
+int c = 3;
+char d = 4;
+
+int main()
+{
+	return d - c - a - b;
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 1);
+        }
+
+        public void gv_2()
+        {
+            string src = @"
+
+int a;
+char b;
+int c = 3;
+char d = 4;
+char e = 'e';
+
+int main()
+{
+	return d - c + b - a + e;
+}
+
+
+
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 102);
+        }
+
+        public void gv_3()
+        {
+            string src = @"
+
+int a[2][3];
+int b[3];
+char c[2][3];
+
+int main()
+{
+    a[1][1] = 7;
+    a[1][2] = 8;
+
+    b[1] = 5;
+    b[2] = 6;
+
+    c[1][1] = 'A';
+    c[1][2] = 'B';
+
+    return a[1][1] + b[2] + c[1][2];
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 79);
+        }
+
+        public void gv_4()
+        {
+            string src = @"
+
+int a[2][3];
+
+void f1(int[][3] a)
+{
+    a[1][2] = 99;
+}
+
+void f2(int[][3] b)
+{
+    b[1][1] = 90;
+}
+
+int main()
+{
+    f1(a);
+    f2(a);
+
+    return a[1][2] - a[1][1];
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 9);
+        }
+
         public void Ut1()
         {
             string src = @"
@@ -1138,11 +1263,106 @@ int main() {
             Check(exitCode == 120);
         }
 
+        public void empty_1()
+        {
+            string src = @"
+void f1()
+{
+}
+
+int main() {
+    int i;
+
+    if (1 > 0)
+    {
+    } 
+    else if (1 > 0)
+    {
+    }
+    else if (1 > 0)
+    {
+    }
+    else
+    {
+    }
+
+    for (i = 0; i < 1; i++)
+    {
+    }
+
+    return 0;
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 0);
+        }
+
+        public void empty_2()
+        {
+            string src = @"
+void f1()
+{
+    ;
+}
+
+void f2()
+{
+    ;;;;;
+}
+
+void f3()
+{
+    int a;;;;;;;
+}
+
+int main() {
+    int i;
+
+    if (1 > 0)
+    ;
+    else if (1 > 0)
+    ;
+    else if (1 > 0)
+    ;
+    else
+    ;
+
+    for (i = 0; i < 1; i++)
+    ;
+
+    return 0;
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 0);
+        }
+
+        public void adhoc()
+        {
+
+        }
+
         public static void RunAllUt()
         {
             MainUt mainUt = new MainUt();
 
-            mainUt.array_8();
+            mainUt.adhoc();
 
             mainUt.Ut1();
             mainUt.Ut2();
@@ -1154,8 +1374,6 @@ int main() {
             mainUt.Ut8();
             mainUt.Ut9();
             mainUt.Ut10();
-
-
 
             mainUt.call_function_1();
             mainUt.call_function_2();
@@ -1186,12 +1404,20 @@ int main() {
             mainUt.array_5();
             mainUt.array_6();
             mainUt.array_7();
-
+            mainUt.array_8();
 
             mainUt.char_1();
             mainUt.char_2();
             mainUt.char_3();
             mainUt.char_4();
+
+            mainUt.gv_1();
+            mainUt.gv_2();
+            mainUt.gv_3();
+            mainUt.gv_4();
+
+            mainUt.empty_1();
+            mainUt.empty_2();
         }
 
         public static void Ut()

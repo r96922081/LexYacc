@@ -2,44 +2,46 @@
 {
     public class CCLexYaccCallback
     {
-        public static Program Program(List<FunDecl> funcDecls)
+        public static Program Program(Program prev, TopLevel topLevel)
         {
             Program p = new Program();
-            p.childrenForPrint.AddRange(funcDecls);
+            if (prev != null)
+                p.topLevels.AddRange(prev.topLevels);
+
+            p.topLevels.Add(topLevel);
 
             return p;
         }
 
-        public static Program Program(AstNode n)
+        public static TopLevel TopLevel(FunDecl funcDecl)
         {
-            Program p = new Program();
-            p.childrenForPrint.Add(n);
-
-            return p;
+            TopLevel t = new TopLevel();
+            t.funDecl = funcDecl;
+            return t;
         }
 
-        public static List<FunDecl> FunDecls(FunDecl funcDecl, List<FunDecl> prevFuncDecls)
+        public static TopLevel TopLevel(GlobalVariable g)
         {
-            List<FunDecl> funcDecls = new List<FunDecl>();
-            if (prevFuncDecls != null)
-                funcDecls.AddRange(prevFuncDecls);
-
-            funcDecls.Add(funcDecl);
-
-            return funcDecls;
+            TopLevel t = new TopLevel();
+            t.gv = g;
+            return t;
         }
 
-        public static FunDecl FuncDecl(string returnType, string functionName, List<LocalVariable> paramList, List<Statement> statements)
+        public static FunDecl FuncDecl(string returnType, string functionName, List<Variable> paramList, List<Statement> statements)
         {
             FunDecl f = new FunDecl();
             f.returnType = Util.GetType(returnType);
 
             f.SetFunctionName(functionName);
+
+            if (statements == null)
+                statements = new List<Statement>();
+
             f.statements = statements;
 
             if (paramList != null)
             {
-                foreach (LocalVariable param in paramList)
+                foreach (Variable param in paramList)
                     f.AddParamVariable(param);
             }
 
@@ -78,6 +80,32 @@
                 n.childrenForPrint.Add(expression);
 
             return n;
+        }
+
+        public static GlobalVariable GlobalVariable(string type, string id, int? intValue, List<int> arraySize)
+        {
+            GlobalVariable g = new GlobalVariable();
+            g.type = Util.GetType(type);
+            g.name = id;
+            g.int_value = intValue;
+
+            if (arraySize != null)
+                g.arraySize.AddRange(arraySize);
+
+            return g;
+        }
+
+        public static GlobalVariable GlobalVariable(string type, string id, char charValue, List<int> arraySize)
+        {
+            GlobalVariable g = new GlobalVariable();
+            g.type = Util.GetType(type);
+            g.name = id;
+            g.int_value = charValue;
+
+            if (arraySize != null)
+                g.arraySize.AddRange(arraySize);
+
+            return g;
         }
 
         public static DeclareStatement DeclareStatement(string type, string id, Expression expression, List<int> arraySize)
@@ -297,13 +325,13 @@
 
 
 
-        public static List<LocalVariable> FuncParams(string type, string name, List<LocalVariable> prevFunParams)
+        public static List<Variable> FuncParams(string type, string name, List<Variable> prevFunParams)
         {
-            List<LocalVariable> funcParams = new List<LocalVariable>();
+            List<Variable> funcParams = new List<Variable>();
             if (prevFunParams != null)
                 funcParams.AddRange(prevFunParams);
 
-            LocalVariable funParam = new LocalVariable();
+            Variable funParam = new Variable();
             funParam.name = name;
             funParam.type = Util.GetType(type);
             funcParams.Add(funParam);
@@ -311,13 +339,13 @@
             return funcParams;
         }
 
-        public static List<LocalVariable> FuncParamsArray(string type, string name, List<int> arraySize, List<LocalVariable> prevFunParams)
+        public static List<Variable> FuncParamsArray(string type, string name, List<int> arraySize, List<Variable> prevFunParams)
         {
-            List<LocalVariable> funcParams = new List<LocalVariable>();
+            List<Variable> funcParams = new List<Variable>();
             if (prevFunParams != null)
                 funcParams.AddRange(prevFunParams);
 
-            LocalVariable funParam = new LocalVariable();
+            Variable funParam = new Variable();
             funParam.name = name;
             funParam.arraySize.AddRange(arraySize);
             funParam.type = Util.GetType(type);
@@ -333,6 +361,11 @@
             f.parameters = parameters;
 
             return f;
+        }
+
+        public static IfStatement IfStatement(Expression lhs, string op, Expression rhs)
+        {
+            return IfStatement(lhs, op, rhs, new List<Statement>());
         }
 
         public static IfStatement IfStatement(Expression lhs, string op, Expression rhs, List<Statement> statements)
@@ -408,6 +441,11 @@
             return c;
         }
 
+        public static ForLoopStatement ForLoopStatement(AssignmentStatement initializer, Expression conditionLhs, string conditionOp, Expression conditionrhs, AssignmentStatement updater)
+        {
+            return ForLoopStatement(initializer, conditionLhs, conditionOp, conditionrhs, updater, new List<Statement>());
+        }
+
         public static ForLoopStatement ForLoopStatement(AssignmentStatement initializer, Expression conditionLhs, string conditionOp, Expression conditionrhs, AssignmentStatement updater, List<Statement> statements)
         {
             ForLoopStatement f = new ForLoopStatement();
@@ -436,6 +474,10 @@
             return new ContinueStatement();
         }
 
+        public static EmptyStatement EmptyStatement()
+        {
+            return new EmptyStatement();
+        }
 
         public static List<Statement> ForLoopBody(string s, List<Statement> prevStatements)
         {
