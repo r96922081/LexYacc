@@ -23,6 +23,9 @@
 
             foreach (TopLevel t in topLevels)
             {
+                if (t.comment)
+                    continue;
+
                 if (t.funDecl != null)
                     funDecls.Add(t.funDecl);
                 else if (t.gv.int_value == null)
@@ -87,6 +90,7 @@
     {
         public FunDecl funDecl;
         public GlobalVariable gv;
+        public bool comment = false;
 
         public TopLevel() : base("TopLevel")
         {

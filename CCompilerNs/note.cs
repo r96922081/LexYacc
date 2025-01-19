@@ -13,7 +13,7 @@ TODO:
 - c lib like printf, strlen, memcpy, strcpy, malloc
 - struct
 - point, malloc
-- single line comment, multi line comment
+- multi line comment
 
 ====
 leave: equivalent to 

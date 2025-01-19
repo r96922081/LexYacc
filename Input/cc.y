@@ -3,7 +3,7 @@
 
 %token <char>        CHAR_VALUE
 %token <int>         INT_VALUE
-%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE
+%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE SINGLE_LINE_COMMENT
 
 %type <CCompilerNs.Program>                    program
 %type <CCompilerNs.TopLevel>                   topLevel
@@ -23,7 +23,7 @@
 %type <List<CCompilerNs.IfStatement>>          elseIfStatements
 %type <CCompilerNs.BreakStatement>             breakStatement
 %type <CCompilerNs.ContinueStatement>          continueStatement
-%type <CCompilerNs.EmptyStatement>             emptyStatement
+%type <CCompilerNs.EmptyStatement>             emptyStatement singleLineComment
 %type <List<CCompilerNs.Expression>>           funcCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
 %type <List<int>>                              arraySize paramArraySize
@@ -54,6 +54,11 @@ globalVariable
 funDecl
 {
     $$= CCompilerNs.CCLexYaccCallback.TopLevel($1);
+}
+|
+SINGLE_LINE_COMMENT
+{
+    $$= CCompilerNs.CCLexYaccCallback.TopLevel();
 }
 ;
 
@@ -149,6 +154,11 @@ continueStatement
 }
 |
 emptyStatement
+{
+    $$ = $1;
+}
+|
+singleLineComment
 {
     $$ = $1;
 }
@@ -276,6 +286,13 @@ assignmentNoSemicolon ';'
 
 emptyStatement:
 ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.EmptyStatement();
+}
+;
+
+singleLineComment:
+SINGLE_LINE_COMMENT
 {
     $$= CCompilerNs.CCLexYaccCallback.EmptyStatement();
 }

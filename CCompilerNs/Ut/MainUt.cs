@@ -1353,6 +1353,36 @@ int main() {
             Check(exitCode == 0);
         }
 
+        public void comment_1()
+        {
+            string src = @"
+
+// qq
+int a = 1; // qqqwer
+// qqq int b = 2;
+// xdxxxd
+// aaa
+
+int main() {
+//aaa
+    return 0; // qqqwer
+////
+///xxxx
+}
+// asdfasf;
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 0);
+        }
+
         public void adhoc()
         {
 
@@ -1363,6 +1393,8 @@ int main() {
             MainUt mainUt = new MainUt();
 
             mainUt.adhoc();
+
+            mainUt.comment_1();
 
             mainUt.Ut1();
             mainUt.Ut2();

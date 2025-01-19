@@ -27,6 +27,13 @@
             return t;
         }
 
+        public static TopLevel TopLevel()
+        {
+            TopLevel t = new TopLevel();
+            t.comment = true;
+            return t;
+        }
+
         public static FunDecl FuncDecl(string returnType, string functionName, List<Variable> paramList, List<Statement> statements)
         {
             FunDecl f = new FunDecl();

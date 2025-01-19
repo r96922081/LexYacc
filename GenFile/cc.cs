@@ -21,7 +21,7 @@ public class YaccActions{
 
 %token <char>        CHAR_VALUE
 %token <int>         INT_VALUE
-%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE
+%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE SINGLE_LINE_COMMENT
 
 %type <CCompilerNs.Program>                    program
 %type <CCompilerNs.TopLevel>                   topLevel
@@ -41,7 +41,7 @@ public class YaccActions{
 %type <List<CCompilerNs.IfStatement>>          elseIfStatements
 %type <CCompilerNs.BreakStatement>             breakStatement
 %type <CCompilerNs.ContinueStatement>          continueStatement
-%type <CCompilerNs.EmptyStatement>             emptyStatement
+%type <CCompilerNs.EmptyStatement>             emptyStatement singleLineComment
 %type <List<CCompilerNs.Expression>>           funcCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
 %type <List<int>>                              arraySize paramArraySize
@@ -72,6 +72,11 @@ globalVariable
 funDecl
 {
     $$= CCompilerNs.CCLexYaccCallback.TopLevel($1);
+}
+|
+SINGLE_LINE_COMMENT
+{
+    $$= CCompilerNs.CCLexYaccCallback.TopLevel();
 }
 ;
 
@@ -167,6 +172,11 @@ continueStatement
 }
 |
 emptyStatement
+{
+    $$ = $1;
+}
+|
+singleLineComment
 {
     $$ = $1;
 }
@@ -294,6 +304,13 @@ assignmentNoSemicolon ';'
 
 emptyStatement:
 ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.EmptyStatement();
+}
+;
+
+singleLineComment:
+SINGLE_LINE_COMMENT
 {
     $$= CCompilerNs.CCLexYaccCallback.EmptyStatement();
 }
@@ -654,6 +671,7 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_program_LeftRecursionExpand_Producton_1", Rule_program_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_topLevel_Producton_0", Rule_topLevel_Producton_0);
         actions.Add("Rule_topLevel_Producton_1", Rule_topLevel_Producton_1);
+        actions.Add("Rule_topLevel_Producton_2", Rule_topLevel_Producton_2);
         actions.Add("Rule_funDecl_Producton_0", Rule_funDecl_Producton_0);
         actions.Add("Rule_funDecl_Producton_1", Rule_funDecl_Producton_1);
         actions.Add("Rule_funDecl_Producton_2", Rule_funDecl_Producton_2);
@@ -673,6 +691,7 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_statement_Producton_6", Rule_statement_Producton_6);
         actions.Add("Rule_statement_Producton_7", Rule_statement_Producton_7);
         actions.Add("Rule_statement_Producton_8", Rule_statement_Producton_8);
+        actions.Add("Rule_statement_Producton_9", Rule_statement_Producton_9);
         actions.Add("Rule_compoundIfStatement_Producton_0", Rule_compoundIfStatement_Producton_0);
         actions.Add("Rule_compoundIfStatement_Producton_1", Rule_compoundIfStatement_Producton_1);
         actions.Add("Rule_compoundIfStatement_Producton_2", Rule_compoundIfStatement_Producton_2);
@@ -696,6 +715,7 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_declareStatement_Producton_2", Rule_declareStatement_Producton_2);
         actions.Add("Rule_assignmentStatement_Producton_0", Rule_assignmentStatement_Producton_0);
         actions.Add("Rule_emptyStatement_Producton_0", Rule_emptyStatement_Producton_0);
+        actions.Add("Rule_singleLineComment_Producton_0", Rule_singleLineComment_Producton_0);
         actions.Add("Rule_assignmentNoSemicolon_Producton_0", Rule_assignmentNoSemicolon_Producton_0);
         actions.Add("Rule_assignmentNoSemicolon_Producton_1", Rule_assignmentNoSemicolon_Producton_1);
         actions.Add("Rule_assignmentNoSemicolon_Producton_2", Rule_assignmentNoSemicolon_Producton_2);
@@ -820,6 +840,16 @@ GREATER_OR_EQUAL_SIGN
 
         // user-defined action
         _0= CCompilerNs.CCLexYaccCallback.TopLevel(_1);
+
+        return _0;
+    }
+
+    public static object Rule_topLevel_Producton_2(Dictionary<int, object> objects) { 
+        CCompilerNs.TopLevel _0 = new CCompilerNs.TopLevel();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0= CCompilerNs.CCLexYaccCallback.TopLevel();
 
         return _0;
     }
@@ -1010,6 +1040,16 @@ GREATER_OR_EQUAL_SIGN
     }
 
     public static object Rule_statement_Producton_8(Dictionary<int, object> objects) { 
+        CCompilerNs.Statement _0 = new CCompilerNs.Statement();
+        CCompilerNs.EmptyStatement _1 = (CCompilerNs.EmptyStatement)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_9(Dictionary<int, object> objects) { 
         CCompilerNs.Statement _0 = new CCompilerNs.Statement();
         CCompilerNs.EmptyStatement _1 = (CCompilerNs.EmptyStatement)objects[1];
 
@@ -1275,6 +1315,16 @@ GREATER_OR_EQUAL_SIGN
 
     public static object Rule_emptyStatement_Producton_0(Dictionary<int, object> objects) { 
         CCompilerNs.EmptyStatement _0 = new CCompilerNs.EmptyStatement();
+
+        // user-defined action
+        _0= CCompilerNs.CCLexYaccCallback.EmptyStatement();
+
+        return _0;
+    }
+
+    public static object Rule_singleLineComment_Producton_0(Dictionary<int, object> objects) { 
+        CCompilerNs.EmptyStatement _0 = new CCompilerNs.EmptyStatement();
+        string _1 = (string)objects[1];
 
         // user-defined action
         _0= CCompilerNs.CCLexYaccCallback.EmptyStatement();
@@ -2063,6 +2113,7 @@ namespace ccNs
             { 275, "MULTIPLY_ASSIGN"},
             { 276, "DIVIDE_ASSIGN"},
             { 277, "CHAR_TYPE"},
+            { 278, "SINGLE_LINE_COMMENT"},
         };
 
         public static int CHAR_VALUE = 256;
@@ -2087,6 +2138,7 @@ namespace ccNs
         public static int MULTIPLY_ASSIGN = 275;
         public static int DIVIDE_ASSIGN = 276;
         public static int CHAR_TYPE = 277;
+        public static int SINGLE_LINE_COMMENT = 278;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -2132,6 +2184,7 @@ namespace ccNs
 [0-9]+                    { value = int.Parse(yytext); return INT_VALUE; }
 '[ -~]'                   { value = yytext[1]; return CHAR_VALUE; }
 [_a-zA-Z][a-zA-Z0-9]*     { value = yytext; return ID; }
+\/\/[^\n]*                { value = """";  return SINGLE_LINE_COMMENT; }  
 [ \t\n\r]+                {}
 
 ""{""                       { return '{'; }
@@ -2196,6 +2249,7 @@ namespace ccNs
             actions.Add("LexRule36", LexAction36);
             actions.Add("LexRule37", LexAction37);
             actions.Add("LexRule38", LexAction38);
+            actions.Add("LexRule39", LexAction39);
         }
         public static object LexAction0(string yytext)
         {
@@ -2399,14 +2453,14 @@ namespace ccNs
         {
             value = null;
 
+            // user-defined action
+            value = "";  return SINGLE_LINE_COMMENT; 
+
             return 0;
         }
         public static object LexAction23(string yytext)
         {
             value = null;
-
-            // user-defined action
-            return '{'; 
 
             return 0;
         }
@@ -2415,7 +2469,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '}'; 
+            return '{'; 
 
             return 0;
         }
@@ -2424,7 +2478,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '['; 
+            return '}'; 
 
             return 0;
         }
@@ -2433,7 +2487,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return ']'; 
+            return '['; 
 
             return 0;
         }
@@ -2442,7 +2496,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '<'; 
+            return ']'; 
 
             return 0;
         }
@@ -2451,7 +2505,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '>'; 
+            return '<'; 
 
             return 0;
         }
@@ -2460,7 +2514,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '('; 
+            return '>'; 
 
             return 0;
         }
@@ -2469,7 +2523,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return ')'; 
+            return '('; 
 
             return 0;
         }
@@ -2478,7 +2532,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return ';'; 
+            return ')'; 
 
             return 0;
         }
@@ -2487,7 +2541,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '+'; 
+            return ';'; 
 
             return 0;
         }
@@ -2496,7 +2550,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '-'; 
+            return '+'; 
 
             return 0;
         }
@@ -2505,7 +2559,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '*'; 
+            return '-'; 
 
             return 0;
         }
@@ -2514,7 +2568,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '/'; 
+            return '*'; 
 
             return 0;
         }
@@ -2523,7 +2577,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '='; 
+            return '/'; 
 
             return 0;
         }
@@ -2532,11 +2586,20 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '%'; 
+            return '='; 
 
             return 0;
         }
         public static object LexAction38(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '%'; 
+
+            return 0;
+        }
+        public static object LexAction39(string yytext)
         {
             value = null;
 
@@ -2824,6 +2887,8 @@ namespace LexYaccNs
                 string action = LexYaccUtil.RemoveHeadAndTailEmptyLine(ruleSectionString.Substring(0, rightBracket));
 
                 ruleSectionString = ruleSectionString.Substring(rightBracket + 1).Trim();
+
+                regex = regex.Replace("\\/", "/");
 
                 if (regex.StartsWith("\""))
                     rules.Add(new LexRule(regex.Substring(1, regex.Length - 2), "LexRule" + rules.Count, action));

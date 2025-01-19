@@ -3185,6 +3185,8 @@ namespace LexYaccNs
 
                 ruleSectionString = ruleSectionString.Substring(rightBracket + 1).Trim();
 
+                regex = regex.Replace("\\/", "/");
+
                 if (regex.StartsWith("\""))
                     rules.Add(new LexRule(regex.Substring(1, regex.Length - 2), "LexRule" + rules.Count, action));
                 else
