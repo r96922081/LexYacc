@@ -84,7 +84,7 @@ structDef
 |
 SINGLE_LINE_COMMENT
 {
-    $$= CCompilerNs.CCLexYaccCallback.TopLevel();
+    $$= null;
 }
 ;
 
@@ -923,7 +923,7 @@ GREATER_OR_EQUAL_SIGN
         string _1 = (string)objects[1];
 
         // user-defined action
-        _0= CCompilerNs.CCLexYaccCallback.TopLevel();
+        _0= null;
 
         return _0;
     }

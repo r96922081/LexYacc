@@ -1,6 +1,11 @@
 ﻿namespace CCompilerNs
 {
 
+    interface GlobalDeclare
+    {
+
+    }
+
     public class NodeString
     {
         public string S { get; set; }

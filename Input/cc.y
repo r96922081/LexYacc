@@ -66,7 +66,7 @@ structDef
 |
 SINGLE_LINE_COMMENT
 {
-    $$= CCompilerNs.CCLexYaccCallback.TopLevel();
+    $$= null;
 }
 ;
 

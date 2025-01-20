@@ -1383,6 +1383,50 @@ int main() {
             Check(exitCode == 0);
         }
 
+        public void struct_2()
+        {
+            string src = @"
+
+struct A {
+    int a1;
+    char a2;
+};
+
+struct B {
+    int b1;
+    char b2;
+    struct A b3;  
+};
+
+int main()
+{
+    char e;
+    struct B x;
+    int c;
+    int d;
+
+    //x.b1 = 1;
+    //x.b2 = 3;
+    //x.b3.a1 = 7;
+    //x.b3.a2 = 20;
+
+    //return x.b1 + x.b2 + x.b3.a1 + x.b3.a2;
+    return 0;
+}
+
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 31);
+        }
+
         public void struct_1()
         {
             string src = @"
@@ -1432,6 +1476,7 @@ int main()
 
             mainUt.adhoc();
 
+            //mainUt.struct_2();
             mainUt.struct_1();
 
             mainUt.Ut1();

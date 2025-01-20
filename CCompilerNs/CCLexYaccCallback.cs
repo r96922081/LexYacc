@@ -8,7 +8,8 @@
             if (prev != null)
                 p.topLevels.AddRange(prev.topLevels);
 
-            p.topLevels.Add(topLevel);
+            if (topLevel != null)
+                p.topLevels.Add(topLevel);
 
             return p;
         }
