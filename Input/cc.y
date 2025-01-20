@@ -31,7 +31,7 @@
 %type <CCompilerNs.StructDef>                  structDef
 %type <List<CCompilerNs.StructField>>          structFields
 %type <CCompilerNs.StructField>                structField
-%type <string>                                 typeSpec relationlOp
+%type <string>                                 typeSpec relationlOp opAssign
 
 
 %%
@@ -321,9 +321,9 @@ ID arrayIndex '=' addExpression
     $$= CCompilerNs.LexYaccCallback.AssignmentStatement($1, $4, $2);
 }
 |
-ID PLUS_ASSIGN addExpression
+ID opAssign addExpression
 {
-    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $3, null, "+");
+    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $3, null, $2);
 }
 |
 ID arrayIndex PLUS_ASSIGN addExpression
@@ -331,29 +331,14 @@ ID arrayIndex PLUS_ASSIGN addExpression
     $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $4, $2, "+");
 }
 |
-ID MINUS_ASSIGN addExpression
-{
-    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $3, null, "-");
-}
-|
 ID arrayIndex MINUS_ASSIGN addExpression
 {
     $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $4, $2, "-");
 }
 |
-ID  MULTIPLY_ASSIGN addExpression 
-{
-    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $3, null, "*");
-}
-|
 ID arrayIndex MULTIPLY_ASSIGN addExpression
 {
     $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $4, $2, "*");
-}
-|
-ID  DIVIDE_ASSIGN addExpression
-{
-    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $3, null, "/");
 }
 |
 ID arrayIndex DIVIDE_ASSIGN addExpression
@@ -366,19 +351,41 @@ ID  INCREMENT
     $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, null, "+");
 }
 |
-ID arrayIndex INCREMENT
-{
-    $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, $2, "+");
-}
-|
 ID DECREMENT
 {
     $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, null, "-");
 }
 |
+ID arrayIndex INCREMENT
+{
+    $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, $2, "+");
+}
+|
 ID arrayIndex DECREMENT
 {
     $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, $2, "-");
+}
+;
+
+opAssign:
+PLUS_ASSIGN
+{
+    $$ = $1;
+}
+|
+MINUS_ASSIGN
+{
+    $$ = $1;
+}
+|
+MULTIPLY_ASSIGN
+{
+    $$ = $1;
+}
+|
+DIVIDE_ASSIGN
+{
+    $$ = $1;
 }
 ;
 

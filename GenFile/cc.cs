@@ -49,7 +49,7 @@ public class YaccActions{
 %type <CCompilerNs.StructDef>                  structDef
 %type <List<CCompilerNs.StructField>>          structFields
 %type <CCompilerNs.StructField>                structField
-%type <string>                                 typeSpec relationlOp
+%type <string>                                 typeSpec relationlOp opAssign
 
 
 %%
@@ -339,9 +339,9 @@ ID arrayIndex '=' addExpression
     $$= CCompilerNs.LexYaccCallback.AssignmentStatement($1, $4, $2);
 }
 |
-ID PLUS_ASSIGN addExpression
+ID opAssign addExpression
 {
-    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $3, null, ""+"");
+    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $3, null, $2);
 }
 |
 ID arrayIndex PLUS_ASSIGN addExpression
@@ -349,29 +349,14 @@ ID arrayIndex PLUS_ASSIGN addExpression
     $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $4, $2, ""+"");
 }
 |
-ID MINUS_ASSIGN addExpression
-{
-    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $3, null, ""-"");
-}
-|
 ID arrayIndex MINUS_ASSIGN addExpression
 {
     $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $4, $2, ""-"");
 }
 |
-ID  MULTIPLY_ASSIGN addExpression 
-{
-    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $3, null, ""*"");
-}
-|
 ID arrayIndex MULTIPLY_ASSIGN addExpression
 {
     $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $4, $2, ""*"");
-}
-|
-ID  DIVIDE_ASSIGN addExpression
-{
-    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $3, null, ""/"");
 }
 |
 ID arrayIndex DIVIDE_ASSIGN addExpression
@@ -384,19 +369,41 @@ ID  INCREMENT
     $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, null, ""+"");
 }
 |
-ID arrayIndex INCREMENT
-{
-    $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, $2, ""+"");
-}
-|
 ID DECREMENT
 {
     $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, null, ""-"");
 }
 |
+ID arrayIndex INCREMENT
+{
+    $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, $2, ""+"");
+}
+|
 ID arrayIndex DECREMENT
 {
     $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, $2, ""-"");
+}
+;
+
+opAssign:
+PLUS_ASSIGN
+{
+    $$ = $1;
+}
+|
+MINUS_ASSIGN
+{
+    $$ = $1;
+}
+|
+MULTIPLY_ASSIGN
+{
+    $$ = $1;
+}
+|
+DIVIDE_ASSIGN
+{
+    $$ = $1;
 }
 ;
 
@@ -783,9 +790,10 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_assignmentNoSemicolon_Producton_8", Rule_assignmentNoSemicolon_Producton_8);
         actions.Add("Rule_assignmentNoSemicolon_Producton_9", Rule_assignmentNoSemicolon_Producton_9);
         actions.Add("Rule_assignmentNoSemicolon_Producton_10", Rule_assignmentNoSemicolon_Producton_10);
-        actions.Add("Rule_assignmentNoSemicolon_Producton_11", Rule_assignmentNoSemicolon_Producton_11);
-        actions.Add("Rule_assignmentNoSemicolon_Producton_12", Rule_assignmentNoSemicolon_Producton_12);
-        actions.Add("Rule_assignmentNoSemicolon_Producton_13", Rule_assignmentNoSemicolon_Producton_13);
+        actions.Add("Rule_opAssign_Producton_0", Rule_opAssign_Producton_0);
+        actions.Add("Rule_opAssign_Producton_1", Rule_opAssign_Producton_1);
+        actions.Add("Rule_opAssign_Producton_2", Rule_opAssign_Producton_2);
+        actions.Add("Rule_opAssign_Producton_3", Rule_opAssign_Producton_3);
         actions.Add("Rule_addExpression_Producton_0", Rule_addExpression_Producton_0);
         actions.Add("Rule_addExpression_LeftRecursionExpand_Producton_0", Rule_addExpression_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_addExpression_LeftRecursionExpand_Producton_1", Rule_addExpression_LeftRecursionExpand_Producton_1);
@@ -1448,7 +1456,7 @@ GREATER_OR_EQUAL_SIGN
         CCompilerNs.Expression _3 = (CCompilerNs.Expression)objects[3];
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.OpAssignmentStatement(_1, _3, null, "+");
+        _0= CCompilerNs.LexYaccCallback.OpAssignmentStatement(_1, _3, null, _2);
 
         return _0;
     }
@@ -1469,11 +1477,12 @@ GREATER_OR_EQUAL_SIGN
     public static object Rule_assignmentNoSemicolon_Producton_4(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        CCompilerNs.Expression _3 = (CCompilerNs.Expression)objects[3];
+        List<CCompilerNs.Expression> _2 = (List<CCompilerNs.Expression>)objects[2];
+        string _3 = (string)objects[3];
+        CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.OpAssignmentStatement(_1, _3, null, "-");
+        _0= CCompilerNs.LexYaccCallback.OpAssignmentStatement(_1, _4, _2, "-");
 
         return _0;
     }
@@ -1486,49 +1495,12 @@ GREATER_OR_EQUAL_SIGN
         CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.OpAssignmentStatement(_1, _4, _2, "-");
-
-        return _0;
-    }
-
-    public static object Rule_assignmentNoSemicolon_Producton_6(Dictionary<int, object> objects) { 
-        CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        CCompilerNs.Expression _3 = (CCompilerNs.Expression)objects[3];
-
-        // user-defined action
-        _0= CCompilerNs.LexYaccCallback.OpAssignmentStatement(_1, _3, null, "*");
-
-        return _0;
-    }
-
-    public static object Rule_assignmentNoSemicolon_Producton_7(Dictionary<int, object> objects) { 
-        CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
-        string _1 = (string)objects[1];
-        List<CCompilerNs.Expression> _2 = (List<CCompilerNs.Expression>)objects[2];
-        string _3 = (string)objects[3];
-        CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
-
-        // user-defined action
         _0= CCompilerNs.LexYaccCallback.OpAssignmentStatement(_1, _4, _2, "*");
 
         return _0;
     }
 
-    public static object Rule_assignmentNoSemicolon_Producton_8(Dictionary<int, object> objects) { 
-        CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        CCompilerNs.Expression _3 = (CCompilerNs.Expression)objects[3];
-
-        // user-defined action
-        _0= CCompilerNs.LexYaccCallback.OpAssignmentStatement(_1, _3, null, "/");
-
-        return _0;
-    }
-
-    public static object Rule_assignmentNoSemicolon_Producton_9(Dictionary<int, object> objects) { 
+    public static object Rule_assignmentNoSemicolon_Producton_6(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
         List<CCompilerNs.Expression> _2 = (List<CCompilerNs.Expression>)objects[2];
@@ -1541,7 +1513,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_assignmentNoSemicolon_Producton_10(Dictionary<int, object> objects) { 
+    public static object Rule_assignmentNoSemicolon_Producton_7(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
@@ -1552,7 +1524,18 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_assignmentNoSemicolon_Producton_11(Dictionary<int, object> objects) { 
+    public static object Rule_assignmentNoSemicolon_Producton_8(Dictionary<int, object> objects) { 
+        CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+
+        // user-defined action
+        _0= CCompilerNs.LexYaccCallback.IncrementDecrement(_1, null, "-");
+
+        return _0;
+    }
+
+    public static object Rule_assignmentNoSemicolon_Producton_9(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
         List<CCompilerNs.Expression> _2 = (List<CCompilerNs.Expression>)objects[2];
@@ -1564,18 +1547,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_assignmentNoSemicolon_Producton_12(Dictionary<int, object> objects) { 
-        CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-
-        // user-defined action
-        _0= CCompilerNs.LexYaccCallback.IncrementDecrement(_1, null, "-");
-
-        return _0;
-    }
-
-    public static object Rule_assignmentNoSemicolon_Producton_13(Dictionary<int, object> objects) { 
+    public static object Rule_assignmentNoSemicolon_Producton_10(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
         List<CCompilerNs.Expression> _2 = (List<CCompilerNs.Expression>)objects[2];
@@ -1583,6 +1555,46 @@ GREATER_OR_EQUAL_SIGN
 
         // user-defined action
         _0= CCompilerNs.LexYaccCallback.IncrementDecrement(_1, _2, "-");
+
+        return _0;
+    }
+
+    public static object Rule_opAssign_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_opAssign_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_opAssign_Producton_2(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_opAssign_Producton_3(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
 
         return _0;
     }
@@ -2337,48 +2349,48 @@ namespace ccNs
 %}
 
 %% 
-""int""                     { value = ""int""; return INT_TYPE; }
-""void""                    { value = ""void""; return VOID_TYPE; }
-""char""                    { value = ""char""; return CHAR_TYPE; }
-""return""                  { value = ""return""; return RETURN; }
-""if""                      { value = ""if""; return IF; }
-""else""                    { value = ""else""; return ELSE; }
-""for""                     { value = ""for""; return FOR; }
-""break""                   { value = ""break""; return BREAK; }
-""continue""                { value = ""continue""; return CONTINUE; }
-""struct""                  { value = ""struct""; return STRUCT; }
-""==""                      { value = ""==""; return EQUAL_SIGN; }
-""!=""                      { value = ""!=""; return NOT_EQUAL_SIGN; }
-""<=""                      { value = ""<=""; return LESS_OR_EQUAL_SIGN; }
-"">=""                      { value = "">=""; return GREATER_OR_EQUAL_SIGN; }
-""++""                      { value = ""++""; return INCREMENT; }
-""--""                      { value = ""--""; return DECREMENT; }
-""+=""                      { value = ""+=""; return PLUS_ASSIGN; }
-""-=""                      { value = ""-=""; return MINUS_ASSIGN; }
-""*=""                      { value = ""+=""; return MULTIPLY_ASSIGN; }
-""/=""                      { value = ""+=""; return DIVIDE_ASSIGN; }
+""int""                     { value = yytext; return INT_TYPE; }
+""void""                    { value = yytext; return VOID_TYPE; }
+""char""                    { value = yytext; return CHAR_TYPE; }
+""return""                  { value = yytext; return RETURN; }
+""if""                      { value = yytext; return IF; }
+""else""                    { value = yytext; return ELSE; }
+""for""                     { value = yytext; return FOR; }
+""break""                   { value = yytext; return BREAK; }
+""continue""                { value = yytext; return CONTINUE; }
+""struct""                  { value = yytext; return STRUCT; }
+""==""                      { value = yytext; return EQUAL_SIGN; }
+""!=""                      { value = yytext; return NOT_EQUAL_SIGN; }
+""<=""                      { value = yytext; return LESS_OR_EQUAL_SIGN; }
+"">=""                      { value = yytext; return GREATER_OR_EQUAL_SIGN; }
+""++""                      { value = yytext; return INCREMENT; }
+""--""                      { value = yytext; return DECREMENT; }
+""+=""                      { value = yytext; return PLUS_ASSIGN; }
+""-=""                      { value = yytext; return MINUS_ASSIGN; }
+""*=""                      { value = yytext; return MULTIPLY_ASSIGN; }
+""/=""                      { value = yytext; return DIVIDE_ASSIGN; }
 [0-9]+                    { value = int.Parse(yytext); return INT_VALUE; }
 '[ -~]'                   { value = yytext[1]; return CHAR_VALUE; }
 [_a-zA-Z][a-zA-Z0-9]*     { value = yytext; return ID; }
 \/\/[^\n]*                { value = """";  return SINGLE_LINE_COMMENT; }  
 [ \t\n\r]+                {}
 
-""{""                       { return '{'; }
-""}""                       { return '}'; }
-""[""                       { return '['; }
-""]""                       { return ']'; }
-""<""                       { return '<'; }
-"">""                       { return '>'; }
-""(""                       { return '('; }
-"")""                       { return ')'; }
-"";""                       { return ';'; }
-""+""                       { return '+'; }
-""-""                       { return '-'; }
-""*""                       { return '*'; }
-""/""                       { return '/'; }
-""=""                       { return '='; }
-""%""                       { return '%'; }
-"",""                       { return ','; }
+""{""                       { return yytext[0]; }
+""}""                       { return yytext[0]; }
+""[""                       { return yytext[0]; }
+""]""                       { return yytext[0]; }
+""<""                       { return yytext[0]; }
+"">""                       { return yytext[0]; }
+""(""                       { return yytext[0]; }
+"")""                       { return yytext[0]; }
+"";""                       { return yytext[0]; }
+""+""                       { return yytext[0]; }
+""-""                       { return yytext[0]; }
+""*""                       { return yytext[0]; }
+""/""                       { return yytext[0]; }
+""=""                       { return yytext[0]; }
+""%""                       { return yytext[0]; }
+"",""                       { return yytext[0]; }
 %%";
 
 
@@ -2433,7 +2445,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "int"; return INT_TYPE; 
+            value = yytext; return INT_TYPE; 
 
             return 0;
         }
@@ -2442,7 +2454,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "void"; return VOID_TYPE; 
+            value = yytext; return VOID_TYPE; 
 
             return 0;
         }
@@ -2451,7 +2463,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "char"; return CHAR_TYPE; 
+            value = yytext; return CHAR_TYPE; 
 
             return 0;
         }
@@ -2460,7 +2472,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "return"; return RETURN; 
+            value = yytext; return RETURN; 
 
             return 0;
         }
@@ -2469,7 +2481,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "if"; return IF; 
+            value = yytext; return IF; 
 
             return 0;
         }
@@ -2478,7 +2490,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "else"; return ELSE; 
+            value = yytext; return ELSE; 
 
             return 0;
         }
@@ -2487,7 +2499,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "for"; return FOR; 
+            value = yytext; return FOR; 
 
             return 0;
         }
@@ -2496,7 +2508,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "break"; return BREAK; 
+            value = yytext; return BREAK; 
 
             return 0;
         }
@@ -2505,7 +2517,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "continue"; return CONTINUE; 
+            value = yytext; return CONTINUE; 
 
             return 0;
         }
@@ -2514,7 +2526,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "struct"; return STRUCT; 
+            value = yytext; return STRUCT; 
 
             return 0;
         }
@@ -2523,7 +2535,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "=="; return EQUAL_SIGN; 
+            value = yytext; return EQUAL_SIGN; 
 
             return 0;
         }
@@ -2532,7 +2544,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "!="; return NOT_EQUAL_SIGN; 
+            value = yytext; return NOT_EQUAL_SIGN; 
 
             return 0;
         }
@@ -2541,7 +2553,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "<="; return LESS_OR_EQUAL_SIGN; 
+            value = yytext; return LESS_OR_EQUAL_SIGN; 
 
             return 0;
         }
@@ -2550,7 +2562,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = ">="; return GREATER_OR_EQUAL_SIGN; 
+            value = yytext; return GREATER_OR_EQUAL_SIGN; 
 
             return 0;
         }
@@ -2559,7 +2571,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "++"; return INCREMENT; 
+            value = yytext; return INCREMENT; 
 
             return 0;
         }
@@ -2568,7 +2580,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "--"; return DECREMENT; 
+            value = yytext; return DECREMENT; 
 
             return 0;
         }
@@ -2577,7 +2589,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "+="; return PLUS_ASSIGN; 
+            value = yytext; return PLUS_ASSIGN; 
 
             return 0;
         }
@@ -2586,7 +2598,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "-="; return MINUS_ASSIGN; 
+            value = yytext; return MINUS_ASSIGN; 
 
             return 0;
         }
@@ -2595,7 +2607,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "+="; return MULTIPLY_ASSIGN; 
+            value = yytext; return MULTIPLY_ASSIGN; 
 
             return 0;
         }
@@ -2604,7 +2616,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "+="; return DIVIDE_ASSIGN; 
+            value = yytext; return DIVIDE_ASSIGN; 
 
             return 0;
         }
@@ -2655,7 +2667,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '{'; 
+            return yytext[0]; 
 
             return 0;
         }
@@ -2664,7 +2676,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '}'; 
+            return yytext[0]; 
 
             return 0;
         }
@@ -2673,7 +2685,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '['; 
+            return yytext[0]; 
 
             return 0;
         }
@@ -2682,7 +2694,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return ']'; 
+            return yytext[0]; 
 
             return 0;
         }
@@ -2691,7 +2703,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '<'; 
+            return yytext[0]; 
 
             return 0;
         }
@@ -2700,7 +2712,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '>'; 
+            return yytext[0]; 
 
             return 0;
         }
@@ -2709,7 +2721,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '('; 
+            return yytext[0]; 
 
             return 0;
         }
@@ -2718,7 +2730,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return ')'; 
+            return yytext[0]; 
 
             return 0;
         }
@@ -2727,7 +2739,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return ';'; 
+            return yytext[0]; 
 
             return 0;
         }
@@ -2736,7 +2748,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '+'; 
+            return yytext[0]; 
 
             return 0;
         }
@@ -2745,7 +2757,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '-'; 
+            return yytext[0]; 
 
             return 0;
         }
@@ -2754,7 +2766,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '*'; 
+            return yytext[0]; 
 
             return 0;
         }
@@ -2763,7 +2775,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '/'; 
+            return yytext[0]; 
 
             return 0;
         }
@@ -2772,7 +2784,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '='; 
+            return yytext[0]; 
 
             return 0;
         }
@@ -2781,7 +2793,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '%'; 
+            return yytext[0]; 
 
             return 0;
         }
@@ -2790,7 +2802,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return ','; 
+            return yytext[0]; 
 
             return 0;
         }

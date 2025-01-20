@@ -2,46 +2,46 @@
 %}
 
 %% 
-"int"                     { value = "int"; return INT_TYPE; }
-"void"                    { value = "void"; return VOID_TYPE; }
-"char"                    { value = "char"; return CHAR_TYPE; }
-"return"                  { value = "return"; return RETURN; }
-"if"                      { value = "if"; return IF; }
-"else"                    { value = "else"; return ELSE; }
-"for"                     { value = "for"; return FOR; }
-"break"                   { value = "break"; return BREAK; }
-"continue"                { value = "continue"; return CONTINUE; }
-"struct"                  { value = "struct"; return STRUCT; }
-"=="                      { value = "=="; return EQUAL_SIGN; }
-"!="                      { value = "!="; return NOT_EQUAL_SIGN; }
-"<="                      { value = "<="; return LESS_OR_EQUAL_SIGN; }
-">="                      { value = ">="; return GREATER_OR_EQUAL_SIGN; }
-"++"                      { value = "++"; return INCREMENT; }
-"--"                      { value = "--"; return DECREMENT; }
-"+="                      { value = "+="; return PLUS_ASSIGN; }
-"-="                      { value = "-="; return MINUS_ASSIGN; }
-"*="                      { value = "+="; return MULTIPLY_ASSIGN; }
-"/="                      { value = "+="; return DIVIDE_ASSIGN; }
+"int"                     { value = yytext; return INT_TYPE; }
+"void"                    { value = yytext; return VOID_TYPE; }
+"char"                    { value = yytext; return CHAR_TYPE; }
+"return"                  { value = yytext; return RETURN; }
+"if"                      { value = yytext; return IF; }
+"else"                    { value = yytext; return ELSE; }
+"for"                     { value = yytext; return FOR; }
+"break"                   { value = yytext; return BREAK; }
+"continue"                { value = yytext; return CONTINUE; }
+"struct"                  { value = yytext; return STRUCT; }
+"=="                      { value = yytext; return EQUAL_SIGN; }
+"!="                      { value = yytext; return NOT_EQUAL_SIGN; }
+"<="                      { value = yytext; return LESS_OR_EQUAL_SIGN; }
+">="                      { value = yytext; return GREATER_OR_EQUAL_SIGN; }
+"++"                      { value = yytext; return INCREMENT; }
+"--"                      { value = yytext; return DECREMENT; }
+"+="                      { value = yytext; return PLUS_ASSIGN; }
+"-="                      { value = yytext; return MINUS_ASSIGN; }
+"*="                      { value = yytext; return MULTIPLY_ASSIGN; }
+"/="                      { value = yytext; return DIVIDE_ASSIGN; }
 [0-9]+                    { value = int.Parse(yytext); return INT_VALUE; }
 '[ -~]'                   { value = yytext[1]; return CHAR_VALUE; }
 [_a-zA-Z][a-zA-Z0-9]*     { value = yytext; return ID; }
 \/\/[^\n]*                { value = "";  return SINGLE_LINE_COMMENT; }  
 [ \t\n\r]+                {}
 
-"{"                       { return '{'; }
-"}"                       { return '}'; }
-"["                       { return '['; }
-"]"                       { return ']'; }
-"<"                       { return '<'; }
-">"                       { return '>'; }
-"("                       { return '('; }
-")"                       { return ')'; }
-";"                       { return ';'; }
-"+"                       { return '+'; }
-"-"                       { return '-'; }
-"*"                       { return '*'; }
-"/"                       { return '/'; }
-"="                       { return '='; }
-"%"                       { return '%'; }
-","                       { return ','; }
+"{"                       { return yytext[0]; }
+"}"                       { return yytext[0]; }
+"["                       { return yytext[0]; }
+"]"                       { return yytext[0]; }
+"<"                       { return yytext[0]; }
+">"                       { return yytext[0]; }
+"("                       { return yytext[0]; }
+")"                       { return yytext[0]; }
+";"                       { return yytext[0]; }
+"+"                       { return yytext[0]; }
+"-"                       { return yytext[0]; }
+"*"                       { return yytext[0]; }
+"/"                       { return yytext[0]; }
+"="                       { return yytext[0]; }
+"%"                       { return yytext[0]; }
+","                       { return yytext[0]; }
 %%

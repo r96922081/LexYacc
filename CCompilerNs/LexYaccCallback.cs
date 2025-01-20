@@ -123,6 +123,9 @@
 
             Expression lhs = null;
 
+            // +=, -=, *=, /=
+            op = op.Substring(0, 1);
+
             if (arrayIndex == null)
                 lhs = Expression(id);
             else
