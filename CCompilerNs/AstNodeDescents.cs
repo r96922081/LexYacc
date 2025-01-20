@@ -37,9 +37,9 @@
                     uninitedGv.Add(t.gv);
                     Variable v = new Variable();
                     v.name = t.gv.name;
-                    v.type = t.gv.type;
+                    v.typeInfo = t.gv.typeInfo;
                     v.scope = VariableScopeEnum.global;
-                    v.arraySize.AddRange(t.gv.arraySize);
+                    v.typeInfo.arraySize.AddRange(t.gv.typeInfo.arraySize);
                     Context.gv.Add(v.name, v);
                 }
                 else
@@ -47,9 +47,9 @@
                     initedGv.Add(t.gv);
                     Variable v = new Variable();
                     v.name = t.gv.name;
-                    v.type = t.gv.type;
+                    v.typeInfo = t.gv.typeInfo;
                     v.scope = VariableScopeEnum.global;
-                    v.arraySize.AddRange(t.gv.arraySize);
+                    v.typeInfo.arraySize.AddRange(t.gv.typeInfo.arraySize);
                     Context.gv.Add(v.name, v);
                 }
             }
@@ -63,13 +63,13 @@
                 foreach (StructField f in s.fields)
                 {
                     f.offset = offset;
-                    if (f.type.type == VariableTypeEnum.struct_type)
+                    if (f.typeInfo.typeEnum == VariableTypeEnum.struct_type)
                     {
-                        StructDef subStruct = Context.structDefs[f.type.typeName];
-                        f.type.size = subStruct.size;
+                        StructDef subStruct = Context.structDefs[f.typeInfo.typeName];
+                        f.typeInfo.size = subStruct.size;
                     }
 
-                    offset += f.type.size;
+                    offset += f.typeInfo.size;
 
                     // align 8 bytes
                     offset = (offset + 7) / 8 * 8;
@@ -169,10 +169,9 @@
 
     public class GlobalVariable : AstNode
     {
-        public VariableType type;
+        public VariableTypeInfo typeInfo;
         public string name;
         public int? int_value;
-        public List<int> arraySize = new List<int>();
 
         public GlobalVariable() : base("GlobalVariable")
         {
@@ -183,14 +182,14 @@
         {
             if (int_value == null)
             {
-                if (arraySize.Count == 0)
+                if (typeInfo.arraySize.Count == 0)
                     Emit(string.Format(".lcomm {0}, 8", name));
                 else
                 {
                     int count = 1;
-                    foreach (int arraySize in arraySize)
+                    foreach (int arraySize in typeInfo.arraySize)
                         count *= arraySize;
-                    Emit(string.Format(".lcomm {0}, {1}", name, count * type.size));
+                    Emit(string.Format(".lcomm {0}, {1}", name, count * typeInfo.size));
                 }
             }
             else
@@ -201,7 +200,7 @@
 
     public class FunDecl : AstNode
     {
-        public VariableType returnType;
+        public VariableTypeInfo returnTypeInfo;
         public string functionName;
 
         public List<Variable> paramsInOrder = new List<Variable>();
@@ -228,8 +227,8 @@
         {
             Variable l = new Variable();
             l.name = a.name;
-            l.type = a.type;
-            l.arraySize = a.arraySize;
+            l.typeInfo = a.typeInfo;
+            l.typeInfo.arraySize = a.typeInfo.arraySize;
             localMap.Add(l.name, l);
             localDeclareMap.Add(l.name, a);
             localsInOrder.Add(l);
@@ -257,16 +256,16 @@
             {
                 int count = 1;
 
-                if (l.arraySize.Count == 0)
+                if (l.typeInfo.arraySize.Count == 0)
                 {
                     localSize += 8 * count;
                 }
                 else
                 {
-                    foreach (int arraySize in l.arraySize)
+                    foreach (int arraySize in l.typeInfo.arraySize)
                         count *= arraySize;
 
-                    int size = count * l.type.size;
+                    int size = count * l.typeInfo.size;
                     size = (size + 7) / 8 * 8;
                     localSize += size;
                 }
@@ -500,7 +499,7 @@ ret";
 
                 Emit("pop %rax"); // value to %rax                
 
-                if (v.type.size == 1)
+                if (v.typeInfo.size == 1)
                     Emit("mov %al, (%rbx)");
                 else
                     Emit("mov %rax, (%rbx)");
@@ -512,11 +511,10 @@ ret";
 
     public class DeclareStatement : Statement
     {
-        public VariableType type;
+        public VariableTypeInfo typeInfo;
         public string name;
         public Expression value;
         public int stackOffset;
-        public List<int> arraySize = new List<int>();
 
         public DeclareStatement() : base("DeclareStatement")
         {
@@ -629,7 +627,7 @@ ret";
                 }
 
                 // If ID is array, then push address of array
-                if (variable.arraySize.Count != 0)
+                if (variable.typeInfo.arraySize.Count != 0)
                 {
                     if (local != null)
                     {
@@ -691,7 +689,7 @@ ret";
 
                 Emit(string.Format("movq $0, %rax"));
 
-                if (variable.type.size == 1)
+                if (variable.typeInfo.size == 1)
                     Emit(string.Format("movzbq (%rbx), %rax"));
                 else
                     Emit(string.Format("mov (%rbx), %rax"));
@@ -897,8 +895,7 @@ ret";
 
     public class StructField : AstNode
     {
-        public VariableType type;
-        public List<int> arraySize = new List<int>();
+        public VariableTypeInfo typeInfo;
         public string name;
         public int offset;
     };

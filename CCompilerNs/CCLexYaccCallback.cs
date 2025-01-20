@@ -44,7 +44,7 @@
         public static FunDecl FuncDecl(string returnType, string functionName, List<Variable> paramList, List<Statement> statements)
         {
             FunDecl f = new FunDecl();
-            f.returnType = Util.GetType(returnType);
+            f.returnTypeInfo = Util.GetType(returnType);
 
             f.functionName = functionName;
 
@@ -99,12 +99,12 @@
         public static GlobalVariable GlobalVariable(string type, string id, int? intValue, List<int> arraySize)
         {
             GlobalVariable g = new GlobalVariable();
-            g.type = Util.GetType(type);
+            g.typeInfo = Util.GetType(type);
             g.name = id;
             g.int_value = intValue;
 
             if (arraySize != null)
-                g.arraySize.AddRange(arraySize);
+                g.typeInfo.arraySize.AddRange(arraySize);
 
             return g;
         }
@@ -112,12 +112,12 @@
         public static GlobalVariable GlobalVariable(string type, string id, char charValue, List<int> arraySize)
         {
             GlobalVariable g = new GlobalVariable();
-            g.type = Util.GetType(type);
+            g.typeInfo = Util.GetType(type);
             g.name = id;
             g.int_value = charValue;
 
             if (arraySize != null)
-                g.arraySize.AddRange(arraySize);
+                g.typeInfo.arraySize.AddRange(arraySize);
 
             return g;
         }
@@ -125,12 +125,12 @@
         public static DeclareStatement DeclareStatement(string type, string id, Expression expression, List<int> arraySize)
         {
             DeclareStatement n = new DeclareStatement();
-            n.type = Util.GetType(type);
+            n.typeInfo = Util.GetType(type);
             n.name = id;
             n.value = expression;
 
             if (arraySize != null)
-                n.arraySize.AddRange(arraySize);
+                n.typeInfo.arraySize.AddRange(arraySize);
 
             if (expression != null)
                 n.childrenForPrint.Add(expression);
@@ -347,7 +347,7 @@
 
             Variable funParam = new Variable();
             funParam.name = name;
-            funParam.type = Util.GetType(type);
+            funParam.typeInfo = Util.GetType(type);
             funParam.scope = VariableScopeEnum.param;
             funcParams.Add(funParam);
 
@@ -362,8 +362,8 @@
 
             Variable funParam = new Variable();
             funParam.name = name;
-            funParam.arraySize.AddRange(arraySize);
-            funParam.type = Util.GetType(type);
+            funParam.typeInfo = Util.GetType(type);
+            funParam.typeInfo.arraySize.AddRange(arraySize);
             funParam.scope = VariableScopeEnum.param;
             funcParams.Add(funParam);
 
@@ -536,11 +536,11 @@
         public static StructField StructField(string type, string name, List<int> arraySize)
         {
             StructField f = new StructField();
-            f.type = Util.GetType(type);
+            f.typeInfo = Util.GetType(type);
             f.name = name;
 
             if (arraySize != null)
-                f.arraySize.AddRange(arraySize);
+                f.typeInfo.arraySize.AddRange(arraySize);
 
             return f;
         }

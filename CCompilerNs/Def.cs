@@ -13,15 +13,16 @@
         public static int sn = 0;
     }
 
-    public class VariableType
+    public class VariableTypeInfo
     {
         public string typeName;
-        public VariableTypeEnum type;
+        public VariableTypeEnum typeEnum;
         public int size;
+        public List<int> arraySize = new List<int>();
 
         public void GetStructSize()
         {
-            if (type == VariableTypeEnum.struct_type)
+            if (typeEnum == VariableTypeEnum.struct_type)
                 size = Context.structDefs[typeName].size;
 
             if (size == -1)
@@ -48,8 +49,7 @@
     {
         public string name;
         public VariableScopeEnum scope;
-        public VariableType type;
-        public List<int> arraySize = new List<int>();
+        public VariableTypeInfo typeInfo;
         public int stackOffset = -1;
     }
 

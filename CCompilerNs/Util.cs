@@ -2,36 +2,36 @@
 {
     public class Util
     {
-        public static VariableType GetType(string type)
+        public static VariableTypeInfo GetType(string type)
         {
             if (type == "int")
             {
-                VariableType t = new VariableType();
-                t.type = VariableTypeEnum.int_type;
+                VariableTypeInfo t = new VariableTypeInfo();
+                t.typeEnum = VariableTypeEnum.int_type;
                 t.typeName = type;
                 t.size = 8;
                 return t;
             }
             else if (type == "void")
             {
-                VariableType t = new VariableType();
-                t.type = VariableTypeEnum.void_type;
+                VariableTypeInfo t = new VariableTypeInfo();
+                t.typeEnum = VariableTypeEnum.void_type;
                 t.typeName = type;
                 t.size = 8;
                 return t;
             }
             else if (type == "char")
             {
-                VariableType t = new VariableType();
-                t.type = VariableTypeEnum.char_type;
+                VariableTypeInfo t = new VariableTypeInfo();
+                t.typeEnum = VariableTypeEnum.char_type;
                 t.typeName = type;
                 t.size = 1;
                 return t;
             }
             else if (type.StartsWith("struct "))
             {
-                VariableType t = new VariableType();
-                t.type = VariableTypeEnum.struct_type;
+                VariableTypeInfo t = new VariableTypeInfo();
+                t.typeEnum = VariableTypeEnum.struct_type;
                 t.typeName = type.Replace("struct ", "");
                 t.size = -1;
                 return t;
@@ -59,13 +59,13 @@
             {
                 int levelCount = 1;
                 for (int j = i + 1; j < arrayIndex.Count; j++)
-                    levelCount *= v.arraySize[j];
+                    levelCount *= v.typeInfo.arraySize[j];
 
                 arrayIndex[i].EmitAsm();
                 Emit("pop %rax");
                 Emit(string.Format("mov ${0}, %rbx", levelCount));
                 Emit("mul %rbx");
-                Emit(string.Format("mov ${0}, %rbx", v.type.size));
+                Emit(string.Format("mov ${0}, %rbx", v.typeInfo.size));
                 Emit("mul %rbx");
                 Emit("push %rax");
             }
