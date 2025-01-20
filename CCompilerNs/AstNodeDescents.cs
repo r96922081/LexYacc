@@ -85,6 +85,7 @@
 
             inited = true;
 
+            Gv.program = this;
             DistributeTopLevels();
             SetStructInfo();
             SetLocalStackOffset();
@@ -258,7 +259,16 @@
 
                 if (l.typeInfo.arraySize.Count == 0)
                 {
-                    localSize += 8 * count;
+                    if (l.typeInfo.typeEnum == VariableTypeEnum.struct_type)
+                    {
+                        l.typeInfo.UpdateStructSize();
+                        localSize += l.typeInfo.size;
+                    }
+                    else
+                    {
+                        // set non-array, no struct local variable size to 8 bytes, even for char type
+                        localSize += 8;
+                    }
                 }
                 else
                 {

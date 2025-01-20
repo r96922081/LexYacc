@@ -3,6 +3,7 @@
     public class Gv
     {
         public static int sn = 0;
+        public static Program program = null;
         public static Context context = new Context();
     }
 
@@ -21,7 +22,7 @@
         public int size;
         public List<int> arraySize = new List<int>();
 
-        public void GetStructSize()
+        public void UpdateStructSize()
         {
             if (typeEnum == VariableTypeEnum.struct_type)
                 size = Gv.context.structDefs[typeName].size;
