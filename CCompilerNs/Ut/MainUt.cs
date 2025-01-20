@@ -1400,7 +1400,11 @@ struct B {
 
 int main()
 {
+    char e;
     struct A x;
+    int c;
+    int d;
+
     return 0;
 }
 

@@ -1,16 +1,17 @@
 ﻿namespace CCompilerNs
 {
-    public class Context
-    {
-        public static Dictionary<string, Variable> gv = new Dictionary<string, Variable>();
-        public static Dictionary<string, StructDef> structDefs = new Dictionary<string, StructDef>();
-        public static FunDecl funDecl;
-        public static Stack<ForLoopStatement> forLoopStatementStack = new Stack<ForLoopStatement>();
-    }
-
     public class Gv
     {
         public static int sn = 0;
+        public static Context context = new Context();
+    }
+
+    public class Context
+    {
+        public Dictionary<string, Variable> gv = new Dictionary<string, Variable>();
+        public Dictionary<string, StructDef> structDefs = new Dictionary<string, StructDef>();
+        public FunDecl funDecl;
+        public Stack<ForLoopStatement> forLoopStatementStack = new Stack<ForLoopStatement>();
     }
 
     public class VariableTypeInfo
@@ -23,7 +24,7 @@
         public void GetStructSize()
         {
             if (typeEnum == VariableTypeEnum.struct_type)
-                size = Context.structDefs[typeName].size;
+                size = Gv.context.structDefs[typeName].size;
 
             if (size == -1)
                 throw new Exception("size not set");
@@ -52,5 +53,4 @@
         public VariableTypeInfo typeInfo;
         public int stackOffset = -1;
     }
-
 }

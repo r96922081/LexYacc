@@ -18,7 +18,7 @@
 
         private void DistributeTopLevels()
         {
-            Context.gv.Clear();
+            Gv.context.gv.Clear();
 
             foreach (TopLevel t in topLevels)
             {
@@ -28,7 +28,7 @@
                 if (t.structDef != null)
                 {
                     structDefs.Add(t.structDef);
-                    Context.structDefs.Add(t.structDef.name, t.structDef);
+                    Gv.context.structDefs.Add(t.structDef.name, t.structDef);
                 }
                 else if (t.funDecl != null)
                     funDecls.Add(t.funDecl);
@@ -40,7 +40,7 @@
                     v.typeInfo = t.gv.typeInfo;
                     v.scope = VariableScopeEnum.global;
                     v.typeInfo.arraySize.AddRange(t.gv.typeInfo.arraySize);
-                    Context.gv.Add(v.name, v);
+                    Gv.context.gv.Add(v.name, v);
                 }
                 else
                 {
@@ -50,7 +50,7 @@
                     v.typeInfo = t.gv.typeInfo;
                     v.scope = VariableScopeEnum.global;
                     v.typeInfo.arraySize.AddRange(t.gv.typeInfo.arraySize);
-                    Context.gv.Add(v.name, v);
+                    Gv.context.gv.Add(v.name, v);
                 }
             }
         }
@@ -65,7 +65,7 @@
                     f.offset = offset;
                     if (f.typeInfo.typeEnum == VariableTypeEnum.struct_type)
                     {
-                        StructDef subStruct = Context.structDefs[f.typeInfo.typeName];
+                        StructDef subStruct = Gv.context.structDefs[f.typeInfo.typeName];
                         f.typeInfo.size = subStruct.size;
                     }
 
@@ -277,7 +277,7 @@
 
         public override void EmitAsm()
         {
-            Context.funDecl = this;
+            Gv.context.funDecl = this;
 
             string asm = string.Format(@"#FunDecl =>
 .global {0}
@@ -297,7 +297,7 @@ ret
 #<= FunDecl");
             Emit(asm);
 
-            Context.funDecl = this;
+            Gv.context.funDecl = this;
         }
     }
 
@@ -465,19 +465,19 @@ ret";
 
             Variable v = null;
 
-            if (Context.funDecl.localMap.ContainsKey(name))
+            if (Gv.context.funDecl.localMap.ContainsKey(name))
             {
-                l = Context.funDecl.localMap[name];
+                l = Gv.context.funDecl.localMap[name];
                 v = l;
             }
-            else if (Context.funDecl.paramMap.ContainsKey(name))
+            else if (Gv.context.funDecl.paramMap.ContainsKey(name))
             {
-                p = Context.funDecl.paramMap[name];
+                p = Gv.context.funDecl.paramMap[name];
                 v = p;
             }
-            else if (Context.gv.ContainsKey(name))
+            else if (Gv.context.gv.ContainsKey(name))
             {
-                gv = Context.gv[name];
+                gv = Gv.context.gv[name];
                 v = gv;
             }
 
@@ -610,19 +610,19 @@ ret";
                 Variable variable = null;
 
 
-                if (Context.funDecl.localMap.ContainsKey(variableName))
+                if (Gv.context.funDecl.localMap.ContainsKey(variableName))
                 {
-                    local = Context.funDecl.localMap[variableName];
+                    local = Gv.context.funDecl.localMap[variableName];
                     variable = local;
                 }
-                else if (Context.funDecl.paramMap.ContainsKey(variableName))
+                else if (Gv.context.funDecl.paramMap.ContainsKey(variableName))
                 {
-                    param = Context.funDecl.paramMap[variableName];
+                    param = Gv.context.funDecl.paramMap[variableName];
                     variable = param;
                 }
-                else if (Context.gv.ContainsKey(variableName))
+                else if (Gv.context.gv.ContainsKey(variableName))
                 {
-                    gv = Context.gv[variableName];
+                    gv = Gv.context.gv[variableName];
                     variable = gv;
                 }
 
@@ -669,19 +669,19 @@ ret";
 
                 Variable variable = null;
 
-                if (Context.funDecl.localMap.ContainsKey(variableName))
+                if (Gv.context.funDecl.localMap.ContainsKey(variableName))
                 {
-                    local = Context.funDecl.localMap[variableName];
+                    local = Gv.context.funDecl.localMap[variableName];
                     variable = local;
                 }
-                else if (Context.funDecl.paramMap.ContainsKey(variableName))
+                else if (Gv.context.funDecl.paramMap.ContainsKey(variableName))
                 {
-                    param = Context.funDecl.paramMap[variableName];
+                    param = Gv.context.funDecl.paramMap[variableName];
                     variable = param;
                 }
-                else if (Context.gv.ContainsKey(variableName))
+                else if (Gv.context.gv.ContainsKey(variableName))
                 {
-                    globalVariable = Context.gv[variableName];
+                    globalVariable = Gv.context.gv[variableName];
                     variable = globalVariable;
                 }
 
@@ -834,10 +834,10 @@ ret";
             else if (conditionOp == ">=")
                 Emit("jl " + loopEndLabel);
 
-            Context.forLoopStatementStack.Push(this);
+            Gv.context.forLoopStatementStack.Push(this);
             foreach (Statement s in statements)
                 s.EmitAsm();
-            Context.forLoopStatementStack.Pop();
+            Gv.context.forLoopStatementStack.Pop();
 
             Emit(updaterLabel + ":");
             updater.EmitAsm();
@@ -857,7 +857,7 @@ ret";
 
         public override void EmitAsm()
         {
-            Emit("jmp " + Context.forLoopStatementStack.Peek().loopEndLabel);
+            Emit("jmp " + Gv.context.forLoopStatementStack.Peek().loopEndLabel);
         }
     }
 
@@ -870,7 +870,7 @@ ret";
 
         public override void EmitAsm()
         {
-            Emit("jmp " + Context.forLoopStatementStack.Peek().updaterLabel);
+            Emit("jmp " + Gv.context.forLoopStatementStack.Peek().updaterLabel);
         }
     }
 
