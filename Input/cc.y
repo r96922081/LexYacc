@@ -31,7 +31,7 @@
 %type <CCompilerNs.StructDef>                  structDef
 %type <List<CCompilerNs.StructField>>          structFields
 %type <CCompilerNs.StructField>                structField
-%type <string>                                 typeSpec relationlOp opAssign
+%type <string>                                 typeSpec relationlOp opAssign incrementDecrement
 
 
 %%
@@ -326,44 +326,19 @@ ID opAssign addExpression
     $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $3, null, $2);
 }
 |
-ID arrayIndex PLUS_ASSIGN addExpression
+ID arrayIndex opAssign addExpression
 {
-    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $4, $2, "+");
+    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $4, $2, $3);
 }
 |
-ID arrayIndex MINUS_ASSIGN addExpression
+ID incrementDecrement
 {
-    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $4, $2, "-");
+    $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, null, $2);
 }
 |
-ID arrayIndex MULTIPLY_ASSIGN addExpression
+ID arrayIndex incrementDecrement
 {
-    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $4, $2, "*");
-}
-|
-ID arrayIndex DIVIDE_ASSIGN addExpression
-{
-    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $4, $2, "/");
-}
-|
-ID  INCREMENT
-{
-    $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, null, "+");
-}
-|
-ID DECREMENT
-{
-    $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, null, "-");
-}
-|
-ID arrayIndex INCREMENT
-{
-    $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, $2, "+");
-}
-|
-ID arrayIndex DECREMENT
-{
-    $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, $2, "-");
+    $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, $2, $3);
 }
 ;
 
@@ -384,6 +359,18 @@ MULTIPLY_ASSIGN
 }
 |
 DIVIDE_ASSIGN
+{
+    $$ = $1;
+}
+;
+
+incrementDecrement:
+INCREMENT
+{
+    $$ = $1;
+}
+|
+DECREMENT
 {
     $$ = $1;
 }

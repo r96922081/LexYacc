@@ -49,7 +49,7 @@ public class YaccActions{
 %type <CCompilerNs.StructDef>                  structDef
 %type <List<CCompilerNs.StructField>>          structFields
 %type <CCompilerNs.StructField>                structField
-%type <string>                                 typeSpec relationlOp opAssign
+%type <string>                                 typeSpec relationlOp opAssign incrementDecrement
 
 
 %%
@@ -344,44 +344,19 @@ ID opAssign addExpression
     $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $3, null, $2);
 }
 |
-ID arrayIndex PLUS_ASSIGN addExpression
+ID arrayIndex opAssign addExpression
 {
-    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $4, $2, ""+"");
+    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $4, $2, $3);
 }
 |
-ID arrayIndex MINUS_ASSIGN addExpression
+ID incrementDecrement
 {
-    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $4, $2, ""-"");
+    $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, null, $2);
 }
 |
-ID arrayIndex MULTIPLY_ASSIGN addExpression
+ID arrayIndex incrementDecrement
 {
-    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $4, $2, ""*"");
-}
-|
-ID arrayIndex DIVIDE_ASSIGN addExpression
-{
-    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $4, $2, ""/"");
-}
-|
-ID  INCREMENT
-{
-    $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, null, ""+"");
-}
-|
-ID DECREMENT
-{
-    $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, null, ""-"");
-}
-|
-ID arrayIndex INCREMENT
-{
-    $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, $2, ""+"");
-}
-|
-ID arrayIndex DECREMENT
-{
-    $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, $2, ""-"");
+    $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, $2, $3);
 }
 ;
 
@@ -402,6 +377,18 @@ MULTIPLY_ASSIGN
 }
 |
 DIVIDE_ASSIGN
+{
+    $$ = $1;
+}
+;
+
+incrementDecrement:
+INCREMENT
+{
+    $$ = $1;
+}
+|
+DECREMENT
 {
     $$ = $1;
 }
@@ -785,15 +772,12 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_assignmentNoSemicolon_Producton_3", Rule_assignmentNoSemicolon_Producton_3);
         actions.Add("Rule_assignmentNoSemicolon_Producton_4", Rule_assignmentNoSemicolon_Producton_4);
         actions.Add("Rule_assignmentNoSemicolon_Producton_5", Rule_assignmentNoSemicolon_Producton_5);
-        actions.Add("Rule_assignmentNoSemicolon_Producton_6", Rule_assignmentNoSemicolon_Producton_6);
-        actions.Add("Rule_assignmentNoSemicolon_Producton_7", Rule_assignmentNoSemicolon_Producton_7);
-        actions.Add("Rule_assignmentNoSemicolon_Producton_8", Rule_assignmentNoSemicolon_Producton_8);
-        actions.Add("Rule_assignmentNoSemicolon_Producton_9", Rule_assignmentNoSemicolon_Producton_9);
-        actions.Add("Rule_assignmentNoSemicolon_Producton_10", Rule_assignmentNoSemicolon_Producton_10);
         actions.Add("Rule_opAssign_Producton_0", Rule_opAssign_Producton_0);
         actions.Add("Rule_opAssign_Producton_1", Rule_opAssign_Producton_1);
         actions.Add("Rule_opAssign_Producton_2", Rule_opAssign_Producton_2);
         actions.Add("Rule_opAssign_Producton_3", Rule_opAssign_Producton_3);
+        actions.Add("Rule_incrementDecrement_Producton_0", Rule_incrementDecrement_Producton_0);
+        actions.Add("Rule_incrementDecrement_Producton_1", Rule_incrementDecrement_Producton_1);
         actions.Add("Rule_addExpression_Producton_0", Rule_addExpression_Producton_0);
         actions.Add("Rule_addExpression_LeftRecursionExpand_Producton_0", Rule_addExpression_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_addExpression_LeftRecursionExpand_Producton_1", Rule_addExpression_LeftRecursionExpand_Producton_1);
@@ -1469,7 +1453,7 @@ GREATER_OR_EQUAL_SIGN
         CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.OpAssignmentStatement(_1, _4, _2, "+");
+        _0= CCompilerNs.LexYaccCallback.OpAssignmentStatement(_1, _4, _2, _3);
 
         return _0;
     }
@@ -1477,12 +1461,10 @@ GREATER_OR_EQUAL_SIGN
     public static object Rule_assignmentNoSemicolon_Producton_4(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         string _1 = (string)objects[1];
-        List<CCompilerNs.Expression> _2 = (List<CCompilerNs.Expression>)objects[2];
-        string _3 = (string)objects[3];
-        CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
+        string _2 = (string)objects[2];
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.OpAssignmentStatement(_1, _4, _2, "-");
+        _0= CCompilerNs.LexYaccCallback.IncrementDecrement(_1, null, _2);
 
         return _0;
     }
@@ -1492,69 +1474,9 @@ GREATER_OR_EQUAL_SIGN
         string _1 = (string)objects[1];
         List<CCompilerNs.Expression> _2 = (List<CCompilerNs.Expression>)objects[2];
         string _3 = (string)objects[3];
-        CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.OpAssignmentStatement(_1, _4, _2, "*");
-
-        return _0;
-    }
-
-    public static object Rule_assignmentNoSemicolon_Producton_6(Dictionary<int, object> objects) { 
-        CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
-        string _1 = (string)objects[1];
-        List<CCompilerNs.Expression> _2 = (List<CCompilerNs.Expression>)objects[2];
-        string _3 = (string)objects[3];
-        CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
-
-        // user-defined action
-        _0= CCompilerNs.LexYaccCallback.OpAssignmentStatement(_1, _4, _2, "/");
-
-        return _0;
-    }
-
-    public static object Rule_assignmentNoSemicolon_Producton_7(Dictionary<int, object> objects) { 
-        CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-
-        // user-defined action
-        _0= CCompilerNs.LexYaccCallback.IncrementDecrement(_1, null, "+");
-
-        return _0;
-    }
-
-    public static object Rule_assignmentNoSemicolon_Producton_8(Dictionary<int, object> objects) { 
-        CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-
-        // user-defined action
-        _0= CCompilerNs.LexYaccCallback.IncrementDecrement(_1, null, "-");
-
-        return _0;
-    }
-
-    public static object Rule_assignmentNoSemicolon_Producton_9(Dictionary<int, object> objects) { 
-        CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
-        string _1 = (string)objects[1];
-        List<CCompilerNs.Expression> _2 = (List<CCompilerNs.Expression>)objects[2];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        _0= CCompilerNs.LexYaccCallback.IncrementDecrement(_1, _2, "+");
-
-        return _0;
-    }
-
-    public static object Rule_assignmentNoSemicolon_Producton_10(Dictionary<int, object> objects) { 
-        CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
-        string _1 = (string)objects[1];
-        List<CCompilerNs.Expression> _2 = (List<CCompilerNs.Expression>)objects[2];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        _0= CCompilerNs.LexYaccCallback.IncrementDecrement(_1, _2, "-");
+        _0= CCompilerNs.LexYaccCallback.IncrementDecrement(_1, _2, _3);
 
         return _0;
     }
@@ -1590,6 +1512,26 @@ GREATER_OR_EQUAL_SIGN
     }
 
     public static object Rule_opAssign_Producton_3(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_incrementDecrement_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_incrementDecrement_Producton_1(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 
