@@ -909,7 +909,7 @@ ret";
         public int size;
     };
 
-    public class StructField : AstNode
+    public class StructField : ProgramBase
     {
         public VariableTypeInfo typeInfo;
         public string name;
