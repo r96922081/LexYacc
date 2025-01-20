@@ -27,7 +27,7 @@ public class YaccActions{
 %type <CCompilerNs.GlobalDeclare>              globalDeclare
 %type <CCompilerNs.FunctionDeclare>            functionDeclare
 %type <List<CCompilerNs.Variable>>             functionParams
-%type <List<CCompilerNs.Statement>>            statements ifBodyStatements
+%type <List<CCompilerNs.Statement>>            statements ifBodyStatements functionBodyStatements
 %type <CCompilerNs.ForLoopStatement>           forLoopStatement
 %type <CCompilerNs.Statement>                  statement
 %type <CCompilerNs.ReturnStatement>            returnStatement 
@@ -49,7 +49,7 @@ public class YaccActions{
 %type <CCompilerNs.StructDef>                  structDef
 %type <List<CCompilerNs.StructField>>          structFields
 %type <CCompilerNs.StructField>                structField
-%type <string>                                 typeSpec relationlOp opAssign incrementDecrement
+%type <string>                                 typeSpec relationlOp opAssign incrementDecrement addMinusOp multiplyDivideOp
 
 
 %%
@@ -89,23 +89,26 @@ SINGLE_LINE_COMMENT
 ;
 
 functionDeclare:
-typeSpec ID '(' ')' '{' statements '}'
+typeSpec ID '(' ')' functionBodyStatements
 {  
-    $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, null, $6);
+    $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, null, $5);
 }
 |
-typeSpec ID '(' functionParams ')' '{' statements '}'
+typeSpec ID '(' functionParams ')' functionBodyStatements
 {  
-    $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, $4, $7);
+    $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, $4, $6);
 }
-typeSpec ID '(' ')' '{' '}'
-{  
-    $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, null, null);
+;
+
+functionBodyStatements:
+'{' statements '}'
+{
+    $$ = $2;
 }
 |
-typeSpec ID '(' functionParams ')' '{' '}'
-{  
-    $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, $4, null);
+'{' '}'
+{
+    $$ = new List<CCompilerNs.Statement>();
 }
 ;
 
@@ -384,13 +387,9 @@ DECREMENT
 ;
 
 addExpression: 
-addExpression '+' mulExpression
+addExpression addMinusOp mulExpression
 {
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, ""+"", $3);
-}
-| addExpression '-' mulExpression
-{
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, ""-"", $3);
+    $$ = CCompilerNs.LexYaccCallback.Expression($1, $2, $3);
 }
 |
 mulExpression
@@ -399,47 +398,39 @@ mulExpression
 }
 ;  
 
-mulExpression: 
-mulExpression '*' INT_VALUE
+addMinusOp:
+'+'
 {
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, ""*"", $3);
-}
-| mulExpression '/' INT_VALUE
-{
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, ""/"", $3);
-}
-| mulExpression '*' CHAR_VALUE
-{
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, ""*"", $3);
-}
-| mulExpression '/' CHAR_VALUE
-{
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, ""/"", $3);
-}
-| mulExpression '*' ID
-{
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, ""*"", $3);
-}
-| mulExpression '/' ID
-{
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, ""/"", $3);
-}
-| mulExpression '*' functionCallExpression
-{
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, ""*"", $3);
-}
-| mulExpression '/' functionCallExpression
-{
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, ""/"", $3);
+    $$ = ""+"";
 }
 |
-mulExpression '*' '(' addExpression ')' 
+'-'
 {
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, ""*"", $4);
+    $$ = ""-"";
 }
-| mulExpression '/' '(' addExpression ')' 
+;
+
+mulExpression: 
+mulExpression multiplyDivideOp INT_VALUE
 {
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, ""/"", $4);
+    $$ = CCompilerNs.LexYaccCallback.Expression($1, $2, $3);
+}
+| mulExpression multiplyDivideOp CHAR_VALUE
+{
+    $$ = CCompilerNs.LexYaccCallback.Expression($1, $2, $3);
+}
+| mulExpression multiplyDivideOp ID
+{
+    $$ = CCompilerNs.LexYaccCallback.Expression($1, $2, $3);
+}
+| mulExpression multiplyDivideOp functionCallExpression
+{
+    $$ = CCompilerNs.LexYaccCallback.Expression($1, $2, $3);
+}
+|
+mulExpression multiplyDivideOp '(' addExpression ')' 
+{
+    $$ = CCompilerNs.LexYaccCallback.Expression($1, $2, $4);
 }
 |
 '(' addExpression ')'
@@ -469,6 +460,18 @@ functionCallExpression
 CHAR_VALUE
 {
     $$ = CCompilerNs.LexYaccCallback.Expression($1);
+}
+;
+
+multiplyDivideOp:
+'*'
+{
+    $$ = ""*"";
+}
+|
+'/'
+{
+    $$ = ""/"";
 }
 ;
 
@@ -702,8 +705,8 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_globalDeclare_Producton_3", Rule_globalDeclare_Producton_3);
         actions.Add("Rule_functionDeclare_Producton_0", Rule_functionDeclare_Producton_0);
         actions.Add("Rule_functionDeclare_Producton_1", Rule_functionDeclare_Producton_1);
-        actions.Add("Rule_functionDeclare_Producton_2", Rule_functionDeclare_Producton_2);
-        actions.Add("Rule_functionDeclare_Producton_3", Rule_functionDeclare_Producton_3);
+        actions.Add("Rule_functionBodyStatements_Producton_0", Rule_functionBodyStatements_Producton_0);
+        actions.Add("Rule_functionBodyStatements_Producton_1", Rule_functionBodyStatements_Producton_1);
         actions.Add("Rule_typeSpec_Producton_0", Rule_typeSpec_Producton_0);
         actions.Add("Rule_typeSpec_Producton_1", Rule_typeSpec_Producton_1);
         actions.Add("Rule_typeSpec_Producton_2", Rule_typeSpec_Producton_2);
@@ -757,7 +760,8 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_addExpression_Producton_0", Rule_addExpression_Producton_0);
         actions.Add("Rule_addExpression_LeftRecursionExpand_Producton_0", Rule_addExpression_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_addExpression_LeftRecursionExpand_Producton_1", Rule_addExpression_LeftRecursionExpand_Producton_1);
-        actions.Add("Rule_addExpression_LeftRecursionExpand_Producton_2", Rule_addExpression_LeftRecursionExpand_Producton_2);
+        actions.Add("Rule_addMinusOp_Producton_0", Rule_addMinusOp_Producton_0);
+        actions.Add("Rule_addMinusOp_Producton_1", Rule_addMinusOp_Producton_1);
         actions.Add("Rule_mulExpression_Producton_0", Rule_mulExpression_Producton_0);
         actions.Add("Rule_mulExpression_Producton_1", Rule_mulExpression_Producton_1);
         actions.Add("Rule_mulExpression_Producton_2", Rule_mulExpression_Producton_2);
@@ -770,11 +774,8 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_3", Rule_mulExpression_LeftRecursionExpand_Producton_3);
         actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_4", Rule_mulExpression_LeftRecursionExpand_Producton_4);
         actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_5", Rule_mulExpression_LeftRecursionExpand_Producton_5);
-        actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_6", Rule_mulExpression_LeftRecursionExpand_Producton_6);
-        actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_7", Rule_mulExpression_LeftRecursionExpand_Producton_7);
-        actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_8", Rule_mulExpression_LeftRecursionExpand_Producton_8);
-        actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_9", Rule_mulExpression_LeftRecursionExpand_Producton_9);
-        actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_10", Rule_mulExpression_LeftRecursionExpand_Producton_10);
+        actions.Add("Rule_multiplyDivideOp_Producton_0", Rule_multiplyDivideOp_Producton_0);
+        actions.Add("Rule_multiplyDivideOp_Producton_1", Rule_multiplyDivideOp_Producton_1);
         actions.Add("Rule_functionParams_Producton_0", Rule_functionParams_Producton_0);
         actions.Add("Rule_functionParams_Producton_1", Rule_functionParams_Producton_1);
         actions.Add("Rule_functionParams_LeftRecursionExpand_Producton_0", Rule_functionParams_LeftRecursionExpand_Producton_0);
@@ -898,10 +899,10 @@ GREATER_OR_EQUAL_SIGN
         CCompilerNs.FunctionDeclare _0 = new CCompilerNs.FunctionDeclare();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
-        List<CCompilerNs.Statement> _6 = (List<CCompilerNs.Statement>)objects[6];
+        List<CCompilerNs.Statement> _5 = (List<CCompilerNs.Statement>)objects[5];
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.FuncDecl(_1, _2, null, _6);
+        _0= CCompilerNs.LexYaccCallback.FuncDecl(_1, _2, null, _5);
 
         return _0;
     }
@@ -911,33 +912,29 @@ GREATER_OR_EQUAL_SIGN
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
         List<CCompilerNs.Variable> _4 = (List<CCompilerNs.Variable>)objects[4];
-        List<CCompilerNs.Statement> _7 = (List<CCompilerNs.Statement>)objects[7];
+        List<CCompilerNs.Statement> _6 = (List<CCompilerNs.Statement>)objects[6];
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.FuncDecl(_1, _2, _4, _7);
+        _0= CCompilerNs.LexYaccCallback.FuncDecl(_1, _2, _4, _6);
 
         return _0;
     }
 
-    public static object Rule_functionDeclare_Producton_2(Dictionary<int, object> objects) { 
-        CCompilerNs.FunctionDeclare _0 = new CCompilerNs.FunctionDeclare();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
+    public static object Rule_functionBodyStatements_Producton_0(Dictionary<int, object> objects) { 
+        List<CCompilerNs.Statement> _0 = new List<CCompilerNs.Statement>();
+        List<CCompilerNs.Statement> _2 = (List<CCompilerNs.Statement>)objects[2];
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.FuncDecl(_1, _2, null, null);
+        _0 = _2;
 
         return _0;
     }
 
-    public static object Rule_functionDeclare_Producton_3(Dictionary<int, object> objects) { 
-        CCompilerNs.FunctionDeclare _0 = new CCompilerNs.FunctionDeclare();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        List<CCompilerNs.Variable> _4 = (List<CCompilerNs.Variable>)objects[4];
+    public static object Rule_functionBodyStatements_Producton_1(Dictionary<int, object> objects) { 
+        List<CCompilerNs.Statement> _0 = new List<CCompilerNs.Statement>();
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.FuncDecl(_1, _2, _4, null);
+        _0 = new List<CCompilerNs.Statement>();
 
         return _0;
     }
@@ -1481,27 +1478,35 @@ GREATER_OR_EQUAL_SIGN
     public static object Rule_addExpression_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
         CCompilerNs.Expression _0 = new CCompilerNs.Expression();
         CCompilerNs.Expression _1 =(CCompilerNs.Expression)objects[1];
+        string _2 = (string)objects[2];
         CCompilerNs.Expression _3 = (CCompilerNs.Expression)objects[3];
 
         // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.Expression(_1, "+", _3);
+        _0 = CCompilerNs.LexYaccCallback.Expression(_1, _2, _3);
 
         return _0;
     }
 
     public static object Rule_addExpression_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
         CCompilerNs.Expression _0 = new CCompilerNs.Expression();
-        CCompilerNs.Expression _1 =(CCompilerNs.Expression)objects[1];
-        CCompilerNs.Expression _3 = (CCompilerNs.Expression)objects[3];
-
-        // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.Expression(_1, "-", _3);
 
         return _0;
     }
 
-    public static object Rule_addExpression_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
-        CCompilerNs.Expression _0 = new CCompilerNs.Expression();
+    public static object Rule_addMinusOp_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+
+        // user-defined action
+        _0 = "+";
+
+        return _0;
+    }
+
+    public static object Rule_addMinusOp_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+
+        // user-defined action
+        _0 = "-";
 
         return _0;
     }
@@ -1570,10 +1575,11 @@ GREATER_OR_EQUAL_SIGN
     public static object Rule_mulExpression_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
         CCompilerNs.Expression _0 = new CCompilerNs.Expression();
         CCompilerNs.Expression _1 =(CCompilerNs.Expression)objects[1];
+        string _2 = (string)objects[2];
         int _3 = (int)objects[3];
 
         // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.Expression(_1, "*", _3);
+        _0 = CCompilerNs.LexYaccCallback.Expression(_1, _2, _3);
 
         return _0;
     }
@@ -1581,10 +1587,11 @@ GREATER_OR_EQUAL_SIGN
     public static object Rule_mulExpression_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
         CCompilerNs.Expression _0 = new CCompilerNs.Expression();
         CCompilerNs.Expression _1 =(CCompilerNs.Expression)objects[1];
-        int _3 = (int)objects[3];
+        string _2 = (string)objects[2];
+        char _3 = (char)objects[3];
 
         // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.Expression(_1, "/", _3);
+        _0 = CCompilerNs.LexYaccCallback.Expression(_1, _2, _3);
 
         return _0;
     }
@@ -1592,10 +1599,11 @@ GREATER_OR_EQUAL_SIGN
     public static object Rule_mulExpression_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
         CCompilerNs.Expression _0 = new CCompilerNs.Expression();
         CCompilerNs.Expression _1 =(CCompilerNs.Expression)objects[1];
-        char _3 = (char)objects[3];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
 
         // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.Expression(_1, "*", _3);
+        _0 = CCompilerNs.LexYaccCallback.Expression(_1, _2, _3);
 
         return _0;
     }
@@ -1603,10 +1611,11 @@ GREATER_OR_EQUAL_SIGN
     public static object Rule_mulExpression_LeftRecursionExpand_Producton_3(Dictionary<int, object> objects) { 
         CCompilerNs.Expression _0 = new CCompilerNs.Expression();
         CCompilerNs.Expression _1 =(CCompilerNs.Expression)objects[1];
-        char _3 = (char)objects[3];
+        string _2 = (string)objects[2];
+        CCompilerNs.FunctionCallExpression _3 = (CCompilerNs.FunctionCallExpression)objects[3];
 
         // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.Expression(_1, "/", _3);
+        _0 = CCompilerNs.LexYaccCallback.Expression(_1, _2, _3);
 
         return _0;
     }
@@ -1614,71 +1623,35 @@ GREATER_OR_EQUAL_SIGN
     public static object Rule_mulExpression_LeftRecursionExpand_Producton_4(Dictionary<int, object> objects) { 
         CCompilerNs.Expression _0 = new CCompilerNs.Expression();
         CCompilerNs.Expression _1 =(CCompilerNs.Expression)objects[1];
-        string _3 = (string)objects[3];
+        string _2 = (string)objects[2];
+        CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
 
         // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.Expression(_1, "*", _3);
+        _0 = CCompilerNs.LexYaccCallback.Expression(_1, _2, _4);
 
         return _0;
     }
 
     public static object Rule_mulExpression_LeftRecursionExpand_Producton_5(Dictionary<int, object> objects) { 
         CCompilerNs.Expression _0 = new CCompilerNs.Expression();
-        CCompilerNs.Expression _1 =(CCompilerNs.Expression)objects[1];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.Expression(_1, "/", _3);
 
         return _0;
     }
 
-    public static object Rule_mulExpression_LeftRecursionExpand_Producton_6(Dictionary<int, object> objects) { 
-        CCompilerNs.Expression _0 = new CCompilerNs.Expression();
-        CCompilerNs.Expression _1 =(CCompilerNs.Expression)objects[1];
-        CCompilerNs.FunctionCallExpression _3 = (CCompilerNs.FunctionCallExpression)objects[3];
+    public static object Rule_multiplyDivideOp_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
 
         // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.Expression(_1, "*", _3);
+        _0 = "*";
 
         return _0;
     }
 
-    public static object Rule_mulExpression_LeftRecursionExpand_Producton_7(Dictionary<int, object> objects) { 
-        CCompilerNs.Expression _0 = new CCompilerNs.Expression();
-        CCompilerNs.Expression _1 =(CCompilerNs.Expression)objects[1];
-        CCompilerNs.FunctionCallExpression _3 = (CCompilerNs.FunctionCallExpression)objects[3];
+    public static object Rule_multiplyDivideOp_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
 
         // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.Expression(_1, "/", _3);
-
-        return _0;
-    }
-
-    public static object Rule_mulExpression_LeftRecursionExpand_Producton_8(Dictionary<int, object> objects) { 
-        CCompilerNs.Expression _0 = new CCompilerNs.Expression();
-        CCompilerNs.Expression _1 =(CCompilerNs.Expression)objects[1];
-        CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
-
-        // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.Expression(_1, "*", _4);
-
-        return _0;
-    }
-
-    public static object Rule_mulExpression_LeftRecursionExpand_Producton_9(Dictionary<int, object> objects) { 
-        CCompilerNs.Expression _0 = new CCompilerNs.Expression();
-        CCompilerNs.Expression _1 =(CCompilerNs.Expression)objects[1];
-        CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
-
-        // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.Expression(_1, "/", _4);
-
-        return _0;
-    }
-
-    public static object Rule_mulExpression_LeftRecursionExpand_Producton_10(Dictionary<int, object> objects) { 
-        CCompilerNs.Expression _0 = new CCompilerNs.Expression();
+        _0 = "/";
 
         return _0;
     }

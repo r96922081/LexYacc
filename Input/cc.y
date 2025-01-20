@@ -9,7 +9,7 @@
 %type <CCompilerNs.GlobalDeclare>              globalDeclare
 %type <CCompilerNs.FunctionDeclare>            functionDeclare
 %type <List<CCompilerNs.Variable>>             functionParams
-%type <List<CCompilerNs.Statement>>            statements ifBodyStatements
+%type <List<CCompilerNs.Statement>>            statements ifBodyStatements functionBodyStatements
 %type <CCompilerNs.ForLoopStatement>           forLoopStatement
 %type <CCompilerNs.Statement>                  statement
 %type <CCompilerNs.ReturnStatement>            returnStatement 
@@ -31,7 +31,7 @@
 %type <CCompilerNs.StructDef>                  structDef
 %type <List<CCompilerNs.StructField>>          structFields
 %type <CCompilerNs.StructField>                structField
-%type <string>                                 typeSpec relationlOp opAssign incrementDecrement
+%type <string>                                 typeSpec relationlOp opAssign incrementDecrement addMinusOp multiplyDivideOp
 
 
 %%
@@ -71,23 +71,26 @@ SINGLE_LINE_COMMENT
 ;
 
 functionDeclare:
-typeSpec ID '(' ')' '{' statements '}'
+typeSpec ID '(' ')' functionBodyStatements
 {  
-    $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, null, $6);
+    $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, null, $5);
 }
 |
-typeSpec ID '(' functionParams ')' '{' statements '}'
+typeSpec ID '(' functionParams ')' functionBodyStatements
 {  
-    $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, $4, $7);
+    $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, $4, $6);
 }
-typeSpec ID '(' ')' '{' '}'
-{  
-    $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, null, null);
+;
+
+functionBodyStatements:
+'{' statements '}'
+{
+    $$ = $2;
 }
 |
-typeSpec ID '(' functionParams ')' '{' '}'
-{  
-    $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, $4, null);
+'{' '}'
+{
+    $$ = new List<CCompilerNs.Statement>();
 }
 ;
 
@@ -366,13 +369,9 @@ DECREMENT
 ;
 
 addExpression: 
-addExpression '+' mulExpression
+addExpression addMinusOp mulExpression
 {
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, "+", $3);
-}
-| addExpression '-' mulExpression
-{
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, "-", $3);
+    $$ = CCompilerNs.LexYaccCallback.Expression($1, $2, $3);
 }
 |
 mulExpression
@@ -381,47 +380,39 @@ mulExpression
 }
 ;  
 
-mulExpression: 
-mulExpression '*' INT_VALUE
+addMinusOp:
+'+'
 {
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, "*", $3);
-}
-| mulExpression '/' INT_VALUE
-{
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, "/", $3);
-}
-| mulExpression '*' CHAR_VALUE
-{
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, "*", $3);
-}
-| mulExpression '/' CHAR_VALUE
-{
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, "/", $3);
-}
-| mulExpression '*' ID
-{
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, "*", $3);
-}
-| mulExpression '/' ID
-{
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, "/", $3);
-}
-| mulExpression '*' functionCallExpression
-{
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, "*", $3);
-}
-| mulExpression '/' functionCallExpression
-{
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, "/", $3);
+    $$ = "+";
 }
 |
-mulExpression '*' '(' addExpression ')' 
+'-'
 {
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, "*", $4);
+    $$ = "-";
 }
-| mulExpression '/' '(' addExpression ')' 
+;
+
+mulExpression: 
+mulExpression multiplyDivideOp INT_VALUE
 {
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, "/", $4);
+    $$ = CCompilerNs.LexYaccCallback.Expression($1, $2, $3);
+}
+| mulExpression multiplyDivideOp CHAR_VALUE
+{
+    $$ = CCompilerNs.LexYaccCallback.Expression($1, $2, $3);
+}
+| mulExpression multiplyDivideOp ID
+{
+    $$ = CCompilerNs.LexYaccCallback.Expression($1, $2, $3);
+}
+| mulExpression multiplyDivideOp functionCallExpression
+{
+    $$ = CCompilerNs.LexYaccCallback.Expression($1, $2, $3);
+}
+|
+mulExpression multiplyDivideOp '(' addExpression ')' 
+{
+    $$ = CCompilerNs.LexYaccCallback.Expression($1, $2, $4);
 }
 |
 '(' addExpression ')'
@@ -451,6 +442,18 @@ functionCallExpression
 CHAR_VALUE
 {
     $$ = CCompilerNs.LexYaccCallback.Expression($1);
+}
+;
+
+multiplyDivideOp:
+'*'
+{
+    $$ = "*";
+}
+|
+'/'
+{
+    $$ = "/";
 }
 ;
 
