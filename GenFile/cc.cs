@@ -27,7 +27,7 @@ public class YaccActions{
 %type <CCompilerNs.GlobalDeclare>              globalDeclare
 %type <CCompilerNs.FunctionDeclare>            functionDeclare
 %type <List<CCompilerNs.Variable>>             functionParams
-%type <List<CCompilerNs.Statement>>            statements 
+%type <List<CCompilerNs.Statement>>            statements ifBodyStatements
 %type <CCompilerNs.ForLoopStatement>           forLoopStatement
 %type <CCompilerNs.Statement>                  statement
 %type <CCompilerNs.ReturnStatement>            returnStatement 
@@ -213,19 +213,9 @@ ifStatement elseStatement
 ;
 
 ifStatement:
-IF '(' addExpression relationlOp addExpression ')' '{' statements '}'
-{
-    $$ = CCompilerNs.LexYaccCallback.IfStatement($3, $4, $5, $8);
-}
-|
-IF '(' addExpression relationlOp addExpression ')' statement
+IF '(' addExpression relationlOp addExpression ')' ifBodyStatements
 {
     $$ = CCompilerNs.LexYaccCallback.IfStatement($3, $4, $5, $7);
-}
-|
-IF '(' addExpression relationlOp addExpression ')' '{' '}'
-{
-    $$ = CCompilerNs.LexYaccCallback.IfStatement($3, $4, $5);
 }
 ;
 
@@ -242,36 +232,34 @@ elseIfStatement
 ;
 
 elseIfStatement:
-ELSE IF '(' addExpression relationlOp addExpression ')' '{' statements '}'
-{
-    $$= CCompilerNs.LexYaccCallback.IfStatement($4, $5, $6, $9);
-}
-|
-ELSE IF '(' addExpression relationlOp addExpression ')' statement
+ELSE IF '(' addExpression relationlOp addExpression ')' ifBodyStatements
 {
     $$= CCompilerNs.LexYaccCallback.IfStatement($4, $5, $6, $8);
-}
-|
-ELSE IF '(' addExpression relationlOp addExpression ')' '{' '}'
-{
-    $$= CCompilerNs.LexYaccCallback.IfStatement($4, $5, $6);
 }
 ;
 
 elseStatement:
-ELSE '{' statements '}'
-{
-    $$= CCompilerNs.LexYaccCallback.IfStatement(null, null, null, $3);
-}
-|
-ELSE statement
+ELSE ifBodyStatements
 {
     $$= CCompilerNs.LexYaccCallback.IfStatement(null, null, null, $2);
 }
-|
-ELSE '{' '}'
+;
+
+ifBodyStatements:
+'{' statements '}'
 {
-    $$= CCompilerNs.LexYaccCallback.IfStatement(null, null, null);
+    $$ = $2;
+}
+|
+statement
+{
+    $$ = new List<CCompilerNs.Statement>();
+    $$.Add($1);
+}
+|
+'{' '}'
+{
+    $$ = new List<CCompilerNs.Statement>();
 }
 ;
 
@@ -284,7 +272,8 @@ RETURN ';'
 RETURN addExpression ';'
 {
     $$= CCompilerNs.LexYaccCallback.ReturnStatement($2);
-};
+}
+;
 
 declareStatement:
 typeSpec ID '=' addExpression ';'
@@ -304,7 +293,7 @@ typeSpec ID arraySize ';'
 |
 STRUCT ID ID ';'
 {
-    $$= CCompilerNs.LexYaccCallback.DeclareStatement(""struct "" + $2, $3, null, null);
+    $$= CCompilerNs.LexYaccCallback.DeclareStatement($1 + "" "" + $2, $3, null, null);
 }
 ;
 
@@ -551,19 +540,9 @@ CONTINUE ';'
 ;
 
 forLoopStatement:
-FOR '(' assignmentStatement addExpression relationlOp addExpression ';' assignmentNoSemicolon ')' '{' statements '}'
-{
-    $$ = CCompilerNs.LexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $11);
-}
-|
-FOR '(' assignmentStatement addExpression relationlOp addExpression ';' assignmentNoSemicolon ')' statement
+FOR '(' assignmentStatement addExpression relationlOp addExpression ';' assignmentNoSemicolon ')' ifBodyStatements
 {
     $$ = CCompilerNs.LexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10);
-}
-|
-FOR '(' assignmentStatement addExpression relationlOp addExpression ';' assignmentNoSemicolon ')' '{' '}'
-{
-    $$ = CCompilerNs.LexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8);
 }
 ;
 
@@ -746,17 +725,14 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_compoundIfStatement_Producton_2", Rule_compoundIfStatement_Producton_2);
         actions.Add("Rule_compoundIfStatement_Producton_3", Rule_compoundIfStatement_Producton_3);
         actions.Add("Rule_ifStatement_Producton_0", Rule_ifStatement_Producton_0);
-        actions.Add("Rule_ifStatement_Producton_1", Rule_ifStatement_Producton_1);
-        actions.Add("Rule_ifStatement_Producton_2", Rule_ifStatement_Producton_2);
         actions.Add("Rule_elseIfStatements_Producton_0", Rule_elseIfStatements_Producton_0);
         actions.Add("Rule_elseIfStatements_LeftRecursionExpand_Producton_0", Rule_elseIfStatements_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_elseIfStatements_LeftRecursionExpand_Producton_1", Rule_elseIfStatements_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_elseIfStatement_Producton_0", Rule_elseIfStatement_Producton_0);
-        actions.Add("Rule_elseIfStatement_Producton_1", Rule_elseIfStatement_Producton_1);
-        actions.Add("Rule_elseIfStatement_Producton_2", Rule_elseIfStatement_Producton_2);
         actions.Add("Rule_elseStatement_Producton_0", Rule_elseStatement_Producton_0);
-        actions.Add("Rule_elseStatement_Producton_1", Rule_elseStatement_Producton_1);
-        actions.Add("Rule_elseStatement_Producton_2", Rule_elseStatement_Producton_2);
+        actions.Add("Rule_ifBodyStatements_Producton_0", Rule_ifBodyStatements_Producton_0);
+        actions.Add("Rule_ifBodyStatements_Producton_1", Rule_ifBodyStatements_Producton_1);
+        actions.Add("Rule_ifBodyStatements_Producton_2", Rule_ifBodyStatements_Producton_2);
         actions.Add("Rule_returnStatement_Producton_0", Rule_returnStatement_Producton_0);
         actions.Add("Rule_returnStatement_Producton_1", Rule_returnStatement_Producton_1);
         actions.Add("Rule_declareStatement_Producton_0", Rule_declareStatement_Producton_0);
@@ -813,8 +789,6 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_breakStatement_Producton_0", Rule_breakStatement_Producton_0);
         actions.Add("Rule_continueStatement_Producton_0", Rule_continueStatement_Producton_0);
         actions.Add("Rule_forLoopStatement_Producton_0", Rule_forLoopStatement_Producton_0);
-        actions.Add("Rule_forLoopStatement_Producton_1", Rule_forLoopStatement_Producton_1);
-        actions.Add("Rule_forLoopStatement_Producton_2", Rule_forLoopStatement_Producton_2);
         actions.Add("Rule_arraySize_Producton_0", Rule_arraySize_Producton_0);
         actions.Add("Rule_arraySize_LeftRecursionExpand_Producton_0", Rule_arraySize_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_arraySize_LeftRecursionExpand_Producton_1", Rule_arraySize_LeftRecursionExpand_Producton_1);
@@ -1175,37 +1149,10 @@ GREATER_OR_EQUAL_SIGN
         CCompilerNs.Expression _3 = (CCompilerNs.Expression)objects[3];
         string _4 = (string)objects[4];
         CCompilerNs.Expression _5 = (CCompilerNs.Expression)objects[5];
-        List<CCompilerNs.Statement> _8 = (List<CCompilerNs.Statement>)objects[8];
-
-        // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.IfStatement(_3, _4, _5, _8);
-
-        return _0;
-    }
-
-    public static object Rule_ifStatement_Producton_1(Dictionary<int, object> objects) { 
-        CCompilerNs.IfStatement _0 = new CCompilerNs.IfStatement();
-        string _1 = (string)objects[1];
-        CCompilerNs.Expression _3 = (CCompilerNs.Expression)objects[3];
-        string _4 = (string)objects[4];
-        CCompilerNs.Expression _5 = (CCompilerNs.Expression)objects[5];
-        CCompilerNs.Statement _7 = (CCompilerNs.Statement)objects[7];
+        List<CCompilerNs.Statement> _7 = (List<CCompilerNs.Statement>)objects[7];
 
         // user-defined action
         _0 = CCompilerNs.LexYaccCallback.IfStatement(_3, _4, _5, _7);
-
-        return _0;
-    }
-
-    public static object Rule_ifStatement_Producton_2(Dictionary<int, object> objects) { 
-        CCompilerNs.IfStatement _0 = new CCompilerNs.IfStatement();
-        string _1 = (string)objects[1];
-        CCompilerNs.Expression _3 = (CCompilerNs.Expression)objects[3];
-        string _4 = (string)objects[4];
-        CCompilerNs.Expression _5 = (CCompilerNs.Expression)objects[5];
-
-        // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.IfStatement(_3, _4, _5);
 
         return _0;
     }
@@ -1244,22 +1191,7 @@ GREATER_OR_EQUAL_SIGN
         CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
         string _5 = (string)objects[5];
         CCompilerNs.Expression _6 = (CCompilerNs.Expression)objects[6];
-        List<CCompilerNs.Statement> _9 = (List<CCompilerNs.Statement>)objects[9];
-
-        // user-defined action
-        _0= CCompilerNs.LexYaccCallback.IfStatement(_4, _5, _6, _9);
-
-        return _0;
-    }
-
-    public static object Rule_elseIfStatement_Producton_1(Dictionary<int, object> objects) { 
-        CCompilerNs.IfStatement _0 = new CCompilerNs.IfStatement();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
-        string _5 = (string)objects[5];
-        CCompilerNs.Expression _6 = (CCompilerNs.Expression)objects[6];
-        CCompilerNs.Statement _8 = (CCompilerNs.Statement)objects[8];
+        List<CCompilerNs.Statement> _8 = (List<CCompilerNs.Statement>)objects[8];
 
         // user-defined action
         _0= CCompilerNs.LexYaccCallback.IfStatement(_4, _5, _6, _8);
@@ -1267,35 +1199,10 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_elseIfStatement_Producton_2(Dictionary<int, object> objects) { 
-        CCompilerNs.IfStatement _0 = new CCompilerNs.IfStatement();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
-        string _5 = (string)objects[5];
-        CCompilerNs.Expression _6 = (CCompilerNs.Expression)objects[6];
-
-        // user-defined action
-        _0= CCompilerNs.LexYaccCallback.IfStatement(_4, _5, _6);
-
-        return _0;
-    }
-
     public static object Rule_elseStatement_Producton_0(Dictionary<int, object> objects) { 
         CCompilerNs.IfStatement _0 = new CCompilerNs.IfStatement();
         string _1 = (string)objects[1];
-        List<CCompilerNs.Statement> _3 = (List<CCompilerNs.Statement>)objects[3];
-
-        // user-defined action
-        _0= CCompilerNs.LexYaccCallback.IfStatement(null, null, null, _3);
-
-        return _0;
-    }
-
-    public static object Rule_elseStatement_Producton_1(Dictionary<int, object> objects) { 
-        CCompilerNs.IfStatement _0 = new CCompilerNs.IfStatement();
-        string _1 = (string)objects[1];
-        CCompilerNs.Statement _2 = (CCompilerNs.Statement)objects[2];
+        List<CCompilerNs.Statement> _2 = (List<CCompilerNs.Statement>)objects[2];
 
         // user-defined action
         _0= CCompilerNs.LexYaccCallback.IfStatement(null, null, null, _2);
@@ -1303,12 +1210,32 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_elseStatement_Producton_2(Dictionary<int, object> objects) { 
-        CCompilerNs.IfStatement _0 = new CCompilerNs.IfStatement();
-        string _1 = (string)objects[1];
+    public static object Rule_ifBodyStatements_Producton_0(Dictionary<int, object> objects) { 
+        List<CCompilerNs.Statement> _0 = new List<CCompilerNs.Statement>();
+        List<CCompilerNs.Statement> _2 = (List<CCompilerNs.Statement>)objects[2];
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.IfStatement(null, null, null);
+        _0 = _2;
+
+        return _0;
+    }
+
+    public static object Rule_ifBodyStatements_Producton_1(Dictionary<int, object> objects) { 
+        List<CCompilerNs.Statement> _0 = new List<CCompilerNs.Statement>();
+        CCompilerNs.Statement _1 = (CCompilerNs.Statement)objects[1];
+
+        // user-defined action
+        _0 = new List<CCompilerNs.Statement>();
+        _0.Add(_1);
+
+        return _0;
+    }
+
+    public static object Rule_ifBodyStatements_Producton_2(Dictionary<int, object> objects) { 
+        List<CCompilerNs.Statement> _0 = new List<CCompilerNs.Statement>();
+
+        // user-defined action
+        _0 = new List<CCompilerNs.Statement>();
 
         return _0;
     }
@@ -1376,7 +1303,7 @@ GREATER_OR_EQUAL_SIGN
         string _3 = (string)objects[3];
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.DeclareStatement("struct " + _2, _3, null, null);
+        _0= CCompilerNs.LexYaccCallback.DeclareStatement(_1 + " " + _2, _3, null, null);
 
         return _0;
     }
@@ -1896,41 +1823,10 @@ GREATER_OR_EQUAL_SIGN
         string _5 = (string)objects[5];
         CCompilerNs.Expression _6 = (CCompilerNs.Expression)objects[6];
         CCompilerNs.AssignmentStatement _8 = (CCompilerNs.AssignmentStatement)objects[8];
-        List<CCompilerNs.Statement> _11 = (List<CCompilerNs.Statement>)objects[11];
-
-        // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.ForLoopStatement(_3, _4, _5, _6, _8, _11);
-
-        return _0;
-    }
-
-    public static object Rule_forLoopStatement_Producton_1(Dictionary<int, object> objects) { 
-        CCompilerNs.ForLoopStatement _0 = new CCompilerNs.ForLoopStatement();
-        string _1 = (string)objects[1];
-        CCompilerNs.AssignmentStatement _3 = (CCompilerNs.AssignmentStatement)objects[3];
-        CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
-        string _5 = (string)objects[5];
-        CCompilerNs.Expression _6 = (CCompilerNs.Expression)objects[6];
-        CCompilerNs.AssignmentStatement _8 = (CCompilerNs.AssignmentStatement)objects[8];
-        CCompilerNs.Statement _10 = (CCompilerNs.Statement)objects[10];
+        List<CCompilerNs.Statement> _10 = (List<CCompilerNs.Statement>)objects[10];
 
         // user-defined action
         _0 = CCompilerNs.LexYaccCallback.ForLoopStatement(_3, _4, _5, _6, _8, _10);
-
-        return _0;
-    }
-
-    public static object Rule_forLoopStatement_Producton_2(Dictionary<int, object> objects) { 
-        CCompilerNs.ForLoopStatement _0 = new CCompilerNs.ForLoopStatement();
-        string _1 = (string)objects[1];
-        CCompilerNs.AssignmentStatement _3 = (CCompilerNs.AssignmentStatement)objects[3];
-        CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
-        string _5 = (string)objects[5];
-        CCompilerNs.Expression _6 = (CCompilerNs.Expression)objects[6];
-        CCompilerNs.AssignmentStatement _8 = (CCompilerNs.AssignmentStatement)objects[8];
-
-        // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.ForLoopStatement(_3, _4, _5, _6, _8);
 
         return _0;
     }

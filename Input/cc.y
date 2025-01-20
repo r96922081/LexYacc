@@ -9,7 +9,7 @@
 %type <CCompilerNs.GlobalDeclare>              globalDeclare
 %type <CCompilerNs.FunctionDeclare>            functionDeclare
 %type <List<CCompilerNs.Variable>>             functionParams
-%type <List<CCompilerNs.Statement>>            statements 
+%type <List<CCompilerNs.Statement>>            statements ifBodyStatements
 %type <CCompilerNs.ForLoopStatement>           forLoopStatement
 %type <CCompilerNs.Statement>                  statement
 %type <CCompilerNs.ReturnStatement>            returnStatement 
@@ -195,19 +195,9 @@ ifStatement elseStatement
 ;
 
 ifStatement:
-IF '(' addExpression relationlOp addExpression ')' '{' statements '}'
-{
-    $$ = CCompilerNs.LexYaccCallback.IfStatement($3, $4, $5, $8);
-}
-|
-IF '(' addExpression relationlOp addExpression ')' statement
+IF '(' addExpression relationlOp addExpression ')' ifBodyStatements
 {
     $$ = CCompilerNs.LexYaccCallback.IfStatement($3, $4, $5, $7);
-}
-|
-IF '(' addExpression relationlOp addExpression ')' '{' '}'
-{
-    $$ = CCompilerNs.LexYaccCallback.IfStatement($3, $4, $5);
 }
 ;
 
@@ -224,36 +214,34 @@ elseIfStatement
 ;
 
 elseIfStatement:
-ELSE IF '(' addExpression relationlOp addExpression ')' '{' statements '}'
-{
-    $$= CCompilerNs.LexYaccCallback.IfStatement($4, $5, $6, $9);
-}
-|
-ELSE IF '(' addExpression relationlOp addExpression ')' statement
+ELSE IF '(' addExpression relationlOp addExpression ')' ifBodyStatements
 {
     $$= CCompilerNs.LexYaccCallback.IfStatement($4, $5, $6, $8);
-}
-|
-ELSE IF '(' addExpression relationlOp addExpression ')' '{' '}'
-{
-    $$= CCompilerNs.LexYaccCallback.IfStatement($4, $5, $6);
 }
 ;
 
 elseStatement:
-ELSE '{' statements '}'
-{
-    $$= CCompilerNs.LexYaccCallback.IfStatement(null, null, null, $3);
-}
-|
-ELSE statement
+ELSE ifBodyStatements
 {
     $$= CCompilerNs.LexYaccCallback.IfStatement(null, null, null, $2);
 }
-|
-ELSE '{' '}'
+;
+
+ifBodyStatements:
+'{' statements '}'
 {
-    $$= CCompilerNs.LexYaccCallback.IfStatement(null, null, null);
+    $$ = $2;
+}
+|
+statement
+{
+    $$ = new List<CCompilerNs.Statement>();
+    $$.Add($1);
+}
+|
+'{' '}'
+{
+    $$ = new List<CCompilerNs.Statement>();
 }
 ;
 
@@ -266,7 +254,8 @@ RETURN ';'
 RETURN addExpression ';'
 {
     $$= CCompilerNs.LexYaccCallback.ReturnStatement($2);
-};
+}
+;
 
 declareStatement:
 typeSpec ID '=' addExpression ';'
@@ -286,7 +275,7 @@ typeSpec ID arraySize ';'
 |
 STRUCT ID ID ';'
 {
-    $$= CCompilerNs.LexYaccCallback.DeclareStatement("struct " + $2, $3, null, null);
+    $$= CCompilerNs.LexYaccCallback.DeclareStatement($1 + " " + $2, $3, null, null);
 }
 ;
 
@@ -533,19 +522,9 @@ CONTINUE ';'
 ;
 
 forLoopStatement:
-FOR '(' assignmentStatement addExpression relationlOp addExpression ';' assignmentNoSemicolon ')' '{' statements '}'
-{
-    $$ = CCompilerNs.LexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $11);
-}
-|
-FOR '(' assignmentStatement addExpression relationlOp addExpression ';' assignmentNoSemicolon ')' statement
+FOR '(' assignmentStatement addExpression relationlOp addExpression ';' assignmentNoSemicolon ')' ifBodyStatements
 {
     $$ = CCompilerNs.LexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10);
-}
-|
-FOR '(' assignmentStatement addExpression relationlOp addExpression ';' assignmentNoSemicolon ')' '{' '}'
-{
-    $$ = CCompilerNs.LexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8);
 }
 ;
 

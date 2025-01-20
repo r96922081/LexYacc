@@ -335,11 +335,6 @@
             return f;
         }
 
-        public static IfStatement IfStatement(Expression lhs, string op, Expression rhs)
-        {
-            return IfStatement(lhs, op, rhs, new List<Statement>());
-        }
-
         public static IfStatement IfStatement(Expression lhs, string op, Expression rhs, List<Statement> statements)
         {
             IfStatement i = new IfStatement();
@@ -347,17 +342,6 @@
             i.op = op;
             i.rhs = rhs;
             i.statements = statements;
-
-            return i;
-        }
-
-        public static IfStatement IfStatement(Expression lhs, string op, Expression rhs, Statement statement)
-        {
-            IfStatement i = new IfStatement();
-            i.lhs = lhs;
-            i.op = op;
-            i.rhs = rhs;
-            i.statements.Add(statement);
 
             return i;
         }
@@ -413,11 +397,6 @@
             return c;
         }
 
-        public static ForLoopStatement ForLoopStatement(AssignmentStatement initializer, Expression conditionLhs, string conditionOp, Expression conditionrhs, AssignmentStatement updater)
-        {
-            return ForLoopStatement(initializer, conditionLhs, conditionOp, conditionrhs, updater, new List<Statement>());
-        }
-
         public static ForLoopStatement ForLoopStatement(AssignmentStatement initializer, Expression conditionLhs, string conditionOp, Expression conditionrhs, AssignmentStatement updater, List<Statement> statements)
         {
             ForLoopStatement f = new ForLoopStatement();
@@ -429,11 +408,6 @@
             f.statements = statements;
 
             return f;
-        }
-
-        public static ForLoopStatement ForLoopStatement(AssignmentStatement initializer, Expression conditionLhs, string conditionOp, Expression conditionrhs, AssignmentStatement updater, Statement statement)
-        {
-            return ForLoopStatement(initializer, conditionLhs, conditionOp, conditionrhs, updater, new List<Statement>() { statement });
         }
 
         public static BreakStatement BreakStatement()
