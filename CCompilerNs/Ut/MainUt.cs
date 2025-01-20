@@ -1383,6 +1383,40 @@ int main() {
             Check(exitCode == 0);
         }
 
+        public void struct_1()
+        {
+            string src = @"
+
+struct A {
+    int a1;
+    char a2;
+};
+
+struct B {
+    int b1;
+    char b2;
+    struct A b3;  
+};
+
+int main()
+{
+    struct A x;
+    return 0;
+}
+
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.Print();
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 0);
+        }
+
         public void adhoc()
         {
 
@@ -1394,7 +1428,7 @@ int main() {
 
             mainUt.adhoc();
 
-            mainUt.comment_1();
+            mainUt.struct_1();
 
             mainUt.Ut1();
             mainUt.Ut2();
@@ -1450,6 +1484,8 @@ int main() {
 
             mainUt.empty_1();
             mainUt.empty_2();
+
+            mainUt.comment_1();
         }
 
         public static void Ut()

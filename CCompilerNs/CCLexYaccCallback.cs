@@ -27,6 +27,13 @@
             return t;
         }
 
+        public static TopLevel TopLevel(StructDef structDef)
+        {
+            TopLevel t = new TopLevel();
+            t.structDef = structDef;
+            return t;
+        }
+
         public static TopLevel TopLevel()
         {
             TopLevel t = new TopLevel();
@@ -39,7 +46,7 @@
             FunDecl f = new FunDecl();
             f.returnType = Util.GetType(returnType);
 
-            f.SetFunctionName(functionName);
+            f.functionName = functionName;
 
             if (statements == null)
                 statements = new List<Statement>();
@@ -341,6 +348,7 @@
             Variable funParam = new Variable();
             funParam.name = name;
             funParam.type = Util.GetType(type);
+            funParam.scope = VariableScopeEnum.param;
             funcParams.Add(funParam);
 
             return funcParams;
@@ -356,6 +364,7 @@
             funParam.name = name;
             funParam.arraySize.AddRange(arraySize);
             funParam.type = Util.GetType(type);
+            funParam.scope = VariableScopeEnum.param;
             funcParams.Add(funParam);
 
             return funcParams;
@@ -513,6 +522,38 @@
                 statements.AddRange(currentStatements);
 
             return statements;
+        }
+
+        public static StructDef StructDef(string name, List<StructField> fields)
+        {
+            StructDef s = new StructDef();
+            s.name = name;
+            s.fields = fields;
+
+            return s;
+        }
+
+        public static StructField StructField(string type, string name, List<int> arraySize)
+        {
+            StructField f = new StructField();
+            f.type = Util.GetType(type);
+            f.name = name;
+
+            if (arraySize != null)
+                f.arraySize.AddRange(arraySize);
+
+            return f;
+        }
+
+        public static List<StructField> StructFields(List<StructField> prev, StructField f)
+        {
+            List<StructField> fields = new List<StructField>();
+            if (prev != null)
+                fields.AddRange(prev);
+
+            fields.Add(f);
+
+            return fields;
         }
     }
 }

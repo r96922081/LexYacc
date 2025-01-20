@@ -8,6 +8,7 @@
             {
                 VariableType t = new VariableType();
                 t.type = VariableTypeEnum.int_type;
+                t.typeName = type;
                 t.size = 8;
                 return t;
             }
@@ -15,6 +16,7 @@
             {
                 VariableType t = new VariableType();
                 t.type = VariableTypeEnum.void_type;
+                t.typeName = type;
                 t.size = 8;
                 return t;
             }
@@ -22,7 +24,16 @@
             {
                 VariableType t = new VariableType();
                 t.type = VariableTypeEnum.char_type;
+                t.typeName = type;
                 t.size = 1;
+                return t;
+            }
+            else if (type.StartsWith("struct "))
+            {
+                VariableType t = new VariableType();
+                t.type = VariableTypeEnum.struct_type;
+                t.typeName = type.Replace("struct ", "");
+                t.size = -1;
                 return t;
             }
             else

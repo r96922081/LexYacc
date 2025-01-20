@@ -12,8 +12,12 @@ TODO:
 - double
 - c lib like printf, strlen, memcpy, strcpy, malloc
 - struct
-- point, malloc
+- pointer, malloc
 - multi line comment
+
+====
+not supported:
+- union, typedef
 
 ====
 leave: equivalent to 

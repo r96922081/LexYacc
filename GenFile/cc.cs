@@ -21,7 +21,7 @@ public class YaccActions{
 
 %token <char>        CHAR_VALUE
 %token <int>         INT_VALUE
-%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE SINGLE_LINE_COMMENT
+%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE SINGLE_LINE_COMMENT STRUCT
 
 %type <CCompilerNs.Program>                    program
 %type <CCompilerNs.TopLevel>                   topLevel
@@ -46,6 +46,9 @@ public class YaccActions{
 %type <CCompilerNs.Expression>                 addExpression mulExpression
 %type <List<int>>                              arraySize paramArraySize
 %type <List<CCompilerNs.Expression>>           arrayIndex
+%type <CCompilerNs.StructDef>                  structDef
+%type <List<CCompilerNs.StructField>>          structFields
+%type <CCompilerNs.StructField>                structField
 %type <string>                                 typeSpec relationlOp
 
 
@@ -70,6 +73,11 @@ globalVariable
 }
 |
 funDecl
+{
+    $$= CCompilerNs.CCLexYaccCallback.TopLevel($1);
+}
+|
+structDef
 {
     $$= CCompilerNs.CCLexYaccCallback.TopLevel($1);
 }
@@ -292,6 +300,11 @@ typeSpec ID ';'
 typeSpec ID arraySize ';'
 {
     $$= CCompilerNs.CCLexYaccCallback.DeclareStatement($1, $2, null, $3);
+}
+|
+STRUCT ID ID ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.DeclareStatement(""struct "" + $2, $3, null, null);
 }
 ;
 
@@ -618,6 +631,47 @@ typeSpec ID '=' CHAR_VALUE ';'
 }
 ;
 
+structDef:
+STRUCT ID '{' structFields '}' ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.StructDef($2, $4);
+}
+;
+
+structFields:
+structFields structField
+{
+    $$= CCompilerNs.CCLexYaccCallback.StructFields($1, $2);
+}
+|
+structField
+{
+    $$= CCompilerNs.CCLexYaccCallback.StructFields(null, $1);
+}
+;
+
+structField:
+typeSpec ID ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.StructField($1, $2, null);
+}
+|
+typeSpec ID arraySize ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.StructField($1, $2, $3);
+}
+|
+STRUCT ID ID ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.StructField(""struct "" + $2, $3, null);
+}
+|
+STRUCT ID ID arraySize ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.StructField(""struct "" + $2, $3, $4);
+}
+;
+
 relationlOp:
 '<'
 {
@@ -672,6 +726,7 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_topLevel_Producton_0", Rule_topLevel_Producton_0);
         actions.Add("Rule_topLevel_Producton_1", Rule_topLevel_Producton_1);
         actions.Add("Rule_topLevel_Producton_2", Rule_topLevel_Producton_2);
+        actions.Add("Rule_topLevel_Producton_3", Rule_topLevel_Producton_3);
         actions.Add("Rule_funDecl_Producton_0", Rule_funDecl_Producton_0);
         actions.Add("Rule_funDecl_Producton_1", Rule_funDecl_Producton_1);
         actions.Add("Rule_funDecl_Producton_2", Rule_funDecl_Producton_2);
@@ -713,6 +768,7 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_declareStatement_Producton_0", Rule_declareStatement_Producton_0);
         actions.Add("Rule_declareStatement_Producton_1", Rule_declareStatement_Producton_1);
         actions.Add("Rule_declareStatement_Producton_2", Rule_declareStatement_Producton_2);
+        actions.Add("Rule_declareStatement_Producton_3", Rule_declareStatement_Producton_3);
         actions.Add("Rule_assignmentStatement_Producton_0", Rule_assignmentStatement_Producton_0);
         actions.Add("Rule_emptyStatement_Producton_0", Rule_emptyStatement_Producton_0);
         actions.Add("Rule_singleLineComment_Producton_0", Rule_singleLineComment_Producton_0);
@@ -779,6 +835,14 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_globalVariable_Producton_1", Rule_globalVariable_Producton_1);
         actions.Add("Rule_globalVariable_Producton_2", Rule_globalVariable_Producton_2);
         actions.Add("Rule_globalVariable_Producton_3", Rule_globalVariable_Producton_3);
+        actions.Add("Rule_structDef_Producton_0", Rule_structDef_Producton_0);
+        actions.Add("Rule_structFields_Producton_0", Rule_structFields_Producton_0);
+        actions.Add("Rule_structFields_LeftRecursionExpand_Producton_0", Rule_structFields_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_structFields_LeftRecursionExpand_Producton_1", Rule_structFields_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_structField_Producton_0", Rule_structField_Producton_0);
+        actions.Add("Rule_structField_Producton_1", Rule_structField_Producton_1);
+        actions.Add("Rule_structField_Producton_2", Rule_structField_Producton_2);
+        actions.Add("Rule_structField_Producton_3", Rule_structField_Producton_3);
         actions.Add("Rule_relationlOp_Producton_0", Rule_relationlOp_Producton_0);
         actions.Add("Rule_relationlOp_Producton_1", Rule_relationlOp_Producton_1);
         actions.Add("Rule_relationlOp_Producton_2", Rule_relationlOp_Producton_2);
@@ -845,6 +909,16 @@ GREATER_OR_EQUAL_SIGN
     }
 
     public static object Rule_topLevel_Producton_2(Dictionary<int, object> objects) { 
+        CCompilerNs.TopLevel _0 = new CCompilerNs.TopLevel();
+        CCompilerNs.StructDef _1 = (CCompilerNs.StructDef)objects[1];
+
+        // user-defined action
+        _0= CCompilerNs.CCLexYaccCallback.TopLevel(_1);
+
+        return _0;
+    }
+
+    public static object Rule_topLevel_Producton_3(Dictionary<int, object> objects) { 
         CCompilerNs.TopLevel _0 = new CCompilerNs.TopLevel();
         string _1 = (string)objects[1];
 
@@ -1299,6 +1373,18 @@ GREATER_OR_EQUAL_SIGN
 
         // user-defined action
         _0= CCompilerNs.CCLexYaccCallback.DeclareStatement(_1, _2, null, _3);
+
+        return _0;
+    }
+
+    public static object Rule_declareStatement_Producton_3(Dictionary<int, object> objects) { 
+        CCompilerNs.DeclareStatement _0 = new CCompilerNs.DeclareStatement();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0= CCompilerNs.CCLexYaccCallback.DeclareStatement("struct " + _2, _3, null, null);
 
         return _0;
     }
@@ -2015,6 +2101,93 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
+    public static object Rule_structDef_Producton_0(Dictionary<int, object> objects) { 
+        CCompilerNs.StructDef _0 = new CCompilerNs.StructDef();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        List<CCompilerNs.StructField> _4 = (List<CCompilerNs.StructField>)objects[4];
+
+        // user-defined action
+        _0= CCompilerNs.CCLexYaccCallback.StructDef(_2, _4);
+
+        return _0;
+    }
+
+    public static object Rule_structFields_Producton_0(Dictionary<int, object> objects) { 
+        List<CCompilerNs.StructField> _0 = new List<CCompilerNs.StructField>();
+        CCompilerNs.StructField _1 = (CCompilerNs.StructField)objects[1];
+
+        // user-defined action
+        _0= CCompilerNs.CCLexYaccCallback.StructFields(null, _1);
+
+        return _0;
+    }
+
+    public static object Rule_structFields_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        List<CCompilerNs.StructField> _0 = new List<CCompilerNs.StructField>();
+        List<CCompilerNs.StructField> _1 =(List<CCompilerNs.StructField>)objects[1];
+        CCompilerNs.StructField _2 = (CCompilerNs.StructField)objects[2];
+
+        // user-defined action
+        _0= CCompilerNs.CCLexYaccCallback.StructFields(_1, _2);
+
+        return _0;
+    }
+
+    public static object Rule_structFields_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        List<CCompilerNs.StructField> _0 = new List<CCompilerNs.StructField>();
+
+        return _0;
+    }
+
+    public static object Rule_structField_Producton_0(Dictionary<int, object> objects) { 
+        CCompilerNs.StructField _0 = new CCompilerNs.StructField();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+
+        // user-defined action
+        _0= CCompilerNs.CCLexYaccCallback.StructField(_1, _2, null);
+
+        return _0;
+    }
+
+    public static object Rule_structField_Producton_1(Dictionary<int, object> objects) { 
+        CCompilerNs.StructField _0 = new CCompilerNs.StructField();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        List<int> _3 = (List<int>)objects[3];
+
+        // user-defined action
+        _0= CCompilerNs.CCLexYaccCallback.StructField(_1, _2, _3);
+
+        return _0;
+    }
+
+    public static object Rule_structField_Producton_2(Dictionary<int, object> objects) { 
+        CCompilerNs.StructField _0 = new CCompilerNs.StructField();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0= CCompilerNs.CCLexYaccCallback.StructField("struct " + _2, _3, null);
+
+        return _0;
+    }
+
+    public static object Rule_structField_Producton_3(Dictionary<int, object> objects) { 
+        CCompilerNs.StructField _0 = new CCompilerNs.StructField();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+        List<int> _4 = (List<int>)objects[4];
+
+        // user-defined action
+        _0= CCompilerNs.CCLexYaccCallback.StructField("struct " + _2, _3, _4);
+
+        return _0;
+    }
+
     public static object Rule_relationlOp_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
 
@@ -2114,6 +2287,7 @@ namespace ccNs
             { 276, "DIVIDE_ASSIGN"},
             { 277, "CHAR_TYPE"},
             { 278, "SINGLE_LINE_COMMENT"},
+            { 279, "STRUCT"},
         };
 
         public static int CHAR_VALUE = 256;
@@ -2139,6 +2313,7 @@ namespace ccNs
         public static int DIVIDE_ASSIGN = 276;
         public static int CHAR_TYPE = 277;
         public static int SINGLE_LINE_COMMENT = 278;
+        public static int STRUCT = 279;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -2171,6 +2346,7 @@ namespace ccNs
 ""for""                     { value = ""for""; return FOR; }
 ""break""                   { value = ""break""; return BREAK; }
 ""continue""                { value = ""continue""; return CONTINUE; }
+""struct""                  { value = ""struct""; return STRUCT; }
 ""==""                      { value = ""==""; return EQUAL_SIGN; }
 ""!=""                      { value = ""!=""; return NOT_EQUAL_SIGN; }
 ""<=""                      { value = ""<=""; return LESS_OR_EQUAL_SIGN; }
@@ -2250,6 +2426,7 @@ namespace ccNs
             actions.Add("LexRule37", LexAction37);
             actions.Add("LexRule38", LexAction38);
             actions.Add("LexRule39", LexAction39);
+            actions.Add("LexRule40", LexAction40);
         }
         public static object LexAction0(string yytext)
         {
@@ -2337,7 +2514,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "=="; return EQUAL_SIGN; 
+            value = "struct"; return STRUCT; 
 
             return 0;
         }
@@ -2346,7 +2523,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "!="; return NOT_EQUAL_SIGN; 
+            value = "=="; return EQUAL_SIGN; 
 
             return 0;
         }
@@ -2355,7 +2532,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "<="; return LESS_OR_EQUAL_SIGN; 
+            value = "!="; return NOT_EQUAL_SIGN; 
 
             return 0;
         }
@@ -2364,7 +2541,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = ">="; return GREATER_OR_EQUAL_SIGN; 
+            value = "<="; return LESS_OR_EQUAL_SIGN; 
 
             return 0;
         }
@@ -2373,7 +2550,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "++"; return INCREMENT; 
+            value = ">="; return GREATER_OR_EQUAL_SIGN; 
 
             return 0;
         }
@@ -2382,7 +2559,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "--"; return DECREMENT; 
+            value = "++"; return INCREMENT; 
 
             return 0;
         }
@@ -2391,7 +2568,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "+="; return PLUS_ASSIGN; 
+            value = "--"; return DECREMENT; 
 
             return 0;
         }
@@ -2400,7 +2577,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "-="; return MINUS_ASSIGN; 
+            value = "+="; return PLUS_ASSIGN; 
 
             return 0;
         }
@@ -2409,7 +2586,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "+="; return MULTIPLY_ASSIGN; 
+            value = "-="; return MINUS_ASSIGN; 
 
             return 0;
         }
@@ -2418,7 +2595,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "+="; return DIVIDE_ASSIGN; 
+            value = "+="; return MULTIPLY_ASSIGN; 
 
             return 0;
         }
@@ -2427,7 +2604,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = int.Parse(yytext); return INT_VALUE; 
+            value = "+="; return DIVIDE_ASSIGN; 
 
             return 0;
         }
@@ -2436,7 +2613,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = yytext[1]; return CHAR_VALUE; 
+            value = int.Parse(yytext); return INT_VALUE; 
 
             return 0;
         }
@@ -2445,7 +2622,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            value = yytext[1]; return CHAR_VALUE; 
 
             return 0;
         }
@@ -2454,7 +2631,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "";  return SINGLE_LINE_COMMENT; 
+            value = yytext; return ID; 
 
             return 0;
         }
@@ -2462,14 +2639,14 @@ namespace ccNs
         {
             value = null;
 
+            // user-defined action
+            value = "";  return SINGLE_LINE_COMMENT; 
+
             return 0;
         }
         public static object LexAction24(string yytext)
         {
             value = null;
-
-            // user-defined action
-            return '{'; 
 
             return 0;
         }
@@ -2478,7 +2655,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '}'; 
+            return '{'; 
 
             return 0;
         }
@@ -2487,7 +2664,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '['; 
+            return '}'; 
 
             return 0;
         }
@@ -2496,7 +2673,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return ']'; 
+            return '['; 
 
             return 0;
         }
@@ -2505,7 +2682,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '<'; 
+            return ']'; 
 
             return 0;
         }
@@ -2514,7 +2691,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '>'; 
+            return '<'; 
 
             return 0;
         }
@@ -2523,7 +2700,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '('; 
+            return '>'; 
 
             return 0;
         }
@@ -2532,7 +2709,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return ')'; 
+            return '('; 
 
             return 0;
         }
@@ -2541,7 +2718,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return ';'; 
+            return ')'; 
 
             return 0;
         }
@@ -2550,7 +2727,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '+'; 
+            return ';'; 
 
             return 0;
         }
@@ -2559,7 +2736,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '-'; 
+            return '+'; 
 
             return 0;
         }
@@ -2568,7 +2745,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '*'; 
+            return '-'; 
 
             return 0;
         }
@@ -2577,7 +2754,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '/'; 
+            return '*'; 
 
             return 0;
         }
@@ -2586,7 +2763,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '='; 
+            return '/'; 
 
             return 0;
         }
@@ -2595,11 +2772,20 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return '%'; 
+            return '='; 
 
             return 0;
         }
         public static object LexAction39(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '%'; 
+
+            return 0;
+        }
+        public static object LexAction40(string yytext)
         {
             value = null;
 

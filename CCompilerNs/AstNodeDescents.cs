@@ -7,6 +7,8 @@
         private List<GlobalVariable> uninitedGv = new List<GlobalVariable>();
         private List<GlobalVariable> initedGv = new List<GlobalVariable>();
         private List<FunDecl> funDecls = new List<FunDecl>();
+        private List<StructDef> structDefs = new List<StructDef>();
+        private bool inited = false;
 
 
         public Program() : base("Program")
@@ -14,11 +16,8 @@
 
         }
 
-        private void Reset()
+        private void DistributeTopLevels()
         {
-            if (funDecls.Count != 0)
-                return;
-
             Context.gv.Clear();
 
             foreach (TopLevel t in topLevels)
@@ -26,7 +25,12 @@
                 if (t.comment)
                     continue;
 
-                if (t.funDecl != null)
+                if (t.structDef != null)
+                {
+                    structDefs.Add(t.structDef);
+                    Context.structDefs.Add(t.structDef.name, t.structDef);
+                }
+                else if (t.funDecl != null)
                     funDecls.Add(t.funDecl);
                 else if (t.gv.int_value == null)
                 {
@@ -34,6 +38,7 @@
                     Variable v = new Variable();
                     v.name = t.gv.name;
                     v.type = t.gv.type;
+                    v.scope = VariableScopeEnum.global;
                     v.arraySize.AddRange(t.gv.arraySize);
                     Context.gv.Add(v.name, v);
                 }
@@ -43,15 +48,57 @@
                     Variable v = new Variable();
                     v.name = t.gv.name;
                     v.type = t.gv.type;
+                    v.scope = VariableScopeEnum.global;
                     v.arraySize.AddRange(t.gv.arraySize);
                     Context.gv.Add(v.name, v);
                 }
             }
         }
 
+        private void SetStructInfo()
+        {
+            foreach (StructDef s in structDefs)
+            {
+                int offset = 0;
+                foreach (StructField f in s.fields)
+                {
+                    f.offset = offset;
+                    if (f.type.type == VariableTypeEnum.struct_type)
+                    {
+                        StructDef subStruct = Context.structDefs[f.type.typeName];
+                        f.type.size = subStruct.size;
+                    }
+
+                    offset += f.type.size;
+
+                    // align 8 bytes
+                    offset = (offset + 7) / 8 * 8;
+                }
+                s.size = offset;
+            }
+        }
+
+        private void Init()
+        {
+            if (inited)
+                return;
+
+            inited = true;
+
+            DistributeTopLevels();
+            SetStructInfo();
+            SetLocalStackOffset();
+        }
+
+        private void SetLocalStackOffset()
+        {
+            foreach (FunDecl f in funDecls)
+                f.SetLocalStackOffset();
+        }
+
         public override void EmitAsm()
         {
-            Reset();
+            Init();
 
             if (uninitedGv.Count != 0)
             {
@@ -77,7 +124,7 @@
 
         public override string ToString()
         {
-            Reset();
+            Init();
 
             if (childrenForPrint.Count == 0)
                 childrenForPrint.AddRange(topLevels);
@@ -90,6 +137,7 @@
     {
         public FunDecl funDecl;
         public GlobalVariable gv;
+        public StructDef structDef;
         public bool comment = false;
 
         public TopLevel() : base("TopLevel")
@@ -154,11 +202,15 @@
     public class FunDecl : AstNode
     {
         public VariableType returnType;
-        private string functionName;
+        public string functionName;
+
+        public List<Variable> paramsInOrder = new List<Variable>();
         public Dictionary<string, Variable> paramMap = new Dictionary<string, Variable>();
         public List<Statement> statements;
 
+        public List<Variable> localsInOrder = new List<Variable>();
         public Dictionary<string, Variable> localMap = new Dictionary<string, Variable>();
+        public Dictionary<string, DeclareStatement> localDeclareMap = new Dictionary<string, DeclareStatement>();
         public int localSize = 0;
 
         public FunDecl() : base("FunDecl")
@@ -166,25 +218,10 @@
 
         }
 
-        public void SetFunctionName(string name)
-        {
-            functionName = name;
-            if (functionName != "main")
-                localSize += 8;
-        }
-
-        /*
-        stack:
-        param1
-        param2
-%rbp->  return address
-        local1
-        local2
-         */
         public void AddParamVariable(Variable p)
         {
             paramMap.Add(p.name, p);
-            p.stackOffset = 8 + paramMap.Count * 8;
+            paramsInOrder.Add(p);
         }
 
         public void AddLocalVariable(DeclareStatement a)
@@ -194,25 +231,49 @@
             l.type = a.type;
             l.arraySize = a.arraySize;
             localMap.Add(l.name, l);
+            localDeclareMap.Add(l.name, a);
+            localsInOrder.Add(l);
+        }
 
-            int count = 1;
-
-            if (a.arraySize.Count == 0)
+        public void SetLocalStackOffset()
+        {
+            if (functionName != "main")
+                localSize += 8;
+            /*
+            stack:
+            param1
+            param2
+            %rbp->  return address
+            local1
+            local2
+             */
+            for (int i = 0; i < paramsInOrder.Count; i++)
             {
-                localSize += 8 * count;
+                Variable p = paramsInOrder[i];
+                p.stackOffset = 8 + (i + 1) * 8;
             }
-            else
+
+            foreach (Variable l in localsInOrder)
             {
-                foreach (int arraySize in a.arraySize)
-                    count *= arraySize;
+                int count = 1;
 
-                int size = count * l.type.size;
-                size = (size + 7) / 8 * 8;
-                localSize += size;
+                if (l.arraySize.Count == 0)
+                {
+                    localSize += 8 * count;
+                }
+                else
+                {
+                    foreach (int arraySize in l.arraySize)
+                        count *= arraySize;
+
+                    int size = count * l.type.size;
+                    size = (size + 7) / 8 * 8;
+                    localSize += size;
+                }
+
+                l.stackOffset = -localSize;
+                localDeclareMap[l.name].stackOffset = l.stackOffset;
             }
-
-            l.stackOffset = -localSize;
-            a.stackOffset = -localSize;
         }
 
         public override void EmitAsm()
@@ -826,4 +887,19 @@ ret";
         {
         }
     }
+
+    public class StructDef : AstNode
+    {
+        public string name;
+        public List<StructField> fields = new List<StructField>();
+        public int size;
+    };
+
+    public class StructField : AstNode
+    {
+        public VariableType type;
+        public List<int> arraySize = new List<int>();
+        public string name;
+        public int offset;
+    };
 }

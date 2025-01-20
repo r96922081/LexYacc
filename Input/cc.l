@@ -11,6 +11,7 @@
 "for"                     { value = "for"; return FOR; }
 "break"                   { value = "break"; return BREAK; }
 "continue"                { value = "continue"; return CONTINUE; }
+"struct"                  { value = "struct"; return STRUCT; }
 "=="                      { value = "=="; return EQUAL_SIGN; }
 "!="                      { value = "!="; return NOT_EQUAL_SIGN; }
 "<="                      { value = "<="; return LESS_OR_EQUAL_SIGN; }

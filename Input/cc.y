@@ -3,7 +3,7 @@
 
 %token <char>        CHAR_VALUE
 %token <int>         INT_VALUE
-%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE SINGLE_LINE_COMMENT
+%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE SINGLE_LINE_COMMENT STRUCT
 
 %type <CCompilerNs.Program>                    program
 %type <CCompilerNs.TopLevel>                   topLevel
@@ -28,6 +28,9 @@
 %type <CCompilerNs.Expression>                 addExpression mulExpression
 %type <List<int>>                              arraySize paramArraySize
 %type <List<CCompilerNs.Expression>>           arrayIndex
+%type <CCompilerNs.StructDef>                  structDef
+%type <List<CCompilerNs.StructField>>          structFields
+%type <CCompilerNs.StructField>                structField
 %type <string>                                 typeSpec relationlOp
 
 
@@ -52,6 +55,11 @@ globalVariable
 }
 |
 funDecl
+{
+    $$= CCompilerNs.CCLexYaccCallback.TopLevel($1);
+}
+|
+structDef
 {
     $$= CCompilerNs.CCLexYaccCallback.TopLevel($1);
 }
@@ -274,6 +282,11 @@ typeSpec ID ';'
 typeSpec ID arraySize ';'
 {
     $$= CCompilerNs.CCLexYaccCallback.DeclareStatement($1, $2, null, $3);
+}
+|
+STRUCT ID ID ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.DeclareStatement("struct " + $2, $3, null, null);
 }
 ;
 
@@ -597,6 +610,47 @@ typeSpec ID '=' INT_VALUE ';'
 typeSpec ID '=' CHAR_VALUE ';'
 {
     $$= CCompilerNs.CCLexYaccCallback.GlobalVariable($1, $2, $4, null);
+}
+;
+
+structDef:
+STRUCT ID '{' structFields '}' ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.StructDef($2, $4);
+}
+;
+
+structFields:
+structFields structField
+{
+    $$= CCompilerNs.CCLexYaccCallback.StructFields($1, $2);
+}
+|
+structField
+{
+    $$= CCompilerNs.CCLexYaccCallback.StructFields(null, $1);
+}
+;
+
+structField:
+typeSpec ID ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.StructField($1, $2, null);
+}
+|
+typeSpec ID arraySize ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.StructField($1, $2, $3);
+}
+|
+STRUCT ID ID ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.StructField("struct " + $2, $3, null);
+}
+|
+STRUCT ID ID arraySize ';'
+{
+    $$= CCompilerNs.CCLexYaccCallback.StructField("struct " + $2, $3, $4);
 }
 ;
 
