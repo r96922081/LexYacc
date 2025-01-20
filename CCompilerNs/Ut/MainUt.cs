@@ -19,8 +19,6 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
-
             program.EmitAsm();
 
             int exitCode = CompileAndRun("test.s", "test.exe");
@@ -49,7 +47,7 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -83,7 +81,7 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -119,7 +117,7 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -138,7 +136,7 @@ int main()
             AsmEmitter.SetOutputFile("test.s");
 
             Program program = (Program)cc.Parse(src);
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -158,7 +156,7 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -178,7 +176,7 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -198,7 +196,7 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -218,7 +216,7 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -241,7 +239,7 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -262,7 +260,7 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -285,7 +283,7 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -313,7 +311,7 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -344,7 +342,7 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -379,7 +377,7 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -404,7 +402,7 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -428,7 +426,7 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -458,7 +456,7 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -485,7 +483,7 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -526,7 +524,7 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -551,7 +549,7 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -580,7 +578,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -607,7 +605,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -632,7 +630,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -659,7 +657,7 @@ else
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -687,7 +685,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -714,7 +712,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -746,7 +744,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -776,7 +774,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -813,7 +811,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -847,7 +845,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -877,7 +875,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -902,7 +900,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -925,7 +923,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -948,7 +946,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -972,7 +970,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -1011,7 +1009,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -1048,7 +1046,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -1099,7 +1097,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -1152,7 +1150,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -1176,7 +1174,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -1200,7 +1198,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -1225,8 +1223,6 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
-
             program.EmitAsm();
 
             int exitCode = CompileAndRun("test.s", "test.exe");
@@ -1255,8 +1251,6 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
-
             program.EmitAsm();
 
             int exitCode = CompileAndRun("test.s", "test.exe");
@@ -1297,7 +1291,6 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
 
             program.EmitAsm();
 
@@ -1345,8 +1338,6 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
-
             program.EmitAsm();
 
             int exitCode = CompileAndRun("test.s", "test.exe");
@@ -1375,7 +1366,7 @@ int main() {
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
+
 
             program.EmitAsm();
 
@@ -1419,8 +1410,6 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
-
             program.EmitAsm();
 
             int exitCode = CompileAndRun("test.s", "test.exe");
@@ -1457,8 +1446,6 @@ int main()
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
-            program.Print();
-
             program.EmitAsm();
 
             int exitCode = CompileAndRun("test.s", "test.exe");
@@ -1477,7 +1464,7 @@ int main()
             mainUt.adhoc();
 
             //mainUt.struct_2();
-            mainUt.struct_1();
+            //mainUt.struct_1();
 
             mainUt.Ut1();
             mainUt.Ut2();

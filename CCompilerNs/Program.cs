@@ -1,8 +1,48 @@
 ﻿namespace CCompilerNs
 {
-    public class Program : AstNode
+    public class ProgramBase
     {
-        public List<TopLevel> topLevels = new List<TopLevel>();
+        public string s = "";
+
+        public ProgramBase()
+        {
+
+        }
+
+        public ProgramBase(string s)
+        {
+
+        }
+
+        public virtual void EmitAsm()
+        {
+
+        }
+
+        public void Emit(string asm)
+        {
+            AsmEmitter.Emit(asm);
+        }
+    }
+
+    public class GlobalDeclare : ProgramBase
+    {
+        public GlobalDeclare()
+        {
+
+        }
+
+        public GlobalDeclare(string s) : base(s)
+        {
+
+        }
+    }
+
+
+
+    public class Program : ProgramBase
+    {
+        public List<GlobalDeclare> globalDeclares = new List<GlobalDeclare>();
 
         private List<GlobalVariable> uninitedGv = new List<GlobalVariable>();
         private List<GlobalVariable> initedGv = new List<GlobalVariable>();
@@ -20,37 +60,40 @@
         {
             Gv.context.gv.Clear();
 
-            foreach (TopLevel t in topLevels)
+            foreach (GlobalDeclare g in globalDeclares)
             {
-                if (t.comment)
-                    continue;
+                if (g is StructDef)
+                {
+                    StructDef structDef = g as StructDef;
+                    structDefs.Add(structDef);
+                    Gv.context.structDefs.Add(structDef.name, structDef);
+                }
+                else if (g is FunDecl)
+                    funDecls.Add((FunDecl)g);
+                else if (g is GlobalVariable)
+                {
+                    GlobalVariable gv = g as GlobalVariable;
 
-                if (t.structDef != null)
-                {
-                    structDefs.Add(t.structDef);
-                    Gv.context.structDefs.Add(t.structDef.name, t.structDef);
-                }
-                else if (t.funDecl != null)
-                    funDecls.Add(t.funDecl);
-                else if (t.gv.int_value == null)
-                {
-                    uninitedGv.Add(t.gv);
-                    Variable v = new Variable();
-                    v.name = t.gv.name;
-                    v.typeInfo = t.gv.typeInfo;
-                    v.scope = VariableScopeEnum.global;
-                    v.typeInfo.arraySize.AddRange(t.gv.typeInfo.arraySize);
-                    Gv.context.gv.Add(v.name, v);
-                }
-                else
-                {
-                    initedGv.Add(t.gv);
-                    Variable v = new Variable();
-                    v.name = t.gv.name;
-                    v.typeInfo = t.gv.typeInfo;
-                    v.scope = VariableScopeEnum.global;
-                    v.typeInfo.arraySize.AddRange(t.gv.typeInfo.arraySize);
-                    Gv.context.gv.Add(v.name, v);
+                    if (gv.int_value == null)
+                    {
+                        uninitedGv.Add(gv);
+                        Variable v = new Variable();
+                        v.name = gv.name;
+                        v.typeInfo = gv.typeInfo;
+                        v.scope = VariableScopeEnum.global;
+                        v.typeInfo.arraySize.AddRange(gv.typeInfo.arraySize);
+                        Gv.context.gv.Add(v.name, v);
+                    }
+                    else
+                    {
+                        initedGv.Add(gv);
+                        Variable v = new Variable();
+                        v.name = gv.name;
+                        v.typeInfo = gv.typeInfo;
+                        v.scope = VariableScopeEnum.global;
+                        v.typeInfo.arraySize.AddRange(gv.typeInfo.arraySize);
+                        Gv.context.gv.Add(v.name, v);
+                    }
                 }
             }
         }
@@ -127,48 +170,11 @@
         {
             Init();
 
-            if (childrenForPrint.Count == 0)
-                childrenForPrint.AddRange(topLevels);
-
             return base.ToString();
         }
     }
 
-    public class TopLevel : AstNode
-    {
-        public FunDecl funDecl;
-        public GlobalVariable gv;
-        public StructDef structDef;
-        public bool comment = false;
-
-        public TopLevel() : base("TopLevel")
-        {
-
-        }
-
-        public override void EmitAsm()
-        {
-            if (funDecl != null)
-                funDecl.EmitAsm();
-            else if (gv != null)
-                gv.EmitAsm();
-        }
-
-        public override string ToString()
-        {
-            if (childrenForPrint.Count == 0)
-            {
-                if (funDecl != null)
-                    childrenForPrint.Add(funDecl);
-                else if (gv != null)
-                    childrenForPrint.Add(gv);
-            }
-
-            return base.ToString();
-        }
-    }
-
-    public class GlobalVariable : AstNode
+    public class GlobalVariable : GlobalDeclare
     {
         public VariableTypeInfo typeInfo;
         public string name;
@@ -199,7 +205,7 @@
     }
 
 
-    public class FunDecl : AstNode
+    public class FunDecl : GlobalDeclare
     {
         public VariableTypeInfo returnTypeInfo;
         public string functionName;
@@ -312,7 +318,7 @@ ret
     }
 
     // Statement clear all result
-    public class Statement : AstNode
+    public class Statement : ProgramBase
     {
         public Statement() : base("Statement")
         {
@@ -587,7 +593,7 @@ ret";
 
 
     // save result in stack
-    public class Expression : AstNode
+    public class Expression : ProgramBase
     {
         public Expression lhs = null;
         public string? op = null;
@@ -896,7 +902,7 @@ ret";
         }
     }
 
-    public class StructDef : AstNode
+    public class StructDef : GlobalDeclare
     {
         public string name;
         public List<StructField> fields = new List<StructField>();

@@ -1,45 +1,17 @@
 ﻿namespace CCompilerNs
 {
-    public class CCLexYaccCallback
+    public class LexYaccCallback
     {
-        public static Program Program(Program prev, TopLevel topLevel)
+        public static Program Program(Program prev, GlobalDeclare globalDeclare)
         {
             Program p = new Program();
             if (prev != null)
-                p.topLevels.AddRange(prev.topLevels);
+                p.globalDeclares.AddRange(prev.globalDeclares);
 
-            if (topLevel != null)
-                p.topLevels.Add(topLevel);
+            if (globalDeclare != null)
+                p.globalDeclares.Add(globalDeclare);
 
             return p;
-        }
-
-        public static TopLevel TopLevel(FunDecl funcDecl)
-        {
-            TopLevel t = new TopLevel();
-            t.funDecl = funcDecl;
-            return t;
-        }
-
-        public static TopLevel TopLevel(GlobalVariable g)
-        {
-            TopLevel t = new TopLevel();
-            t.gv = g;
-            return t;
-        }
-
-        public static TopLevel TopLevel(StructDef structDef)
-        {
-            TopLevel t = new TopLevel();
-            t.structDef = structDef;
-            return t;
-        }
-
-        public static TopLevel TopLevel()
-        {
-            TopLevel t = new TopLevel();
-            t.comment = true;
-            return t;
         }
 
         public static FunDecl FuncDecl(string returnType, string functionName, List<Variable> paramList, List<Statement> statements)
@@ -69,9 +41,6 @@
                 }
             }
 
-
-            f.childrenForPrint.AddRange(statements);
-
             return f;
         }
 
@@ -90,9 +59,6 @@
         {
             ReturnStatement n = new ReturnStatement();
             n.returnValue = expression;
-
-            if (expression != null)
-                n.childrenForPrint.Add(expression);
 
             return n;
         }
@@ -133,9 +99,6 @@
             if (arraySize != null)
                 n.typeInfo.arraySize.AddRange(arraySize);
 
-            if (expression != null)
-                n.childrenForPrint.Add(expression);
-
             return n;
         }
 
@@ -144,7 +107,6 @@
             AssignmentStatement a = new AssignmentStatement();
             a.name = id;
             a.value = expression;
-            a.childrenForPrint.Add(expression);
 
             if (arrayIndex != null)
                 a.arrayIndex.AddRange(arrayIndex);
@@ -229,7 +191,6 @@
         {
             Expression a = new Expression();
             a.lhs = lhs;
-            a.childrenForPrint.Add(lhs);
 
             return a;
         }
@@ -242,9 +203,6 @@
 
             a.rhs = new Expression();
             a.rhs.intValue = rhsIntValue;
-
-            a.childrenForPrint.Add(lhs);
-            a.childrenForPrint.Add(a.rhs);
 
             return a;
         }
@@ -259,9 +217,6 @@
             a.rhs = new Expression();
             a.rhs.functionCall = functionCallExpression;
 
-            a.childrenForPrint.Add(lhs);
-            a.childrenForPrint.Add(a.rhs);
-
             return a;
         }
 
@@ -275,9 +230,6 @@
             a.rhs = new Expression();
             a.rhs.variableName = variableName;
 
-            a.childrenForPrint.Add(lhs);
-            a.childrenForPrint.Add(a.rhs);
-
             return a;
         }
 
@@ -287,9 +239,6 @@
             a.lhs = lhs;
             a.op = op;
             a.rhs = rhs;
-
-            a.childrenForPrint.Add(lhs);
-            a.childrenForPrint.Add(rhs);
 
             return a;
         }
