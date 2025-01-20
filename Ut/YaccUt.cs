@@ -737,6 +737,57 @@ b:
         Check(yacc.Feed(tokens) == false);
     }
 
+    public static void UtFeed28_empty_rule()
+    {
+        string line0 = "a: 'A' b {};";
+        string line1 = "b: 'B' {} | {};";
+
+
+        Yacc yacc = new Yacc(line0 + line1);
+
+        yacc.Rebuild();
+        tokens.Clear();
+        tokens.Add(Terminal.BuildConstCharTerminal('A'));
+        tokens.Add(Terminal.BuildConstCharTerminal('B'));
+        Check(yacc.Feed(tokens) == true);
+
+        yacc.Rebuild();
+        tokens.Clear();
+        tokens.Add(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.Feed(tokens) == true);
+
+        yacc.Rebuild();
+        tokens.Clear();
+        tokens.Add(Terminal.BuildConstCharTerminal('A'));
+        tokens.Add(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.Feed(tokens) == false);
+    }
+
+    public static void UtFeed29_empty_rule()
+    {
+        string line0 = "a: 'A' b {};";
+        string line1 = "b: {} | 'B' {} ;";
+
+        Yacc yacc = new Yacc(line0 + line1);
+
+        yacc.Rebuild();
+        tokens.Clear();
+        tokens.Add(Terminal.BuildConstCharTerminal('A'));
+        tokens.Add(Terminal.BuildConstCharTerminal('B'));
+        Check(yacc.Feed(tokens) == true);
+
+        yacc.Rebuild();
+        tokens.Clear();
+        tokens.Add(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.Feed(tokens) == true);
+
+        yacc.Rebuild();
+        tokens.Clear();
+        tokens.Add(Terminal.BuildConstCharTerminal('A'));
+        tokens.Add(Terminal.BuildConstCharTerminal('A'));
+        Check(yacc.Feed(tokens) == false);
+    }
+
     private static void UtFeed()
     {
         UtFeed1();
@@ -765,6 +816,8 @@ b:
         UtFeed24();
         UtFeed25();
         UtFeed27();
+        UtFeed28_empty_rule();
+        UtFeed29_empty_rule();
     }
 
     private static void UtBuild1()
