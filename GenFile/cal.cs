@@ -1761,7 +1761,7 @@ namespace LexYaccNs
     public class TypeSectionParser
     {
         // %token <intVal> CONSTANT
-        // %type <astVal> program declList decl funDecl typeSpec returnStmt funName param paramList id constant
+        // %type <astVal> program declList decl functionDeclare typeSpec returnStmt funName param paramList id constant
         public static Tuple<List<LexTokenDef>, Dictionary<string, string>> Parse(string input)
         {
             List<LexTokenDef> lexTokenDef = new List<LexTokenDef>();

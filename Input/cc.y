@@ -7,8 +7,8 @@
 
 %type <CCompilerNs.Program>                    program
 %type <CCompilerNs.GlobalDeclare>              globalDeclare
-%type <CCompilerNs.FunDecl>                    funDecl
-%type <List<CCompilerNs.Variable>>             funcParams
+%type <CCompilerNs.FunctionDeclare>            functionDeclare
+%type <List<CCompilerNs.Variable>>             functionParams
 %type <List<CCompilerNs.Statement>>            statements 
 %type <CCompilerNs.ForLoopStatement>           forLoopStatement
 %type <CCompilerNs.Statement>                  statement
@@ -54,7 +54,7 @@ globalVariable
     $$ = $1;
 }
 |
-funDecl
+functionDeclare
 {
     $$ = $1;
 }
@@ -70,13 +70,13 @@ SINGLE_LINE_COMMENT
 }
 ;
 
-funDecl:
+functionDeclare:
 typeSpec ID '(' ')' '{' statements '}'
 {  
     $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, null, $6);
 }
 |
-typeSpec ID '(' funcParams ')' '{' statements '}'
+typeSpec ID '(' functionParams ')' '{' statements '}'
 {  
     $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, $4, $7);
 }
@@ -85,7 +85,7 @@ typeSpec ID '(' ')' '{' '}'
     $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, null, null);
 }
 |
-typeSpec ID '(' funcParams ')' '{' '}'
+typeSpec ID '(' functionParams ')' '{' '}'
 {  
     $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, $4, null);
 }
@@ -471,8 +471,8 @@ CHAR_VALUE
 }
 ;
 
-funcParams:
-funcParams ',' typeSpec ID
+functionParams:
+functionParams ',' typeSpec ID
 {
     $$ = CCompilerNs.LexYaccCallback.FuncParams($3, $4, $1);
 }
@@ -482,7 +482,7 @@ typeSpec ID
     $$ = CCompilerNs.LexYaccCallback.FuncParams($1, $2, null);
 }
 |
-funcParams ',' typeSpec paramArraySize ID
+functionParams ',' typeSpec paramArraySize ID
 {
     $$ = CCompilerNs.LexYaccCallback.FuncParamsArray($3, $5, $4, $1);
 }

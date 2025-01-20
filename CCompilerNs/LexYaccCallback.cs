@@ -14,9 +14,9 @@
             return p;
         }
 
-        public static FunDecl FuncDecl(string returnType, string functionName, List<Variable> paramList, List<Statement> statements)
+        public static FunctionDeclare FuncDecl(string returnType, string functionName, List<Variable> paramList, List<Statement> statements)
         {
-            FunDecl f = new FunDecl();
+            FunctionDeclare f = new FunctionDeclare();
             f.returnTypeInfo = Util.GetType(returnType);
 
             f.functionName = functionName;
@@ -291,33 +291,33 @@
 
         public static List<Variable> FuncParams(string type, string name, List<Variable> prevFunParams)
         {
-            List<Variable> funcParams = new List<Variable>();
+            List<Variable> functionParams = new List<Variable>();
             if (prevFunParams != null)
-                funcParams.AddRange(prevFunParams);
+                functionParams.AddRange(prevFunParams);
 
             Variable funParam = new Variable();
             funParam.name = name;
             funParam.typeInfo = Util.GetType(type);
             funParam.scope = VariableScopeEnum.param;
-            funcParams.Add(funParam);
+            functionParams.Add(funParam);
 
-            return funcParams;
+            return functionParams;
         }
 
         public static List<Variable> FuncParamsArray(string type, string name, List<int> arraySize, List<Variable> prevFunParams)
         {
-            List<Variable> funcParams = new List<Variable>();
+            List<Variable> functionParams = new List<Variable>();
             if (prevFunParams != null)
-                funcParams.AddRange(prevFunParams);
+                functionParams.AddRange(prevFunParams);
 
             Variable funParam = new Variable();
             funParam.name = name;
             funParam.typeInfo = Util.GetType(type);
             funParam.typeInfo.arraySize.AddRange(arraySize);
             funParam.scope = VariableScopeEnum.param;
-            funcParams.Add(funParam);
+            functionParams.Add(funParam);
 
-            return funcParams;
+            return functionParams;
         }
 
         public static FunctionCallExpression FunctionCallExpression(string name, List<Expression> parameters)

@@ -11,7 +11,7 @@
     {
         public Dictionary<string, Variable> gv = new Dictionary<string, Variable>();
         public Dictionary<string, StructDef> structDefs = new Dictionary<string, StructDef>();
-        public FunDecl funDecl;
+        public FunctionDeclare functionDeclare;
         public Stack<ForLoopStatement> forLoopStatementStack = new Stack<ForLoopStatement>();
     }
 

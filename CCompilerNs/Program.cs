@@ -46,7 +46,7 @@
 
         private List<GlobalVariable> uninitedGv = new List<GlobalVariable>();
         private List<GlobalVariable> initedGv = new List<GlobalVariable>();
-        private List<FunDecl> funDecls = new List<FunDecl>();
+        private List<FunctionDeclare> funDecls = new List<FunctionDeclare>();
         private List<StructDef> structDefs = new List<StructDef>();
         private bool inited = false;
 
@@ -68,8 +68,8 @@
                     structDefs.Add(structDef);
                     Gv.context.structDefs.Add(structDef.name, structDef);
                 }
-                else if (g is FunDecl)
-                    funDecls.Add((FunDecl)g);
+                else if (g is FunctionDeclare)
+                    funDecls.Add((FunctionDeclare)g);
                 else if (g is GlobalVariable)
                 {
                     GlobalVariable gv = g as GlobalVariable;
@@ -136,7 +136,7 @@
 
         private void SetLocalStackOffset()
         {
-            foreach (FunDecl f in funDecls)
+            foreach (FunctionDeclare f in funDecls)
                 f.SetLocalStackOffset();
         }
 
@@ -161,7 +161,7 @@
             }
 
             Emit(".text\n");
-            foreach (FunDecl f in funDecls)
+            foreach (FunctionDeclare f in funDecls)
                 f.EmitAsm();
             Emit("");
         }
@@ -205,7 +205,7 @@
     }
 
 
-    public class FunDecl : GlobalDeclare
+    public class FunctionDeclare : GlobalDeclare
     {
         public VariableTypeInfo returnTypeInfo;
         public string functionName;
@@ -219,7 +219,7 @@
         public Dictionary<string, DeclareStatement> localDeclareMap = new Dictionary<string, DeclareStatement>();
         public int localSize = 0;
 
-        public FunDecl() : base("FunDecl")
+        public FunctionDeclare() : base("FunctionDeclare")
         {
 
         }
@@ -293,9 +293,9 @@
 
         public override void EmitAsm()
         {
-            Gv.context.funDecl = this;
+            Gv.context.functionDeclare = this;
 
-            string asm = string.Format(@"#FunDecl =>
+            string asm = string.Format(@"#FunctionDeclare =>
 .global {0}
 {1}:
 push %rbp
@@ -310,10 +310,10 @@ add ${2}, %rsp", functionName, functionName, -localSize);
 
             asm = string.Format(@"leave
 ret
-#<= FunDecl");
+#<= FunctionDeclare");
             Emit(asm);
 
-            Gv.context.funDecl = this;
+            Gv.context.functionDeclare = this;
         }
     }
 
@@ -481,14 +481,14 @@ ret";
 
             Variable v = null;
 
-            if (Gv.context.funDecl.localMap.ContainsKey(name))
+            if (Gv.context.functionDeclare.localMap.ContainsKey(name))
             {
-                l = Gv.context.funDecl.localMap[name];
+                l = Gv.context.functionDeclare.localMap[name];
                 v = l;
             }
-            else if (Gv.context.funDecl.paramMap.ContainsKey(name))
+            else if (Gv.context.functionDeclare.paramMap.ContainsKey(name))
             {
-                p = Gv.context.funDecl.paramMap[name];
+                p = Gv.context.functionDeclare.paramMap[name];
                 v = p;
             }
             else if (Gv.context.gv.ContainsKey(name))
@@ -626,14 +626,14 @@ ret";
                 Variable variable = null;
 
 
-                if (Gv.context.funDecl.localMap.ContainsKey(variableName))
+                if (Gv.context.functionDeclare.localMap.ContainsKey(variableName))
                 {
-                    local = Gv.context.funDecl.localMap[variableName];
+                    local = Gv.context.functionDeclare.localMap[variableName];
                     variable = local;
                 }
-                else if (Gv.context.funDecl.paramMap.ContainsKey(variableName))
+                else if (Gv.context.functionDeclare.paramMap.ContainsKey(variableName))
                 {
-                    param = Gv.context.funDecl.paramMap[variableName];
+                    param = Gv.context.functionDeclare.paramMap[variableName];
                     variable = param;
                 }
                 else if (Gv.context.gv.ContainsKey(variableName))
@@ -685,14 +685,14 @@ ret";
 
                 Variable variable = null;
 
-                if (Gv.context.funDecl.localMap.ContainsKey(variableName))
+                if (Gv.context.functionDeclare.localMap.ContainsKey(variableName))
                 {
-                    local = Gv.context.funDecl.localMap[variableName];
+                    local = Gv.context.functionDeclare.localMap[variableName];
                     variable = local;
                 }
-                else if (Gv.context.funDecl.paramMap.ContainsKey(variableName))
+                else if (Gv.context.functionDeclare.paramMap.ContainsKey(variableName))
                 {
-                    param = Gv.context.funDecl.paramMap[variableName];
+                    param = Gv.context.functionDeclare.paramMap[variableName];
                     variable = param;
                 }
                 else if (Gv.context.gv.ContainsKey(variableName))

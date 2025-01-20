@@ -25,8 +25,8 @@ public class YaccActions{
 
 %type <CCompilerNs.Program>                    program
 %type <CCompilerNs.GlobalDeclare>              globalDeclare
-%type <CCompilerNs.FunDecl>                    funDecl
-%type <List<CCompilerNs.Variable>>             funcParams
+%type <CCompilerNs.FunctionDeclare>            functionDeclare
+%type <List<CCompilerNs.Variable>>             functionParams
 %type <List<CCompilerNs.Statement>>            statements 
 %type <CCompilerNs.ForLoopStatement>           forLoopStatement
 %type <CCompilerNs.Statement>                  statement
@@ -72,7 +72,7 @@ globalVariable
     $$ = $1;
 }
 |
-funDecl
+functionDeclare
 {
     $$ = $1;
 }
@@ -88,13 +88,13 @@ SINGLE_LINE_COMMENT
 }
 ;
 
-funDecl:
+functionDeclare:
 typeSpec ID '(' ')' '{' statements '}'
 {  
     $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, null, $6);
 }
 |
-typeSpec ID '(' funcParams ')' '{' statements '}'
+typeSpec ID '(' functionParams ')' '{' statements '}'
 {  
     $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, $4, $7);
 }
@@ -103,7 +103,7 @@ typeSpec ID '(' ')' '{' '}'
     $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, null, null);
 }
 |
-typeSpec ID '(' funcParams ')' '{' '}'
+typeSpec ID '(' functionParams ')' '{' '}'
 {  
     $$= CCompilerNs.LexYaccCallback.FuncDecl($1, $2, $4, null);
 }
@@ -489,8 +489,8 @@ CHAR_VALUE
 }
 ;
 
-funcParams:
-funcParams ',' typeSpec ID
+functionParams:
+functionParams ',' typeSpec ID
 {
     $$ = CCompilerNs.LexYaccCallback.FuncParams($3, $4, $1);
 }
@@ -500,7 +500,7 @@ typeSpec ID
     $$ = CCompilerNs.LexYaccCallback.FuncParams($1, $2, null);
 }
 |
-funcParams ',' typeSpec paramArraySize ID
+functionParams ',' typeSpec paramArraySize ID
 {
     $$ = CCompilerNs.LexYaccCallback.FuncParamsArray($3, $5, $4, $1);
 }
@@ -727,10 +727,10 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_globalDeclare_Producton_1", Rule_globalDeclare_Producton_1);
         actions.Add("Rule_globalDeclare_Producton_2", Rule_globalDeclare_Producton_2);
         actions.Add("Rule_globalDeclare_Producton_3", Rule_globalDeclare_Producton_3);
-        actions.Add("Rule_funDecl_Producton_0", Rule_funDecl_Producton_0);
-        actions.Add("Rule_funDecl_Producton_1", Rule_funDecl_Producton_1);
-        actions.Add("Rule_funDecl_Producton_2", Rule_funDecl_Producton_2);
-        actions.Add("Rule_funDecl_Producton_3", Rule_funDecl_Producton_3);
+        actions.Add("Rule_functionDeclare_Producton_0", Rule_functionDeclare_Producton_0);
+        actions.Add("Rule_functionDeclare_Producton_1", Rule_functionDeclare_Producton_1);
+        actions.Add("Rule_functionDeclare_Producton_2", Rule_functionDeclare_Producton_2);
+        actions.Add("Rule_functionDeclare_Producton_3", Rule_functionDeclare_Producton_3);
         actions.Add("Rule_typeSpec_Producton_0", Rule_typeSpec_Producton_0);
         actions.Add("Rule_typeSpec_Producton_1", Rule_typeSpec_Producton_1);
         actions.Add("Rule_typeSpec_Producton_2", Rule_typeSpec_Producton_2);
@@ -807,11 +807,11 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_8", Rule_mulExpression_LeftRecursionExpand_Producton_8);
         actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_9", Rule_mulExpression_LeftRecursionExpand_Producton_9);
         actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_10", Rule_mulExpression_LeftRecursionExpand_Producton_10);
-        actions.Add("Rule_funcParams_Producton_0", Rule_funcParams_Producton_0);
-        actions.Add("Rule_funcParams_Producton_1", Rule_funcParams_Producton_1);
-        actions.Add("Rule_funcParams_LeftRecursionExpand_Producton_0", Rule_funcParams_LeftRecursionExpand_Producton_0);
-        actions.Add("Rule_funcParams_LeftRecursionExpand_Producton_1", Rule_funcParams_LeftRecursionExpand_Producton_1);
-        actions.Add("Rule_funcParams_LeftRecursionExpand_Producton_2", Rule_funcParams_LeftRecursionExpand_Producton_2);
+        actions.Add("Rule_functionParams_Producton_0", Rule_functionParams_Producton_0);
+        actions.Add("Rule_functionParams_Producton_1", Rule_functionParams_Producton_1);
+        actions.Add("Rule_functionParams_LeftRecursionExpand_Producton_0", Rule_functionParams_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_functionParams_LeftRecursionExpand_Producton_1", Rule_functionParams_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_functionParams_LeftRecursionExpand_Producton_2", Rule_functionParams_LeftRecursionExpand_Producton_2);
         actions.Add("Rule_funcCallParams_Producton_0", Rule_funcCallParams_Producton_0);
         actions.Add("Rule_funcCallParams_LeftRecursionExpand_Producton_0", Rule_funcCallParams_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_funcCallParams_LeftRecursionExpand_Producton_1", Rule_funcCallParams_LeftRecursionExpand_Producton_1);
@@ -900,7 +900,7 @@ GREATER_OR_EQUAL_SIGN
 
     public static object Rule_globalDeclare_Producton_1(Dictionary<int, object> objects) { 
         CCompilerNs.GlobalDeclare _0 = new CCompilerNs.GlobalDeclare();
-        CCompilerNs.FunDecl _1 = (CCompilerNs.FunDecl)objects[1];
+        CCompilerNs.FunctionDeclare _1 = (CCompilerNs.FunctionDeclare)objects[1];
 
         // user-defined action
         _0 = _1;
@@ -928,8 +928,8 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_funDecl_Producton_0(Dictionary<int, object> objects) { 
-        CCompilerNs.FunDecl _0 = new CCompilerNs.FunDecl();
+    public static object Rule_functionDeclare_Producton_0(Dictionary<int, object> objects) { 
+        CCompilerNs.FunctionDeclare _0 = new CCompilerNs.FunctionDeclare();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
         List<CCompilerNs.Statement> _6 = (List<CCompilerNs.Statement>)objects[6];
@@ -940,8 +940,8 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_funDecl_Producton_1(Dictionary<int, object> objects) { 
-        CCompilerNs.FunDecl _0 = new CCompilerNs.FunDecl();
+    public static object Rule_functionDeclare_Producton_1(Dictionary<int, object> objects) { 
+        CCompilerNs.FunctionDeclare _0 = new CCompilerNs.FunctionDeclare();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
         List<CCompilerNs.Variable> _4 = (List<CCompilerNs.Variable>)objects[4];
@@ -953,8 +953,8 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_funDecl_Producton_2(Dictionary<int, object> objects) { 
-        CCompilerNs.FunDecl _0 = new CCompilerNs.FunDecl();
+    public static object Rule_functionDeclare_Producton_2(Dictionary<int, object> objects) { 
+        CCompilerNs.FunctionDeclare _0 = new CCompilerNs.FunctionDeclare();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
 
@@ -964,8 +964,8 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_funDecl_Producton_3(Dictionary<int, object> objects) { 
-        CCompilerNs.FunDecl _0 = new CCompilerNs.FunDecl();
+    public static object Rule_functionDeclare_Producton_3(Dictionary<int, object> objects) { 
+        CCompilerNs.FunctionDeclare _0 = new CCompilerNs.FunctionDeclare();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
         List<CCompilerNs.Variable> _4 = (List<CCompilerNs.Variable>)objects[4];
@@ -1802,7 +1802,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_funcParams_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_functionParams_Producton_0(Dictionary<int, object> objects) { 
         List<CCompilerNs.Variable> _0 = new List<CCompilerNs.Variable>();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
@@ -1813,7 +1813,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_funcParams_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_functionParams_Producton_1(Dictionary<int, object> objects) { 
         List<CCompilerNs.Variable> _0 = new List<CCompilerNs.Variable>();
         string _1 = (string)objects[1];
         List<int> _2 = (List<int>)objects[2];
@@ -1825,7 +1825,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_funcParams_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_functionParams_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
         List<CCompilerNs.Variable> _0 = new List<CCompilerNs.Variable>();
         List<CCompilerNs.Variable> _1 =(List<CCompilerNs.Variable>)objects[1];
         string _3 = (string)objects[3];
@@ -1837,7 +1837,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_funcParams_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_functionParams_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
         List<CCompilerNs.Variable> _0 = new List<CCompilerNs.Variable>();
         List<CCompilerNs.Variable> _1 =(List<CCompilerNs.Variable>)objects[1];
         string _3 = (string)objects[3];
@@ -1850,7 +1850,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_funcParams_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
+    public static object Rule_functionParams_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
         List<CCompilerNs.Variable> _0 = new List<CCompilerNs.Variable>();
 
         return _0;
@@ -4276,7 +4276,7 @@ namespace LexYaccNs
     public class TypeSectionParser
     {
         // %token <intVal> CONSTANT
-        // %type <astVal> program declList decl funDecl typeSpec returnStmt funName param paramList id constant
+        // %type <astVal> program declList decl functionDeclare typeSpec returnStmt funName param paramList id constant
         public static Tuple<List<LexTokenDef>, Dictionary<string, string>> Parse(string input)
         {
             List<LexTokenDef> lexTokenDef = new List<LexTokenDef>();
