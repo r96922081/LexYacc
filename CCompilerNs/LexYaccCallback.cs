@@ -105,11 +105,8 @@
         public static AssignmentStatement AssignmentStatement(VariableId variableId, Expression expression)
         {
             AssignmentStatement a = new AssignmentStatement();
-            a.name = variableId.name;
+            a.variableId = variableId;
             a.value = expression;
-
-            if (variableId.arrayIndex != null)
-                a.arrayIndex.AddRange(variableId.arrayIndex);
 
             return a;
         }
@@ -117,9 +114,7 @@
         public static AssignmentStatement OpAssignmentStatement(VariableId variableId, Expression rhs, string op)
         {
             AssignmentStatement a = new AssignmentStatement();
-            a.name = variableId.name;
-            if (variableId.arrayIndex != null)
-                a.arrayIndex.AddRange(variableId.arrayIndex);
+            a.variableId = variableId;
 
             Expression lhs = null;
 
@@ -136,9 +131,7 @@
         public static AssignmentStatement IncrementDecrement(VariableId variableId, string op)
         {
             AssignmentStatement a = new AssignmentStatement();
-            a.name = variableId.name;
-            if (variableId.arrayIndex != null)
-                a.arrayIndex.AddRange(variableId.arrayIndex);
+            a.variableId = variableId;
 
             Expression rhs = Expression(1);
 

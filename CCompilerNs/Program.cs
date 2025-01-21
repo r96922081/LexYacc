@@ -465,9 +465,8 @@ ret";
 
     public class AssignmentStatement : Statement
     {
-        public string name;
+        public VariableId variableId;
         public Expression value;
-        public List<Expression> arrayIndex = new List<Expression>();
 
         public AssignmentStatement() : base("AssignmentStatement")
         {
@@ -478,9 +477,9 @@ ret";
         {
             Emit("#AssignmentStatement =>");
 
-            Variable variable = Util.GetVariable(name);
+            Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name);
 
-            if (arrayIndex.Count == 0)
+            if (variableId.arrayIndex.Count == 0)
             {
                 value.EmitAsm();
                 Emit("pop %rax");  // pop value
@@ -488,13 +487,13 @@ ret";
                 if (variable.stackOffset != -1)
                     Emit(string.Format("mov %rax, {0}(%rbp)", variable.stackOffset));
                 else
-                    Emit(string.Format("mov %rax, {0}(%rip)", name));
+                    Emit(string.Format("mov %rax, {0}(%rip)", variableId.name));
             }
             // a[2][3] = xxx;
             else
             {
                 value.EmitAsm();
-                Util.SaveArrayIndexAddressToRbx(variable, arrayIndex);
+                Util.SaveArrayIndexAddressToRbx(variable, variableId.arrayIndex);
 
                 Emit("pop %rax"); // value to %rax                
 
@@ -692,11 +691,11 @@ ret";
 
         public override void EmitAsm()
         {
+            Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name);
+
             // case mulExpression: ID
             if (variableId.arrayIndex.Count == 0)
             {
-                Variable variable = Util.GetVariable(variableId.name);
-
                 // If ID is array, then push address of array
                 if (variable.typeInfo.arraySize.Count != 0)
                 {
@@ -734,8 +733,6 @@ ret";
             // case mulExpression: ID arrayIndex
             else
             {
-                Variable variable = Util.GetVariable(variableId.name);
-
                 Util.SaveArrayIndexAddressToRbx(variable, variableId.arrayIndex);
 
                 Emit(string.Format("movq $0, %rax"));

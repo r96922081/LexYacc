@@ -85,7 +85,7 @@
             Emit("add %rax, %rbx"); // save address at %rbx
         }
 
-        public static Variable GetVariable(string name)
+        public static Variable GetVariableFrom_Local_Param_Global(string name)
         {
             if (Gv.context.functionDeclare.localMap.ContainsKey(name))
             {
