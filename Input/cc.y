@@ -400,7 +400,7 @@ mulExpression multiplyDivideOp INT_VALUE
 {
     $$ = CCompilerNs.LexYaccCallback.Expression($1, $2, $3);
 }
-| mulExpression multiplyDivideOp ID
+| mulExpression multiplyDivideOp variableId
 {
     $$ = CCompilerNs.LexYaccCallback.Expression($1, $2, $3);
 }

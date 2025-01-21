@@ -418,7 +418,7 @@ mulExpression multiplyDivideOp INT_VALUE
 {
     $$ = CCompilerNs.LexYaccCallback.Expression($1, $2, $3);
 }
-| mulExpression multiplyDivideOp ID
+| mulExpression multiplyDivideOp variableId
 {
     $$ = CCompilerNs.LexYaccCallback.Expression($1, $2, $3);
 }
@@ -1566,7 +1566,7 @@ GREATER_OR_EQUAL_SIGN
         CCompilerNs.Expression _0 = new CCompilerNs.Expression();
         CCompilerNs.Expression _1 =(CCompilerNs.Expression)objects[1];
         string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
+        CCompilerNs.VariableId _3 = (CCompilerNs.VariableId)objects[3];
 
         // user-defined action
         _0 = CCompilerNs.LexYaccCallback.Expression(_1, _2, _3);

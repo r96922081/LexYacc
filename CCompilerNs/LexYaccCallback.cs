@@ -164,11 +164,10 @@
 
         public static Expression Expression(VariableId variableId)
         {
-            Expression a = new Expression();
-            a.variableName = variableId.name;
-            a.arrayIndex.AddRange(variableId.arrayIndex);
+            VariableIdExpression v = new VariableIdExpression();
+            v.variableId = variableId;
 
-            return a;
+            return v;
         }
 
         public static Expression Expression(FunctionCallExpression functionCallExpression)
@@ -212,15 +211,13 @@
             return a;
         }
 
-        public static Expression Expression(Expression lhs, string op, string variableName)
+        public static Expression Expression(Expression lhs, string op, VariableId variableId)
         {
             Expression a = new Expression();
 
             a.lhs = lhs;
             a.op = op;
-
-            a.rhs = new Expression();
-            a.rhs.variableName = variableName;
+            a.rhs = Expression(variableId);
 
             return a;
         }

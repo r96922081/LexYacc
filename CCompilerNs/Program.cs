@@ -591,7 +591,6 @@ ret";
         }
     }
 
-
     // save result in stack
     public class Expression : ProgramBase
     {
@@ -599,11 +598,14 @@ ret";
         public string? op = null;
         public Expression rhs = null;
         public int? intValue = null;
-        public string? variableName = null;
-        public List<Expression> arrayIndex = new List<Expression>();
         public FunctionCallExpression? functionCall = null;
 
         public Expression() : base("Expression")
+        {
+
+        }
+
+        public Expression(string s) : base(s)
         {
 
         }
@@ -615,103 +617,6 @@ ret";
             {
                 Emit(string.Format("mov ${0}, %rax", intValue));
                 Emit(string.Format("push %rax"));
-            }
-            // case mulExpression: ID
-            else if (variableName != null && arrayIndex.Count == 0)
-            {
-                Variable local = null;
-                Variable param = null;
-                Variable gv = null;
-
-                Variable variable = null;
-
-
-                if (Gv.context.functionDeclare.localMap.ContainsKey(variableName))
-                {
-                    local = Gv.context.functionDeclare.localMap[variableName];
-                    variable = local;
-                }
-                else if (Gv.context.functionDeclare.paramMap.ContainsKey(variableName))
-                {
-                    param = Gv.context.functionDeclare.paramMap[variableName];
-                    variable = param;
-                }
-                else if (Gv.context.gv.ContainsKey(variableName))
-                {
-                    gv = Gv.context.gv[variableName];
-                    variable = gv;
-                }
-
-                // If ID is array, then push address of array
-                if (variable.typeInfo.arraySize.Count != 0)
-                {
-                    if (local != null)
-                    {
-                        Emit(string.Format("mov %rbp, %rax"));
-                        Emit(string.Format("add ${0}, %rax", local.stackOffset));
-                        Emit(string.Format("push %rax"));
-                    }
-                    else if (param != null)
-                    {
-                        Emit(string.Format("mov %rbp, %rax"));
-                        Emit(string.Format("add ${0}, %rax", param.stackOffset));
-                        Emit(string.Format("mov (%rax), %rax"));
-                        Emit(string.Format("push %rax"));
-                    }
-                    else if (gv != null)
-                    {
-                        Emit(string.Format("lea {0}(%rip), %rax", variableName));
-                        Emit(string.Format("push %rax"));
-                    }
-                }
-                else
-                {
-                    if (variable.stackOffset != -1)
-                        // local variable
-                        Emit(string.Format("mov {0}(%rbp), %rax", variable.stackOffset));
-                    else
-                        // global variable
-                        Emit(string.Format("mov {0}(%rip), %rax", variableName));
-
-                    Emit(string.Format("push %rax"));
-                }
-            }
-            // case mulExpression: ID arrayIndex
-            else if (variableName != null && arrayIndex.Count > 0)
-            {
-                Variable local = null;
-                Variable param = null;
-                Variable globalVariable = null;
-
-                Variable variable = null;
-
-                if (Gv.context.functionDeclare.localMap.ContainsKey(variableName))
-                {
-                    local = Gv.context.functionDeclare.localMap[variableName];
-                    variable = local;
-                }
-                else if (Gv.context.functionDeclare.paramMap.ContainsKey(variableName))
-                {
-                    param = Gv.context.functionDeclare.paramMap[variableName];
-                    variable = param;
-                }
-                else if (Gv.context.gv.ContainsKey(variableName))
-                {
-                    globalVariable = Gv.context.gv[variableName];
-                    variable = globalVariable;
-                }
-
-                Util.SaveArrayIndexAddressToRbx(local, param, globalVariable, arrayIndex);
-
-                Emit(string.Format("movq $0, %rax"));
-
-                if (variable.typeInfo.size == 1)
-                    Emit(string.Format("movzbq (%rbx), %rax"));
-                else
-                    Emit(string.Format("mov (%rbx), %rax"));
-
-                Emit(string.Format("push %rax"));
-
             }
             // case mulExpression: functionCall
             else if (functionCall != null)
@@ -770,11 +675,6 @@ ret";
             {
                 s = "Expression(" + intValue + ")";
             }
-            // case mulExpression: ID
-            else if (variableName != null)
-            {
-                s = "Expression(" + variableName + ")";
-            }
             // case mulExpression: functionCall
             else if (functionCall != null)
             {
@@ -795,6 +695,117 @@ ret";
             }
 
             return base.ToString();
+        }
+    }
+
+    // save result in stack
+    public class VariableIdExpression : Expression
+    {
+        public VariableId variableId;
+
+        public VariableIdExpression() : base("VariableIdExpression")
+        {
+        }
+
+        public override void EmitAsm()
+        {
+            // case mulExpression: ID
+            if (variableId.arrayIndex.Count == 0)
+            {
+                Variable local = null;
+                Variable param = null;
+                Variable gv = null;
+
+                Variable variable = null;
+
+
+                if (Gv.context.functionDeclare.localMap.ContainsKey(variableId.name))
+                {
+                    local = Gv.context.functionDeclare.localMap[variableId.name];
+                    variable = local;
+                }
+                else if (Gv.context.functionDeclare.paramMap.ContainsKey(variableId.name))
+                {
+                    param = Gv.context.functionDeclare.paramMap[variableId.name];
+                    variable = param;
+                }
+                else if (Gv.context.gv.ContainsKey(variableId.name))
+                {
+                    gv = Gv.context.gv[variableId.name];
+                    variable = gv;
+                }
+
+                // If ID is array, then push address of array
+                if (variable.typeInfo.arraySize.Count != 0)
+                {
+                    if (local != null)
+                    {
+                        Emit(string.Format("mov %rbp, %rax"));
+                        Emit(string.Format("add ${0}, %rax", local.stackOffset));
+                        Emit(string.Format("push %rax"));
+                    }
+                    else if (param != null)
+                    {
+                        Emit(string.Format("mov %rbp, %rax"));
+                        Emit(string.Format("add ${0}, %rax", param.stackOffset));
+                        Emit(string.Format("mov (%rax), %rax"));
+                        Emit(string.Format("push %rax"));
+                    }
+                    else if (gv != null)
+                    {
+                        Emit(string.Format("lea {0}(%rip), %rax", variableId.name));
+                        Emit(string.Format("push %rax"));
+                    }
+                }
+                else
+                {
+                    if (variable.stackOffset != -1)
+                        // local variable
+                        Emit(string.Format("mov {0}(%rbp), %rax", variable.stackOffset));
+                    else
+                        // global variable
+                        Emit(string.Format("mov {0}(%rip), %rax", variableId.name));
+
+                    Emit(string.Format("push %rax"));
+                }
+            }
+            // case mulExpression: ID arrayIndex
+            else
+            {
+                Variable local = null;
+                Variable param = null;
+                Variable globalVariable = null;
+
+                Variable variable = null;
+
+                if (Gv.context.functionDeclare.localMap.ContainsKey(variableId.name))
+                {
+                    local = Gv.context.functionDeclare.localMap[variableId.name];
+                    variable = local;
+                }
+                else if (Gv.context.functionDeclare.paramMap.ContainsKey(variableId.name))
+                {
+                    param = Gv.context.functionDeclare.paramMap[variableId.name];
+                    variable = param;
+                }
+                else if (Gv.context.gv.ContainsKey(variableId.name))
+                {
+                    globalVariable = Gv.context.gv[variableId.name];
+                    variable = globalVariable;
+                }
+
+                Util.SaveArrayIndexAddressToRbx(local, param, globalVariable, variableId.arrayIndex);
+
+                Emit(string.Format("movq $0, %rax"));
+
+                if (variable.typeInfo.size == 1)
+                    Emit(string.Format("movzbq (%rbx), %rax"));
+                else
+                    Emit(string.Format("mov (%rbx), %rax"));
+
+                Emit(string.Format("push %rax"));
+
+            }
         }
     }
 
