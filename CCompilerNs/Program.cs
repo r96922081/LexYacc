@@ -678,55 +678,33 @@ ret";
         {
             Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name);
 
+            Util.SaveVariableAddressToRbx(variable, variableId);
+
             // case mulExpression: ID
             if (variableId.arrayIndex.Count == 0)
             {
-                // If ID is array, then push address of array
+                // If ID is array, then value is address of array
                 if (variable.typeInfo.arraySize.Count != 0)
                 {
-                    if (variable.scope == VariableScopeEnum.local)
-                    {
-                        Emit(string.Format("mov %rbp, %rax"));
-                        Emit(string.Format("add ${0}, %rax", variable.stackOffset));
-                    }
-                    else if (variable.scope == VariableScopeEnum.param)
-                    {
-                        Emit(string.Format("mov %rbp, %rax"));
-                        Emit(string.Format("add ${0}, %rax", variable.stackOffset));
-                        Emit(string.Format("mov (%rax), %rax"));
-                    }
-                    else if (variable.scope == VariableScopeEnum.global)
-                    {
-                        Emit(string.Format("lea {0}(%rip), %rax", variableId.name));
-                    }
-
-                    Emit(string.Format("push %rax"));
+                    Emit(string.Format("mov %rbx, %rax"));
                 }
                 else
                 {
-                    if (variable.scope == VariableScopeEnum.global)
-                        Emit(string.Format("mov {0}(%rip), %rax", variableId.name));
-                    else
-                        Emit(string.Format("mov {0}(%rbp), %rax", variable.stackOffset));
-
-                    Emit(string.Format("push %rax"));
+                    Emit(string.Format("mov (%rbx), %rax"));
                 }
             }
             // case mulExpression: ID arrayIndex
             else
             {
-                Util.SaveArrayIndexAddressToRbx(variable, variableId.arrayIndex);
-
                 Emit(string.Format("movq $0, %rax"));
 
                 if (variable.typeInfo.size == 1)
                     Emit(string.Format("movzbq (%rbx), %rax"));
                 else
                     Emit(string.Format("mov (%rbx), %rax"));
-
-                Emit(string.Format("push %rax"));
-
             }
+
+            Emit(string.Format("push %rax"));
         }
     }
 
