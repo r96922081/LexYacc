@@ -44,12 +44,13 @@ public class YaccActions{
 %type <CCompilerNs.EmptyStatement>             emptyStatement singleLineComment
 %type <List<CCompilerNs.Expression>>           functionCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
-%type <List<int>>                              arraySize paramArraySize
+%type <List<int>>                              arraySize
 %type <List<CCompilerNs.Expression>>           arrayIndex
 %type <CCompilerNs.StructDef>                  structDef
 %type <List<CCompilerNs.StructField>>          structFields
 %type <CCompilerNs.StructField>                structField
 %type <CCompilerNs.VariableId>                 variableId
+%type <CCompilerNs.Variable>                   declare
 %type <string>                                 typeSpec relationlOp opAssign incrementDecrement addMinusOp multiplyDivideOp
 
 
@@ -65,7 +66,6 @@ globalDeclare
     $$= CCompilerNs.LexYaccCallback.Program(null, $1);
 }
 ;
-
 
 globalDeclare:
 globalVariable
@@ -127,6 +127,11 @@ CHAR_TYPE
 VOID_TYPE
 {
     $$ = $1;
+}
+|
+STRUCT ID
+{
+    $$ = $1 + "" "" + $2;
 }
 ;
 
@@ -293,11 +298,6 @@ typeSpec ID ';'
 typeSpec ID arraySize ';'
 {
     $$= CCompilerNs.LexYaccCallback.DeclareStatement($1, $2, null, $3);
-}
-|
-STRUCT ID ID ';'
-{
-    $$= CCompilerNs.LexYaccCallback.DeclareStatement($1 + "" "" + $2, $3, null, null);
 }
 ;
 
@@ -491,12 +491,12 @@ typeSpec ID
     $$ = CCompilerNs.LexYaccCallback.FuncParams($1, $2, null);
 }
 |
-functionParams ',' typeSpec paramArraySize ID
+functionParams ',' typeSpec arraySize ID
 {
     $$ = CCompilerNs.LexYaccCallback.FuncParamsArray($3, $5, $4, $1);
 }
 |
-typeSpec paramArraySize ID
+typeSpec arraySize ID
 {
     $$ = CCompilerNs.LexYaccCallback.FuncParamsArray($1, $3, $2, null);
 }
@@ -566,18 +566,6 @@ arraySize '[' INT_VALUE ']'
 }
 ;
 
-paramArraySize:
-'[' ']'
-{
-    $$ = CCompilerNs.LexYaccCallback.ParamArraySize(null);
-}
-|
-'[' ']' arraySize
-{
-    $$ = CCompilerNs.LexYaccCallback.ParamArraySize($3);
-}
-;
-
 arrayIndex:
 arrayIndex '[' addExpression ']'
 {
@@ -641,17 +629,25 @@ typeSpec ID arraySize ';'
 {
     $$= CCompilerNs.LexYaccCallback.StructField($1, $2, $3);
 }
-|
-STRUCT ID ID ';'
+;
+
+declare:
+typeSpec ID
 {
-    $$= CCompilerNs.LexYaccCallback.StructField(""struct "" + $2, $3, null);
+    $$ = CCompilerNs.LexYaccCallback.Declare($1, $2, null);
 }
 |
-STRUCT ID ID arraySize ';'
+typeSpec arraySize ID
 {
-    $$= CCompilerNs.LexYaccCallback.StructField(""struct "" + $2, $3, $4);
+    $$ = CCompilerNs.LexYaccCallback.Declare($1, $3, $2);
+}
+|
+typeSpec ID arraySize 
+{
+    $$ = CCompilerNs.LexYaccCallback.Declare($1, $2, $3);
 }
 ;
+
 
 relationlOp:
 '<'
@@ -715,6 +711,7 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_typeSpec_Producton_0", Rule_typeSpec_Producton_0);
         actions.Add("Rule_typeSpec_Producton_1", Rule_typeSpec_Producton_1);
         actions.Add("Rule_typeSpec_Producton_2", Rule_typeSpec_Producton_2);
+        actions.Add("Rule_typeSpec_Producton_3", Rule_typeSpec_Producton_3);
         actions.Add("Rule_statements_Producton_0", Rule_statements_Producton_0);
         actions.Add("Rule_statements_LeftRecursionExpand_Producton_0", Rule_statements_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_statements_LeftRecursionExpand_Producton_1", Rule_statements_LeftRecursionExpand_Producton_1);
@@ -746,7 +743,6 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_declareStatement_Producton_0", Rule_declareStatement_Producton_0);
         actions.Add("Rule_declareStatement_Producton_1", Rule_declareStatement_Producton_1);
         actions.Add("Rule_declareStatement_Producton_2", Rule_declareStatement_Producton_2);
-        actions.Add("Rule_declareStatement_Producton_3", Rule_declareStatement_Producton_3);
         actions.Add("Rule_assignmentStatement_Producton_0", Rule_assignmentStatement_Producton_0);
         actions.Add("Rule_emptyStatement_Producton_0", Rule_emptyStatement_Producton_0);
         actions.Add("Rule_singleLineComment_Producton_0", Rule_singleLineComment_Producton_0);
@@ -799,8 +795,6 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_arraySize_Producton_0", Rule_arraySize_Producton_0);
         actions.Add("Rule_arraySize_LeftRecursionExpand_Producton_0", Rule_arraySize_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_arraySize_LeftRecursionExpand_Producton_1", Rule_arraySize_LeftRecursionExpand_Producton_1);
-        actions.Add("Rule_paramArraySize_Producton_0", Rule_paramArraySize_Producton_0);
-        actions.Add("Rule_paramArraySize_Producton_1", Rule_paramArraySize_Producton_1);
         actions.Add("Rule_arrayIndex_Producton_0", Rule_arrayIndex_Producton_0);
         actions.Add("Rule_arrayIndex_LeftRecursionExpand_Producton_0", Rule_arrayIndex_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_arrayIndex_LeftRecursionExpand_Producton_1", Rule_arrayIndex_LeftRecursionExpand_Producton_1);
@@ -814,8 +808,9 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_structFields_LeftRecursionExpand_Producton_1", Rule_structFields_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_structField_Producton_0", Rule_structField_Producton_0);
         actions.Add("Rule_structField_Producton_1", Rule_structField_Producton_1);
-        actions.Add("Rule_structField_Producton_2", Rule_structField_Producton_2);
-        actions.Add("Rule_structField_Producton_3", Rule_structField_Producton_3);
+        actions.Add("Rule_declare_Producton_0", Rule_declare_Producton_0);
+        actions.Add("Rule_declare_Producton_1", Rule_declare_Producton_1);
+        actions.Add("Rule_declare_Producton_2", Rule_declare_Producton_2);
         actions.Add("Rule_relationlOp_Producton_0", Rule_relationlOp_Producton_0);
         actions.Add("Rule_relationlOp_Producton_1", Rule_relationlOp_Producton_1);
         actions.Add("Rule_relationlOp_Producton_2", Rule_relationlOp_Producton_2);
@@ -971,6 +966,17 @@ GREATER_OR_EQUAL_SIGN
 
         // user-defined action
         _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_typeSpec_Producton_3(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+
+        // user-defined action
+        _0 = _1 + " " + _2;
 
         return _0;
     }
@@ -1295,18 +1301,6 @@ GREATER_OR_EQUAL_SIGN
 
         // user-defined action
         _0= CCompilerNs.LexYaccCallback.DeclareStatement(_1, _2, null, _3);
-
-        return _0;
-    }
-
-    public static object Rule_declareStatement_Producton_3(Dictionary<int, object> objects) { 
-        CCompilerNs.DeclareStatement _0 = new CCompilerNs.DeclareStatement();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        _0= CCompilerNs.LexYaccCallback.DeclareStatement(_1 + " " + _2, _3, null, null);
 
         return _0;
     }
@@ -1839,25 +1833,6 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_paramArraySize_Producton_0(Dictionary<int, object> objects) { 
-        List<int> _0 = new List<int>();
-
-        // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.ParamArraySize(null);
-
-        return _0;
-    }
-
-    public static object Rule_paramArraySize_Producton_1(Dictionary<int, object> objects) { 
-        List<int> _0 = new List<int>();
-        List<int> _3 = (List<int>)objects[3];
-
-        // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.ParamArraySize(_3);
-
-        return _0;
-    }
-
     public static object Rule_arrayIndex_Producton_0(Dictionary<int, object> objects) { 
         List<CCompilerNs.Expression> _0 = new List<CCompilerNs.Expression>();
         CCompilerNs.Expression _2 = (CCompilerNs.Expression)objects[2];
@@ -1994,27 +1969,37 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_structField_Producton_2(Dictionary<int, object> objects) { 
-        CCompilerNs.StructField _0 = new CCompilerNs.StructField();
+    public static object Rule_declare_Producton_0(Dictionary<int, object> objects) { 
+        CCompilerNs.Variable _0 = new CCompilerNs.Variable();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.StructField("struct " + _2, _3, null);
+        _0 = CCompilerNs.LexYaccCallback.Declare(_1, _2, null);
 
         return _0;
     }
 
-    public static object Rule_structField_Producton_3(Dictionary<int, object> objects) { 
-        CCompilerNs.StructField _0 = new CCompilerNs.StructField();
+    public static object Rule_declare_Producton_1(Dictionary<int, object> objects) { 
+        CCompilerNs.Variable _0 = new CCompilerNs.Variable();
         string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
+        List<int> _2 = (List<int>)objects[2];
         string _3 = (string)objects[3];
-        List<int> _4 = (List<int>)objects[4];
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.StructField("struct " + _2, _3, _4);
+        _0 = CCompilerNs.LexYaccCallback.Declare(_1, _3, _2);
+
+        return _0;
+    }
+
+    public static object Rule_declare_Producton_2(Dictionary<int, object> objects) { 
+        CCompilerNs.Variable _0 = new CCompilerNs.Variable();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        List<int> _3 = (List<int>)objects[3];
+
+        // user-defined action
+        _0 = CCompilerNs.LexYaccCallback.Declare(_1, _2, _3);
 
         return _0;
     }

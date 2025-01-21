@@ -247,17 +247,6 @@
             return arraySize;
         }
 
-        public static List<int> ParamArraySize(List<int> size)
-        {
-            List<int> arraySize = new List<int>();
-            arraySize.Add(-1);
-
-            if (size != null)
-                arraySize.AddRange(size);
-
-            return arraySize;
-        }
-
         public static List<Expression> ArrayIndex(Expression exp, List<Expression> prev)
         {
             List<Expression> arrayIndex = new List<Expression>();
@@ -300,6 +289,16 @@
             functionParams.Add(funParam);
 
             return functionParams;
+        }
+
+        public static Variable Declare(string type, string name, List<int> arraySize)
+        {
+            Variable v = new Variable();
+            v.name = name;
+            v.typeInfo = Util.GetType(type);
+            if (arraySize != null)
+                v.typeInfo.arraySize.AddRange(arraySize);
+            return v;
         }
 
         public static FunctionCallExpression FunctionCallExpression(string name, List<Expression> parameters)

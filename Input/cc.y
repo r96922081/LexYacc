@@ -26,12 +26,13 @@
 %type <CCompilerNs.EmptyStatement>             emptyStatement singleLineComment
 %type <List<CCompilerNs.Expression>>           functionCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
-%type <List<int>>                              arraySize paramArraySize
+%type <List<int>>                              arraySize
 %type <List<CCompilerNs.Expression>>           arrayIndex
 %type <CCompilerNs.StructDef>                  structDef
 %type <List<CCompilerNs.StructField>>          structFields
 %type <CCompilerNs.StructField>                structField
 %type <CCompilerNs.VariableId>                 variableId
+%type <CCompilerNs.Variable>                   declare
 %type <string>                                 typeSpec relationlOp opAssign incrementDecrement addMinusOp multiplyDivideOp
 
 
@@ -47,7 +48,6 @@ globalDeclare
     $$= CCompilerNs.LexYaccCallback.Program(null, $1);
 }
 ;
-
 
 globalDeclare:
 globalVariable
@@ -109,6 +109,11 @@ CHAR_TYPE
 VOID_TYPE
 {
     $$ = $1;
+}
+|
+STRUCT ID
+{
+    $$ = $1 + " " + $2;
 }
 ;
 
@@ -275,11 +280,6 @@ typeSpec ID ';'
 typeSpec ID arraySize ';'
 {
     $$= CCompilerNs.LexYaccCallback.DeclareStatement($1, $2, null, $3);
-}
-|
-STRUCT ID ID ';'
-{
-    $$= CCompilerNs.LexYaccCallback.DeclareStatement($1 + " " + $2, $3, null, null);
 }
 ;
 
@@ -473,12 +473,12 @@ typeSpec ID
     $$ = CCompilerNs.LexYaccCallback.FuncParams($1, $2, null);
 }
 |
-functionParams ',' typeSpec paramArraySize ID
+functionParams ',' typeSpec arraySize ID
 {
     $$ = CCompilerNs.LexYaccCallback.FuncParamsArray($3, $5, $4, $1);
 }
 |
-typeSpec paramArraySize ID
+typeSpec arraySize ID
 {
     $$ = CCompilerNs.LexYaccCallback.FuncParamsArray($1, $3, $2, null);
 }
@@ -548,18 +548,6 @@ arraySize '[' INT_VALUE ']'
 }
 ;
 
-paramArraySize:
-'[' ']'
-{
-    $$ = CCompilerNs.LexYaccCallback.ParamArraySize(null);
-}
-|
-'[' ']' arraySize
-{
-    $$ = CCompilerNs.LexYaccCallback.ParamArraySize($3);
-}
-;
-
 arrayIndex:
 arrayIndex '[' addExpression ']'
 {
@@ -623,17 +611,25 @@ typeSpec ID arraySize ';'
 {
     $$= CCompilerNs.LexYaccCallback.StructField($1, $2, $3);
 }
-|
-STRUCT ID ID ';'
+;
+
+declare:
+typeSpec ID
 {
-    $$= CCompilerNs.LexYaccCallback.StructField("struct " + $2, $3, null);
+    $$ = CCompilerNs.LexYaccCallback.Declare($1, $2, null);
 }
 |
-STRUCT ID ID arraySize ';'
+typeSpec arraySize ID
 {
-    $$= CCompilerNs.LexYaccCallback.StructField("struct " + $2, $3, $4);
+    $$ = CCompilerNs.LexYaccCallback.Declare($1, $3, $2);
+}
+|
+typeSpec ID arraySize 
+{
+    $$ = CCompilerNs.LexYaccCallback.Declare($1, $2, $3);
 }
 ;
+
 
 relationlOp:
 '<'

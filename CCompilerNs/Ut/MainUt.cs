@@ -95,12 +95,12 @@ int main()
 
 int a[2][3];
 
-void f1(int[][3] a)
+void f1(int[2][3] a)
 {
     a[1][2] = 99;
 }
 
-void f2(int[][3] b)
+void f2(int[2][3] b)
 {
     b[1][1] = 90;
 }
@@ -1020,7 +1020,7 @@ int main() {
         public void array_6()
         {
             string src = @"
-void f1(int[] a, int len) {
+void f1(int[5] a, int len) {
     int i = 0;
     
     for (i = 0; i < len; i++)
@@ -1057,7 +1057,7 @@ int main() {
         public void array_7()
         {
             string src = @"
-void f1(int[][4][5] a, char[][4][5] b) 
+void f1(int[3][4][5] a, char[3][4][5] b) 
 {
     int i = 0;
     int j = 0;
@@ -1108,7 +1108,7 @@ int main() {
         public void array_8()
         {
             string src = @"
-int f1(int[][4][5] a, char[][4][5] b) 
+int f1(int[3][4][5] a, char[3][4][5] b) 
 {
     int i = 0;
     int j = 0;
@@ -1578,7 +1578,7 @@ int main()
             mainUt.adhoc();
 
             //mainUt.struct_5();
-            mainUt.struct_4();
+            //mainUt.struct_4();
             mainUt.struct_3();
             mainUt.struct_2();
             mainUt.struct_1();
