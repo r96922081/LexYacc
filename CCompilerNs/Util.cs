@@ -47,79 +47,108 @@
 
         public static void SaveVariableAddressToRbx(VariableId variableId)
         {
-            Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name[0]);
+            Variable variable = GetVariableFrom_Local_Param_Global(variableId.name[0]);
 
+            string prevTypeName = null;
             for (int i = 0; i < variableId.name.Count; i++)
             {
                 string name = variableId.name[i];
                 List<Expression> arrayIndex = variableId.arrayIndexList[i];
-                VariableTypeInfo typeInfo = variable.typeInfo;
 
-                if (arrayIndex.Count == 0)
+                VariableTypeInfo typeInfo = null;
+                if (i == 0)
                 {
-                    // If ID is array, then value is address of array
-                    if (typeInfo.arraySize.Count != 0)
+                    typeInfo = variable.typeInfo;
+                    prevTypeName = typeInfo.typeName;
+
+                    if (arrayIndex.Count == 0)
                     {
-                        if (variable.scope == VariableScopeEnum.local)
+                        // If ID is array, then value is address of array
+                        if (typeInfo.arraySize.Count != 0)
                         {
-                            Emit(string.Format("mov %rbp, %rbx"));
-                            Emit(string.Format("add ${0}, %rbx", variable.stackOffset));
-                        }
-                        else if (variable.scope == VariableScopeEnum.param)
-                        {
-                            Emit(string.Format("mov %rbp, %rbx"));
-                            Emit(string.Format("add ${0}, %rbx", variable.stackOffset));
-                            Emit(string.Format("mov (%rbx), %rbx"));
+                            if (variable.scope == VariableScopeEnum.local)
+                            {
+                                Emit(string.Format("mov %rbp, %rbx"));
+                                Emit(string.Format("add ${0}, %rbx", variable.stackOffset));
+                            }
+                            else if (variable.scope == VariableScopeEnum.param)
+                            {
+                                Emit(string.Format("mov %rbp, %rbx"));
+                                Emit(string.Format("add ${0}, %rbx", variable.stackOffset));
+                                Emit(string.Format("mov (%rbx), %rbx"));
+                            }
+                            else if (variable.scope == VariableScopeEnum.global)
+                            {
+                                Emit(string.Format("lea {0}(%rip), %rbx", name));
+                            }
                         }
                         else if (variable.scope == VariableScopeEnum.global)
-                        {
                             Emit(string.Format("lea {0}(%rip), %rbx", name));
-                        }
+                        else
+                            Emit(string.Format("lea {0}(%rbp), %rbx", variable.stackOffset));
                     }
-                    else if (variable.scope == VariableScopeEnum.global)
-                        Emit(string.Format("lea {0}(%rip), %rbx", name));
                     else
-                        Emit(string.Format("lea {0}(%rbp), %rbx", variable.stackOffset));
+                    {
+                        for (int j = arrayIndex.Count - 1; j >= 0; j--)
+                        {
+                            int levelCount = 1;
+                            for (int k = j + 1; k < arrayIndex.Count; k++)
+                                levelCount *= typeInfo.arraySize[k];
+
+                            arrayIndex[j].EmitAsm();
+                            Emit("pop %rax");
+                            Emit(string.Format("mov ${0}, %rbx", levelCount));
+                            Emit("mul %rbx");
+                            Emit(string.Format("mov ${0}, %rbx", typeInfo.size));
+                            Emit("mul %rbx");
+                            Emit("push %rax");
+                        }
+
+                        Emit("movq $0, %rax");
+                        for (int j = 0; j < arrayIndex.Count; j++)
+                        {
+                            Emit("pop %rbx");
+                            Emit("add %rbx, %rax");
+                        }
+
+                        if (variable.scope == VariableScopeEnum.global)
+                        {
+                            Emit(string.Format("lea {0}(%rip), %rbx", variable.name));
+                        }
+                        else
+                        {
+                            Emit("mov %rbp, %rbx");
+                            Emit(string.Format("add ${0}, %rbx", variable.stackOffset));
+                            if (variable.scope == VariableScopeEnum.param)
+                                Emit("mov (%rbx), %rbx");
+                        }
+
+                        Emit("add %rax, %rbx");
+                    }
                 }
                 else
                 {
-                    for (int j = arrayIndex.Count - 1; j >= 0; j--)
-                    {
-                        int levelCount = 1;
-                        for (int k = j + 1; k < arrayIndex.Count; k++)
-                            levelCount *= typeInfo.arraySize[k];
+                    StructDef structDef = GetStructDef(prevTypeName);
 
-                        arrayIndex[j].EmitAsm();
-                        Emit("pop %rax");
-                        Emit(string.Format("mov ${0}, %rbx", levelCount));
-                        Emit("mul %rbx");
-                        Emit(string.Format("mov ${0}, %rbx", typeInfo.size));
-                        Emit("mul %rbx");
-                        Emit("push %rax");
+                    int offset = 0;
+                    for (int j = 0; j < structDef.fields.Count; j++)
+                    {
+                        if (structDef.fields[j].name == name)
+                        {
+                            offset = structDef.fields[j].offset;
+                            prevTypeName = structDef.fields[j].typeInfo.typeName;
+                            break;
+                        }
                     }
 
-                    Emit("movq $0, %rax");
-                    for (int j = 0; j < arrayIndex.Count; j++)
-                    {
-                        Emit("pop %rbx");
-                        Emit("add %rbx, %rax");
-                    }
-
-                    if (variable.scope == VariableScopeEnum.global)
-                    {
-                        Emit(string.Format("lea {0}(%rip), %rbx", variable.name));
-                    }
-                    else
-                    {
-                        Emit("mov %rbp, %rbx");
-                        Emit(string.Format("add ${0}, %rbx", variable.stackOffset));
-                        if (variable.scope == VariableScopeEnum.param)
-                            Emit("mov (%rbx), %rbx");
-                    }
-
-                    Emit("add %rax, %rbx");
+                    Emit("pop %rbx");
+                    Emit(string.Format("add ${0}, %rbx", offset));
                 }
+
+                Emit("push %rbx");
             }
+
+            Emit("pop %rbx");
         }
 
         public static Variable GetVariableFrom_Local_Param_Global(string name)
@@ -140,6 +169,11 @@
             {
                 return null;
             }
+        }
+
+        public static StructDef GetStructDef(string name)
+        {
+            return Gv.context.structDefs[name];
         }
 
     }

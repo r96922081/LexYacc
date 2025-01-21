@@ -1378,15 +1378,23 @@ int main() {
         {
             string src = @"
 
+struct Z {
+    char z1;
+    int z2;
+};
+
 struct A {
     int a1;
     char a2;
+    struct Z a3;
 };
 
 struct B {
     int b1;
     char b2;
     struct A b3;  
+    int b4;
+    char b5;
 };
 
 int main()
@@ -1398,11 +1406,14 @@ int main()
 
     x.b1 = 1;
     x.b2 = 3;
+    x.b4 = 40;
+    x.b5 = 70;
     x.b3.a1 = 7;
     x.b3.a2 = 20;
+    x.b3.a3.z1 = 6;
+    x.b3.a3.z2 = 5;
 
-    //return x.b1 + x.b2 + x.b3.a1 + x.b3.a2;
-    return 0;
+    return x.b1 + x.b2 + x.b3.a1 + x.b3.a2 + x.b4 + x.b5 + x.b3.a3.z1 + x.b3.a3.z2;
 }
 
 ";
@@ -1413,7 +1424,7 @@ int main()
             program.EmitAsm();
 
             int exitCode = CompileAndRun("test.s", "test.exe");
-            //Check(exitCode == 31);
+            Check(exitCode == 152);
         }
 
         public void struct_1()
