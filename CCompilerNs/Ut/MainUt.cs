@@ -1374,6 +1374,42 @@ int main() {
             Check(exitCode == 0);
         }
 
+        public void struct_1()
+        {
+            string src = @"
+
+struct A {
+    int a1;
+    char a2;
+};
+
+struct B {
+    int b1;
+    char b2;
+    struct A b3;  
+};
+
+int main()
+{
+    char e;
+    struct A x;
+    int c;
+    int d;
+
+    return 0;
+}
+
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 0);
+        }
+
         public void struct_2()
         {
             string src = @"
@@ -1427,7 +1463,7 @@ int main()
             Check(exitCode == 152);
         }
 
-        public void struct_1()
+        public void struct_3()
         {
             string src = @"
 
@@ -1436,20 +1472,18 @@ struct A {
     char a2;
 };
 
-struct B {
-    int b1;
-    char b2;
-    struct A b3;  
-};
+int f1(int a, char b)
+{
+    return a + b;
+}
 
 int main()
 {
-    char e;
-    struct A x;
-    int c;
-    int d;
+    struct A a;
+    a.a1 = 1;
+    a.a2 = 2;
 
-    return 0;
+    return f1(a.a1, a.a2);
 }
 
 ";
@@ -1460,7 +1494,41 @@ int main()
             program.EmitAsm();
 
             int exitCode = CompileAndRun("test.s", "test.exe");
-            Check(exitCode == 0);
+            Check(exitCode == 3);
+        }
+
+        public void struct_4()
+        {
+            string src = @"
+
+struct A {
+    int a1;
+    char a2;
+};
+
+int f1(struct A a)
+{
+    return a.a1 + a.a2;
+}
+
+int main()
+{
+    struct A a;
+    a.a1 = 1;
+    a.a2 = 2;
+
+    return f1(a);
+}
+
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 3);
         }
 
         public void adhoc()
@@ -1474,6 +1542,8 @@ int main()
 
             mainUt.adhoc();
 
+            mainUt.struct_4();
+            mainUt.struct_3();
             mainUt.struct_2();
             mainUt.struct_1();
 
