@@ -24,13 +24,14 @@
 %type <CCompilerNs.BreakStatement>             breakStatement
 %type <CCompilerNs.ContinueStatement>          continueStatement
 %type <CCompilerNs.EmptyStatement>             emptyStatement singleLineComment
-%type <List<CCompilerNs.Expression>>           funcCallParams
+%type <List<CCompilerNs.Expression>>           functionCallParams
 %type <CCompilerNs.Expression>                 addExpression mulExpression
 %type <List<int>>                              arraySize paramArraySize
 %type <List<CCompilerNs.Expression>>           arrayIndex
 %type <CCompilerNs.StructDef>                  structDef
 %type <List<CCompilerNs.StructField>>          structFields
 %type <CCompilerNs.StructField>                structField
+%type <CCompilerNs.VariableId>                 variableId
 %type <string>                                 typeSpec relationlOp opAssign incrementDecrement addMinusOp multiplyDivideOp
 
 
@@ -304,33 +305,31 @@ SINGLE_LINE_COMMENT
 ;
 
 assignmentNoSemicolon: 
-ID '=' addExpression
+variableId '=' addExpression
 {
-    $$= CCompilerNs.LexYaccCallback.AssignmentStatement($1, $3, null);
-}
-ID arrayIndex '=' addExpression
-{
-    $$= CCompilerNs.LexYaccCallback.AssignmentStatement($1, $4, $2);
+    $$= CCompilerNs.LexYaccCallback.AssignmentStatement($1, $3);
 }
 |
-ID opAssign addExpression
+variableId opAssign addExpression
 {
-    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $3, null, $2);
+    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $3, $2);
 }
 |
-ID arrayIndex opAssign addExpression
+variableId incrementDecrement
 {
-    $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $4, $2, $3);
+    $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, $2);
+}
+;
+
+variableId:
+ID
+{
+    $$ = CCompilerNs.LexYaccCallback.VariableId($1, null);
 }
 |
-ID incrementDecrement
+ID arrayIndex
 {
-    $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, null, $2);
-}
-|
-ID arrayIndex incrementDecrement
-{
-    $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, $2, $3);
+    $$ = CCompilerNs.LexYaccCallback.VariableId($1, $2);
 }
 ;
 
@@ -425,13 +424,9 @@ INT_VALUE
     $$ = CCompilerNs.LexYaccCallback.Expression($1);
 }
 |
-ID
+variableId
 {   
     $$ = CCompilerNs.LexYaccCallback.Expression($1);
-}
-ID arrayIndex
-{   
-    $$ = CCompilerNs.LexYaccCallback.Expression($1, $2);
 }
 |
 functionCallExpression
@@ -479,8 +474,8 @@ typeSpec paramArraySize ID
 }
 ;
 
-funcCallParams:
-funcCallParams ',' addExpression
+functionCallParams:
+functionCallParams ',' addExpression
 {
     $$ = CCompilerNs.LexYaccCallback.FuncCallParams($3, $1);
 }
@@ -504,7 +499,7 @@ ID '(' ')'
     $$ = CCompilerNs.LexYaccCallback.FunctionCallExpression($1, null);
 }
 |
-ID '(' funcCallParams ')'
+ID '(' functionCallParams ')'
 {
     $$ = CCompilerNs.LexYaccCallback.FunctionCallExpression($1, $3);
 }

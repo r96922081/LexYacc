@@ -915,4 +915,10 @@ ret";
         public string name;
         public int offset;
     };
+
+    public class VariableId : ProgramBase
+    {
+        public string name;
+        public List<Expression> arrayIndex = new List<Expression>();
+    }
 }
