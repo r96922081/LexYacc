@@ -340,14 +340,24 @@ variableId incrementDecrement
 ;
 
 variableId:
+variableId '.' ID
+{
+    $$ = CCompilerNs.LexYaccCallback.VariableId($1, $3, null);
+}
+|
+variableId '.' ID arrayIndex
+{
+    $$ = CCompilerNs.LexYaccCallback.VariableId($1, $3, $4);
+}
+|
 ID
 {
-    $$ = CCompilerNs.LexYaccCallback.VariableId($1, null);
+    $$ = CCompilerNs.LexYaccCallback.VariableId(null, $1, null);
 }
 |
 ID arrayIndex
 {
-    $$ = CCompilerNs.LexYaccCallback.VariableId($1, $2);
+    $$ = CCompilerNs.LexYaccCallback.VariableId(null, $1, $2);
 }
 ;
 
@@ -745,6 +755,9 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_assignmentNoSemicolon_Producton_2", Rule_assignmentNoSemicolon_Producton_2);
         actions.Add("Rule_variableId_Producton_0", Rule_variableId_Producton_0);
         actions.Add("Rule_variableId_Producton_1", Rule_variableId_Producton_1);
+        actions.Add("Rule_variableId_LeftRecursionExpand_Producton_0", Rule_variableId_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_variableId_LeftRecursionExpand_Producton_1", Rule_variableId_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_variableId_LeftRecursionExpand_Producton_2", Rule_variableId_LeftRecursionExpand_Producton_2);
         actions.Add("Rule_opAssign_Producton_0", Rule_opAssign_Producton_0);
         actions.Add("Rule_opAssign_Producton_1", Rule_opAssign_Producton_1);
         actions.Add("Rule_opAssign_Producton_2", Rule_opAssign_Producton_2);
@@ -1366,7 +1379,7 @@ GREATER_OR_EQUAL_SIGN
         string _1 = (string)objects[1];
 
         // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.VariableId(_1, null);
+        _0 = CCompilerNs.LexYaccCallback.VariableId(null, _1, null);
 
         return _0;
     }
@@ -1377,7 +1390,36 @@ GREATER_OR_EQUAL_SIGN
         List<CCompilerNs.Expression> _2 = (List<CCompilerNs.Expression>)objects[2];
 
         // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.VariableId(_1, _2);
+        _0 = CCompilerNs.LexYaccCallback.VariableId(null, _1, _2);
+
+        return _0;
+    }
+
+    public static object Rule_variableId_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        CCompilerNs.VariableId _0 = new CCompilerNs.VariableId();
+        CCompilerNs.VariableId _1 =(CCompilerNs.VariableId)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = CCompilerNs.LexYaccCallback.VariableId(_1, _3, null);
+
+        return _0;
+    }
+
+    public static object Rule_variableId_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        CCompilerNs.VariableId _0 = new CCompilerNs.VariableId();
+        CCompilerNs.VariableId _1 =(CCompilerNs.VariableId)objects[1];
+        string _3 = (string)objects[3];
+        List<CCompilerNs.Expression> _4 = (List<CCompilerNs.Expression>)objects[4];
+
+        // user-defined action
+        _0 = CCompilerNs.LexYaccCallback.VariableId(_1, _3, _4);
+
+        return _0;
+    }
+
+    public static object Rule_variableId_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
+        CCompilerNs.VariableId _0 = new CCompilerNs.VariableId();
 
         return _0;
     }
@@ -2168,6 +2210,7 @@ namespace ccNs
 ""=""                       { return yytext[0]; }
 ""%""                       { return yytext[0]; }
 "",""                       { return yytext[0]; }
+"".""                       { return yytext[0]; }
 %%";
 
 
@@ -2216,6 +2259,7 @@ namespace ccNs
             actions.Add("LexRule38", LexAction38);
             actions.Add("LexRule39", LexAction39);
             actions.Add("LexRule40", LexAction40);
+            actions.Add("LexRule41", LexAction41);
         }
         public static object LexAction0(string yytext)
         {
@@ -2575,6 +2619,15 @@ namespace ccNs
             return 0;
         }
         public static object LexAction40(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return yytext[0]; 
+
+            return 0;
+        }
+        public static object LexAction41(string yytext)
         {
             value = null;
 

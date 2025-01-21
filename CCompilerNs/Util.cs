@@ -47,7 +47,7 @@
 
         public static void SaveVariableAddressToRbx(Variable variable, VariableId variableId)
         {
-            if (variableId.arrayIndex.Count == 0)
+            if (variableId.arrayIndexList[0].Count == 0)
             {
                 // If ID is array, then value is address of array
                 if (variable.typeInfo.arraySize.Count != 0)
@@ -65,23 +65,23 @@
                     }
                     else if (variable.scope == VariableScopeEnum.global)
                     {
-                        Emit(string.Format("lea {0}(%rip), %rbx", variableId.name));
+                        Emit(string.Format("lea {0}(%rip), %rbx", variableId.name[0]));
                     }
                 }
                 else if (variable.scope == VariableScopeEnum.global)
-                    Emit(string.Format("lea {0}(%rip), %rbx", variableId.name));
+                    Emit(string.Format("lea {0}(%rip), %rbx", variableId.name[0]));
                 else
                     Emit(string.Format("lea {0}(%rbp), %rbx", variable.stackOffset));
             }
             else
             {
-                for (int i = variableId.arrayIndex.Count - 1; i >= 0; i--)
+                for (int i = variableId.arrayIndexList[0].Count - 1; i >= 0; i--)
                 {
                     int levelCount = 1;
-                    for (int j = i + 1; j < variableId.arrayIndex.Count; j++)
+                    for (int j = i + 1; j < variableId.arrayIndexList[0].Count; j++)
                         levelCount *= variable.typeInfo.arraySize[j];
 
-                    variableId.arrayIndex[i].EmitAsm();
+                    variableId.arrayIndexList[0][i].EmitAsm();
                     Emit("pop %rax");
                     Emit(string.Format("mov ${0}, %rbx", levelCount));
                     Emit("mul %rbx");
@@ -91,7 +91,7 @@
                 }
 
                 Emit("movq $0, %rax");
-                for (int i = 0; i < variableId.arrayIndex.Count; i++)
+                for (int i = 0; i < variableId.arrayIndexList[0].Count; i++)
                 {
                     Emit("pop %rbx");
                     Emit("add %rbx, %rax");

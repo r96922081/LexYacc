@@ -322,14 +322,24 @@ variableId incrementDecrement
 ;
 
 variableId:
+variableId '.' ID
+{
+    $$ = CCompilerNs.LexYaccCallback.VariableId($1, $3, null);
+}
+|
+variableId '.' ID arrayIndex
+{
+    $$ = CCompilerNs.LexYaccCallback.VariableId($1, $3, $4);
+}
+|
 ID
 {
-    $$ = CCompilerNs.LexYaccCallback.VariableId($1, null);
+    $$ = CCompilerNs.LexYaccCallback.VariableId(null, $1, null);
 }
 |
 ID arrayIndex
 {
-    $$ = CCompilerNs.LexYaccCallback.VariableId($1, $2);
+    $$ = CCompilerNs.LexYaccCallback.VariableId(null, $1, $2);
 }
 ;
 

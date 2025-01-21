@@ -477,13 +477,13 @@ ret";
         {
             Emit("#AssignmentStatement =>");
 
-            Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name);
+            Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name[0]);
 
             value.EmitAsm();
             Util.SaveVariableAddressToRbx(variable, variableId);
             Emit("pop %rax");
 
-            if (variableId.arrayIndex.Count != 0 && variable.typeInfo.size == 1)
+            if (variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.size == 1)
                 Emit("mov %al, (%rbx)");
             else
                 Emit("mov %rax, (%rbx)");
@@ -676,33 +676,16 @@ ret";
 
         public override void EmitAsm()
         {
-            Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name);
+            Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name[0]);
 
             Util.SaveVariableAddressToRbx(variable, variableId);
 
-            // case mulExpression: ID
-            if (variableId.arrayIndex.Count == 0)
-            {
-                // If ID is array, then value is address of array
-                if (variable.typeInfo.arraySize.Count != 0)
-                {
-                    Emit(string.Format("mov %rbx, %rax"));
-                }
-                else
-                {
-                    Emit(string.Format("mov (%rbx), %rax"));
-                }
-            }
-            // case mulExpression: ID arrayIndex
+            if (variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.size == 1)
+                Emit(string.Format("movzbq (%rbx), %rax")); // case a[1][2]
+            else if (variableId.arrayIndexList[0].Count == 0 && variable.typeInfo.arraySize.Count != 0)
+                Emit(string.Format("mov %rbx, %rax")); // case a[1][2], but pass a as parameter
             else
-            {
-                Emit(string.Format("movq $0, %rax"));
-
-                if (variable.typeInfo.size == 1)
-                    Emit(string.Format("movzbq (%rbx), %rax"));
-                else
-                    Emit(string.Format("mov (%rbx), %rax"));
-            }
+                Emit(string.Format("mov (%rbx), %rax")); // case local, or array with element size = 8
 
             Emit(string.Format("push %rax"));
         }
@@ -826,9 +809,10 @@ ret";
         public int offset;
     };
 
+    // a[1].b.c[2][3].d
     public class VariableId : ProgramBase
     {
-        public string name;
-        public List<Expression> arrayIndex = new List<Expression>();
+        public List<string> name = new List<string>();
+        public List<List<Expression>> arrayIndexList = new List<List<Expression>>();
     }
 }
