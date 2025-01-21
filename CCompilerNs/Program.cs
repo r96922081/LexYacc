@@ -226,6 +226,7 @@
 
         public void AddParamVariable(Variable p)
         {
+            p.scope = VariableScopeEnum.param;
             paramMap.Add(p.name, p);
             paramsInOrder.Add(p);
         }
@@ -236,6 +237,8 @@
             l.name = a.name;
             l.typeInfo = a.typeInfo;
             l.typeInfo.arraySize = a.typeInfo.arraySize;
+            l.scope = VariableScopeEnum.local;
+
             localMap.Add(l.name, l);
             localDeclareMap.Add(l.name, a);
             localsInOrder.Add(l);
@@ -475,35 +478,15 @@ ret";
         {
             Emit("#AssignmentStatement =>");
 
-            Variable l = null;
-            Variable p = null;
-            Variable gv = null;
-
-            Variable v = null;
-
-            if (Gv.context.functionDeclare.localMap.ContainsKey(name))
-            {
-                l = Gv.context.functionDeclare.localMap[name];
-                v = l;
-            }
-            else if (Gv.context.functionDeclare.paramMap.ContainsKey(name))
-            {
-                p = Gv.context.functionDeclare.paramMap[name];
-                v = p;
-            }
-            else if (Gv.context.gv.ContainsKey(name))
-            {
-                gv = Gv.context.gv[name];
-                v = gv;
-            }
+            Variable variable = Util.GetVariable(name);
 
             if (arrayIndex.Count == 0)
             {
                 value.EmitAsm();
                 Emit("pop %rax");  // pop value
 
-                if (v.stackOffset != -1)
-                    Emit(string.Format("mov %rax, {0}(%rbp)", v.stackOffset));
+                if (variable.stackOffset != -1)
+                    Emit(string.Format("mov %rax, {0}(%rbp)", variable.stackOffset));
                 else
                     Emit(string.Format("mov %rax, {0}(%rip)", name));
             }
@@ -511,11 +494,11 @@ ret";
             else
             {
                 value.EmitAsm();
-                Util.SaveArrayIndexAddressToRbx(l, p, gv, arrayIndex);
+                Util.SaveArrayIndexAddressToRbx(variable, arrayIndex);
 
                 Emit("pop %rax"); // value to %rax                
 
-                if (v.typeInfo.size == 1)
+                if (variable.typeInfo.size == 1)
                     Emit("mov %al, (%rbx)");
                 else
                     Emit("mov %rax, (%rbx)");
@@ -712,46 +695,25 @@ ret";
             // case mulExpression: ID
             if (variableId.arrayIndex.Count == 0)
             {
-                Variable local = null;
-                Variable param = null;
-                Variable gv = null;
-
-                Variable variable = null;
-
-
-                if (Gv.context.functionDeclare.localMap.ContainsKey(variableId.name))
-                {
-                    local = Gv.context.functionDeclare.localMap[variableId.name];
-                    variable = local;
-                }
-                else if (Gv.context.functionDeclare.paramMap.ContainsKey(variableId.name))
-                {
-                    param = Gv.context.functionDeclare.paramMap[variableId.name];
-                    variable = param;
-                }
-                else if (Gv.context.gv.ContainsKey(variableId.name))
-                {
-                    gv = Gv.context.gv[variableId.name];
-                    variable = gv;
-                }
+                Variable variable = Util.GetVariable(variableId.name);
 
                 // If ID is array, then push address of array
                 if (variable.typeInfo.arraySize.Count != 0)
                 {
-                    if (local != null)
+                    if (variable.scope == VariableScopeEnum.local)
                     {
                         Emit(string.Format("mov %rbp, %rax"));
-                        Emit(string.Format("add ${0}, %rax", local.stackOffset));
+                        Emit(string.Format("add ${0}, %rax", variable.stackOffset));
                         Emit(string.Format("push %rax"));
                     }
-                    else if (param != null)
+                    else if (variable.scope == VariableScopeEnum.param)
                     {
                         Emit(string.Format("mov %rbp, %rax"));
-                        Emit(string.Format("add ${0}, %rax", param.stackOffset));
+                        Emit(string.Format("add ${0}, %rax", variable.stackOffset));
                         Emit(string.Format("mov (%rax), %rax"));
                         Emit(string.Format("push %rax"));
                     }
-                    else if (gv != null)
+                    else if (variable.scope == VariableScopeEnum.global)
                     {
                         Emit(string.Format("lea {0}(%rip), %rax", variableId.name));
                         Emit(string.Format("push %rax"));
@@ -772,29 +734,9 @@ ret";
             // case mulExpression: ID arrayIndex
             else
             {
-                Variable local = null;
-                Variable param = null;
-                Variable globalVariable = null;
+                Variable variable = Util.GetVariable(variableId.name);
 
-                Variable variable = null;
-
-                if (Gv.context.functionDeclare.localMap.ContainsKey(variableId.name))
-                {
-                    local = Gv.context.functionDeclare.localMap[variableId.name];
-                    variable = local;
-                }
-                else if (Gv.context.functionDeclare.paramMap.ContainsKey(variableId.name))
-                {
-                    param = Gv.context.functionDeclare.paramMap[variableId.name];
-                    variable = param;
-                }
-                else if (Gv.context.gv.ContainsKey(variableId.name))
-                {
-                    globalVariable = Gv.context.gv[variableId.name];
-                    variable = globalVariable;
-                }
-
-                Util.SaveArrayIndexAddressToRbx(local, param, globalVariable, variableId.arrayIndex);
+                Util.SaveArrayIndexAddressToRbx(variable, variableId.arrayIndex);
 
                 Emit(string.Format("movq $0, %rax"));
 

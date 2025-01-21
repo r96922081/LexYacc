@@ -45,16 +45,8 @@
             AsmEmitter.Emit(asm);
         }
 
-        public static void SaveArrayIndexAddressToRbx(Variable l, Variable p, Variable gv, List<Expression> arrayIndex)
+        public static void SaveArrayIndexAddressToRbx(Variable v, List<Expression> arrayIndex)
         {
-            Variable v = null;
-            if (l != null)
-                v = l;
-            else if (p != null)
-                v = p;
-            else if (gv != null)
-                v = gv;
-
             for (int i = arrayIndex.Count - 1; i >= 0; i--)
             {
                 int levelCount = 1;
@@ -77,7 +69,7 @@
                 Emit("add %rbx, %rax");
             }
 
-            if (gv != null)
+            if (v.scope == VariableScopeEnum.global)
             {
                 Emit(string.Format("lea {0}(%rip), %rbx", v.name));
             }
@@ -85,12 +77,33 @@
             {
                 Emit("mov %rbp, %rbx");
                 Emit(string.Format("add ${0}, %rbx", v.stackOffset));
-                if (p != null)
+                if (v.scope == VariableScopeEnum.param)
                     Emit("mov (%rbx), %rbx");
             }
 
 
             Emit("add %rax, %rbx"); // save address at %rbx
         }
+
+        public static Variable GetVariable(string name)
+        {
+            if (Gv.context.functionDeclare.localMap.ContainsKey(name))
+            {
+                return Gv.context.functionDeclare.localMap[name];
+            }
+            else if (Gv.context.functionDeclare.paramMap.ContainsKey(name))
+            {
+                return Gv.context.functionDeclare.paramMap[name];
+            }
+            else if (Gv.context.gv.ContainsKey(name))
+            {
+                return Gv.context.gv[name];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
     }
 }
