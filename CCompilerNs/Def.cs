@@ -28,12 +28,16 @@
         public string typeName;
         public VariableTypeEnum typeEnum;
         public int size;
+        public StructDef structDef;
         public List<int> arraySize = new List<int>();
 
-        public void UpdateStructSize()
+        public void UpdateStructInfo()
         {
             if (typeEnum == VariableTypeEnum.struct_type)
-                size = Gv.context.structDefs[typeName].size;
+            {
+                structDef = Gv.context.structDefs[typeName];
+                size = structDef.size;
+            }
 
             if (size == -1)
                 throw new Exception("size not set");

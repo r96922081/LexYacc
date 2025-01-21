@@ -269,7 +269,7 @@
                 {
                     if (l.typeInfo.typeEnum == VariableTypeEnum.struct_type)
                     {
-                        l.typeInfo.UpdateStructSize();
+                        l.typeInfo.UpdateStructInfo();
                         localSize += l.typeInfo.size;
                     }
                     else
@@ -476,12 +476,11 @@ ret";
         {
             Emit("#AssignmentStatement =>");
 
-            Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name[0]);
-
             value.EmitAsm();
-            Util.SaveVariableAddressToRbx(variable, variableId);
+            Util.SaveVariableAddressToRbx(variableId);
             Emit("pop %rax");
 
+            Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name[0]);
             if (variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.size == 1)
                 Emit("mov %al, (%rbx)");
             else
@@ -675,10 +674,9 @@ ret";
 
         public override void EmitAsm()
         {
+            Util.SaveVariableAddressToRbx(variableId);
+
             Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name[0]);
-
-            Util.SaveVariableAddressToRbx(variable, variableId);
-
             if (variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.size == 1)
                 Emit(string.Format("movzbq (%rbx), %rax")); // case a[1][2]
             else if (variableId.arrayIndexList[0].Count == 0 && variable.typeInfo.arraySize.Count != 0)
