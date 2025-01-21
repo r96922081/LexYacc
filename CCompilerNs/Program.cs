@@ -479,29 +479,14 @@ ret";
 
             Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name);
 
-            if (variableId.arrayIndex.Count == 0)
-            {
-                value.EmitAsm();
-                Emit("pop %rax");  // pop value
+            value.EmitAsm();
+            Util.SaveVariableAddressToRbx(variable, variableId);
+            Emit("pop %rax");
 
-                if (variable.stackOffset != -1)
-                    Emit(string.Format("mov %rax, {0}(%rbp)", variable.stackOffset));
-                else
-                    Emit(string.Format("mov %rax, {0}(%rip)", variableId.name));
-            }
-            // a[2][3] = xxx;
+            if (variableId.arrayIndex.Count != 0 && variable.typeInfo.size == 1)
+                Emit("mov %al, (%rbx)");
             else
-            {
-                value.EmitAsm();
-                Util.SaveArrayIndexAddressToRbx(variable, variableId.arrayIndex);
-
-                Emit("pop %rax"); // value to %rax                
-
-                if (variable.typeInfo.size == 1)
-                    Emit("mov %al, (%rbx)");
-                else
-                    Emit("mov %rax, (%rbx)");
-            }
+                Emit("mov %rax, (%rbx)");
 
             Emit("#<= AssignmentStatement");
         }
@@ -703,29 +688,26 @@ ret";
                     {
                         Emit(string.Format("mov %rbp, %rax"));
                         Emit(string.Format("add ${0}, %rax", variable.stackOffset));
-                        Emit(string.Format("push %rax"));
                     }
                     else if (variable.scope == VariableScopeEnum.param)
                     {
                         Emit(string.Format("mov %rbp, %rax"));
                         Emit(string.Format("add ${0}, %rax", variable.stackOffset));
                         Emit(string.Format("mov (%rax), %rax"));
-                        Emit(string.Format("push %rax"));
                     }
                     else if (variable.scope == VariableScopeEnum.global)
                     {
                         Emit(string.Format("lea {0}(%rip), %rax", variableId.name));
-                        Emit(string.Format("push %rax"));
                     }
+
+                    Emit(string.Format("push %rax"));
                 }
                 else
                 {
-                    if (variable.stackOffset != -1)
-                        // local variable
-                        Emit(string.Format("mov {0}(%rbp), %rax", variable.stackOffset));
-                    else
-                        // global variable
+                    if (variable.scope == VariableScopeEnum.global)
                         Emit(string.Format("mov {0}(%rip), %rax", variableId.name));
+                    else
+                        Emit(string.Format("mov {0}(%rbp), %rax", variable.stackOffset));
 
                     Emit(string.Format("push %rax"));
                 }

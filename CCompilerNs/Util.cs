@@ -45,6 +45,55 @@
             AsmEmitter.Emit(asm);
         }
 
+        public static void SaveVariableAddressToRbx(Variable variable, VariableId variableId)
+        {
+            if (variableId.arrayIndex.Count == 0)
+            {
+                if (variable.scope == VariableScopeEnum.global)
+                    Emit(string.Format("lea {0}(%rip), %rbx", variableId.name));
+                else
+                    Emit(string.Format("lea {0}(%rbp), %rbx", variable.stackOffset));
+            }
+            else
+            {
+                for (int i = variableId.arrayIndex.Count - 1; i >= 0; i--)
+                {
+                    int levelCount = 1;
+                    for (int j = i + 1; j < variableId.arrayIndex.Count; j++)
+                        levelCount *= variable.typeInfo.arraySize[j];
+
+                    variableId.arrayIndex[i].EmitAsm();
+                    Emit("pop %rax");
+                    Emit(string.Format("mov ${0}, %rbx", levelCount));
+                    Emit("mul %rbx");
+                    Emit(string.Format("mov ${0}, %rbx", variable.typeInfo.size));
+                    Emit("mul %rbx");
+                    Emit("push %rax");
+                }
+
+                Emit("movq $0, %rax");
+                for (int i = 0; i < variableId.arrayIndex.Count; i++)
+                {
+                    Emit("pop %rbx");
+                    Emit("add %rbx, %rax");
+                }
+
+                if (variable.scope == VariableScopeEnum.global)
+                {
+                    Emit(string.Format("lea {0}(%rip), %rbx", variable.name));
+                }
+                else
+                {
+                    Emit("mov %rbp, %rbx");
+                    Emit(string.Format("add ${0}, %rbx", variable.stackOffset));
+                    if (variable.scope == VariableScopeEnum.param)
+                        Emit("mov (%rbx), %rbx");
+                }
+
+                Emit("add %rax, %rbx");
+            }
+        }
+
         public static void SaveArrayIndexAddressToRbx(Variable v, List<Expression> arrayIndex)
         {
             for (int i = arrayIndex.Count - 1; i >= 0; i--)
