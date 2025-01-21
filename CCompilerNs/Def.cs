@@ -13,6 +13,14 @@
         public Dictionary<string, StructDef> structDefs = new Dictionary<string, StructDef>();
         public FunctionDeclare functionDeclare;
         public Stack<ForLoopStatement> forLoopStatementStack = new Stack<ForLoopStatement>();
+
+        public void Clear()
+        {
+            gv = new Dictionary<string, Variable>();
+            structDefs = new Dictionary<string, StructDef>();
+            functionDeclare = null;
+            forLoopStatementStack = new Stack<ForLoopStatement>();
+        }
     }
 
     public class VariableTypeInfo

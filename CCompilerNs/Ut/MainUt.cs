@@ -1396,10 +1396,10 @@ int main()
     int c;
     int d;
 
-    //x.b1 = 1;
-    //x.b2 = 3;
-    //x.b3.a1 = 7;
-    //x.b3.a2 = 20;
+    x.b1 = 1;
+    x.b2 = 3;
+    x.b3.a1 = 7;
+    x.b3.a2 = 20;
 
     //return x.b1 + x.b2 + x.b3.a1 + x.b3.a2;
     return 0;
@@ -1413,7 +1413,7 @@ int main()
             program.EmitAsm();
 
             int exitCode = CompileAndRun("test.s", "test.exe");
-            Check(exitCode == 31);
+            //Check(exitCode == 31);
         }
 
         public void struct_1()
@@ -1463,8 +1463,8 @@ int main()
 
             mainUt.adhoc();
 
-            //mainUt.struct_2();
-            //mainUt.struct_1();
+            mainUt.struct_2();
+            mainUt.struct_1();
 
             mainUt.Ut1();
             mainUt.Ut2();

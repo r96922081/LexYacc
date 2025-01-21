@@ -58,8 +58,6 @@
 
         private void DistributeTopLevels()
         {
-            Gv.context.gv.Clear();
-
             foreach (GlobalDeclare g in globalDeclares)
             {
                 if (g is StructDef)
@@ -128,6 +126,7 @@
 
             inited = true;
 
+            Gv.context.Clear();
             Gv.program = this;
             DistributeTopLevels();
             SetStructInfo();
