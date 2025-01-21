@@ -1506,6 +1506,41 @@ struct A {
     char a2;
 };
 
+struct A a;
+
+int f1(int a, char b)
+{
+    return a + b;
+}
+
+int main()
+{
+    a.a1 = 3;
+    a.a2 = 4;
+
+    return f1(a.a1, a.a2);
+}
+
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 7);
+        }
+
+        public void struct_5()
+        {
+            string src = @"
+
+struct A {
+    int a1;
+    char a2;
+};
+
 int f1(struct A a)
 {
     return a.a1 + a.a2;
@@ -1542,6 +1577,7 @@ int main()
 
             mainUt.adhoc();
 
+            //mainUt.struct_5();
             mainUt.struct_4();
             mainUt.struct_3();
             mainUt.struct_2();
