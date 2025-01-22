@@ -21,7 +21,7 @@ int main()
             Program program = (Program)ret;
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 1);
         }
 
@@ -51,7 +51,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 102);
         }
 
@@ -85,7 +85,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 79);
         }
 
@@ -121,7 +121,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 9);
         }
 
@@ -140,7 +140,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 77);
         }
 
@@ -160,7 +160,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 4);
         }
 
@@ -180,7 +180,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 30);
         }
 
@@ -200,7 +200,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 4);
         }
 
@@ -220,7 +220,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 31);
         }
 
@@ -243,7 +243,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 22);
         }
 
@@ -264,7 +264,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 3);
         }
 
@@ -287,7 +287,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 2);
         }
 
@@ -315,7 +315,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 31);
         }
 
@@ -346,7 +346,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 31);
         }
 
@@ -381,7 +381,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 17);
         }
 
@@ -406,7 +406,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 134);
         }
 
@@ -430,7 +430,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 6);
         }
 
@@ -460,7 +460,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 20);
         }
 
@@ -487,7 +487,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 1);
         }
 
@@ -512,7 +512,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 7);
         }
 
@@ -537,7 +537,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 16);
         }
 
@@ -578,7 +578,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 12);
         }
 
@@ -603,7 +603,7 @@ int main()
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 3);
         }
 
@@ -632,7 +632,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 55);
         }
 
@@ -659,7 +659,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 3);
         }
 
@@ -684,7 +684,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 2);
         }
 
@@ -711,7 +711,7 @@ else
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 3);
         }
 
@@ -739,7 +739,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 4);
         }
 
@@ -766,7 +766,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 55);
         }
 
@@ -798,7 +798,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 50);
         }
 
@@ -828,7 +828,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 10);
         }
 
@@ -865,7 +865,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 7);
         }
 
@@ -899,7 +899,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 90);
         }
 
@@ -929,7 +929,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 59);
         }
 
@@ -954,7 +954,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 3);
         }
 
@@ -977,7 +977,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 7);
         }
 
@@ -1000,7 +1000,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 9);
         }
 
@@ -1024,7 +1024,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 8);
         }
 
@@ -1063,7 +1063,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 127);
         }
 
@@ -1100,7 +1100,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 7);
         }
 
@@ -1151,7 +1151,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 144);
         }
 
@@ -1204,7 +1204,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 168);
         }
 
@@ -1228,7 +1228,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 2);
         }
 
@@ -1252,7 +1252,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 2);
         }
 
@@ -1275,7 +1275,7 @@ int main() {
             Program program = (Program)ret;
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 8);
         }
 
@@ -1303,7 +1303,7 @@ int main() {
             Program program = (Program)ret;
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 120);
         }
 
@@ -1344,7 +1344,7 @@ int main() {
 
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 0);
         }
 
@@ -1390,7 +1390,7 @@ int main() {
             Program program = (Program)ret;
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 0);
         }
 
@@ -1412,15 +1412,35 @@ int main() {
 }
 // asdfasf;
 ";
-            AsmGenerator.SetOutputFile("test.s");
+            Compiler.GenerateAsm(src, "test.s");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
+            Check(exitCode == 0);
+        }
 
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
+        public void comment_2()
+        {
+            string src = @"
+/*
+int a = 1;
+qwer
+qqq
+*/
 
+int main() {
+/* asdf */
 
-            program.EmitAsm();
+// /*
+/* //
+*/
+    return 0;
+}
+/*
+qqq
+*/
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+";
+            Compiler.GenerateAsm(src, "test.s");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 0);
         }
 
@@ -1456,7 +1476,7 @@ int main()
             Program program = (Program)ret;
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 0);
         }
 
@@ -1509,7 +1529,7 @@ int main()
             Program program = (Program)ret;
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 152);
         }
 
@@ -1542,7 +1562,7 @@ int main()
             Program program = (Program)ret;
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 33);
         }
 
@@ -1715,7 +1735,7 @@ int main()
             Program program = (Program)ret;
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 3);
         }
 
@@ -1750,7 +1770,7 @@ int main()
             Program program = (Program)ret;
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 7);
         }
 
@@ -1784,7 +1804,7 @@ int main()
             Program program = (Program)ret;
             program.EmitAsm();
 
-            int exitCode = CompileAndRun("test.s", "test.exe");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 3);
         }
 
@@ -1867,6 +1887,7 @@ int main()
             mainUt.call_c_function_4();
 
             mainUt.comment_1();
+            mainUt.comment_2();
         }
 
         public static void Ut()

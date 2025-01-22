@@ -10,7 +10,7 @@ namespace CCompilerNs
                 Trace.Assert(false);
         }
 
-        public int CompileAndRun(string asmPath, string exePath)
+        public int CompileAsmAndRun(string asmPath, string exePath)
         {
             Process gcc = new Process();
             gcc.StartInfo.FileName = "gcc.exe";
