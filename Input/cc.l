@@ -24,6 +24,10 @@
 "/="                      { value = yytext; return DIVIDE_ASSIGN; }
 [0-9]+                    { value = int.Parse(yytext); return INT_VALUE; }
 '[ -~]'                   { value = yytext[1]; return CHAR_VALUE; }
+'\\r'                     { value = '\r'; return CHAR_VALUE; }
+'\\n'                     { value = '\n'; return CHAR_VALUE; }
+'\\t'                     { value = '\t'; return CHAR_VALUE; }
+'\\0'                     { value = '\0'; return CHAR_VALUE; }
 [_a-zA-Z][a-zA-Z0-9]*     { value = yytext; return ID; }
 \/\/[^\n]*                { value = "";  return SINGLE_LINE_COMMENT; }  
 [ \t\n\r]+                {}

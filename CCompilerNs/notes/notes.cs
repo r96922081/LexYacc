@@ -1,23 +1,8 @@
 ﻿/*
-notes
 
 1. expression saves (only one) result in stack top
 2. statement saves result in %rax
 
-
-====
-
-TODO:
-- binary operation in if, if (a > b && a != c && c <d )
-- double
-- c lib like printf, strlen, memcpy, strcpy, malloc
-- struct
-- pointer, malloc
-- multi line comment
-
-====
-not supported:
-- union, typedef
 
 ====
 leave: equivalent to 
@@ -63,4 +48,6 @@ mov $77, v2(%rip)
 mov v2(%rip), %rax
 
 --
+
+
  */ 

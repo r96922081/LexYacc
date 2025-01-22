@@ -350,7 +350,7 @@ int main()
             Check(exitCode == 31);
         }
 
-        public void call_function_4()
+        public void call_function_6()
         {
             string src = @"
 int f1()
@@ -385,7 +385,7 @@ int main()
             Check(exitCode == 17);
         }
 
-        public void call_function_5()
+        public void call_function_7()
         {
             string src = @"
 int f1(int a, char b, int c, char d)
@@ -410,7 +410,7 @@ int main()
             Check(exitCode == 134);
         }
 
-        public void call_function_2()
+        public void call_function_4()
         {
             string src = @"
 int f1(int a, int b, int c)
@@ -434,7 +434,7 @@ int main()
             Check(exitCode == 6);
         }
 
-        public void call_function_3()
+        public void call_function_5()
         {
             string src = @"
 int f1(int a, int b, int c)
@@ -489,6 +489,56 @@ int main()
 
             int exitCode = CompileAndRun("test.s", "test.exe");
             Check(exitCode == 1);
+        }
+
+        public void call_function_2()
+        {
+            string src = @"
+void f1(int a)
+{
+    return a;
+}
+
+int main()
+{
+    return f1(7);
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 7);
+        }
+
+        public void call_function_3()
+        {
+            string src = @"
+void f1(int a, int b)
+{
+    return a + b;
+}
+
+int main()
+{
+    return f1(7, 9);
+}
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+
+
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 16);
         }
 
         public void Ut15()
@@ -1463,6 +1513,178 @@ int main()
             Check(exitCode == 152);
         }
 
+        public void call_c_function_1()
+        {
+            string src = @"
+
+char a[5];
+int x = 10;
+
+int main()
+{
+    int y = 20;
+    a[0] ='h';
+    a[1] ='i';
+    a[2] ='!';
+    a[3] = 0;
+
+    strlen(a);
+    strlen(a);
+    strlen(a);
+
+    return x + y + strlen(a);
+}
+
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.EmitAsm();
+
+            int exitCode = CompileAndRun("test.s", "test.exe");
+            Check(exitCode == 33);
+        }
+
+        public void call_c_function_2()
+        {
+            string src = @"
+
+char a[10];
+char b[10];
+
+int main()
+{
+    a[0] ='h';
+    a[1] ='i';
+    a[2] ='!';
+
+    b[0] = '%';
+    b[1] = 's';
+    b[2] = '\n';
+    b[3] = 0;
+
+    printf(b, a);
+
+    return 0;
+}
+
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.EmitAsm();
+
+            Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
+            int exitCode = ret2.Item1;
+            string output = ret2.Item2;
+
+            Check(exitCode == 0);
+            Check(output == "hi!" + Environment.NewLine);
+        }
+
+        public void call_c_function_3()
+        {
+            string src = @"
+
+char b[100];
+
+int main()
+{
+    b[0] = '%';
+    b[1] = 'd';
+    b[2] = ',';
+    b[3] = '%';
+    b[4] = 'd';
+    b[5] = ',';
+    b[6] = '%';
+    b[7] = 'd';
+    b[8] = ',';
+    b[9] = '%';
+    b[10] = 'd';
+    b[11] = ',';
+    b[12] = '%';
+    b[13] = 'd';
+    b[14] = ',';
+    b[15] = '%';
+    b[16] = 'd';
+    b[17] = ',';
+    b[18] = '%';
+    b[19] = 'd';
+    b[20] = ',';
+    b[21] = 0;
+
+    printf(b, 1, 2, 3, 4, 5, 6, 7);
+
+    return 0;
+}
+
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.EmitAsm();
+
+            Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
+            int exitCode = ret2.Item1;
+            string output = ret2.Item2;
+
+            Check(exitCode == 0);
+            Check(output == "1,2,3,4,5,6,7,");
+        }
+
+        public void call_c_function_4()
+        {
+            string src = @"
+
+char format[100];
+
+int main()
+{
+    char a[10];
+    char b[10];
+
+    a[0] = 'h';
+    a[1] = 'i';
+    a[2] = '\0';
+
+    b[0] = 'h';
+    b[1] = 'e';
+    b[2] = 'l';
+    b[3] = 'l';
+    b[4] = 'o';
+    b[5] = '\0';    
+
+    format[0] = '%';
+    format[1] = 's';
+    format[2] = '\n';
+    format[3] = 0;
+
+    printf(format, a);
+    printf(format, b);
+    strcpy(a, b);
+    printf(format, a);
+
+    return 99;
+}
+
+";
+            AsmEmitter.SetOutputFile("test.s");
+
+            object ret = cc.Parse(src);
+            Program program = (Program)ret;
+            program.EmitAsm();
+
+            Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
+            int exitCode = ret2.Item1;
+            string output = ret2.Item2;
+
+            Check(exitCode == 99);
+            Check(output == "hi" + Environment.NewLine + "hello" + Environment.NewLine + "hello" + Environment.NewLine);
+        }
+
         public void struct_3()
         {
             string src = @"
@@ -1577,6 +1799,11 @@ int main()
 
             mainUt.adhoc();
 
+            mainUt.call_c_function_1();
+            mainUt.call_c_function_2();
+            mainUt.call_c_function_3();
+            mainUt.call_c_function_4();
+
             //mainUt.struct_5();
             //mainUt.struct_4();
             mainUt.struct_3();
@@ -1593,13 +1820,6 @@ int main()
             mainUt.Ut8();
             mainUt.Ut9();
             mainUt.Ut10();
-
-            mainUt.call_function_1();
-            mainUt.call_function_2();
-            mainUt.call_function_3();
-            mainUt.call_function_4();
-            mainUt.call_function_5();
-
             mainUt.Ut15();
 
             mainUt.if_1();
@@ -1615,6 +1835,14 @@ int main()
             mainUt.for_4();
             mainUt.for_5();
             mainUt.for_6();
+
+            mainUt.call_function_1();
+            mainUt.call_function_2();
+            mainUt.call_function_3();
+            mainUt.call_function_4();
+            mainUt.call_function_5();
+            mainUt.call_function_6();
+            mainUt.call_function_7();
 
             mainUt.array_1();
             mainUt.array_2();

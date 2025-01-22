@@ -141,6 +141,7 @@
 
         public override void EmitAsm()
         {
+            Emit("\n#=================================================#\n");
             Init();
 
             if (uninitedGv.Count != 0)
@@ -245,20 +246,72 @@
 
         public void SetLocalStackOffset()
         {
-            if (functionName != "main")
-                localSize += 8;
             /*
-            stack:
-            param1
-            param2
-            %rbp->  return address
-            local1
-            local2
+                Caller's review:
+                First 4 param: %rcx, %rdx, %r8, %r9 
+            
+                stack:
+                param5
+                param6
+                shadow space 32 bytes
+                return address
+new %rbp     -> old %rbp (to set as %rsp after ret)
+new %rbp - 8 -> local1
+new %rbp - 16-> local2
+
+                Callee's review:
+                put %rcx, %rdx, %r8, %r9 in shadow space
+
+                stack:
+                aram5
+                param6
+                param1
+                param2
+                param3
+                param4
+                return address
+new %rbp     -> old %rbp (to set as %rsp after ret)
+new %rbp - 8 -> local1
+new %rbp - 16-> local2
+
              */
-            for (int i = 0; i < paramsInOrder.Count; i++)
+
+            int shadowSpace = 32;
+            int returnAddress = 8;
+
+            if (functionName == "main")
+                returnAddress = 0;
+            else
+                returnAddress = 8;
+
+            if (paramsInOrder.Count >= 1)
+            {
+                Variable p = paramsInOrder[0];
+                p.stackOffset = returnAddress + 32;
+            }
+
+            if (paramsInOrder.Count >= 2)
+            {
+                Variable p = paramsInOrder[1];
+                p.stackOffset = returnAddress + 24;
+            }
+
+            if (paramsInOrder.Count >= 3)
+            {
+                Variable p = paramsInOrder[2];
+                p.stackOffset = returnAddress + 16;
+            }
+
+            if (paramsInOrder.Count >= 4)
+            {
+                Variable p = paramsInOrder[3];
+                p.stackOffset = returnAddress + 8;
+            }
+
+            for (int i = 4; i < paramsInOrder.Count; i++)
             {
                 Variable p = paramsInOrder[i];
-                p.stackOffset = 8 + (i + 1) * 8;
+                p.stackOffset = returnAddress + shadowSpace + (i + 1) * 8;
             }
 
             foreach (Variable l in localsInOrder)
@@ -305,6 +358,33 @@ mov %rsp, %rbp
 add ${2}, %rsp", functionName, functionName, -localSize);
 
             Emit(asm);
+
+            // copy first 4 param to shadow space
+            if (paramsInOrder.Count >= 1)
+            {
+                Variable p = paramsInOrder[0];
+                Emit(string.Format("lea {0}(%rbp), %rax", p.stackOffset));
+                Emit(string.Format("mov %rcx, (%rax)"));
+            }
+            if (paramsInOrder.Count >= 2)
+            {
+                Variable p = paramsInOrder[1];
+                Emit(string.Format("lea {0}(%rbp), %rax", p.stackOffset));
+                Emit(string.Format("mov %rdx, (%rax)"));
+            }
+            if (paramsInOrder.Count >= 3)
+            {
+                Variable p = paramsInOrder[2];
+                Emit(string.Format("lea {0}(%rbp), %rax", p.stackOffset));
+                Emit(string.Format("mov %r8, (%rax)"));
+            }
+            if (paramsInOrder.Count >= 4)
+            {
+                Variable p = paramsInOrder[3];
+                Emit(string.Format("lea {0}(%rbp), %rax", p.stackOffset));
+                Emit(string.Format("mov %r9, (%rax)"));
+            }
+
             foreach (Statement s in statements)
             {
                 s.EmitAsm();
@@ -532,8 +612,35 @@ ret";
 
             if (parameters != null)
             {
-                // Caller push in reserve order, callee pop in order
-                for (int i = parameters.Count - 1; i >= 0; i--)
+                // The first four arguments (integer or pointer types) are passed in:  %rcx, %rdx, %r8, %r9
+                // to follow Win64 function calling conventions
+                if (parameters.Count >= 1)
+                {
+                    parameters[0].EmitAsm();
+                    Emit(string.Format("pop %rcx"));
+                }
+
+                if (parameters.Count >= 2)
+                {
+                    parameters[1].EmitAsm();
+                    Emit(string.Format("pop %rdx"));
+                }
+
+                if (parameters.Count >= 3)
+                {
+                    parameters[2].EmitAsm();
+                    Emit(string.Format("pop %r8"));
+                }
+
+                if (parameters.Count >= 4)
+                {
+                    parameters[3].EmitAsm();
+                    Emit(string.Format("pop %r9"));
+                }
+
+                // Additional arguments beyond the first four are passed on the stack, push in reserve order
+                // to follow Win64 function calling conventions
+                for (int i = parameters.Count - 1; i >= 4; i--)
                 {
                     parameters[i].EmitAsm();
                     Emit(string.Format("pop %rax"));
@@ -541,14 +648,16 @@ ret";
                 }
             }
 
+            Emit(string.Format("add $-32, %rsp")); // 32 byte shadow space to follow Win64 function calling conventions
             Emit(string.Format("call {0}", name));
+            Emit(string.Format("add $32, %rsp"));
 
             if (parameters != null)
             {
                 // Clear parameters
-                for (int i = 0; i < parameters.Count; i++)
+                for (int i = 4; i < parameters.Count; i++)
                 {
-                    Emit(string.Format("pop %rbx # clear parameter on stack"));
+                    Emit(string.Format("pop %rbx # clear parameter on stack")); // caller cleaning up the stack to follow Win64 function calling conventions
                 }
             }
 

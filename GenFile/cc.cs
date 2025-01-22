@@ -21,7 +21,7 @@ public class YaccActions{
 
 %token <char>        CHAR_VALUE
 %token <int>         INT_VALUE
-%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE SINGLE_LINE_COMMENT STRUCT
+%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE SINGLE_LINE_COMMENT STRUCT STRING_LITERAL
 
 %type <CCompilerNs.Program>                    program
 %type <CCompilerNs.GlobalDeclare>              globalDeclare
@@ -2104,6 +2104,7 @@ namespace ccNs
             { 277, "CHAR_TYPE"},
             { 278, "SINGLE_LINE_COMMENT"},
             { 279, "STRUCT"},
+            { 280, "STRING_LITERAL"},
         };
 
         public static int CHAR_VALUE = 256;
@@ -2130,6 +2131,7 @@ namespace ccNs
         public static int CHAR_TYPE = 277;
         public static int SINGLE_LINE_COMMENT = 278;
         public static int STRUCT = 279;
+        public static int STRING_LITERAL = 280;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -2175,6 +2177,10 @@ namespace ccNs
 ""/=""                      { value = yytext; return DIVIDE_ASSIGN; }
 [0-9]+                    { value = int.Parse(yytext); return INT_VALUE; }
 '[ -~]'                   { value = yytext[1]; return CHAR_VALUE; }
+'\\r'                     { value = '\r'; return CHAR_VALUE; }
+'\\n'                     { value = '\n'; return CHAR_VALUE; }
+'\\t'                     { value = '\t'; return CHAR_VALUE; }
+'\\0'                     { value = '\0'; return CHAR_VALUE; }
 [_a-zA-Z][a-zA-Z0-9]*     { value = yytext; return ID; }
 \/\/[^\n]*                { value = """";  return SINGLE_LINE_COMMENT; }  
 [ \t\n\r]+                {}
@@ -2245,6 +2251,10 @@ namespace ccNs
             actions.Add("LexRule39", LexAction39);
             actions.Add("LexRule40", LexAction40);
             actions.Add("LexRule41", LexAction41);
+            actions.Add("LexRule42", LexAction42);
+            actions.Add("LexRule43", LexAction43);
+            actions.Add("LexRule44", LexAction44);
+            actions.Add("LexRule45", LexAction45);
         }
         public static object LexAction0(string yytext)
         {
@@ -2449,7 +2459,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            value = '\r'; return CHAR_VALUE; 
 
             return 0;
         }
@@ -2458,13 +2468,16 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = "";  return SINGLE_LINE_COMMENT; 
+            value = '\n'; return CHAR_VALUE; 
 
             return 0;
         }
         public static object LexAction24(string yytext)
         {
             value = null;
+
+            // user-defined action
+            value = '\t'; return CHAR_VALUE; 
 
             return 0;
         }
@@ -2473,7 +2486,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return yytext[0]; 
+            value = '\0'; return CHAR_VALUE; 
 
             return 0;
         }
@@ -2482,7 +2495,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return yytext[0]; 
+            value = yytext; return ID; 
 
             return 0;
         }
@@ -2491,16 +2504,13 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return yytext[0]; 
+            value = "";  return SINGLE_LINE_COMMENT; 
 
             return 0;
         }
         public static object LexAction28(string yytext)
         {
             value = null;
-
-            // user-defined action
-            return yytext[0]; 
 
             return 0;
         }
@@ -2613,6 +2623,42 @@ namespace ccNs
             return 0;
         }
         public static object LexAction41(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return yytext[0]; 
+
+            return 0;
+        }
+        public static object LexAction42(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return yytext[0]; 
+
+            return 0;
+        }
+        public static object LexAction43(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return yytext[0]; 
+
+            return 0;
+        }
+        public static object LexAction44(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return yytext[0]; 
+
+            return 0;
+        }
+        public static object LexAction45(string yytext)
         {
             value = null;
 
@@ -2881,11 +2927,38 @@ namespace LexYaccNs
 {
     public class LexRuleReader
     {
+        public static Section SplitSecction(string input, bool singleQuoteAsString)
+        {
+            Section s = new Section();
+
+            int definitionStart = input.IndexOf("%{");
+            if (definitionStart != -1)
+            {
+                int definitionEnd = input.IndexOf("%}");
+                s.definitionSection = input.Substring(definitionStart + 2, definitionEnd - definitionStart - 2).Trim();
+                input = input.Substring(definitionEnd + 2);
+
+                int ruleStart = input.IndexOf("%%");
+                s.typeSection = input.Substring(0, ruleStart).Trim();
+                input = input.Substring(ruleStart + 2);
+
+                int ruleEnd = input.IndexOf("%%");
+                s.ruleSection = input.Substring(0, ruleEnd).Trim();
+            }
+            else
+            {
+                // special format for ut that has only rule section
+                s.ruleSection = input.Trim();
+            }
+
+            return s;
+        }
+
         public static void Parse(string input, out Section sections, out List<LexRule> rules)
         {
             rules = new List<LexRule>();
 
-            sections = YaccRuleReader.SplitSecction(input, false);
+            sections = SplitSecction(input, false);
             string ruleSectionString = sections.ruleSection.Trim();
 
             while (ruleSectionString.Length > 0)
@@ -2906,7 +2979,10 @@ namespace LexYaccNs
                 if (regex.StartsWith("\""))
                     rules.Add(new LexRule(regex.Substring(1, regex.Length - 2), "LexRule" + rules.Count, action));
                 else
+                {
+                    regex = regex.Replace("\\\"", "\"");
                     rules.Add(new LexRule(Regex.Compile(regex), "LexRule" + rules.Count, action));
+                }
             }
         }
     }
