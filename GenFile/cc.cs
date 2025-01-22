@@ -51,7 +51,7 @@ public class YaccActions{
 %type <CCompilerNs.StructField>                structField
 %type <CCompilerNs.VariableId>                 variableId
 %type <CCompilerNs.Declare>                    declare
-%type <string>                                 typeSpec relationlOp opAssign incrementDecrement addMinusOp multiplyDivideOp
+%type <string>                                 typeSpec relationalOp opAssign incrementDecrement addMinusOp multiplyDivideOp
 
 
 %%
@@ -212,7 +212,7 @@ ifStatement elseStatement
 ;
 
 ifStatement:
-IF '(' addExpression relationlOp addExpression ')' ifBodyStatements
+IF '(' addExpression relationalOp addExpression ')' ifBodyStatements
 {
     $$ = CCompilerNs.LexYaccCallback.IfStatement($3, $4, $5, $7);
 }
@@ -231,7 +231,7 @@ elseIfStatement
 ;
 
 elseIfStatement:
-ELSE IF '(' addExpression relationlOp addExpression ')' ifBodyStatements
+ELSE IF '(' addExpression relationalOp addExpression ')' ifBodyStatements
 {
     $$= CCompilerNs.LexYaccCallback.IfStatement($4, $5, $6, $8);
 }
@@ -516,7 +516,7 @@ CONTINUE ';'
 ;
 
 forLoopStatement:
-FOR '(' assignmentStatement addExpression relationlOp addExpression ';' assignmentNoSemicolon ')' ifBodyStatements
+FOR '(' assignmentStatement addExpression relationalOp addExpression ';' assignmentNoSemicolon ')' ifBodyStatements
 {
     $$ = CCompilerNs.LexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10);
 }
@@ -606,7 +606,7 @@ arraySize '[' INT_VALUE ']'
 }
 ;
 
-relationlOp:
+relationalOp:
 '<'
 {
     $$ = ""<"";
@@ -760,12 +760,12 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_arraySize_Producton_0", Rule_arraySize_Producton_0);
         actions.Add("Rule_arraySize_LeftRecursionExpand_Producton_0", Rule_arraySize_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_arraySize_LeftRecursionExpand_Producton_1", Rule_arraySize_LeftRecursionExpand_Producton_1);
-        actions.Add("Rule_relationlOp_Producton_0", Rule_relationlOp_Producton_0);
-        actions.Add("Rule_relationlOp_Producton_1", Rule_relationlOp_Producton_1);
-        actions.Add("Rule_relationlOp_Producton_2", Rule_relationlOp_Producton_2);
-        actions.Add("Rule_relationlOp_Producton_3", Rule_relationlOp_Producton_3);
-        actions.Add("Rule_relationlOp_Producton_4", Rule_relationlOp_Producton_4);
-        actions.Add("Rule_relationlOp_Producton_5", Rule_relationlOp_Producton_5);
+        actions.Add("Rule_relationalOp_Producton_0", Rule_relationalOp_Producton_0);
+        actions.Add("Rule_relationalOp_Producton_1", Rule_relationalOp_Producton_1);
+        actions.Add("Rule_relationalOp_Producton_2", Rule_relationalOp_Producton_2);
+        actions.Add("Rule_relationalOp_Producton_3", Rule_relationalOp_Producton_3);
+        actions.Add("Rule_relationalOp_Producton_4", Rule_relationalOp_Producton_4);
+        actions.Add("Rule_relationalOp_Producton_5", Rule_relationalOp_Producton_5);
     }
 
     public static object Rule_start_Producton_0(Dictionary<int, object> objects) { 
@@ -1854,7 +1854,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_relationlOp_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_relationalOp_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
 
         // user-defined action
@@ -1863,7 +1863,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_relationlOp_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_relationalOp_Producton_1(Dictionary<int, object> objects) { 
         string _0 = new string("");
 
         // user-defined action
@@ -1872,7 +1872,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_relationlOp_Producton_2(Dictionary<int, object> objects) { 
+    public static object Rule_relationalOp_Producton_2(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 
@@ -1882,7 +1882,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_relationlOp_Producton_3(Dictionary<int, object> objects) { 
+    public static object Rule_relationalOp_Producton_3(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 
@@ -1892,7 +1892,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_relationlOp_Producton_4(Dictionary<int, object> objects) { 
+    public static object Rule_relationalOp_Producton_4(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 
@@ -1902,7 +1902,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_relationlOp_Producton_5(Dictionary<int, object> objects) { 
+    public static object Rule_relationalOp_Producton_5(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 

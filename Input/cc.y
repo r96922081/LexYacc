@@ -33,7 +33,7 @@
 %type <CCompilerNs.StructField>                structField
 %type <CCompilerNs.VariableId>                 variableId
 %type <CCompilerNs.Declare>                    declare
-%type <string>                                 typeSpec relationlOp opAssign incrementDecrement addMinusOp multiplyDivideOp
+%type <string>                                 typeSpec relationalOp opAssign incrementDecrement addMinusOp multiplyDivideOp
 
 
 %%
@@ -194,7 +194,7 @@ ifStatement elseStatement
 ;
 
 ifStatement:
-IF '(' addExpression relationlOp addExpression ')' ifBodyStatements
+IF '(' addExpression relationalOp addExpression ')' ifBodyStatements
 {
     $$ = CCompilerNs.LexYaccCallback.IfStatement($3, $4, $5, $7);
 }
@@ -213,7 +213,7 @@ elseIfStatement
 ;
 
 elseIfStatement:
-ELSE IF '(' addExpression relationlOp addExpression ')' ifBodyStatements
+ELSE IF '(' addExpression relationalOp addExpression ')' ifBodyStatements
 {
     $$= CCompilerNs.LexYaccCallback.IfStatement($4, $5, $6, $8);
 }
@@ -498,7 +498,7 @@ CONTINUE ';'
 ;
 
 forLoopStatement:
-FOR '(' assignmentStatement addExpression relationlOp addExpression ';' assignmentNoSemicolon ')' ifBodyStatements
+FOR '(' assignmentStatement addExpression relationalOp addExpression ';' assignmentNoSemicolon ')' ifBodyStatements
 {
     $$ = CCompilerNs.LexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10);
 }
@@ -588,7 +588,7 @@ arraySize '[' INT_VALUE ']'
 }
 ;
 
-relationlOp:
+relationalOp:
 '<'
 {
     $$ = "<";
