@@ -89,15 +89,15 @@
             return g;
         }
 
-        public static DeclareStatement DeclareStatement(string type, string id, Expression expression, List<int> arraySize)
+        public static DeclareStatement DeclareStatement(Declare d, Expression expression)
         {
             DeclareStatement n = new DeclareStatement();
-            n.typeInfo = Util.GetType(type);
-            n.name = id;
+            n.typeInfo = Util.GetType(d.type);
+            n.name = d.name;
             n.value = expression;
 
-            if (arraySize != null)
-                n.typeInfo.arraySize.AddRange(arraySize);
+            if (d.arraySize != null)
+                n.typeInfo.arraySize.AddRange(d.arraySize);
 
             return n;
         }
@@ -225,7 +225,7 @@
             return a;
         }
 
-        public static List<Expression> FuncCallParams(Expression param, List<Expression> prevParams)
+        public static List<Expression> FunctionCallParams(Expression param, List<Expression> prevParams)
         {
             List<Expression> paramList = new List<Expression>();
             if (prevParams != null)
@@ -260,33 +260,18 @@
 
 
 
-        public static List<Variable> FuncParams(string type, string name, List<Variable> prevFunParams)
+        public static List<Variable> FunctionParams(Declare d, List<Variable> prevFunParams)
         {
             List<Variable> functionParams = new List<Variable>();
             if (prevFunParams != null)
                 functionParams.AddRange(prevFunParams);
 
-            Variable funParam = new Variable();
-            funParam.name = name;
-            funParam.typeInfo = Util.GetType(type);
-            funParam.scope = VariableScopeEnum.param;
-            functionParams.Add(funParam);
-
-            return functionParams;
-        }
-
-        public static List<Variable> FuncParamsArray(string type, string name, List<int> arraySize, List<Variable> prevFunParams)
-        {
-            List<Variable> functionParams = new List<Variable>();
-            if (prevFunParams != null)
-                functionParams.AddRange(prevFunParams);
-
-            Variable funParam = new Variable();
-            funParam.name = name;
-            funParam.typeInfo = Util.GetType(type);
-            funParam.typeInfo.arraySize.AddRange(arraySize);
-            funParam.scope = VariableScopeEnum.param;
-            functionParams.Add(funParam);
+            Variable functionParam = new Variable();
+            functionParam.name = d.name;
+            functionParam.typeInfo = Util.GetType(d.type);
+            functionParam.typeInfo.arraySize.AddRange(d.arraySize);
+            functionParam.scope = VariableScopeEnum.param;
+            functionParams.Add(functionParam);
 
             return functionParams;
         }

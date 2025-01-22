@@ -267,19 +267,14 @@ RETURN addExpression ';'
 ;
 
 declareStatement:
-typeSpec ID '=' addExpression ';'
+declare '=' addExpression ';'
 {
-    $$= CCompilerNs.LexYaccCallback.DeclareStatement($1, $2, $4, null);
+    $$= CCompilerNs.LexYaccCallback.DeclareStatement($1, $3);
 }
 |
-typeSpec ID ';'
+declare ';'
 {
-    $$= CCompilerNs.LexYaccCallback.DeclareStatement($1, $2, null, null);
-}
-|
-typeSpec ID arraySize ';'
-{
-    $$= CCompilerNs.LexYaccCallback.DeclareStatement($1, $2, null, $3);
+    $$= CCompilerNs.LexYaccCallback.DeclareStatement($1, null);
 }
 ;
 
@@ -463,36 +458,26 @@ multiplyDivideOp:
 ;
 
 functionParams:
-functionParams ',' typeSpec ID
+functionParams ',' declare
 {
-    $$ = CCompilerNs.LexYaccCallback.FuncParams($3, $4, $1);
+    $$ = CCompilerNs.LexYaccCallback.FunctionParams($3, $1);
 }
 |
-typeSpec ID
+declare
 {
-    $$ = CCompilerNs.LexYaccCallback.FuncParams($1, $2, null);
-}
-|
-functionParams ',' typeSpec arraySize ID
-{
-    $$ = CCompilerNs.LexYaccCallback.FuncParamsArray($3, $5, $4, $1);
-}
-|
-typeSpec arraySize ID
-{
-    $$ = CCompilerNs.LexYaccCallback.FuncParamsArray($1, $3, $2, null);
+    $$ = CCompilerNs.LexYaccCallback.FunctionParams($1, null);
 }
 ;
 
 functionCallParams:
 functionCallParams ',' addExpression
 {
-    $$ = CCompilerNs.LexYaccCallback.FuncCallParams($3, $1);
+    $$ = CCompilerNs.LexYaccCallback.FunctionCallParams($3, $1);
 }
 |
 addExpression
 {
-    $$ = CCompilerNs.LexYaccCallback.FuncCallParams($1, null);
+    $$ = CCompilerNs.LexYaccCallback.FunctionCallParams($1, null);
 }
 ;
 
@@ -533,18 +518,6 @@ forLoopStatement:
 FOR '(' assignmentStatement addExpression relationlOp addExpression ';' assignmentNoSemicolon ')' ifBodyStatements
 {
     $$ = CCompilerNs.LexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10);
-}
-;
-
-arraySize:
-arraySize '[' INT_VALUE ']'
-{
-    $$ = CCompilerNs.LexYaccCallback.ArraySize($3, $1);
-}
-|
-'[' INT_VALUE ']'
-{
-    $$ = CCompilerNs.LexYaccCallback.ArraySize($2, null);
 }
 ;
 
@@ -620,6 +593,17 @@ typeSpec ID arraySize
 }
 ;
 
+arraySize:
+arraySize '[' INT_VALUE ']'
+{
+    $$ = CCompilerNs.LexYaccCallback.ArraySize($3, $1);
+}
+|
+'[' INT_VALUE ']'
+{
+    $$ = CCompilerNs.LexYaccCallback.ArraySize($2, null);
+}
+;
 
 relationlOp:
 '<'
