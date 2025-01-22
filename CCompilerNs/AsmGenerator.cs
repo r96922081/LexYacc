@@ -5,16 +5,6 @@
         public string s = "";
         public static string outputFilePath = null;
 
-        public AsmGenerator()
-        {
-
-        }
-
-        public AsmGenerator(string s)
-        {
-
-        }
-
         public virtual void EmitAsm()
         {
 
