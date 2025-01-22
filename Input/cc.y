@@ -8,15 +8,17 @@
 %type <CCompilerNs.Program>                    program
 %type <CCompilerNs.GlobalDeclare>              globalDeclare
 %type <CCompilerNs.FunctionDeclare>            functionDeclare
+%type <CCompilerNs.StructDef>                  structDef
+
 %type <List<CCompilerNs.Variable>>             functionParams
+%type <List<CCompilerNs.Expression>>           functionCallParams
+
 %type <List<CCompilerNs.Statement>>            statements ifBodyStatements functionBodyStatements
-%type <CCompilerNs.ForLoopStatement>           forLoopStatement
 %type <CCompilerNs.Statement>                  statement
+%type <CCompilerNs.ForLoopStatement>           forLoopStatement
 %type <CCompilerNs.ReturnStatement>            returnStatement 
 %type <CCompilerNs.DeclareStatement>           declareStatement 
-%type <CCompilerNs.GlobalVariable>             globalVariable
 %type <CCompilerNs.AssignmentStatement>        assignmentStatement assignmentNoSemicolon
-%type <CCompilerNs.FunctionCallExpression>     functionCallExpression
 %type <CCompilerNs.FunctionCallExpression>     functionCallStatement
 %type <CCompilerNs.CompoundIfStatement>        compoundIfStatement
 %type <CCompilerNs.IfStatement>                ifStatement elseIfStatement elseStatement
@@ -24,15 +26,19 @@
 %type <CCompilerNs.BreakStatement>             breakStatement
 %type <CCompilerNs.ContinueStatement>          continueStatement
 %type <CCompilerNs.EmptyStatement>             emptyStatement
-%type <List<CCompilerNs.Expression>>           functionCallParams
-%type <CCompilerNs.Expression>                 addExpression mulExpression
-%type <List<int>>                              arraySize
-%type <List<CCompilerNs.Expression>>           arrayIndex
-%type <CCompilerNs.StructDef>                  structDef
+
+%type <CCompilerNs.GlobalVariable>             globalVariable
 %type <List<CCompilerNs.StructField>>          structFields
 %type <CCompilerNs.StructField>                structField
 %type <CCompilerNs.VariableId>                 variableId
 %type <CCompilerNs.Declare>                    declare
+
+%type <CCompilerNs.FunctionCallExpression>     functionCallExpression
+%type <CCompilerNs.Expression>                 addExpression mulExpression
+
+%type <List<int>>                              arraySize
+%type <List<CCompilerNs.Expression>>           arrayIndex
+
 %type <string>                                 typeSpec relationalOp opAssign incrementDecrement addMinusOp multiplyDivideOp
 
 

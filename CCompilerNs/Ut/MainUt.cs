@@ -15,12 +15,7 @@ int main()
 	return d - c - a - b;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 1);
         }
@@ -43,14 +38,7 @@ int main()
 
 
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 102);
         }
@@ -77,14 +65,7 @@ int main()
     return a[1][1] + b[2] + c[1][2];
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 79);
         }
@@ -113,14 +94,7 @@ int main()
     return a[1][2] - a[1][1];
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 9);
         }
@@ -133,13 +107,7 @@ int main()
 	return 77;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            Program program = (Program)cc.Parse(src);
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 77);
         }
@@ -152,14 +120,7 @@ int main()
 	return 1 + 5 - 2;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 4);
         }
@@ -172,14 +133,7 @@ int main()
 	return 1 - 7 + 11 - 20 - 44 + 89;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 30);
         }
@@ -192,14 +146,7 @@ int main()
 	return 2 * 3 - 8 / 4;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 4);
         }
@@ -212,14 +159,7 @@ int main()
 	return 2 - (3 - 11) / 2 + 5 * 6 - 7 * 2 + 9;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 31);
         }
@@ -232,17 +172,7 @@ int main()
 	return (10 + 20) * (30 − 5);
 }
 ";
-
-            // return 1 * (2-1);
-            //return ((10 + 20) * (30−5))/ (15 + 5)−(25−10);
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 22);
         }
@@ -256,14 +186,7 @@ int main()
 	return a;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 3);
         }
@@ -279,14 +202,7 @@ int main()
 	return (a + b * c - 1) / c;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 2);
         }
@@ -306,15 +222,7 @@ int main()
 	return a - (b - 11) / a + e * c - 7 * 2 + 9;
 }
 ";
-            // replace e with 5 then it will pass
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 31);
         }
@@ -338,14 +246,7 @@ int main()
 	return a - (b - g) / a + e * c - h * a + (b + a * b);
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 31);
         }
@@ -373,14 +274,7 @@ int main()
     return f1() + f2() * f3() + 10;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 17);
         }
@@ -398,14 +292,7 @@ int main()
     return f1(1, 'A', 2, 'B');
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 134);
         }
@@ -422,14 +309,7 @@ int main()
     return f1(1, 2, 3);
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 6);
         }
@@ -452,14 +332,7 @@ int main()
     return f1(2 * 3,  1 + 2 * 4, f2());
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 20);
         }
@@ -479,14 +352,7 @@ int main()
     return 1;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 1);
         }
@@ -504,14 +370,7 @@ int main()
     return f1(7);
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 7);
         }
@@ -529,14 +388,7 @@ int main()
     return f1(7, 9);
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 16);
         }
@@ -570,14 +422,7 @@ int main()
     return a + b[0];
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 12);
         }
@@ -595,14 +440,7 @@ int main()
     return 2;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 3);
         }
@@ -624,14 +462,7 @@ int main() {
 }
 ";
 
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 55);
         }
@@ -651,14 +482,7 @@ int main() {
     return 0;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 3);
         }
@@ -676,14 +500,7 @@ int main() {
     return 0;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 2);
         }
@@ -703,14 +520,7 @@ else
     return 0;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 3);
         }
@@ -731,14 +541,7 @@ int main() {
     return 0;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 4);
         }
@@ -758,14 +561,7 @@ int main() {
     return a;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 55);
         }
@@ -790,14 +586,7 @@ int main() {
     return a;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 50);
         }
@@ -820,14 +609,7 @@ int main() {
     return a;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 10);
         }
@@ -857,14 +639,7 @@ int main() {
     return a;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 7);
         }
@@ -891,14 +666,7 @@ int main() {
 }
 ";
 
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 90);
         }
@@ -921,14 +689,7 @@ int main() {
 }
 ";
 
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 59);
         }
@@ -946,14 +707,7 @@ int main() {
     return a[2];
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 3);
         }
@@ -969,14 +723,7 @@ int main() {
     return a[3][2] - 2;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 7);
         }
@@ -992,14 +739,7 @@ int main() {
     return a[4][3][2] - 2;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 9);
         }
@@ -1016,14 +756,7 @@ int main() {
     return a[2 * 2][ 4 - 2 + 1];
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 8);
         }
@@ -1055,14 +788,7 @@ int main() {
     return sum;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 127);
         }
@@ -1088,18 +814,8 @@ int main() {
     return a[3];
 }
 ";
-            /*
 
-             */
-
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 7);
         }
@@ -1143,14 +859,7 @@ int main() {
 ";
             // 165 - 21
 
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 144);
         }
@@ -1196,14 +905,7 @@ int main() {
 ";
             // 24 + 165 - 21
 
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 168);
         }
@@ -1220,14 +922,7 @@ int main() {
     return d - c + b;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 2);
         }
@@ -1244,14 +939,7 @@ int main() {
     return a[5] -a[3];
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 2);
         }
@@ -1269,12 +957,7 @@ int main() {
     return b + a[5] -a[3];
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 8);
         }
@@ -1297,12 +980,7 @@ int main() {
     return a[1][2][3];
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 120);
         }
@@ -1337,13 +1015,7 @@ int main() {
     return 0;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 0);
         }
@@ -1384,12 +1056,7 @@ int main() {
     return 0;
 }
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 0);
         }
@@ -1470,12 +1137,7 @@ int main()
 }
 
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 0);
         }
@@ -1523,12 +1185,7 @@ int main()
 }
 
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 152);
         }
@@ -1556,12 +1213,7 @@ int main()
 }
 
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 33);
         }
@@ -1590,12 +1242,7 @@ int main()
 }
 
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
             int exitCode = ret2.Item1;
             string output = ret2.Item2;
@@ -1641,12 +1288,7 @@ int main()
 }
 
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
             int exitCode = ret2.Item1;
             string output = ret2.Item2;
@@ -1691,12 +1333,7 @@ int main()
 }
 
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
             int exitCode = ret2.Item1;
             string output = ret2.Item2;
@@ -1729,12 +1366,7 @@ int main()
 }
 
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 3);
         }
@@ -1764,12 +1396,7 @@ int main()
 }
 
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 7);
         }
@@ -1798,12 +1425,7 @@ int main()
 }
 
 ";
-            AsmGenerator.SetOutputFile("test.s");
-
-            object ret = cc.Parse(src);
-            Program program = (Program)ret;
-            program.EmitAsm();
-
+            Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
             Check(exitCode == 3);
         }
