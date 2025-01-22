@@ -32,7 +32,7 @@
 %type <List<CCompilerNs.StructField>>          structFields
 %type <CCompilerNs.StructField>                structField
 %type <CCompilerNs.VariableId>                 variableId
-%type <CCompilerNs.Variable>                   declare
+%type <CCompilerNs.Declare>                    declare
 %type <string>                                 typeSpec relationlOp opAssign incrementDecrement addMinusOp multiplyDivideOp
 
 
@@ -561,24 +561,19 @@ arrayIndex '[' addExpression ']'
 ;
 
 globalVariable:
-typeSpec ID ';'
+declare ';'
 {
-    $$= CCompilerNs.LexYaccCallback.GlobalVariable($1, $2, null, null);
+    $$= CCompilerNs.LexYaccCallback.GlobalVariable($1, null);
 }
 |
-typeSpec ID arraySize ';'
+declare '=' INT_VALUE ';'
 {
-    $$= CCompilerNs.LexYaccCallback.GlobalVariable($1, $2, null, $3);
+    $$= CCompilerNs.LexYaccCallback.GlobalVariable($1, $3);
 }
 |
-typeSpec ID '=' INT_VALUE ';'
+declare '=' CHAR_VALUE ';'
 {
-    $$= CCompilerNs.LexYaccCallback.GlobalVariable($1, $2, $4, null);
-}
-|
-typeSpec ID '=' CHAR_VALUE ';'
-{
-    $$= CCompilerNs.LexYaccCallback.GlobalVariable($1, $2, $4, null);
+    $$= CCompilerNs.LexYaccCallback.GlobalVariable($1, $3);
 }
 ;
 
@@ -602,14 +597,9 @@ structField
 ;
 
 structField:
-typeSpec ID ';'
+declare ';'
 {
-    $$= CCompilerNs.LexYaccCallback.StructField($1, $2, null);
-}
-|
-typeSpec ID arraySize ';'
-{
-    $$= CCompilerNs.LexYaccCallback.StructField($1, $2, $3);
+    $$= CCompilerNs.LexYaccCallback.StructField($1);
 }
 ;
 

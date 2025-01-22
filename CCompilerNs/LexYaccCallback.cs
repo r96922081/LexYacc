@@ -63,15 +63,15 @@
             return n;
         }
 
-        public static GlobalVariable GlobalVariable(string type, string id, int? intValue, List<int> arraySize)
+        public static GlobalVariable GlobalVariable(Declare d, int? intValue)
         {
             GlobalVariable g = new GlobalVariable();
-            g.typeInfo = Util.GetType(type);
-            g.name = id;
+            g.typeInfo = Util.GetType(d.type);
+            g.name = d.name;
             g.int_value = intValue;
 
-            if (arraySize != null)
-                g.typeInfo.arraySize.AddRange(arraySize);
+            if (d.arraySize != null)
+                g.typeInfo.arraySize.AddRange(d.arraySize);
 
             return g;
         }
@@ -291,14 +291,15 @@
             return functionParams;
         }
 
-        public static Variable Declare(string type, string name, List<int> arraySize)
+        public static Declare Declare(string type, string name, List<int> arraySize)
         {
-            Variable v = new Variable();
-            v.name = name;
-            v.typeInfo = Util.GetType(type);
+            Declare d = new Declare();
+            d.name = name;
+            d.type = type;
             if (arraySize != null)
-                v.typeInfo.arraySize.AddRange(arraySize);
-            return v;
+                d.arraySize.AddRange(arraySize);
+
+            return d;
         }
 
         public static FunctionCallExpression FunctionCallExpression(string name, List<Expression> parameters)
@@ -438,14 +439,14 @@
             return s;
         }
 
-        public static StructField StructField(string type, string name, List<int> arraySize)
+        public static StructField StructField(Declare d)
         {
             StructField f = new StructField();
-            f.typeInfo = Util.GetType(type);
-            f.name = name;
+            f.typeInfo = Util.GetType(d.type);
+            f.name = d.name;
 
-            if (arraySize != null)
-                f.typeInfo.arraySize.AddRange(arraySize);
+            if (d.arraySize != null)
+                f.typeInfo.arraySize.AddRange(d.arraySize);
 
             return f;
         }

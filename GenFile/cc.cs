@@ -50,7 +50,7 @@ public class YaccActions{
 %type <List<CCompilerNs.StructField>>          structFields
 %type <CCompilerNs.StructField>                structField
 %type <CCompilerNs.VariableId>                 variableId
-%type <CCompilerNs.Variable>                   declare
+%type <CCompilerNs.Declare>                    declare
 %type <string>                                 typeSpec relationlOp opAssign incrementDecrement addMinusOp multiplyDivideOp
 
 
@@ -579,24 +579,19 @@ arrayIndex '[' addExpression ']'
 ;
 
 globalVariable:
-typeSpec ID ';'
+declare ';'
 {
-    $$= CCompilerNs.LexYaccCallback.GlobalVariable($1, $2, null, null);
+    $$= CCompilerNs.LexYaccCallback.GlobalVariable($1, null);
 }
 |
-typeSpec ID arraySize ';'
+declare '=' INT_VALUE ';'
 {
-    $$= CCompilerNs.LexYaccCallback.GlobalVariable($1, $2, null, $3);
+    $$= CCompilerNs.LexYaccCallback.GlobalVariable($1, $3);
 }
 |
-typeSpec ID '=' INT_VALUE ';'
+declare '=' CHAR_VALUE ';'
 {
-    $$= CCompilerNs.LexYaccCallback.GlobalVariable($1, $2, $4, null);
-}
-|
-typeSpec ID '=' CHAR_VALUE ';'
-{
-    $$= CCompilerNs.LexYaccCallback.GlobalVariable($1, $2, $4, null);
+    $$= CCompilerNs.LexYaccCallback.GlobalVariable($1, $3);
 }
 ;
 
@@ -620,14 +615,9 @@ structField
 ;
 
 structField:
-typeSpec ID ';'
+declare ';'
 {
-    $$= CCompilerNs.LexYaccCallback.StructField($1, $2, null);
-}
-|
-typeSpec ID arraySize ';'
-{
-    $$= CCompilerNs.LexYaccCallback.StructField($1, $2, $3);
+    $$= CCompilerNs.LexYaccCallback.StructField($1);
 }
 ;
 
@@ -801,13 +791,11 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_globalVariable_Producton_0", Rule_globalVariable_Producton_0);
         actions.Add("Rule_globalVariable_Producton_1", Rule_globalVariable_Producton_1);
         actions.Add("Rule_globalVariable_Producton_2", Rule_globalVariable_Producton_2);
-        actions.Add("Rule_globalVariable_Producton_3", Rule_globalVariable_Producton_3);
         actions.Add("Rule_structDef_Producton_0", Rule_structDef_Producton_0);
         actions.Add("Rule_structFields_Producton_0", Rule_structFields_Producton_0);
         actions.Add("Rule_structFields_LeftRecursionExpand_Producton_0", Rule_structFields_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_structFields_LeftRecursionExpand_Producton_1", Rule_structFields_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_structField_Producton_0", Rule_structField_Producton_0);
-        actions.Add("Rule_structField_Producton_1", Rule_structField_Producton_1);
         actions.Add("Rule_declare_Producton_0", Rule_declare_Producton_0);
         actions.Add("Rule_declare_Producton_1", Rule_declare_Producton_1);
         actions.Add("Rule_declare_Producton_2", Rule_declare_Producton_2);
@@ -1862,47 +1850,32 @@ GREATER_OR_EQUAL_SIGN
 
     public static object Rule_globalVariable_Producton_0(Dictionary<int, object> objects) { 
         CCompilerNs.GlobalVariable _0 = new CCompilerNs.GlobalVariable();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
+        CCompilerNs.Declare _1 = (CCompilerNs.Declare)objects[1];
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.GlobalVariable(_1, _2, null, null);
+        _0= CCompilerNs.LexYaccCallback.GlobalVariable(_1, null);
 
         return _0;
     }
 
     public static object Rule_globalVariable_Producton_1(Dictionary<int, object> objects) { 
         CCompilerNs.GlobalVariable _0 = new CCompilerNs.GlobalVariable();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        List<int> _3 = (List<int>)objects[3];
+        CCompilerNs.Declare _1 = (CCompilerNs.Declare)objects[1];
+        int _3 = (int)objects[3];
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.GlobalVariable(_1, _2, null, _3);
+        _0= CCompilerNs.LexYaccCallback.GlobalVariable(_1, _3);
 
         return _0;
     }
 
     public static object Rule_globalVariable_Producton_2(Dictionary<int, object> objects) { 
         CCompilerNs.GlobalVariable _0 = new CCompilerNs.GlobalVariable();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        int _4 = (int)objects[4];
+        CCompilerNs.Declare _1 = (CCompilerNs.Declare)objects[1];
+        char _3 = (char)objects[3];
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.GlobalVariable(_1, _2, _4, null);
-
-        return _0;
-    }
-
-    public static object Rule_globalVariable_Producton_3(Dictionary<int, object> objects) { 
-        CCompilerNs.GlobalVariable _0 = new CCompilerNs.GlobalVariable();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        char _4 = (char)objects[4];
-
-        // user-defined action
-        _0= CCompilerNs.LexYaccCallback.GlobalVariable(_1, _2, _4, null);
+        _0= CCompilerNs.LexYaccCallback.GlobalVariable(_1, _3);
 
         return _0;
     }
@@ -1948,29 +1921,16 @@ GREATER_OR_EQUAL_SIGN
 
     public static object Rule_structField_Producton_0(Dictionary<int, object> objects) { 
         CCompilerNs.StructField _0 = new CCompilerNs.StructField();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
+        CCompilerNs.Declare _1 = (CCompilerNs.Declare)objects[1];
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.StructField(_1, _2, null);
-
-        return _0;
-    }
-
-    public static object Rule_structField_Producton_1(Dictionary<int, object> objects) { 
-        CCompilerNs.StructField _0 = new CCompilerNs.StructField();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        List<int> _3 = (List<int>)objects[3];
-
-        // user-defined action
-        _0= CCompilerNs.LexYaccCallback.StructField(_1, _2, _3);
+        _0= CCompilerNs.LexYaccCallback.StructField(_1);
 
         return _0;
     }
 
     public static object Rule_declare_Producton_0(Dictionary<int, object> objects) { 
-        CCompilerNs.Variable _0 = new CCompilerNs.Variable();
+        CCompilerNs.Declare _0 = new CCompilerNs.Declare();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
 
@@ -1981,7 +1941,7 @@ GREATER_OR_EQUAL_SIGN
     }
 
     public static object Rule_declare_Producton_1(Dictionary<int, object> objects) { 
-        CCompilerNs.Variable _0 = new CCompilerNs.Variable();
+        CCompilerNs.Declare _0 = new CCompilerNs.Declare();
         string _1 = (string)objects[1];
         List<int> _2 = (List<int>)objects[2];
         string _3 = (string)objects[3];
@@ -1993,7 +1953,7 @@ GREATER_OR_EQUAL_SIGN
     }
 
     public static object Rule_declare_Producton_2(Dictionary<int, object> objects) { 
-        CCompilerNs.Variable _0 = new CCompilerNs.Variable();
+        CCompilerNs.Declare _0 = new CCompilerNs.Declare();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
         List<int> _3 = (List<int>)objects[3];
