@@ -356,7 +356,7 @@ new %rbp - 16-> local2
             if (paramsInOrder.Count >= 4)
             {
                 Variable p = paramsInOrder[3];
-                Emit(string.Format("lea {0}(%rbp), %rax", p.+ stackOffset));
+                Emit(string.Format("lea {0}(%rbp), %rax", p.stackOffset));
                 Emit(string.Format("mov %r9, (%rax)"));
             }
         }
