@@ -1,15 +1,16 @@
 ﻿namespace CCompilerNs
 {
-    public class ProgramBase
+    public class AsmGenerator
     {
         public string s = "";
+        public static string outputFilePath = null;
 
-        public ProgramBase()
+        public AsmGenerator()
         {
 
         }
 
-        public ProgramBase(string s)
+        public AsmGenerator(string s)
         {
 
         }
@@ -21,11 +22,24 @@
 
         public void Emit(string asm)
         {
-            AsmEmitter.Emit(asm);
+            EmitToChannel(asm);
+        }
+
+        public static void EmitToChannel(string asm)
+        {
+            Console.WriteLine(asm);
+            if (outputFilePath != null)
+                File.AppendAllText(outputFilePath, asm + "\n");
+        }
+
+        public static void SetOutputFile(string filePath)
+        {
+            outputFilePath = filePath;
+            File.WriteAllText(outputFilePath, "");
         }
     }
 
-    public class GlobalDeclare : ProgramBase
+    public class GlobalDeclare : AsmGenerator
     {
         public GlobalDeclare()
         {
@@ -40,7 +54,7 @@
 
 
 
-    public class Program : ProgramBase
+    public class Program : AsmGenerator
     {
         public List<GlobalDeclare> globalDeclares = new List<GlobalDeclare>();
 
@@ -164,13 +178,6 @@
             foreach (FunctionDeclare f in funDecls)
                 f.EmitAsm();
             Emit("");
-        }
-
-        public override string ToString()
-        {
-            Init();
-
-            return base.ToString();
         }
     }
 
@@ -400,7 +407,7 @@ ret
     }
 
     // Statement clear all result
-    public class Statement : ProgramBase
+    public class Statement : AsmGenerator
     {
         public Statement() : base("Statement")
         {
@@ -666,7 +673,7 @@ ret";
     }
 
     // save result in stack
-    public class Expression : ProgramBase
+    public class Expression : AsmGenerator
     {
         public Expression lhs = null;
         public string? op = null;
@@ -740,35 +747,6 @@ ret";
                     Emit(string.Format("push %rax"));
                 }
             }
-        }
-
-        public override string ToString()
-        {
-            // case mulExpression: INT_VALUE
-            if (intValue != null)
-            {
-                s = "Expression(" + intValue + ")";
-            }
-            // case mulExpression: functionCall
-            else if (functionCall != null)
-            {
-                s = "Expression(" + functionCall.name + "())";
-            }
-            else
-            {
-                // case mulExpression: '(' addExpression ')'
-                if (rhs == null)
-                {
-                    s = "Expression";
-                }
-                // case addExpression: addExpression '+' mulExpression
-                else
-                {
-                    s = "Expression(" + op + ")";
-                }
-            }
-
-            return base.ToString();
         }
     }
 
@@ -899,26 +877,5 @@ ret";
         public override void EmitAsm()
         {
         }
-    }
-
-    public class StructDef : GlobalDeclare
-    {
-        public string name;
-        public List<StructField> fields = new List<StructField>();
-        public int size;
-    };
-
-    public class StructField : ProgramBase
-    {
-        public VariableTypeInfo typeInfo;
-        public string name;
-        public int offset;
-    };
-
-    // a[1].b.c[2][3].d
-    public class VariableId : ProgramBase
-    {
-        public List<string> name = new List<string>();
-        public List<List<Expression>> arrayIndexList = new List<List<Expression>>();
     }
 }

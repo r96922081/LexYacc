@@ -15,7 +15,7 @@ int main()
 	return d - c - a - b;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -43,7 +43,7 @@ int main()
 
 
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -77,7 +77,7 @@ int main()
     return a[1][1] + b[2] + c[1][2];
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -113,7 +113,7 @@ int main()
     return a[1][2] - a[1][1];
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -133,7 +133,7 @@ int main()
 	return 77;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             Program program = (Program)cc.Parse(src);
 
@@ -152,7 +152,7 @@ int main()
 	return 1 + 5 - 2;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -172,7 +172,7 @@ int main()
 	return 1 - 7 + 11 - 20 - 44 + 89;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -192,7 +192,7 @@ int main()
 	return 2 * 3 - 8 / 4;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -212,7 +212,7 @@ int main()
 	return 2 - (3 - 11) / 2 + 5 * 6 - 7 * 2 + 9;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -235,7 +235,7 @@ int main()
 
             // return 1 * (2-1);
             //return ((10 + 20) * (30−5))/ (15 + 5)−(25−10);
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -256,7 +256,7 @@ int main()
 	return a;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -279,7 +279,7 @@ int main()
 	return (a + b * c - 1) / c;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -307,7 +307,7 @@ int main()
 }
 ";
             // replace e with 5 then it will pass
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -338,7 +338,7 @@ int main()
 	return a - (b - g) / a + e * c - h * a + (b + a * b);
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -373,7 +373,7 @@ int main()
     return f1() + f2() * f3() + 10;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -398,7 +398,7 @@ int main()
     return f1(1, 'A', 2, 'B');
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -422,7 +422,7 @@ int main()
     return f1(1, 2, 3);
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -452,7 +452,7 @@ int main()
     return f1(2 * 3,  1 + 2 * 4, f2());
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -479,7 +479,7 @@ int main()
     return 1;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -504,7 +504,7 @@ int main()
     return f1(7);
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -529,7 +529,7 @@ int main()
     return f1(7, 9);
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -570,7 +570,7 @@ int main()
     return a + b[0];
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -595,7 +595,7 @@ int main()
     return 2;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -624,7 +624,7 @@ int main() {
 }
 ";
 
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -651,7 +651,7 @@ int main() {
     return 0;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -676,7 +676,7 @@ int main() {
     return 0;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -703,7 +703,7 @@ else
     return 0;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -731,7 +731,7 @@ int main() {
     return 0;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -758,7 +758,7 @@ int main() {
     return a;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -790,7 +790,7 @@ int main() {
     return a;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -820,7 +820,7 @@ int main() {
     return a;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -857,7 +857,7 @@ int main() {
     return a;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -891,7 +891,7 @@ int main() {
 }
 ";
 
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -921,7 +921,7 @@ int main() {
 }
 ";
 
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -946,7 +946,7 @@ int main() {
     return a[2];
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -969,7 +969,7 @@ int main() {
     return a[3][2] - 2;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -992,7 +992,7 @@ int main() {
     return a[4][3][2] - 2;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1016,7 +1016,7 @@ int main() {
     return a[2 * 2][ 4 - 2 + 1];
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1055,7 +1055,7 @@ int main() {
     return sum;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1092,7 +1092,7 @@ int main() {
 
              */
 
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1143,7 +1143,7 @@ int main() {
 ";
             // 165 - 21
 
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1196,7 +1196,7 @@ int main() {
 ";
             // 24 + 165 - 21
 
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1220,7 +1220,7 @@ int main() {
     return d - c + b;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1244,7 +1244,7 @@ int main() {
     return a[5] -a[3];
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1269,7 +1269,7 @@ int main() {
     return b + a[5] -a[3];
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1297,7 +1297,7 @@ int main() {
     return a[1][2][3];
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1337,7 +1337,7 @@ int main() {
     return 0;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1384,7 +1384,7 @@ int main() {
     return 0;
 }
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1412,7 +1412,7 @@ int main() {
 }
 // asdfasf;
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1450,7 +1450,7 @@ int main()
 }
 
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1503,7 +1503,7 @@ int main()
 }
 
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1536,7 +1536,7 @@ int main()
 }
 
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1570,7 +1570,7 @@ int main()
 }
 
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1621,7 +1621,7 @@ int main()
 }
 
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1671,7 +1671,7 @@ int main()
 }
 
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1709,7 +1709,7 @@ int main()
 }
 
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1744,7 +1744,7 @@ int main()
 }
 
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;
@@ -1778,7 +1778,7 @@ int main()
 }
 
 ";
-            AsmEmitter.SetOutputFile("test.s");
+            AsmGenerator.SetOutputFile("test.s");
 
             object ret = cc.Parse(src);
             Program program = (Program)ret;

@@ -42,7 +42,7 @@
 
         public static void Emit(string asm)
         {
-            AsmEmitter.Emit(asm);
+            AsmGenerator.EmitToChannel(asm);
         }
 
         public static void SaveVariableAddressToRbx(VariableId variableId)
