@@ -29,6 +29,7 @@
 '\\t'                     { value = '\t'; return CHAR_VALUE; }
 '\\0'                     { value = '\0'; return CHAR_VALUE; }
 [_a-zA-Z][a-zA-Z0-9]*     { value = yytext; return ID; }
+\"[^"]*\"                 { yytext = yytext.Substring(1); value = yytext.Substring(0, yytext.Length - 1); return STRING_LITERAL;}
 [ \t\n\r]+                {}
 
 "{"                       { return yytext[0]; }

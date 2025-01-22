@@ -1223,7 +1223,6 @@ int main()
             string src = @"
 
 char a[10];
-char b[10];
 
 int main()
 {
@@ -1231,12 +1230,7 @@ int main()
     a[1] ='i';
     a[2] ='!';
 
-    b[0] = '%';
-    b[1] = 's';
-    b[2] = '\n';
-    b[3] = 0;
-
-    printf(b, a);
+    printf(""%s\n"", a);
 
     return 0;
 }
@@ -1254,35 +1248,9 @@ int main()
         public void call_c_function_3()
         {
             string src = @"
-
-char b[100];
-
 int main()
 {
-    b[0] = '%';
-    b[1] = 'd';
-    b[2] = ',';
-    b[3] = '%';
-    b[4] = 'd';
-    b[5] = ',';
-    b[6] = '%';
-    b[7] = 'd';
-    b[8] = ',';
-    b[9] = '%';
-    b[10] = 'd';
-    b[11] = ',';
-    b[12] = '%';
-    b[13] = 'd';
-    b[14] = ',';
-    b[15] = '%';
-    b[16] = 'd';
-    b[17] = ',';
-    b[18] = '%';
-    b[19] = 'd';
-    b[20] = ',';
-    b[21] = 0;
-
-    printf(b, 1, 2, 3, 4, 5, 6, 7);
+    printf(""%d,%d,%d,%d,%d,%d,%d,"", 1, 2, 3, 4, 5, 6, 7);
 
     return 0;
 }
@@ -1308,26 +1276,13 @@ int main()
     char a[10];
     char b[10];
 
-    a[0] = 'h';
-    a[1] = 'i';
-    a[2] = '\0';
+    strcpy(a, ""hi"");
+    strcpy(b, ""hello"");
 
-    b[0] = 'h';
-    b[1] = 'e';
-    b[2] = 'l';
-    b[3] = 'l';
-    b[4] = 'o';
-    b[5] = '\0';    
-
-    format[0] = '%';
-    format[1] = 's';
-    format[2] = '\n';
-    format[3] = 0;
-
-    printf(format, a);
-    printf(format, b);
+    printf(""%s\n"", a);
+    printf(""%s\n"", b);
     strcpy(a, b);
-    printf(format, a);
+    printf(""%s\n"", a);
 
     return 99;
 }
@@ -1340,6 +1295,33 @@ int main()
 
             Check(exitCode == 99);
             Check(output == "hi" + Environment.NewLine + "hello" + Environment.NewLine + "hello" + Environment.NewLine);
+        }
+
+        public void call_c_function_5()
+        {
+            string src = @"
+
+char a[100];
+char b[100];
+
+int main()
+{
+    strcpy(a, ""hi"");
+    strcpy(b, "", how are you?"");
+    strcat(a, b);
+    printf(a);
+
+    return 0;
+}
+
+";
+            Compiler.GenerateAsm(src, "test.s");
+            Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
+            int exitCode = ret2.Item1;
+            string output = ret2.Item2;
+
+            Check(exitCode == 0);
+            Check(output == "hi, how are you?");
         }
 
         public void struct_3()
@@ -1515,6 +1497,7 @@ int main()
 
             mainUt.adhoc();
 
+
             mainUt.struct_5();
             mainUt.struct_6();
             //mainUt.struct_7();
@@ -1583,6 +1566,7 @@ int main()
             mainUt.call_c_function_2();
             mainUt.call_c_function_3();
             mainUt.call_c_function_4();
+            mainUt.call_c_function_5();
 
             mainUt.comment_1();
             mainUt.comment_2();

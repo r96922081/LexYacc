@@ -432,6 +432,11 @@ CHAR_VALUE
 {
     $$ = CCompilerNs.LexYaccCallback.Expression($1);
 }
+|
+STRING_LITERAL
+{
+    $$ = CCompilerNs.LexYaccCallback.Expression($1);
+}
 ;
 
 multiplyDivideOp:

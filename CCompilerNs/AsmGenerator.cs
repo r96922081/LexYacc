@@ -119,7 +119,6 @@
 
             inited = true;
 
-            Gv.context.Clear();
             Gv.program = this;
             DistributeTopLevels();
             SetStructInfo();
@@ -139,17 +138,19 @@
 
             if (uninitedGv.Count != 0)
             {
-                Emit(".bss");
+                Emit(".bss\n");
                 foreach (GlobalVariable gv in uninitedGv)
                     gv.EmitAsm();
                 Emit("");
             }
 
-            if (initedGv.Count != 0)
+            if (initedGv.Count != 0 || Gv.context.stringLiteral.Count != 0)
             {
                 Emit(".data\n");
                 foreach (GlobalVariable gv in initedGv)
                     gv.EmitAsm();
+                foreach (string text in Gv.context.stringLiteral.Keys)
+                    Emit(string.Format("{0}:  .asciz \"{1}\"", Gv.context.stringLiteral[text], text));
                 Emit("");
             }
 
@@ -157,6 +158,8 @@
             foreach (FunctionDeclare f in funDecls)
                 f.EmitAsm();
             Emit("");
+
+            Gv.context.Clear();
         }
     }
 
@@ -673,6 +676,7 @@ ret";
         public string? op = null;
         public Expression rhs = null;
         public int? intValue = null;
+        public string? stringLiternal = null;
         public FunctionCallExpression? functionCall = null;
 
         public override void EmitAsm()
@@ -687,6 +691,11 @@ ret";
             else if (functionCall != null)
             {
                 functionCall.EmitAsm();
+                Emit(string.Format("push %rax"));
+            }
+            else if (stringLiternal != null)
+            {
+                Emit(string.Format("lea {0}(%rip), %rax", Gv.context.stringLiteral[stringLiternal]));
                 Emit(string.Format("push %rax"));
             }
             else

@@ -40,12 +40,15 @@ namespace LexYaccNs
 
             while (ruleSectionString.Length > 0)
             {
-                int leftBracket = LexYaccUtil.FindCharNotInLiteral(ruleSectionString, '{', false);
-                string regex = ruleSectionString.Substring(0, leftBracket).Trim();
+                int leftBracket = ruleSectionString.IndexOf(" {");
+                if (leftBracket == -1)
+                    leftBracket = ruleSectionString.IndexOf("\t{");
+
+                string regex = ruleSectionString.Substring(0, leftBracket + 1).Trim();
 
                 // the case } in action:
                 // "}"  { return '}'; }
-                ruleSectionString = ruleSectionString.Substring(leftBracket + 1);
+                ruleSectionString = ruleSectionString.Substring(leftBracket + 2);
                 int rightBracket = LexYaccUtil.FindCharNotInLiteral(ruleSectionString, '}', true);
                 string action = LexYaccUtil.RemoveHeadAndTailEmptyLine(ruleSectionString.Substring(0, rightBracket));
 

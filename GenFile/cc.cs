@@ -450,6 +450,11 @@ CHAR_VALUE
 {
     $$ = CCompilerNs.LexYaccCallback.Expression($1);
 }
+|
+STRING_LITERAL
+{
+    $$ = CCompilerNs.LexYaccCallback.Expression($1);
+}
 ;
 
 multiplyDivideOp:
@@ -729,6 +734,7 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_mulExpression_Producton_2", Rule_mulExpression_Producton_2);
         actions.Add("Rule_mulExpression_Producton_3", Rule_mulExpression_Producton_3);
         actions.Add("Rule_mulExpression_Producton_4", Rule_mulExpression_Producton_4);
+        actions.Add("Rule_mulExpression_Producton_5", Rule_mulExpression_Producton_5);
         actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_0", Rule_mulExpression_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_1", Rule_mulExpression_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_2", Rule_mulExpression_LeftRecursionExpand_Producton_2);
@@ -1485,6 +1491,16 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
+    public static object Rule_mulExpression_Producton_5(Dictionary<int, object> objects) { 
+        CCompilerNs.Expression _0 = new CCompilerNs.Expression();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = CCompilerNs.LexYaccCallback.Expression(_1);
+
+        return _0;
+    }
+
     public static object Rule_mulExpression_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
         CCompilerNs.Expression _0 = new CCompilerNs.Expression();
         CCompilerNs.Expression _1 =(CCompilerNs.Expression)objects[1];
@@ -2036,6 +2052,7 @@ namespace ccNs
 '\\t'                     { value = '\t'; return CHAR_VALUE; }
 '\\0'                     { value = '\0'; return CHAR_VALUE; }
 [_a-zA-Z][a-zA-Z0-9]*     { value = yytext; return ID; }
+\""[^""]*\""                 { yytext = yytext.Substring(1); value = yytext.Substring(0, yytext.Length - 1); return STRING_LITERAL;}
 [ \t\n\r]+                {}
 
 ""{""                       { return yytext[0]; }
@@ -2107,6 +2124,7 @@ namespace ccNs
             actions.Add("LexRule42", LexAction42);
             actions.Add("LexRule43", LexAction43);
             actions.Add("LexRule44", LexAction44);
+            actions.Add("LexRule45", LexAction45);
         }
         public static object LexAction0(string yytext)
         {
@@ -2355,14 +2373,14 @@ namespace ccNs
         {
             value = null;
 
+            // user-defined action
+            yytext = yytext.Substring(1); value = yytext.Substring(0, yytext.Length - 1); return STRING_LITERAL;
+
             return 0;
         }
         public static object LexAction28(string yytext)
         {
             value = null;
-
-            // user-defined action
-            return yytext[0]; 
 
             return 0;
         }
@@ -2502,6 +2520,15 @@ namespace ccNs
             return 0;
         }
         public static object LexAction44(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return yytext[0]; 
+
+            return 0;
+        }
+        public static object LexAction45(string yytext)
         {
             value = null;
 
@@ -2806,12 +2833,15 @@ namespace LexYaccNs
 
             while (ruleSectionString.Length > 0)
             {
-                int leftBracket = LexYaccUtil.FindCharNotInLiteral(ruleSectionString, '{', false);
-                string regex = ruleSectionString.Substring(0, leftBracket).Trim();
+                int leftBracket = ruleSectionString.IndexOf(" {");
+                if (leftBracket == -1)
+                    leftBracket = ruleSectionString.IndexOf("\t{");
+
+                string regex = ruleSectionString.Substring(0, leftBracket + 1).Trim();
 
                 // the case } in action:
                 // "}"  { return '}'; }
-                ruleSectionString = ruleSectionString.Substring(leftBracket + 1);
+                ruleSectionString = ruleSectionString.Substring(leftBracket + 2);
                 int rightBracket = LexYaccUtil.FindCharNotInLiteral(ruleSectionString, '}', true);
                 string action = LexYaccUtil.RemoveHeadAndTailEmptyLine(ruleSectionString.Substring(0, rightBracket));
 
