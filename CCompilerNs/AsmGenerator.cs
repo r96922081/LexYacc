@@ -356,7 +356,7 @@ new %rbp - 16-> local2
             if (paramsInOrder.Count >= 4)
             {
                 Variable p = paramsInOrder[3];
-                Emit(string.Format("lea {0}(%rbp), %rax", p.stackOffset));
+                Emit(string.Format("lea {0}(%rbp), %rax", p.+ stackOffset));
                 Emit(string.Format("mov %r9, (%rax)"));
             }
         }
@@ -390,7 +390,7 @@ new %rbp - 16-> local2
                     mov $0x0000000000001000, %rsi  # Source address (64-bit)
                     mov $0x0000000000002000, %rdi  # Destination address (64-bit)
                     mov $24, %rcx                  # Number of bytes to copy
-                    cld                            # clear flag, then %rsi, %rdi increments
+                    cld                            # clear flag, %rsi, %rdi increments while copy
                     rep movsb                      # Repeat move byte (RCX times)
                  */
 
