@@ -3,6 +3,40 @@
 1. expression saves (only one) result in stack top
 2. statement saves result in %rax
 
+====
+
+function call stack:
+
+                stack:
+                param5
+                param6
+                shadow space 32 bytes
+                return address
+new %rbp     -> old %rbp (to set as %rsp after ret)
+new %rbp - 8 -> local1
+new %rbp - 16-> local2
+
+====
+
+struct layout in stack
+
+struct A {
+   int a1;
+   char a2;
+   int a3;
+};
+
+A a;
+a.a1 = 1;
+a.a2 = 2;
+a.a3 = 3;
+
+address of a = -24(%rbp)
+
+-12(%rbp) a.a3
+-18(%rbp) a.a2
+-24(%rbp) a.a1  
+
 
 ====
 leave: equivalent to 
