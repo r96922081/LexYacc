@@ -1799,16 +1799,11 @@ int main()
 
             mainUt.adhoc();
 
-            mainUt.call_c_function_1();
-            mainUt.call_c_function_2();
-            mainUt.call_c_function_3();
-            mainUt.call_c_function_4();
-
             //mainUt.struct_5();
             //mainUt.struct_4();
-            mainUt.struct_3();
-            mainUt.struct_2();
             mainUt.struct_1();
+            mainUt.struct_2();
+            mainUt.struct_3();
 
             mainUt.Ut1();
             mainUt.Ut2();
@@ -1865,6 +1860,11 @@ int main()
 
             mainUt.empty_1();
             mainUt.empty_2();
+
+            mainUt.call_c_function_1();
+            mainUt.call_c_function_2();
+            mainUt.call_c_function_3();
+            mainUt.call_c_function_4();
 
             mainUt.comment_1();
         }
