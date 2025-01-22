@@ -45,11 +45,6 @@
         {
 
         }
-
-        public GlobalDeclare(string s) : base(s)
-        {
-
-        }
     }
 
 
@@ -63,12 +58,6 @@
         private List<FunctionDeclare> funDecls = new List<FunctionDeclare>();
         private List<StructDef> structDefs = new List<StructDef>();
         private bool inited = false;
-
-
-        public Program() : base("Program")
-        {
-
-        }
 
         private void DistributeTopLevels()
         {
@@ -187,11 +176,6 @@
         public string name;
         public int? int_value;
 
-        public GlobalVariable() : base("GlobalVariable")
-        {
-
-        }
-
         public override void EmitAsm()
         {
             if (int_value == null)
@@ -225,11 +209,6 @@
         public Dictionary<string, Variable> localMap = new Dictionary<string, Variable>();
         public Dictionary<string, DeclareStatement> localDeclareMap = new Dictionary<string, DeclareStatement>();
         public int localSize = 0;
-
-        public FunctionDeclare() : base("FunctionDeclare")
-        {
-
-        }
 
         public void AddParamVariable(Variable p)
         {
@@ -409,15 +388,6 @@ ret
     // Statement clear all result
     public class Statement : AsmGenerator
     {
-        public Statement() : base("Statement")
-        {
-
-        }
-
-        public Statement(string s) : base(s)
-        {
-
-        }
     }
 
     public class CompoundIfStatement : Statement
@@ -425,11 +395,6 @@ ret
         public IfStatement ifStatement;
         public List<IfStatement> elseIfStatements;
         public IfStatement elseStatement;
-
-        public CompoundIfStatement() : base("CompoundIfStatement")
-        {
-
-        }
 
         public override void EmitAsm()
         {
@@ -472,11 +437,6 @@ ret
         public Expression rhs;
         public List<Statement> statements = new List<Statement>();
         public string matchLabel;
-
-        public IfStatement() : base("IfStatement")
-        {
-
-        }
 
         public void EmitCmpAsm()
         {
@@ -528,11 +488,6 @@ ret
     {
         public Expression returnValue;
 
-        public ReturnStatement() : base("ReturnStatement")
-        {
-
-        }
-
         public override void EmitAsm()
         {
             Emit("#ReturnStatement =>");
@@ -553,11 +508,6 @@ ret";
     {
         public VariableId variableId;
         public Expression value;
-
-        public AssignmentStatement() : base("AssignmentStatement")
-        {
-
-        }
 
         public override void EmitAsm()
         {
@@ -584,11 +534,6 @@ ret";
         public Expression value;
         public int stackOffset;
 
-        public DeclareStatement() : base("DeclareStatement")
-        {
-
-        }
-
         public override void EmitAsm()
         {
             Emit("#DeclareStatement =>");
@@ -607,11 +552,6 @@ ret";
     {
         public string name;
         public List<Expression> parameters;
-
-        public FunctionCallExpression() : base("FunctionCallExpression")
-        {
-
-        }
 
         public override void EmitAsm()
         {
@@ -681,16 +621,6 @@ ret";
         public int? intValue = null;
         public FunctionCallExpression? functionCall = null;
 
-        public Expression() : base("Expression")
-        {
-
-        }
-
-        public Expression(string s) : base(s)
-        {
-
-        }
-
         public override void EmitAsm()
         {
             // case mulExpression: INT_VALUE
@@ -755,10 +685,6 @@ ret";
     {
         public VariableId variableId;
 
-        public VariableIdExpression() : base("VariableIdExpression")
-        {
-        }
-
         public override void EmitAsm()
         {
             Util.SaveVariableAddressToRbx(variableId);
@@ -788,11 +714,6 @@ ret";
         public string loopStartLabel;
         public string loopEndLabel;
         public string updaterLabel;
-
-        public ForLoopStatement() : base("ForLoopStatement")
-        {
-
-        }
 
         public override void EmitAsm()
         {
@@ -843,11 +764,6 @@ ret";
 
     public class BreakStatement : Statement
     {
-        public BreakStatement() : base("BreakStatement")
-        {
-
-        }
-
         public override void EmitAsm()
         {
             Emit("jmp " + Gv.context.forLoopStatementStack.Peek().loopEndLabel);
@@ -856,11 +772,6 @@ ret";
 
     public class ContinueStatement : Statement
     {
-        public ContinueStatement() : base("ContinueStatement")
-        {
-
-        }
-
         public override void EmitAsm()
         {
             Emit("jmp " + Gv.context.forLoopStatementStack.Peek().updaterLabel);
@@ -869,11 +780,6 @@ ret";
 
     public class EmptyStatement : Statement
     {
-        public EmptyStatement() : base("EmptyStatement")
-        {
-
-        }
-
         public override void EmitAsm()
         {
         }
