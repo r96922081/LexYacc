@@ -1382,9 +1382,9 @@ struct A {
 
 struct A a;
 
-int f1(int a, char b)
+int f1(int b, char c)
 {
-    return a + b;
+    return b + c;
 }
 
 int main()
@@ -1408,18 +1408,20 @@ int main()
 struct A {
     int a1;
     char a2;
+    int a3;
 };
 
 int f1(struct A a)
 {
-    return a.a1 + a.a2;
+    return a.a3 - a.a2 - a.a1;
 }
 
 int main()
 {
     struct A a;
     a.a1 = 1;
-    a.a2 = 2;
+    a.a2 = 5;
+    a.a3 = 10;
 
     return f1(a);
 }
@@ -1427,7 +1429,79 @@ int main()
 ";
             Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
-            Check(exitCode == 3);
+            Check(exitCode == 4);
+        }
+
+        public void struct_6()
+        {
+            string src = @"
+
+struct A {
+    int a1;
+    char a2;
+    int a3;
+};
+
+struct B {
+    int b1;
+    char b2;
+};
+
+int f1(struct A a, struct B b)
+{
+    return a.a3 - a.a2 - a.a1 - b.b1 - b.b2;
+}
+
+int main()
+{
+    struct A a;
+    a.a1 = 8;
+    a.a2 = 10;
+    a.a3 = 30;
+
+    struct B b;
+    b.b1 = 2;
+    b.b2 = 5;
+
+    return f1(a, b);
+}
+
+";
+            Compiler.GenerateAsm(src, "test.s");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
+            Check(exitCode == 5);
+        }
+
+        public void struct_7()
+        {
+            string src = @"
+
+struct B {
+    int b1;
+    int b2;
+};
+
+struct A {
+    int a1;
+    struct B a2[3];
+    char a3;
+};
+
+int main()
+{
+    struct A a;
+    a.a2[1].b1 = 2;
+    a.a2[1].b2 = 5;
+    a.a2[2].b1 = 9;
+    a.a2[2].b2 = 20;
+
+    return a.a2[1].b1 + a.a2[1].b2 + a.a2[2].b1 + a.a2[2].b2;
+}
+
+";
+            Compiler.GenerateAsm(src, "test.s");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
+            Check(exitCode == 36);
         }
 
         public void adhoc()
@@ -1441,11 +1515,13 @@ int main()
 
             mainUt.adhoc();
 
-            //mainUt.struct_5();
-            //mainUt.struct_4();
+            mainUt.struct_5();
+            mainUt.struct_6();
+            //mainUt.struct_7();
             mainUt.struct_1();
             mainUt.struct_2();
             mainUt.struct_3();
+            mainUt.struct_4();
 
             mainUt.Ut1();
             mainUt.Ut2();

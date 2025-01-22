@@ -239,7 +239,7 @@ new %rbp - 16-> local2
                 put %rcx, %rdx, %r8, %r9 in shadow space
 
                 stack:
-                aram5
+                param5
                 param6
                 param1
                 param2
@@ -264,30 +264,40 @@ new %rbp - 16-> local2
             {
                 Variable p = paramsInOrder[0];
                 p.stackOffset = returnAddress + 32;
+                if (p.typeInfo.typeEnum == VariableTypeEnum.struct_type)
+                    p.typeInfo.UpdateStructInfo();
             }
 
             if (paramsInOrder.Count >= 2)
             {
                 Variable p = paramsInOrder[1];
                 p.stackOffset = returnAddress + 24;
+                if (p.typeInfo.typeEnum == VariableTypeEnum.struct_type)
+                    p.typeInfo.UpdateStructInfo();
             }
 
             if (paramsInOrder.Count >= 3)
             {
                 Variable p = paramsInOrder[2];
                 p.stackOffset = returnAddress + 16;
+                if (p.typeInfo.typeEnum == VariableTypeEnum.struct_type)
+                    p.typeInfo.UpdateStructInfo();
             }
 
             if (paramsInOrder.Count >= 4)
             {
                 Variable p = paramsInOrder[3];
                 p.stackOffset = returnAddress + 8;
+                if (p.typeInfo.typeEnum == VariableTypeEnum.struct_type)
+                    p.typeInfo.UpdateStructInfo();
             }
 
             for (int i = 4; i < paramsInOrder.Count; i++)
             {
                 Variable p = paramsInOrder[i];
                 p.stackOffset = returnAddress + shadowSpace + (i + 1) * 8;
+                if (p.typeInfo.typeEnum == VariableTypeEnum.struct_type)
+                    p.typeInfo.UpdateStructInfo();
             }
 
             foreach (Variable l in localsInOrder)
@@ -322,19 +332,8 @@ new %rbp - 16-> local2
             }
         }
 
-        public override void EmitAsm()
+        private void CopyFirst4ParamsToShadowSpace()
         {
-            Gv.context.functionDeclare = this;
-
-            string asm = string.Format(@"#FunctionDeclare =>
-.global {0}
-{1}:
-push %rbp
-mov %rsp, %rbp
-add ${2}, %rsp", functionName, functionName, -localSize);
-
-            Emit(asm);
-
             // copy first 4 param to shadow space
             if (paramsInOrder.Count >= 1)
             {
@@ -360,6 +359,71 @@ add ${2}, %rsp", functionName, functionName, -localSize);
                 Emit(string.Format("lea {0}(%rbp), %rax", p.stackOffset));
                 Emit(string.Format("mov %r9, (%rax)"));
             }
+        }
+
+        private int GetStructSizeInParam()
+        {
+            int size = 0;
+            foreach (var p in paramsInOrder)
+            {
+                if (p.typeInfo.typeEnum == VariableTypeEnum.struct_type)
+                    size += p.typeInfo.size;
+            }
+
+            return size;
+        }
+
+        private void CopyParamStruct(int oldLocalSize)
+        {
+            foreach (var p in paramsInOrder)
+            {
+                if (p.typeInfo.typeEnum != VariableTypeEnum.struct_type)
+                    continue;
+
+                int size = p.typeInfo.size;
+                int oldStackOffset = p.stackOffset;
+                p.stackOffset = -(oldLocalSize + size);
+                int oldAddress = p.stackOffset;
+
+                /*  
+                    # copy memory
+                    mov $0x0000000000001000, %rsi  # Source address (64-bit)
+                    mov $0x0000000000002000, %rdi  # Destination address (64-bit)
+                    mov $24, %rcx                  # Number of bytes to copy
+                    cld                            # clear flag, then %rsi, %rdi increments
+                    rep movsb                      # Repeat move byte (RCX times)
+                 */
+
+                Emit(string.Format("mov {0}(%rbp), %rax", oldStackOffset));
+                Emit(string.Format("mov %rax, %rsi"));
+                Emit(string.Format("lea {0}(%rbp), %rax", p.stackOffset));
+                Emit(string.Format("mov %rax, %rdi"));
+                Emit(string.Format("mov ${0}, %rcx", size));
+                Emit(string.Format("cld"));
+                Emit(string.Format("rep movsb"));
+
+                oldLocalSize += size;
+            }
+        }
+
+        public override void EmitAsm()
+        {
+            Gv.context.functionDeclare = this;
+
+            int oldLocalSize = localSize;
+            localSize += GetStructSizeInParam();
+
+            string asm = string.Format(@"#FunctionDeclare =>
+.global {0}
+{1}:
+push %rbp
+mov %rsp, %rbp
+add ${2}, %rsp", functionName, functionName, -localSize);
+
+            Emit(asm);
+
+            CopyFirst4ParamsToShadowSpace();
+            CopyParamStruct(oldLocalSize);
 
             foreach (Statement s in statements)
             {
@@ -682,8 +746,9 @@ ret";
             Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name[0]);
             if (variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.size == 1)
                 Emit(string.Format("movzbq (%rbx), %rax")); // case a[1][2]
-            else if (variableId.arrayIndexList[0].Count == 0 && variable.typeInfo.arraySize.Count != 0)
-                Emit(string.Format("mov %rbx, %rax")); // case a[1][2], but pass a as parameter
+            else if ((variableId.arrayIndexList[0].Count == 0 && variable.typeInfo.arraySize.Count != 0)
+                || (variable.typeInfo.typeEnum == VariableTypeEnum.struct_type && variableId.name.Count == 1 && variableId.arrayIndexList[0].Count == 0))
+                Emit(string.Format("mov %rbx, %rax")); // case a[1][2] but pass a as parameter and case a.b.c but pass a as parameter
             else
                 Emit(string.Format("mov (%rbx), %rax")); // case local, or array with element size = 8
 
