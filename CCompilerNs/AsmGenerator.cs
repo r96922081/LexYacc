@@ -103,7 +103,11 @@
                         f.typeInfo.size = subStruct.size;
                     }
 
-                    offset += f.typeInfo.size;
+                    int count = 1;
+                    for (int i = 0; i < f.typeInfo.arraySize.Count; i++)
+                        count *= f.typeInfo.arraySize[i];
+
+                    offset += f.typeInfo.size * count;
 
                     // align 8 bytes
                     offset = (offset + 7) / 8 * 8;
@@ -180,7 +184,16 @@
                     int count = 1;
                     foreach (int arraySize in typeInfo.arraySize)
                         count *= arraySize;
-                    Emit(string.Format(".lcomm {0}, {1}", name, count * typeInfo.size));
+
+                    int typeSize = -1;
+
+                    if (typeInfo.typeEnum == VariableTypeEnum.struct_type)
+                        typeSize = Util.GetStructDef(typeInfo.typeName).size;
+                    else
+                        typeSize = typeInfo.size;
+
+
+                    Emit(string.Format(".lcomm {0}, {1}", name, typeSize * count));
                 }
             }
             else

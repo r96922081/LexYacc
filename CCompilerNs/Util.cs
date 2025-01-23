@@ -60,9 +60,6 @@
             p.arrayIndexList = variableId.arrayIndexList;
 
             Variable variable = GetVariableFrom_Local_Param_Global(variableId.name[0]);
-            if (variable.typeInfo.typeEnum != VariableTypeEnum.struct_type)
-                return p;
-
             p.type.Add(variable.typeInfo);
             p.offsets.Add(0);
 
@@ -76,9 +73,6 @@
                     {
                         p.offsets.Add(structDef.fields[j].offset);
                         p.type.Add(structDef.fields[j].typeInfo);
-
-                        if (i != p.count - 1) // a.b.c, last name c is not struct
-                            structDef = GetStructDef(structDef.fields[j].typeInfo.typeName);
                         found = true;
                         break;
                     }
@@ -92,17 +86,10 @@
             return p;
         }
 
-        // the case ID is array, then value is address of array
-        // ex: 
-        // int a[1][2];
-        // f1(a);  // a is the address of array
-        private static bool IsArrayAddressVariable(VariablePartInfo partInfo, Variable variable)
+        private static void PushBaseAddress(string name, VariablePartInfo partInfo)
         {
-            return partInfo.count == 1 && variable.typeInfo.arraySize.Count != 0 && partInfo.arrayIndexList[0].Count == 0;
-        }
+            Variable variable = GetVariableFrom_Local_Param_Global(name);
 
-        private static void PushBaseAddress(Variable variable, VariablePartInfo partInfo)
-        {
             if (variable.scope == VariableScopeEnum.global)
             {
                 Emit(string.Format("lea {0}(%rip), %rbx", variable.name));
@@ -127,78 +114,46 @@
         public static void PushVariableAddress(VariableId variableId)
         {
             VariablePartInfo partInfo = GetVariableTypeInfo(variableId);
-            Variable variable = GetVariableFrom_Local_Param_Global(variableId.name[0]);
 
-            PushBaseAddress(variable, partInfo);
+            PushBaseAddress(variableId.name[0], partInfo);
 
-            if (IsArrayAddressVariable(partInfo, variable))
-                return;
-
-
-            string prevTypeName = null;
-            for (int i = 0; i < variableId.name.Count; i++)
+            for (int i = 0; i < partInfo.count; i++)
             {
-                string name = variableId.name[i];
-                List<Expression> arrayIndex = variableId.arrayIndexList[i];
-
-                VariableTypeInfo typeInfo = null;
-                if (i == 0)
+                if (i > 0)
                 {
-                    typeInfo = variable.typeInfo;
-                    prevTypeName = typeInfo.typeName;
-
-                    if (arrayIndex.Count == 0)
-                    {
-                        Emit(string.Format("pop %rbx"));
-                    }
-                    else
-                    {
-                        for (int j = arrayIndex.Count - 1; j >= 0; j--)
-                        {
-                            int levelCount = 1;
-                            for (int k = j + 1; k < arrayIndex.Count; k++)
-                                levelCount *= typeInfo.arraySize[k];
-
-                            arrayIndex[j].EmitAsm();
-                            Emit("pop %rax");
-                            Emit(string.Format("mov ${0}, %rcx", levelCount));
-                            Emit("mul %rcx");
-                            Emit(string.Format("mov ${0}, %rcx", typeInfo.size));
-                            Emit("mul %rcx");
-                            Emit("push %rax");
-                        }
-
-                        Emit("movq $0, %rax");
-                        for (int j = 0; j < arrayIndex.Count; j++)
-                        {
-                            Emit("pop %rcx");
-                            Emit("add %rcx, %rax");
-                        }
-
-                        Emit("pop %rbx");
-                        Emit("add %rax, %rbx");
-                    }
+                    Emit("pop %rbx");
+                    Emit(string.Format("add ${0}, %rbx", partInfo.offsets[i]));
+                    Emit("push %rbx");
                 }
-                else
-                {
-                    StructDef structDef = GetStructDef(prevTypeName);
 
-                    int offset = 0;
-                    for (int j = 0; j < structDef.fields.Count; j++)
+                if (partInfo.arrayIndexList[i].Count != 0)
+                {
+                    for (int j = partInfo.arrayIndexList[i].Count - 1; j >= 0; j--)
                     {
-                        if (structDef.fields[j].name == name)
-                        {
-                            offset = structDef.fields[j].offset;
-                            prevTypeName = structDef.fields[j].typeInfo.typeName;
-                            break;
-                        }
+                        int levelCount = 1;
+                        for (int k = j + 1; k < partInfo.arrayIndexList[i].Count; k++)
+                            levelCount *= partInfo.type[i].arraySize[k];
+
+                        partInfo.arrayIndexList[i][j].EmitAsm();
+                        Emit("pop %rax");
+                        Emit(string.Format("mov ${0}, %rcx", levelCount));
+                        Emit("mul %rcx");
+                        Emit(string.Format("mov ${0}, %rcx", partInfo.type[i].size));
+                        Emit("mul %rcx");
+                        Emit("push %rax");
+                    }
+
+                    Emit("movq $0, %rax");
+                    for (int j = 0; j < partInfo.arrayIndexList[i].Count; j++)
+                    {
+                        Emit("pop %rcx");
+                        Emit("add %rcx, %rax");
                     }
 
                     Emit("pop %rbx");
-                    Emit(string.Format("add ${0}, %rbx", offset));
+                    Emit("add %rax, %rbx");
+                    Emit("push %rbx");
                 }
-
-                Emit("push %rbx");
             }
         }
 

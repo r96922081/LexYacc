@@ -1474,7 +1474,7 @@ int main()
     struct A a;
     a.a2[1].b1 = 2;
     a.a2[1].b2 = 5;
-    a.a2[2].b1 = 9;
+    a.a2[2].b1 = 10;
     a.a2[2].b2 = 20;
 
     return a.a2[1].b1 + a.a2[1].b2 + a.a2[2].b1 + a.a2[2].b2;
@@ -1483,7 +1483,134 @@ int main()
 ";
             Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
-            //Check(exitCode == 36);
+            Check(exitCode == 37);
+        }
+
+        public void struct_8()
+        {
+            string src = @"
+
+struct C {
+    char c1;
+    char c2;
+    char c3;
+};
+
+struct B {
+    int b1;
+    int b2;
+    struct C b3[2][3];
+};
+
+struct A {
+    int a1;
+    struct B a2[5];
+    char a3;
+};
+
+int main()
+{
+    struct A a[3];
+    a[2].a2[3].b3[1][2].c1 = 5;
+    a[2].a2[3].b3[1][2].c2 = 7;
+    a[2].a2[3].b3[1][2].c3 = 9;
+
+    a[1].a2[2].b3[2][2].c3 = 15;
+
+    return a[2].a2[3].b3[1][2].c1 + a[2].a2[3].b3[1][2].c3 + a[1].a2[2].b3[2][2].c3;
+}
+
+";
+            Compiler.GenerateAsm(src, "test.s");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
+            Check(exitCode == 29);
+        }
+
+        public void struct_9()
+        {
+            string src = @"
+
+struct C {
+    char c1;
+    char c2;
+    char c3;
+};
+
+struct B {
+    int b1;
+    int b2;
+    struct C b3[2][3];
+};
+
+struct A {
+    int a1;
+    struct B a2[5];
+    char a3;
+};
+
+struct A a[3];
+
+int main()
+{
+    a[2].a2[3].b3[1][2].c1 = 5;
+    a[2].a2[3].b3[1][2].c2 = 7;
+    a[2].a2[3].b3[1][2].c3 = 9;
+
+    a[1].a2[2].b3[2][2].c3 = 15;
+
+    return a[2].a2[3].b3[1][2].c1 + a[2].a2[3].b3[1][2].c3 + a[1].a2[2].b3[2][2].c3;
+}
+
+";
+            Compiler.GenerateAsm(src, "test.s");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
+            Check(exitCode == 29);
+        }
+
+        public void struct_10()
+        {
+            string src = @"
+
+struct C {
+    char c1;
+    char c2;
+    char c3;
+};
+
+struct B {
+    int b1;
+    int b2;
+    struct C b3[2][3];
+};
+
+struct A {
+    int a1;
+    struct B a2[5];
+    char a3;
+};
+
+int f1(struct A a[3])
+{
+    a[2].a2[3].b3[1][2].c1 = 5;
+    a[2].a2[3].b3[1][2].c2 = 7;
+    a[2].a2[3].b3[1][2].c3 = 9;
+
+    a[1].a2[2].b3[2][2].c3 = 15;
+
+    return a[2].a2[3].b3[1][2].c1 + a[2].a2[3].b3[1][2].c3 + a[1].a2[2].b3[2][2].c3;
+}
+
+int main()
+{
+    struct A a[3];
+
+    return f1(a);
+}
+
+";
+            Compiler.GenerateAsm(src, "test.s");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
+            Check(exitCode == 29);
         }
 
         public void adhoc()
@@ -1497,13 +1624,16 @@ int main()
 
             mainUt.adhoc();
 
-            mainUt.struct_7();
             mainUt.struct_1();
             mainUt.struct_2();
             mainUt.struct_3();
             mainUt.struct_4();
             mainUt.struct_5();
             mainUt.struct_6();
+            mainUt.struct_7();
+            mainUt.struct_8();
+            mainUt.struct_9();
+            mainUt.struct_10();
 
             mainUt.Ut1();
             mainUt.Ut2();
