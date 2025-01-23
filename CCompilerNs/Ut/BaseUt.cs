@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text;
 
 namespace CCompilerNs
 {
@@ -21,10 +22,25 @@ namespace CCompilerNs
             if (gcc.ExitCode != 0)
                 throw new Exception("Compile failed");
 
-            Process exe = new Process();
-            exe.StartInfo.FileName = exePath;
+            Process exe = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = exePath,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false
+                }
+            };
+
+            exe.OutputDataReceived += (sender, args) => { };
+            exe.ErrorDataReceived += (sender, args) => { };
+
             exe.Start();
+            exe.BeginOutputReadLine();
+            exe.BeginErrorReadLine();
             exe.WaitForExit();
+
             return exe.ExitCode;
         }
 
@@ -39,13 +55,34 @@ namespace CCompilerNs
             if (gcc.ExitCode != 0)
                 throw new Exception("Compile failed");
 
-            Process exe = new Process();
-            exe.StartInfo.FileName = exePath;
-            exe.StartInfo.RedirectStandardOutput = true;
-            exe.Start();
-            exe.WaitForExit();
-            string output = exe.StandardOutput.ReadToEnd();
+            Process exe = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = exePath,
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
 
+            StringBuilder outputBuilder = new StringBuilder();
+
+            exe.OutputDataReceived += (sender, args) =>
+            {
+                if (args.Data != null)
+                {
+                    outputBuilder.AppendLine(args.Data);
+                }
+            };
+
+            exe.Start();
+            exe.BeginOutputReadLine();
+            exe.WaitForExit();
+
+            string output = outputBuilder.ToString();
+
+            Console.Write(output);
 
             return Tuple.Create(exe.ExitCode, output);
         }

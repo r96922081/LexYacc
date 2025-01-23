@@ -1151,7 +1151,7 @@ int main()
     a[1] ='i';
     a[2] ='!';
 
-    printf(""%s\n"", a);
+    printf(""%s"", a);
 
     return 0;
 }
@@ -1163,7 +1163,7 @@ int main()
             string output = ret2.Item2;
 
             Check(exitCode == 0);
-            Check(output == "hi!" + Environment.NewLine);
+            Check(output.Trim() == "hi!");
         }
 
         public void call_c_function_3()
@@ -1183,7 +1183,7 @@ int main()
             string output = ret2.Item2;
 
             Check(exitCode == 0);
-            Check(output == "1,2,3,4,5,6,7,");
+            Check(output.Trim() == "1,2,3,4,5,6,7,");
         }
 
         public void call_c_function_4()
@@ -1200,10 +1200,10 @@ int main()
     strcpy(a, ""hi"");
     strcpy(b, ""hello"");
 
-    printf(""%s\n"", a);
-    printf(""%s\n"", b);
+    printf(""%s,"", a);
+    printf(""%s,"", b);
     strcpy(a, b);
-    printf(""%s\n"", a);
+    printf(""%s"", a);
 
     return 99;
 }
@@ -1215,7 +1215,7 @@ int main()
             string output = ret2.Item2;
 
             Check(exitCode == 99);
-            Check(output == "hi" + Environment.NewLine + "hello" + Environment.NewLine + "hello" + Environment.NewLine);
+            Check(output.Trim() == "hi,hello,hello");
         }
 
         public void call_c_function_5()
@@ -1242,7 +1242,7 @@ int main()
             string output = ret2.Item2;
 
             Check(exitCode == 0);
-            Check(output == "hi, how are you?");
+            Check(output.Trim() == "hi, how are you?");
         }
 
         public void struct_1()
@@ -1676,8 +1676,9 @@ int main() {
     int i = 0;
     int count = 0;
 
-    for (i = 0; i < N; i++)
-        board[i] = 100;
+    for (i = 0; i < N; i++) {
+        board[i] = 0 - 1;
+    }
 
     count = solve(0);
     printf(""Solution count = %d\n"", count);
@@ -1701,9 +1702,6 @@ int main() {
 
             mainUt.adhoc();
 
-            //mojo hang
-            //mainUt.EightQueen();
-
             mainUt.struct_1();
             mainUt.struct_2();
             mainUt.struct_3();
@@ -1711,11 +1709,12 @@ int main() {
             mainUt.struct_5();
             mainUt.struct_6();
             mainUt.struct_7();
+            //mojo fail randomly
             mainUt.struct_8();
             mainUt.struct_9();
 
             //mojo fail randomly
-            //mainUt.struct_10();
+            mainUt.struct_10();
 
             mainUt.Ut1();
             mainUt.Ut2();
@@ -1782,7 +1781,7 @@ int main() {
             mainUt.comment_1();
             mainUt.comment_2();
 
-
+            mainUt.EightQueen();
         }
 
         public static void Ut()
