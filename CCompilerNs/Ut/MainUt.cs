@@ -1616,25 +1616,6 @@ int main()
 
         public void adhoc()
         {
-            string src = @"
-
-int main() {
-    int a[2];
-    a[1] = 3;
-
-    printf("" %d "", a[1]);
-
-
-    return 0;
-}
-";
-            Compiler.GenerateAsm(src, "test.s");
-            Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
-            int exitCode = ret2.Item1;
-            string output = ret2.Item2;
-
-            Check(exitCode == 0);
-            //Check(output.Contains("Solution count = 92"));
         }
 
         public void EightQueen()
@@ -1714,6 +1695,66 @@ int main() {
             Check(output.Contains("Solution count = 92"));
         }
 
+        public void BubbleSort()
+        {
+            string src = @"
+
+/* Function to perform bubble sort */
+void bubbleSort(int arr[7], int n) {
+    int i;
+    int j;
+    int temp;
+    for (i = 0; i < n - 1; i++) {
+        for (j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                /* Swap arr[j] and arr[j + 1] */
+                temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+void printArray(int arr[7], int n) {
+    int i;
+    for (i = 0; i < n; i++) {
+        printf(""%d,"", arr[i]);
+    }
+    printf(""\n"");
+}
+
+int main() {
+    int arr[7];
+    arr[0] = 64;
+    arr[1] = 34;
+    arr[2] = 25;
+    arr[3] = 12;
+    arr[4] = 22;
+    arr[5] = 11;
+    arr[6] = 90;
+
+    printf(""Original array:"");
+    printArray(arr, 7);
+
+    bubbleSort(arr, 7);
+
+    printf(""Sorted array:"");
+    printArray(arr, 7);
+
+    return 0;
+}
+
+";
+            Compiler.GenerateAsm(src, "test.s");
+            Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
+            int exitCode = ret2.Item1;
+            string output = ret2.Item2;
+
+            Check(exitCode == 0);
+            Check(output.Contains("Sorted array:11,12,22,25,34,64,90"));
+        }
+
         public static void RunAllUt()
         {
             MainUt mainUt = new MainUt();
@@ -1727,6 +1768,7 @@ int main() {
             mainUt.struct_5();
             mainUt.struct_6();
             mainUt.struct_7();
+
             //mojo fail randomly
             mainUt.struct_8();
             mainUt.struct_9();
@@ -1800,6 +1842,7 @@ int main() {
             mainUt.comment_2();
 
             mainUt.EightQueen();
+            mainUt.BubbleSort();
         }
 
         public static void Ut()
