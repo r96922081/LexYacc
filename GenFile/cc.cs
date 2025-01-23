@@ -2205,7 +2205,7 @@ namespace ccNs
 ""-=""                      { value = yytext; return MINUS_ASSIGN; }
 ""*=""                      { value = yytext; return MULTIPLY_ASSIGN; }
 ""/=""                      { value = yytext; return DIVIDE_ASSIGN; }
-[0-9]+                    { value = int.Parse(yytext); return INT_VALUE; }
+-?[0-9]+                  { value = int.Parse(yytext); return INT_VALUE; }
 '[ -~]'                   { value = yytext[1]; return CHAR_VALUE; }
 '\\r'                     { value = '\r'; return CHAR_VALUE; }
 '\\n'                     { value = '\n'; return CHAR_VALUE; }
