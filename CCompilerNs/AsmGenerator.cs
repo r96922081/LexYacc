@@ -820,7 +820,13 @@ new %rbp - 16-> local2
         }
     }
 
-    public class ForLoopStatement : Statement
+    public class LoopStatement : Statement
+    {
+        public string loopEndLabel;
+        public string updaterLabel;
+    }
+
+    public class ForLoopStatement : LoopStatement
     {
         public AssignmentStatement initializer;
         public BooleanExpression booleanExpression;
@@ -829,8 +835,6 @@ new %rbp - 16-> local2
         public List<Statement> statements = new List<Statement>();
 
         public string loopStartLabel;
-        public string loopEndLabel;
-        public string updaterLabel;
 
         public override void EmitAsm()
         {
@@ -840,17 +844,16 @@ new %rbp - 16-> local2
             updaterLabel = "updater_" + (Gv.sn++);
 
             initializer.EmitAsm();
-            Emit("push %rax");
             Emit(loopStartLabel + ":");
 
             booleanExpression.jmpLabel = loopEndLabel;
             booleanExpression.jmpCondition = BooleanExpression.JmpCondition.NotMatch;
             booleanExpression.EmitAsm();
 
-            Gv.context.forLoopStatementStack.Push(this);
+            Gv.context.loopStatementStack.Push(this);
             foreach (Statement s in statements)
                 s.EmitAsm();
-            Gv.context.forLoopStatementStack.Pop();
+            Gv.context.loopStatementStack.Pop();
 
             Emit(updaterLabel + ":");
             updater.EmitAsm();
@@ -861,11 +864,49 @@ new %rbp - 16-> local2
         }
     }
 
+    public class WhileLoopStatement : LoopStatement
+    {
+        public BooleanExpression booleanExpression;
+
+        public List<Statement> statements = new List<Statement>();
+
+        public string loopStartLabel;
+
+        public override void EmitAsm()
+        {
+
+            Emit("#WhileLoopStatement =>");
+            loopStartLabel = "loop_start_" + (Gv.sn++);
+            loopEndLabel = "loop_end_" + (Gv.sn++);
+            updaterLabel = "updater_" + (Gv.sn++);
+
+            Emit(loopStartLabel + ":");
+
+            booleanExpression.jmpLabel = loopEndLabel;
+            booleanExpression.jmpCondition = BooleanExpression.JmpCondition.NotMatch;
+            booleanExpression.EmitAsm();
+
+            Gv.context.loopStatementStack.Push(this);
+            foreach (Statement s in statements)
+                s.EmitAsm();
+            Gv.context.loopStatementStack.Pop();
+
+            // continue will jmp to updater label
+            Emit(updaterLabel + ":");
+            Emit("jmp " + loopStartLabel);
+            Emit(loopEndLabel + ":");
+
+            Emit("#<= WhileLoopStatement");
+        }
+    }
+
+
+
     public class BreakStatement : Statement
     {
         public override void EmitAsm()
         {
-            Emit("jmp " + Gv.context.forLoopStatementStack.Peek().loopEndLabel);
+            Emit("jmp " + Gv.context.loopStatementStack.Peek().loopEndLabel);
         }
     }
 
@@ -873,7 +914,7 @@ new %rbp - 16-> local2
     {
         public override void EmitAsm()
         {
-            Emit("jmp " + Gv.context.forLoopStatementStack.Peek().updaterLabel);
+            Emit("jmp " + Gv.context.loopStatementStack.Peek().updaterLabel);
         }
     }
 

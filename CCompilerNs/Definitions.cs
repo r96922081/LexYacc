@@ -13,7 +13,7 @@
         public Dictionary<string, StructDef> structDefs = new Dictionary<string, StructDef>();
         public Dictionary<string, string> stringLiteral = new Dictionary<string, string>();
         public FunctionDeclare functionDeclare;
-        public Stack<ForLoopStatement> forLoopStatementStack = new Stack<ForLoopStatement>();
+        public Stack<LoopStatement> loopStatementStack = new Stack<LoopStatement>();
 
         public void Clear()
         {
@@ -21,7 +21,7 @@
             structDefs = new Dictionary<string, StructDef>();
             stringLiteral = new Dictionary<string, string>();
             functionDeclare = null;
-            forLoopStatementStack = new Stack<ForLoopStatement>();
+            loopStatementStack = new Stack<LoopStatement>();
         }
     }
 

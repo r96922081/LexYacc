@@ -378,12 +378,31 @@
             return f;
         }
 
+        public static WhileLoopStatement WhileLoopStatement(BooleanExpression booleanExpression, List<Statement> statements)
+        {
+            WhileLoopStatement w = new WhileLoopStatement();
+            w.booleanExpression = booleanExpression;
+            w.statements = statements;
+
+            return w;
+        }
+
         public static BooleanExpression BooleanExpression(Expression lhs, string op, Expression rhs)
         {
             BooleanExpression b = new BooleanExpression();
             b.lhs = lhs;
-            b.op = op;
-            b.rhs = rhs;
+
+            if (op == null)
+            {
+                // while (1) case
+                b.op = "!=";
+                b.rhs = Expression(0);
+            }
+            else
+            {
+                b.op = op;
+                b.rhs = rhs;
+            }
 
             return b;
         }

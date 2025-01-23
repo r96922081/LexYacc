@@ -3,7 +3,7 @@
 
 %token <char>        CHAR_VALUE
 %token <int>         INT_VALUE
-%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE STRUCT STRING_LITERAL
+%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR WHILE BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE STRUCT STRING_LITERAL
 
 %type <CCompilerNs.Program>                    program
 %type <CCompilerNs.GlobalDeclare>              globalDeclare
@@ -16,6 +16,7 @@
 %type <List<CCompilerNs.Statement>>            statements ifBodyStatements functionBodyStatements
 %type <CCompilerNs.Statement>                  statement
 %type <CCompilerNs.ForLoopStatement>           forLoopStatement
+%type <CCompilerNs.WhileLoopStatement>         whileLoopStatement
 %type <CCompilerNs.ReturnStatement>            returnStatement 
 %type <CCompilerNs.DeclareStatement>           declareStatement 
 %type <CCompilerNs.AssignmentStatement>        assignmentStatement assignmentNoSemicolon
@@ -158,6 +159,11 @@ compoundIfStatement
 }
 |
 forLoopStatement
+{
+    $$ = $1;
+}
+|
+whileLoopStatement
 {
     $$ = $1;
 }
@@ -516,10 +522,22 @@ FOR '(' assignmentNoSemicolon ';' booleanExpression ';' assignmentNoSemicolon ')
 }
 ;
 
+whileLoopStatement:
+WHILE '(' booleanExpression ')' ifBodyStatements
+{
+    $$ = CCompilerNs.LexYaccCallback.WhileLoopStatement($3, $5);
+}
+;
+
 booleanExpression:
 addExpression relationalOp addExpression
 {
     $$ = CCompilerNs.LexYaccCallback.BooleanExpression($1, $2, $3);
+}
+|
+addExpression
+{
+    $$ = CCompilerNs.LexYaccCallback.BooleanExpression($1, null, null);
 }
 ;
 

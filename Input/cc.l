@@ -9,6 +9,7 @@
 "if"                      { value = yytext; return IF; }
 "else"                    { value = yytext; return ELSE; }
 "for"                     { value = yytext; return FOR; }
+"while"                   { value = yytext; return WHILE; }
 "break"                   { value = yytext; return BREAK; }
 "continue"                { value = yytext; return CONTINUE; }
 "struct"                  { value = yytext; return STRUCT; }

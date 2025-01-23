@@ -546,6 +546,27 @@ int main() {
             Check(exitCode == 4);
         }
 
+        public void if_7()
+        {
+            string src = @"
+int main() {
+    int i = 3;
+    int j = 0;
+
+    while (i)
+    {
+        j += i;
+        i--;
+    }
+
+    return j;
+}
+";
+            Compiler.GenerateAsm(src, "test.s");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
+            Check(exitCode == 6);
+        }
+
         public void for_1()
         {
             string src = @"
@@ -694,6 +715,26 @@ int main() {
             Check(exitCode == 59);
         }
 
+        public void for_7()
+        {
+            string src = @"
+int main() {
+
+    int a = 0;
+    int i = 1;
+    while(i <= 10)
+{
+    a = a + i;
+    i++;
+}
+
+    return a;
+}
+";
+            Compiler.GenerateAsm(src, "test.s");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
+            Check(exitCode == 55);
+        }
 
         public void array_1()
         {
@@ -1662,7 +1703,7 @@ int solve(int row) {
     }
 
     for (col = 0; col < N; col++) {
-        if (is_safe(row, col) != 0) {
+        if (is_safe(row, col)) {
             board[row] = col;
             count += solve(row + 1);
         }
@@ -1760,12 +1801,11 @@ int main() {
             string src = @"
 
 int binarySearch(int arr[8], int size, int target) {
-    int i;
     int low = 0;
     int high = size - 1;
     int mid;
 
-    for (i = 0; low <= high; i++) {
+    while (low <= high) {
         mid = low + (high - low) / 2;
 
         if (arr[mid] == target) 
@@ -1847,7 +1887,7 @@ void lcs(char str1[100], char str2[100], int m, int n) {
     i = m;
     j = n;
     index = lcs_length - 1;
-    for (k = 0; i > 0 && j > 0; k < 10000)
+    while(i > 0 && j > 0)
         if (str1[i - 1] == str2[j - 1]) {
             lcs_str[index] = str1[i - 1];
             i--;
@@ -1923,6 +1963,7 @@ int main() {
             mainUt.if_4();
             mainUt.if_5();
             mainUt.if_6();
+            mainUt.if_7();
 
             mainUt.for_1();
             mainUt.for_2();
@@ -1930,6 +1971,7 @@ int main() {
             mainUt.for_4();
             mainUt.for_5();
             mainUt.for_6();
+            mainUt.for_7();
 
             mainUt.call_function_1();
             mainUt.call_function_2();
