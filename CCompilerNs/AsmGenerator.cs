@@ -608,6 +608,8 @@ new %rbp - 16-> local2
         {
             Emit("#FunctionCallExpression =>");
 
+            // 16-byte align seemed unnecessary, and it may has bug in my implementation
+            // because some test case failed after uncommenting it
             /*
             Emit(string.Format("mov %rsp, %rax # stack 16-byte align, before calling function"));
             Emit(string.Format("andq $0xF, %rax"));
