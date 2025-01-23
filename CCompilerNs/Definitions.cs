@@ -3,26 +3,8 @@
     public class Gv
     {
         public static int sn = 0;
+        public static Dictionary<string, string> stringLiteral = new Dictionary<string, string>();
         public static Program program = null;
-        public static Context context = new Context();
-    }
-
-    public class Context
-    {
-        public Dictionary<string, Variable> gv = new Dictionary<string, Variable>();
-        public Dictionary<string, StructDef> structDefs = new Dictionary<string, StructDef>();
-        public Dictionary<string, string> stringLiteral = new Dictionary<string, string>();
-        public FunctionDeclare functionDeclare;
-        public Stack<LoopStatement> loopStatementStack = new Stack<LoopStatement>();
-
-        public void Clear()
-        {
-            gv = new Dictionary<string, Variable>();
-            structDefs = new Dictionary<string, StructDef>();
-            stringLiteral = new Dictionary<string, string>();
-            functionDeclare = null;
-            loopStatementStack = new Stack<LoopStatement>();
-        }
     }
 
     public class VariableTypeInfo

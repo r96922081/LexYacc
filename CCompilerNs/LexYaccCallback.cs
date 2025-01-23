@@ -160,8 +160,8 @@
             Expression e = new Expression();
             e.stringLiternal = s;
 
-            if (!Gv.context.stringLiteral.ContainsKey(s))
-                Gv.context.stringLiteral.Add(s, "stringLiteral_" + (Gv.sn++));
+            if (!Gv.stringLiteral.ContainsKey(s))
+                Gv.stringLiteral.Add(s, "stringLiteral_" + (Gv.sn++));
 
             return e;
         }

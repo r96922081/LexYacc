@@ -161,17 +161,17 @@ namespace CCompilerNs
 
         public static Variable GetVariableFrom_Local_Param_Global(string name)
         {
-            if (Gv.context.functionDeclare.localMap.ContainsKey(name))
+            if (Gv.program.functionDeclare.localMap.ContainsKey(name))
             {
-                return Gv.context.functionDeclare.localMap[name];
+                return Gv.program.functionDeclare.localMap[name];
             }
-            else if (Gv.context.functionDeclare.paramMap.ContainsKey(name))
+            else if (Gv.program.functionDeclare.paramMap.ContainsKey(name))
             {
-                return Gv.context.functionDeclare.paramMap[name];
+                return Gv.program.functionDeclare.paramMap[name];
             }
-            else if (Gv.context.gv.ContainsKey(name))
+            else if (Gv.program.gv.ContainsKey(name))
             {
-                return Gv.context.gv[name];
+                return Gv.program.gv[name];
             }
             else
             {
@@ -181,7 +181,7 @@ namespace CCompilerNs
 
         public static StructDef GetStructDef(string name)
         {
-            return Gv.context.structDefs[name];
+            return Gv.program.structDefs[name];
         }
 
         public static string GetCallStack()

@@ -41,12 +41,17 @@
 
     public class Program : AsmGenerator
     {
-        public List<GlobalDeclare> globalDeclares = new List<GlobalDeclare>();
+        public FunctionDeclare functionDeclare;
+        public Stack<LoopStatement> loopStatementStack = new Stack<LoopStatement>();
+        public Dictionary<string, string> stringLiteral = new Dictionary<string, string>();
+        public Dictionary<string, StructDef> structDefs = new Dictionary<string, StructDef>();
+        public Dictionary<string, Variable> gv = new Dictionary<string, Variable>();
+        private List<FunctionDeclare> functionDecls = new List<FunctionDeclare>();
 
+        public List<GlobalDeclare> globalDeclares = new List<GlobalDeclare>();
         private List<GlobalVariable> uninitedGv = new List<GlobalVariable>();
         private List<GlobalVariable> initedGv = new List<GlobalVariable>();
-        private List<FunctionDeclare> funDecls = new List<FunctionDeclare>();
-        private List<StructDef> structDefs = new List<StructDef>();
+
         private bool inited = false;
 
         private void DistributeTopLevels()
@@ -56,34 +61,33 @@
                 if (g is StructDef)
                 {
                     StructDef structDef = g as StructDef;
-                    structDefs.Add(structDef);
-                    Gv.context.structDefs.Add(structDef.name, structDef);
+                    Gv.program.structDefs.Add(structDef.name, structDef);
                 }
                 else if (g is FunctionDeclare)
-                    funDecls.Add((FunctionDeclare)g);
+                    functionDecls.Add((FunctionDeclare)g);
                 else if (g is GlobalVariable)
                 {
-                    GlobalVariable gv = g as GlobalVariable;
+                    GlobalVariable gv2 = g as GlobalVariable;
 
-                    if (gv.int_value == null)
+                    if (gv2.int_value == null)
                     {
-                        uninitedGv.Add(gv);
+                        uninitedGv.Add(gv2);
                         Variable v = new Variable();
-                        v.name = gv.name;
-                        v.typeInfo = gv.typeInfo;
+                        v.name = gv2.name;
+                        v.typeInfo = gv2.typeInfo;
                         v.scope = VariableScopeEnum.global;
-                        v.typeInfo.arraySize.AddRange(gv.typeInfo.arraySize);
-                        Gv.context.gv.Add(v.name, v);
+                        v.typeInfo.arraySize.AddRange(gv2.typeInfo.arraySize);
+                        gv.Add(v.name, v);
                     }
                     else
                     {
-                        initedGv.Add(gv);
+                        initedGv.Add(gv2);
                         Variable v = new Variable();
-                        v.name = gv.name;
-                        v.typeInfo = gv.typeInfo;
+                        v.name = gv2.name;
+                        v.typeInfo = gv2.typeInfo;
                         v.scope = VariableScopeEnum.global;
-                        v.typeInfo.arraySize.AddRange(gv.typeInfo.arraySize);
-                        Gv.context.gv.Add(v.name, v);
+                        v.typeInfo.arraySize.AddRange(gv2.typeInfo.arraySize);
+                        gv.Add(v.name, v);
                     }
                 }
             }
@@ -91,7 +95,7 @@
 
         private void SetStructInfo()
         {
-            foreach (StructDef s in structDefs)
+            foreach (StructDef s in structDefs.Values)
             {
                 int offset = 0;
                 foreach (StructField f in s.fields)
@@ -99,7 +103,7 @@
                     f.offset = offset;
                     if (f.typeInfo.typeEnum == VariableTypeEnum.struct_type)
                     {
-                        StructDef subStruct = Gv.context.structDefs[f.typeInfo.typeName];
+                        StructDef subStruct = Gv.program.structDefs[f.typeInfo.typeName];
                         f.typeInfo.size = subStruct.size;
                     }
 
@@ -124,6 +128,12 @@
             inited = true;
 
             Gv.program = this;
+            foreach (var kvp in Gv.stringLiteral)
+                Gv.program.stringLiteral.Add(kvp.Key, kvp.Value);
+
+            Gv.stringLiteral.Clear();
+            Gv.sn = 0;
+
             DistributeTopLevels();
             SetStructInfo();
             SetLocalStackOffset();
@@ -131,7 +141,7 @@
 
         private void SetLocalStackOffset()
         {
-            foreach (FunctionDeclare f in funDecls)
+            foreach (FunctionDeclare f in functionDecls)
                 f.SetLocalStackOffset();
         }
 
@@ -149,22 +159,20 @@
                 Emit("");
             }
 
-            if (initedGv.Count != 0 || Gv.context.stringLiteral.Count != 0)
+            if (initedGv.Count != 0 || Gv.program.stringLiteral.Count != 0)
             {
                 Emit(".data\n");
                 foreach (GlobalVariable gv in initedGv)
                     gv.EmitAsm();
-                foreach (string text in Gv.context.stringLiteral.Keys)
-                    Emit(string.Format("{0}:  .asciz \"{1}\"", Gv.context.stringLiteral[text], text));
+                foreach (string text in Gv.program.stringLiteral.Keys)
+                    Emit(string.Format("{0}:  .asciz \"{1}\"", Gv.program.stringLiteral[text], text));
                 Emit("");
             }
 
             Emit(".text\n");
-            foreach (FunctionDeclare f in funDecls)
+            foreach (FunctionDeclare f in functionDecls)
                 f.EmitAsm();
             Emit("");
-
-            Gv.context.Clear();
         }
     }
 
@@ -392,7 +400,7 @@ new %rbp - 16-> local2
 
         public override void EmitAsm()
         {
-            Gv.context.functionDeclare = this;
+            Gv.program.functionDeclare = this;
 
             int oldLocalSize = localSize;
             localSize += GetStructSizeInParam();
@@ -419,7 +427,7 @@ ret
 #<= FunctionDeclare");
             Emit(asm);
 
-            Gv.context.functionDeclare = this;
+            Gv.program.functionDeclare = this;
         }
     }
 
@@ -688,7 +696,7 @@ new %rbp - 16-> local2
             }
             else if (stringLiternal != null)
             {
-                Emit(string.Format("lea {0}(%rip), %rax", Gv.context.stringLiteral[stringLiternal]));
+                Emit(string.Format("lea {0}(%rip), %rax", Gv.program.stringLiteral[stringLiternal]));
                 Emit(string.Format("push %rax"));
             }
             else
@@ -850,10 +858,10 @@ new %rbp - 16-> local2
             booleanExpression.jmpCondition = BooleanExpression.JmpCondition.NotMatch;
             booleanExpression.EmitAsm();
 
-            Gv.context.loopStatementStack.Push(this);
+            Gv.program.loopStatementStack.Push(this);
             foreach (Statement s in statements)
                 s.EmitAsm();
-            Gv.context.loopStatementStack.Pop();
+            Gv.program.loopStatementStack.Pop();
 
             Emit(updaterLabel + ":");
             updater.EmitAsm();
@@ -886,10 +894,10 @@ new %rbp - 16-> local2
             booleanExpression.jmpCondition = BooleanExpression.JmpCondition.NotMatch;
             booleanExpression.EmitAsm();
 
-            Gv.context.loopStatementStack.Push(this);
+            Gv.program.loopStatementStack.Push(this);
             foreach (Statement s in statements)
                 s.EmitAsm();
-            Gv.context.loopStatementStack.Pop();
+            Gv.program.loopStatementStack.Pop();
 
             // continue will jmp to updater label
             Emit(updaterLabel + ":");
@@ -906,7 +914,7 @@ new %rbp - 16-> local2
     {
         public override void EmitAsm()
         {
-            Emit("jmp " + Gv.context.loopStatementStack.Peek().loopEndLabel);
+            Emit("jmp " + Gv.program.loopStatementStack.Peek().loopEndLabel);
         }
     }
 
@@ -914,7 +922,7 @@ new %rbp - 16-> local2
     {
         public override void EmitAsm()
         {
-            Emit("jmp " + Gv.context.loopStatementStack.Peek().updaterLabel);
+            Emit("jmp " + Gv.program.loopStatementStack.Peek().updaterLabel);
         }
     }
 
