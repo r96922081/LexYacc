@@ -8,8 +8,8 @@
 function call stack:
 
                 stack:
-                param5
                 param6
+                param5
                 shadow space 32 bytes
                 return address
 new %rbp     -> old %rbp (to set as %rsp after ret)

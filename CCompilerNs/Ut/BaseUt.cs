@@ -15,7 +15,7 @@ namespace CCompilerNs
         {
             Process gcc = new Process();
             gcc.StartInfo.FileName = "gcc.exe";
-            gcc.StartInfo.Arguments = "-no-pie -o " + exePath + " " + asmPath;
+            gcc.StartInfo.Arguments = "-no-pie -m64 -o " + exePath + " " + asmPath;
 
             gcc.Start();
             gcc.WaitForExit();
@@ -48,7 +48,7 @@ namespace CCompilerNs
         {
             Process gcc = new Process();
             gcc.StartInfo.FileName = "gcc.exe";
-            gcc.StartInfo.Arguments = "-no-pie -o " + exePath + " " + asmPath;
+            gcc.StartInfo.Arguments = "-no-pie -m64 -o " + exePath + " " + asmPath;
 
             gcc.Start();
             gcc.WaitForExit();

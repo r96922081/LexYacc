@@ -244,8 +244,8 @@
                 First 4 param: %rcx, %rdx, %r8, %r9 
             
                 stack:
-                param5
                 param6
+                param5
                 shadow space 32 bytes
                 return address
 new %rbp     -> old %rbp (to set as %rsp after ret)
@@ -256,8 +256,8 @@ new %rbp - 16-> local2
                 put %rcx, %rdx, %r8, %r9 in shadow space
 
                 stack:
-                param5
                 param6
+                param5
                 param1
                 param2
                 param3
@@ -625,38 +625,36 @@ ret";
         public string name;
         public List<Expression> parameters;
 
+        /*
+                stack:
+                param6
+                param5
+                shadow space 32 bytes
+                return address
+new %rbp     -> old %rbp (to set as %rsp after ret)
+new %rbp - 8 -> local1
+new %rbp - 16-> local2
+        
+         */
+
         public override void EmitAsm()
         {
             Emit("#FunctionCallExpression =>");
 
+            /*
+            Emit(string.Format("mov %rsp, %rax # stack 16-byte align, before calling function"));
+            Emit(string.Format("andq $0xF, %rax"));
+            string alignedLabel = string.Format("aligned_{0}", (Gv.sn++));
+            if (parameters == null || parameters.Count % 2 == 0)
+                Emit(string.Format("jz {0}", alignedLabel));
+            else
+                Emit(string.Format("jnz {0}", alignedLabel));
+            Emit(string.Format("pushq $0"));
+            Emit(string.Format("{0}:", alignedLabel));*/
+
+
             if (parameters != null)
             {
-                // The first four arguments (integer or pointer types) are passed in:  %rcx, %rdx, %r8, %r9
-                // to follow Win64 function calling conventions
-                if (parameters.Count >= 1)
-                {
-                    parameters[0].EmitAsm();
-                    Emit(string.Format("pop %rcx"));
-                }
-
-                if (parameters.Count >= 2)
-                {
-                    parameters[1].EmitAsm();
-                    Emit(string.Format("pop %rdx"));
-                }
-
-                if (parameters.Count >= 3)
-                {
-                    parameters[2].EmitAsm();
-                    Emit(string.Format("pop %r8"));
-                }
-
-                if (parameters.Count >= 4)
-                {
-                    parameters[3].EmitAsm();
-                    Emit(string.Format("pop %r9"));
-                }
-
                 // Additional arguments beyond the first four are passed on the stack, push in reserve order
                 // to follow Win64 function calling conventions
                 for (int i = parameters.Count - 1; i >= 4; i--)
@@ -665,6 +663,26 @@ ret";
                     Emit(string.Format("pop %rax"));
                     Emit(string.Format("push %rax # push parameter onto stack"));
                 }
+
+                // The first four arguments (integer or pointer types) are passed in:  %rcx, %rdx, %r8, %r9
+                // to follow Win64 function calling conventions
+                if (parameters.Count >= 1)
+                    parameters[0].EmitAsm();
+                if (parameters.Count >= 2)
+                    parameters[1].EmitAsm();
+                if (parameters.Count >= 3)
+                    parameters[2].EmitAsm();
+                if (parameters.Count >= 4)
+                    parameters[3].EmitAsm();
+
+                if (parameters.Count >= 4)
+                    Emit(string.Format("pop %r9"));
+                if (parameters.Count >= 3)
+                    Emit(string.Format("pop %r8"));
+                if (parameters.Count >= 2)
+                    Emit(string.Format("pop %rdx"));
+                if (parameters.Count >= 1)
+                    Emit(string.Format("pop %rcx"));
             }
 
             Emit(string.Format("add $-32, %rsp")); // 32 byte shadow space to follow Win64 function calling conventions
@@ -679,6 +697,18 @@ ret";
                     Emit(string.Format("pop %rbx # clear parameter on stack")); // caller cleaning up the stack to follow Win64 function calling conventions
                 }
             }
+
+            /*
+            Emit(string.Format("mov %rsp, %rax # restore stack 16-byte align fix, after calling function"));
+            Emit(string.Format("andq $0xF, %rax"));
+            alignedLabel = string.Format("aligned_{0}", (Gv.sn++));
+            if (parameters == null || parameters.Count % 2 == 0)
+                Emit(string.Format("jz {0}", alignedLabel));
+            else
+                Emit(string.Format("jnz {0}", alignedLabel));
+            Emit(string.Format("pop %rax"));
+            Emit(string.Format("{0}:", alignedLabel));*/
+
 
             Emit("#<= FunctionCallExpression");
         }

@@ -1616,7 +1616,25 @@ int main()
 
         public void adhoc()
         {
+            string src = @"
 
+int main() {
+    int a[2];
+    a[1] = 3;
+
+    printf("" %d "", a[1]);
+
+
+    return 0;
+}
+";
+            Compiler.GenerateAsm(src, "test.s");
+            Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
+            int exitCode = ret2.Item1;
+            string output = ret2.Item2;
+
+            Check(exitCode == 0);
+            //Check(output.Contains("Solution count = 92"));
         }
 
         public void EightQueen()
