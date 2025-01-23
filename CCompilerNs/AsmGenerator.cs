@@ -10,7 +10,7 @@
 
         }
 
-        public void Emit(string asm)
+        protected void Emit(string asm)
         {
             EmitToChannel(asm);
         }
@@ -470,9 +470,7 @@ ret
 
     public class IfStatement : Statement
     {
-        public Expression lhs;
-        public string op;
-        public Expression rhs;
+        public BooleanExpression booleanExpression;
         public List<Statement> statements = new List<Statement>();
         public string matchLabel;
 
@@ -481,36 +479,17 @@ ret
             matchLabel = "branch_" + (Gv.sn++);
 
             // else case. no lhs, rhs
-            if (op == null || op.Length == 0)
+            if (booleanExpression == null)
             {
-
-            }
-            else
-            {
-                // expression saves result in stack
-                lhs.EmitAsm();
-                rhs.EmitAsm();
-
-                Emit("pop %rbx");
-                Emit("pop %rax");
-
-                Emit("cmp %rbx, %rax");
-            }
-
-            if (op == "==")
-                Emit("je " + matchLabel);
-            else if (op == "!=")
-                Emit("jne " + matchLabel);
-            else if (op == ">")
-                Emit("jg " + matchLabel);
-            else if (op == "<")
-                Emit("jl " + matchLabel);
-            else if (op == "<=")
-                Emit("jle " + matchLabel);
-            else if (op == ">=")
-                Emit("jge " + matchLabel);
-            else
                 Emit("jmp " + matchLabel);
+            }
+            else
+            {
+                booleanExpression.jmpLabel = matchLabel;
+                booleanExpression.jmpCondition = BooleanExpression.JmpCondition.Match;
+                booleanExpression.EmitAsm();
+            }
+
         }
 
         public void EmitSubstatementsAsm(string endCompoundIfLabel)
@@ -780,12 +759,71 @@ new %rbp - 16-> local2
         }
     }
 
+    public class BooleanExpression : Expression
+    {
+        public Expression lhs;
+        public string op;
+        public Expression rhs;
+
+        public string jmpLabel;
+        public JmpCondition jmpCondition = JmpCondition.None;
+
+        public enum JmpCondition
+        {
+            Match,
+            NotMatch,
+            None
+        }
+
+        public override void EmitAsm()
+        {
+            lhs.EmitAsm();
+            rhs.EmitAsm();
+
+            Emit("pop %rbx");
+            Emit("pop %rax");
+
+            Emit("cmp %rbx, %rax");
+
+            if (jmpCondition == JmpCondition.Match)
+            {
+                if (op == "==")
+                    Emit("je " + jmpLabel);
+                else if (op == "!=")
+                    Emit("jne " + jmpLabel);
+                else if (op == ">")
+                    Emit("jg " + jmpLabel);
+                else if (op == "<")
+                    Emit("jl " + jmpLabel);
+                else if (op == "<=")
+                    Emit("jle " + jmpLabel);
+                else if (op == ">=")
+                    Emit("jge " + jmpLabel);
+            }
+            else if (jmpCondition == JmpCondition.NotMatch)
+            {
+                if (op == "==")
+                    Emit("jne " + jmpLabel);
+                else if (op == "!=")
+                    Emit("je " + jmpLabel);
+                else if (op == ">")
+                    Emit("jle " + jmpLabel);
+                else if (op == "<")
+                    Emit("jge " + jmpLabel);
+                else if (op == "<=")
+                    Emit("jg " + jmpLabel);
+                else if (op == ">=")
+                    Emit("jl " + jmpLabel);
+            }
+            else
+                throw new Exception();
+        }
+    }
+
     public class ForLoopStatement : Statement
     {
         public AssignmentStatement initializer;
-        public Expression conditionLhs;
-        public string conditionOp;
-        public Expression conditionrhs;
+        public BooleanExpression booleanExpression;
         public AssignmentStatement updater;
 
         public List<Statement> statements = new List<Statement>();
@@ -805,27 +843,9 @@ new %rbp - 16-> local2
             Emit("push %rax");
             Emit(loopStartLabel + ":");
 
-            // check condition
-            conditionLhs.EmitAsm();
-            conditionrhs.EmitAsm();
-
-            Emit("pop %rbx");
-            Emit("pop %rax");
-
-            Emit("cmp %rbx, %rax");
-
-            if (conditionOp == "==")
-                Emit("jne " + loopEndLabel);
-            else if (conditionOp == "!=")
-                Emit("je " + loopEndLabel);
-            else if (conditionOp == ">")
-                Emit("jle " + loopEndLabel);
-            else if (conditionOp == "<")
-                Emit("jge " + loopEndLabel);
-            else if (conditionOp == "<=")
-                Emit("jg " + loopEndLabel);
-            else if (conditionOp == ">=")
-                Emit("jl " + loopEndLabel);
+            booleanExpression.jmpLabel = loopEndLabel;
+            booleanExpression.jmpCondition = BooleanExpression.JmpCondition.NotMatch;
+            booleanExpression.EmitAsm();
 
             Gv.context.forLoopStatementStack.Push(this);
             foreach (Statement s in statements)

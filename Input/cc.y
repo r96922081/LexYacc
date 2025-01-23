@@ -35,6 +35,7 @@
 
 %type <CCompilerNs.FunctionCallExpression>     functionCallExpression
 %type <CCompilerNs.Expression>                 addExpression mulExpression
+%type <CCompilerNs.BooleanExpression>          booleanExpression
 
 %type <List<int>>                              arraySize
 %type <List<CCompilerNs.Expression>>           arrayIndex
@@ -200,9 +201,9 @@ ifStatement elseStatement
 ;
 
 ifStatement:
-IF '(' addExpression relationalOp addExpression ')' ifBodyStatements
+IF '(' booleanExpression ')' ifBodyStatements
 {
-    $$ = CCompilerNs.LexYaccCallback.IfStatement($3, $4, $5, $7);
+    $$ = CCompilerNs.LexYaccCallback.IfStatement($3, $5);
 }
 ;
 
@@ -219,16 +220,16 @@ elseIfStatement
 ;
 
 elseIfStatement:
-ELSE IF '(' addExpression relationalOp addExpression ')' ifBodyStatements
+ELSE IF '(' booleanExpression ')' ifBodyStatements
 {
-    $$= CCompilerNs.LexYaccCallback.IfStatement($4, $5, $6, $8);
+    $$= CCompilerNs.LexYaccCallback.IfStatement($4, $6);
 }
 ;
 
 elseStatement:
 ELSE ifBodyStatements
 {
-    $$= CCompilerNs.LexYaccCallback.IfStatement(null, null, null, $2);
+    $$= CCompilerNs.LexYaccCallback.IfStatement(null, $2);
 }
 ;
 
@@ -509,9 +510,16 @@ CONTINUE ';'
 ;
 
 forLoopStatement:
-FOR '(' assignmentStatement addExpression relationalOp addExpression ';' assignmentNoSemicolon ')' ifBodyStatements
+FOR '(' assignmentNoSemicolon ';' booleanExpression ';' assignmentNoSemicolon ')' ifBodyStatements
 {
-    $$ = CCompilerNs.LexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10);
+    $$ = CCompilerNs.LexYaccCallback.ForLoopStatement($3, $5, $7, $9);
+}
+;
+
+booleanExpression:
+addExpression relationalOp addExpression
+{
+    $$ = CCompilerNs.LexYaccCallback.BooleanExpression($1, $2, $3);
 }
 ;
 

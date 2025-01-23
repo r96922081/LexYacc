@@ -53,6 +53,7 @@ public class YaccActions{
 
 %type <CCompilerNs.FunctionCallExpression>     functionCallExpression
 %type <CCompilerNs.Expression>                 addExpression mulExpression
+%type <CCompilerNs.BooleanExpression>          booleanExpression
 
 %type <List<int>>                              arraySize
 %type <List<CCompilerNs.Expression>>           arrayIndex
@@ -218,9 +219,9 @@ ifStatement elseStatement
 ;
 
 ifStatement:
-IF '(' addExpression relationalOp addExpression ')' ifBodyStatements
+IF '(' booleanExpression ')' ifBodyStatements
 {
-    $$ = CCompilerNs.LexYaccCallback.IfStatement($3, $4, $5, $7);
+    $$ = CCompilerNs.LexYaccCallback.IfStatement($3, $5);
 }
 ;
 
@@ -237,16 +238,16 @@ elseIfStatement
 ;
 
 elseIfStatement:
-ELSE IF '(' addExpression relationalOp addExpression ')' ifBodyStatements
+ELSE IF '(' booleanExpression ')' ifBodyStatements
 {
-    $$= CCompilerNs.LexYaccCallback.IfStatement($4, $5, $6, $8);
+    $$= CCompilerNs.LexYaccCallback.IfStatement($4, $6);
 }
 ;
 
 elseStatement:
 ELSE ifBodyStatements
 {
-    $$= CCompilerNs.LexYaccCallback.IfStatement(null, null, null, $2);
+    $$= CCompilerNs.LexYaccCallback.IfStatement(null, $2);
 }
 ;
 
@@ -527,9 +528,16 @@ CONTINUE ';'
 ;
 
 forLoopStatement:
-FOR '(' assignmentStatement addExpression relationalOp addExpression ';' assignmentNoSemicolon ')' ifBodyStatements
+FOR '(' assignmentNoSemicolon ';' booleanExpression ';' assignmentNoSemicolon ')' ifBodyStatements
 {
-    $$ = CCompilerNs.LexYaccCallback.ForLoopStatement($3, $4, $5, $6, $8, $10);
+    $$ = CCompilerNs.LexYaccCallback.ForLoopStatement($3, $5, $7, $9);
+}
+;
+
+booleanExpression:
+addExpression relationalOp addExpression
+{
+    $$ = CCompilerNs.LexYaccCallback.BooleanExpression($1, $2, $3);
 }
 ;
 
@@ -755,6 +763,7 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_breakStatement_Producton_0", Rule_breakStatement_Producton_0);
         actions.Add("Rule_continueStatement_Producton_0", Rule_continueStatement_Producton_0);
         actions.Add("Rule_forLoopStatement_Producton_0", Rule_forLoopStatement_Producton_0);
+        actions.Add("Rule_booleanExpression_Producton_0", Rule_booleanExpression_Producton_0);
         actions.Add("Rule_arrayIndex_Producton_0", Rule_arrayIndex_Producton_0);
         actions.Add("Rule_arrayIndex_LeftRecursionExpand_Producton_0", Rule_arrayIndex_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_arrayIndex_LeftRecursionExpand_Producton_1", Rule_arrayIndex_LeftRecursionExpand_Producton_1);
@@ -1096,13 +1105,11 @@ GREATER_OR_EQUAL_SIGN
     public static object Rule_ifStatement_Producton_0(Dictionary<int, object> objects) { 
         CCompilerNs.IfStatement _0 = new CCompilerNs.IfStatement();
         string _1 = (string)objects[1];
-        CCompilerNs.Expression _3 = (CCompilerNs.Expression)objects[3];
-        string _4 = (string)objects[4];
-        CCompilerNs.Expression _5 = (CCompilerNs.Expression)objects[5];
-        List<CCompilerNs.Statement> _7 = (List<CCompilerNs.Statement>)objects[7];
+        CCompilerNs.BooleanExpression _3 = (CCompilerNs.BooleanExpression)objects[3];
+        List<CCompilerNs.Statement> _5 = (List<CCompilerNs.Statement>)objects[5];
 
         // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.IfStatement(_3, _4, _5, _7);
+        _0 = CCompilerNs.LexYaccCallback.IfStatement(_3, _5);
 
         return _0;
     }
@@ -1138,13 +1145,11 @@ GREATER_OR_EQUAL_SIGN
         CCompilerNs.IfStatement _0 = new CCompilerNs.IfStatement();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
-        CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
-        string _5 = (string)objects[5];
-        CCompilerNs.Expression _6 = (CCompilerNs.Expression)objects[6];
-        List<CCompilerNs.Statement> _8 = (List<CCompilerNs.Statement>)objects[8];
+        CCompilerNs.BooleanExpression _4 = (CCompilerNs.BooleanExpression)objects[4];
+        List<CCompilerNs.Statement> _6 = (List<CCompilerNs.Statement>)objects[6];
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.IfStatement(_4, _5, _6, _8);
+        _0= CCompilerNs.LexYaccCallback.IfStatement(_4, _6);
 
         return _0;
     }
@@ -1155,7 +1160,7 @@ GREATER_OR_EQUAL_SIGN
         List<CCompilerNs.Statement> _2 = (List<CCompilerNs.Statement>)objects[2];
 
         // user-defined action
-        _0= CCompilerNs.LexYaccCallback.IfStatement(null, null, null, _2);
+        _0= CCompilerNs.LexYaccCallback.IfStatement(null, _2);
 
         return _0;
     }
@@ -1694,14 +1699,24 @@ GREATER_OR_EQUAL_SIGN
         CCompilerNs.ForLoopStatement _0 = new CCompilerNs.ForLoopStatement();
         string _1 = (string)objects[1];
         CCompilerNs.AssignmentStatement _3 = (CCompilerNs.AssignmentStatement)objects[3];
-        CCompilerNs.Expression _4 = (CCompilerNs.Expression)objects[4];
-        string _5 = (string)objects[5];
-        CCompilerNs.Expression _6 = (CCompilerNs.Expression)objects[6];
-        CCompilerNs.AssignmentStatement _8 = (CCompilerNs.AssignmentStatement)objects[8];
-        List<CCompilerNs.Statement> _10 = (List<CCompilerNs.Statement>)objects[10];
+        CCompilerNs.BooleanExpression _5 = (CCompilerNs.BooleanExpression)objects[5];
+        CCompilerNs.AssignmentStatement _7 = (CCompilerNs.AssignmentStatement)objects[7];
+        List<CCompilerNs.Statement> _9 = (List<CCompilerNs.Statement>)objects[9];
 
         // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.ForLoopStatement(_3, _4, _5, _6, _8, _10);
+        _0 = CCompilerNs.LexYaccCallback.ForLoopStatement(_3, _5, _7, _9);
+
+        return _0;
+    }
+
+    public static object Rule_booleanExpression_Producton_0(Dictionary<int, object> objects) { 
+        CCompilerNs.BooleanExpression _0 = new CCompilerNs.BooleanExpression();
+        CCompilerNs.Expression _1 = (CCompilerNs.Expression)objects[1];
+        string _2 = (string)objects[2];
+        CCompilerNs.Expression _3 = (CCompilerNs.Expression)objects[3];
+
+        // user-defined action
+        _0 = CCompilerNs.LexYaccCallback.BooleanExpression(_1, _2, _3);
 
         return _0;
     }

@@ -307,12 +307,10 @@
             return f;
         }
 
-        public static IfStatement IfStatement(Expression lhs, string op, Expression rhs, List<Statement> statements)
+        public static IfStatement IfStatement(BooleanExpression booleanExpression, List<Statement> statements)
         {
             IfStatement i = new IfStatement();
-            i.lhs = lhs;
-            i.op = op;
-            i.rhs = rhs;
+            i.booleanExpression = booleanExpression;
             i.statements = statements;
 
             return i;
@@ -369,17 +367,25 @@
             return c;
         }
 
-        public static ForLoopStatement ForLoopStatement(AssignmentStatement initializer, Expression conditionLhs, string conditionOp, Expression conditionrhs, AssignmentStatement updater, List<Statement> statements)
+        public static ForLoopStatement ForLoopStatement(AssignmentStatement initializer, BooleanExpression booleanExpression, AssignmentStatement updater, List<Statement> statements)
         {
             ForLoopStatement f = new ForLoopStatement();
             f.initializer = initializer;
-            f.conditionLhs = conditionLhs;
-            f.conditionOp = conditionOp;
-            f.conditionrhs = conditionrhs;
+            f.booleanExpression = booleanExpression;
             f.updater = updater;
             f.statements = statements;
 
             return f;
+        }
+
+        public static BooleanExpression BooleanExpression(Expression lhs, string op, Expression rhs)
+        {
+            BooleanExpression b = new BooleanExpression();
+            b.lhs = lhs;
+            b.op = op;
+            b.rhs = rhs;
+
+            return b;
         }
 
         public static BreakStatement BreakStatement()
