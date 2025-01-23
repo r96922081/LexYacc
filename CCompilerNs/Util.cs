@@ -1,4 +1,6 @@
-﻿namespace CCompilerNs
+﻿using System.Diagnostics;
+
+namespace CCompilerNs
 {
     public class Util
     {
@@ -180,6 +182,23 @@
         public static StructDef GetStructDef(string name)
         {
             return Gv.context.structDefs[name];
+        }
+
+        public static string GetCallStack()
+        {
+            var stackTrace = new StackTrace();
+            var frames = stackTrace.GetFrames();
+
+            if (frames == null)
+                return string.Empty;
+
+            var methodNames = frames
+                .Select(frame => frame.GetMethod()?.Name)
+                .Where(name => !string.IsNullOrEmpty(name) && name != nameof(GetCallStack))
+                .Reverse()
+                .Select(name => $"{name}()");
+
+            return string.Join(" -> ", methodNames);
         }
 
     }

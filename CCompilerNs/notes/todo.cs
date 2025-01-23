@@ -3,6 +3,7 @@
 - binary operation in if, if (a > b && a != c && c <d )
 - c malloc
 - pointer ( + string literal like char* a = "hi")
+- recognize -1
 
 ====
 not supported:

@@ -138,6 +138,7 @@
         public override void EmitAsm()
         {
             Emit("\n#=================================================#\n");
+            Emit("#" + Util.GetCallStack());
             Init();
 
             if (uninitedGv.Count != 0)
