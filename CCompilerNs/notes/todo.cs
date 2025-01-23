@@ -4,6 +4,7 @@
 - c malloc
 - pointer ( + string literal like char* a = "hi")
 - recognize -1
+- while
 
 ====
 not supported:
