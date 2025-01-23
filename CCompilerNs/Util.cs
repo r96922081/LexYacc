@@ -45,9 +45,95 @@
             AsmGenerator.EmitToChannel(asm);
         }
 
-        public static void SaveVariableAddressToRbx(VariableId variableId)
+        private class VariablePartInfo
         {
+            public int count;
+            public List<VariableTypeInfo> type = new List<VariableTypeInfo>();
+            public List<int> offsets = new List<int>();
+            public List<List<Expression>> arrayIndexList = new List<List<Expression>>();
+        }
+
+        private static VariablePartInfo GetVariableTypeInfo(VariableId variableId)
+        {
+            VariablePartInfo p = new VariablePartInfo();
+            p.count = variableId.name.Count;
+            p.arrayIndexList = variableId.arrayIndexList;
+
             Variable variable = GetVariableFrom_Local_Param_Global(variableId.name[0]);
+            if (variable.typeInfo.typeEnum != VariableTypeEnum.struct_type)
+                return p;
+
+            p.type.Add(variable.typeInfo);
+            p.offsets.Add(0);
+
+            for (int i = 1; i < p.count; i++)
+            {
+                StructDef structDef = GetStructDef(p.type[i - 1].typeName);
+                bool found = false;
+                for (int j = 0; j < structDef.fields.Count; j++)
+                {
+                    if (variableId.name[i] == structDef.fields[j].name)
+                    {
+                        p.offsets.Add(structDef.fields[j].offset);
+                        p.type.Add(structDef.fields[j].typeInfo);
+
+                        if (i != p.count - 1) // a.b.c, last name c is not struct
+                            structDef = GetStructDef(structDef.fields[j].typeInfo.typeName);
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                    throw new Exception();
+            }
+
+
+            return p;
+        }
+
+        // the case ID is array, then value is address of array
+        // ex: 
+        // int a[1][2];
+        // f1(a);  // a is the address of array
+        private static bool IsArrayAddressVariable(VariablePartInfo partInfo, Variable variable)
+        {
+            return partInfo.count == 1 && variable.typeInfo.arraySize.Count != 0 && partInfo.arrayIndexList[0].Count == 0;
+        }
+
+        private static void PushBaseAddress(Variable variable, VariablePartInfo partInfo)
+        {
+            if (variable.scope == VariableScopeEnum.global)
+            {
+                Emit(string.Format("lea {0}(%rip), %rbx", variable.name));
+                Emit(string.Format("push %rbx", variable.name));
+            }
+            else if (variable.scope == VariableScopeEnum.local)
+            {
+                Emit(string.Format("lea {0}(%rbp), %rbx", variable.stackOffset));
+                Emit(string.Format("push %rbx", variable.name));
+            }
+            else if (variable.scope == VariableScopeEnum.param)
+            {
+                Emit(string.Format("lea {0}(%rbp), %rbx", variable.stackOffset));
+
+                // if pass array as param, then it's address, need to dereference
+                if (partInfo.arrayIndexList[0].Count != 0)
+                    Emit("mov (%rbx), %rbx");
+                Emit(string.Format("push %rbx", variable.name));
+            }
+        }
+
+        public static void PushVariableAddress(VariableId variableId)
+        {
+            VariablePartInfo partInfo = GetVariableTypeInfo(variableId);
+            Variable variable = GetVariableFrom_Local_Param_Global(variableId.name[0]);
+
+            PushBaseAddress(variable, partInfo);
+
+            if (IsArrayAddressVariable(partInfo, variable))
+                return;
+
 
             string prevTypeName = null;
             for (int i = 0; i < variableId.name.Count; i++)
@@ -63,29 +149,7 @@
 
                     if (arrayIndex.Count == 0)
                     {
-                        // If ID is array, then value is address of array
-                        if (typeInfo.arraySize.Count != 0)
-                        {
-                            if (variable.scope == VariableScopeEnum.local)
-                            {
-                                Emit(string.Format("mov %rbp, %rbx"));
-                                Emit(string.Format("add ${0}, %rbx", variable.stackOffset));
-                            }
-                            else if (variable.scope == VariableScopeEnum.param)
-                            {
-                                Emit(string.Format("mov %rbp, %rbx"));
-                                Emit(string.Format("add ${0}, %rbx", variable.stackOffset));
-                                Emit(string.Format("mov (%rbx), %rbx"));
-                            }
-                            else if (variable.scope == VariableScopeEnum.global)
-                            {
-                                Emit(string.Format("lea {0}(%rip), %rbx", name));
-                            }
-                        }
-                        else if (variable.scope == VariableScopeEnum.global)
-                            Emit(string.Format("lea {0}(%rip), %rbx", name));
-                        else
-                            Emit(string.Format("lea {0}(%rbp), %rbx", variable.stackOffset));
+                        Emit(string.Format("pop %rbx"));
                     }
                     else
                     {
@@ -97,32 +161,21 @@
 
                             arrayIndex[j].EmitAsm();
                             Emit("pop %rax");
-                            Emit(string.Format("mov ${0}, %rbx", levelCount));
-                            Emit("mul %rbx");
-                            Emit(string.Format("mov ${0}, %rbx", typeInfo.size));
-                            Emit("mul %rbx");
+                            Emit(string.Format("mov ${0}, %rcx", levelCount));
+                            Emit("mul %rcx");
+                            Emit(string.Format("mov ${0}, %rcx", typeInfo.size));
+                            Emit("mul %rcx");
                             Emit("push %rax");
                         }
 
                         Emit("movq $0, %rax");
                         for (int j = 0; j < arrayIndex.Count; j++)
                         {
-                            Emit("pop %rbx");
-                            Emit("add %rbx, %rax");
+                            Emit("pop %rcx");
+                            Emit("add %rcx, %rax");
                         }
 
-                        if (variable.scope == VariableScopeEnum.global)
-                        {
-                            Emit(string.Format("lea {0}(%rip), %rbx", variable.name));
-                        }
-                        else
-                        {
-                            Emit("mov %rbp, %rbx");
-                            Emit(string.Format("add ${0}, %rbx", variable.stackOffset));
-                            if (variable.scope == VariableScopeEnum.param)
-                                Emit("mov (%rbx), %rbx");
-                        }
-
+                        Emit("pop %rbx");
                         Emit("add %rax, %rbx");
                     }
                 }
@@ -147,8 +200,6 @@
 
                 Emit("push %rbx");
             }
-
-            Emit("pop %rbx");
         }
 
         public static Variable GetVariableFrom_Local_Param_Global(string name)

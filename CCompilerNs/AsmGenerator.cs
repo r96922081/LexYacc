@@ -571,7 +571,8 @@ ret";
             Emit("#AssignmentStatement =>");
 
             value.EmitAsm();
-            Util.SaveVariableAddressToRbx(variableId);
+            Util.PushVariableAddress(variableId);
+            Emit("pop %rbx");
             Emit("pop %rax");
 
             Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name[0]);
@@ -750,7 +751,8 @@ ret";
 
         public override void EmitAsm()
         {
-            Util.SaveVariableAddressToRbx(variableId);
+            Util.PushVariableAddress(variableId);
+            Emit("pop %rbx");
 
             Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name[0]);
             if (variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.size == 1)
