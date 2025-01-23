@@ -3,8 +3,6 @@
 - c malloc
 - pointer ( + string literal like char* a = "hi")
 - recognize -1
-- declare local variable after statements in a function
-- void f(int arr[7])  => void f(int arr[])
 - test case struct_8(), struct_10() fail randomly
 
 ====

@@ -32,7 +32,7 @@
 %type <List<CCompilerNs.StructField>>          structFields
 %type <CCompilerNs.StructField>                structField
 %type <CCompilerNs.VariableId>                 variableId
-%type <CCompilerNs.Declare>                    declare
+%type <CCompilerNs.Declare>                    declare functionParamDeclare
 
 %type <CCompilerNs.FunctionCallExpression>     functionCallExpression
 %type <CCompilerNs.Expression>                 addExpression mulExpression
@@ -459,14 +459,41 @@ multiplyDivideOp:
 ;
 
 functionParams:
-functionParams ',' declare
+functionParams ',' functionParamDeclare
 {
     $$ = CCompilerNs.LexYaccCallback.FunctionParams($3, $1);
 }
 |
-declare
+functionParamDeclare
 {
     $$ = CCompilerNs.LexYaccCallback.FunctionParams($1, null);
+}
+;
+
+functionParamDeclare:
+typeSpec ID
+{
+    $$ = CCompilerNs.LexYaccCallback.FunctionParamDeclare($1, $2, false, null);
+}
+|
+typeSpec '[' ']' ID
+{
+    $$ = CCompilerNs.LexYaccCallback.FunctionParamDeclare($1, $4, true, null);
+}
+|
+typeSpec ID '[' ']'
+{
+    $$ = CCompilerNs.LexYaccCallback.FunctionParamDeclare($1, $2, true, null);
+}
+|
+typeSpec '[' ']' arraySize ID
+{
+    $$ = CCompilerNs.LexYaccCallback.FunctionParamDeclare($1, $5, true, $4);
+}
+|
+typeSpec ID '[' ']' arraySize 
+{
+    $$ = CCompilerNs.LexYaccCallback.FunctionParamDeclare($1, $2, true, $5);
 }
 ;
 

@@ -298,6 +298,22 @@
             return d;
         }
 
+        public static Declare FunctionParamDeclare(string type, string name, bool hasArray, List<int> arraySize)
+        {
+            Declare d = new Declare();
+            d.name = name;
+            d.type = type;
+
+            if (hasArray)
+            {
+                d.arraySize.Add(-1);
+                if (arraySize != null)
+                    d.arraySize.AddRange(arraySize);
+            }
+
+            return d;
+        }
+
         public static FunctionCallExpression FunctionCallExpression(string name, List<Expression> parameters)
         {
             FunctionCallExpression f = new FunctionCallExpression();

@@ -76,12 +76,12 @@ int main()
 
 int a[2][3];
 
-void f1(int[2][3] a)
+void f1(int[][3] a)
 {
     a[1][2] = 99;
 }
 
-void f2(int[2][3] b)
+void f2(int[][3] b)
 {
     b[1][1] = 90;
 }
@@ -837,7 +837,7 @@ int main() {
         public void array_6()
         {
             string src = @"
-void f1(int[5] a, int len) {
+void f1(int[] a, int len) {
     int i = 0;
     
     for (i = 0; i < len; i++)
@@ -864,7 +864,7 @@ int main() {
         public void array_7()
         {
             string src = @"
-void f1(int[3][4][5] a, char[3][4][5] b) 
+void f1(int[][4][5] a, char[][4][5] b) 
 {
     int i = 0;
     int j = 0;
@@ -908,7 +908,7 @@ int main() {
         public void array_8()
         {
             string src = @"
-int f1(int[3][4][5] a, char[3][4][5] b) 
+int f1(int[][4][5] a, char[][4][5] b) 
 {
     int i = 0;
     int j = 0;
@@ -1657,6 +1657,21 @@ int main()
 
         public void adhoc()
         {
+            string src = @"
+
+int main()
+{
+    return 0;
+}
+
+";
+            Compiler.GenerateAsm(src, "test.s");
+            Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
+            int exitCode = ret2.Item1;
+            string output = ret2.Item2;
+
+            Check(exitCode == 0);
+            Check(output.Contains(""));
         }
 
         public void EightQueen()
@@ -1683,8 +1698,6 @@ int is_safe(int row, int col) {
 int solve(int row) {
     int i = 0;
     int j = 0;
-    int col = 0;
-    int count = 0;
 
     if (row == N) {
         for (i = 0; i < N; i++) {
@@ -1701,7 +1714,9 @@ int solve(int row) {
         printf(""\n"");
         return 1;
     }
-
+    
+    int count = 0;
+    int col = 0;
     for (col = 0; col < N; col++) {
         if (is_safe(row, col)) {
             board[row] = col;
@@ -1741,7 +1756,7 @@ int main() {
             string src = @"
 
 /* Function to perform bubble sort */
-void bubbleSort(int arr[7], int n) {
+void bubbleSort(int arr[], int n) {
     int i;
     int j;
     int temp;
@@ -1757,7 +1772,7 @@ void bubbleSort(int arr[7], int n) {
     }
 }
 
-void printArray(int arr[7], int n) {
+void printArray(int arr[], int n) {
     int i;
     for (i = 0; i < n; i++) {
         printf(""%d,"", arr[i]);
@@ -1800,7 +1815,7 @@ int main() {
         {
             string src = @"
 
-int binarySearch(int arr[8], int size, int target) {
+int binarySearch(int arr[], int size, int target) {
     int low = 0;
     int high = size - 1;
     int mid;
@@ -1859,7 +1874,7 @@ int main() {
         {
             string src = @"
 
-void lcs(char str1[100], char str2[100], int m, int n) {
+void lcs(char str1[], char str2[], int m, int n) {
     int dp[100][100];
     int lcs_length = 0;
     char lcs_str[100];

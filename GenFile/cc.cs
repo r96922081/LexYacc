@@ -50,7 +50,7 @@ public class YaccActions{
 %type <List<CCompilerNs.StructField>>          structFields
 %type <CCompilerNs.StructField>                structField
 %type <CCompilerNs.VariableId>                 variableId
-%type <CCompilerNs.Declare>                    declare
+%type <CCompilerNs.Declare>                    declare functionParamDeclare
 
 %type <CCompilerNs.FunctionCallExpression>     functionCallExpression
 %type <CCompilerNs.Expression>                 addExpression mulExpression
@@ -477,14 +477,41 @@ multiplyDivideOp:
 ;
 
 functionParams:
-functionParams ',' declare
+functionParams ',' functionParamDeclare
 {
     $$ = CCompilerNs.LexYaccCallback.FunctionParams($3, $1);
 }
 |
-declare
+functionParamDeclare
 {
     $$ = CCompilerNs.LexYaccCallback.FunctionParams($1, null);
+}
+;
+
+functionParamDeclare:
+typeSpec ID
+{
+    $$ = CCompilerNs.LexYaccCallback.FunctionParamDeclare($1, $2, false, null);
+}
+|
+typeSpec '[' ']' ID
+{
+    $$ = CCompilerNs.LexYaccCallback.FunctionParamDeclare($1, $4, true, null);
+}
+|
+typeSpec ID '[' ']'
+{
+    $$ = CCompilerNs.LexYaccCallback.FunctionParamDeclare($1, $2, true, null);
+}
+|
+typeSpec '[' ']' arraySize ID
+{
+    $$ = CCompilerNs.LexYaccCallback.FunctionParamDeclare($1, $5, true, $4);
+}
+|
+typeSpec ID '[' ']' arraySize 
+{
+    $$ = CCompilerNs.LexYaccCallback.FunctionParamDeclare($1, $2, true, $5);
 }
 ;
 
@@ -773,6 +800,11 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_functionParams_Producton_0", Rule_functionParams_Producton_0);
         actions.Add("Rule_functionParams_LeftRecursionExpand_Producton_0", Rule_functionParams_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_functionParams_LeftRecursionExpand_Producton_1", Rule_functionParams_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_functionParamDeclare_Producton_0", Rule_functionParamDeclare_Producton_0);
+        actions.Add("Rule_functionParamDeclare_Producton_1", Rule_functionParamDeclare_Producton_1);
+        actions.Add("Rule_functionParamDeclare_Producton_2", Rule_functionParamDeclare_Producton_2);
+        actions.Add("Rule_functionParamDeclare_Producton_3", Rule_functionParamDeclare_Producton_3);
+        actions.Add("Rule_functionParamDeclare_Producton_4", Rule_functionParamDeclare_Producton_4);
         actions.Add("Rule_functionCallParams_Producton_0", Rule_functionCallParams_Producton_0);
         actions.Add("Rule_functionCallParams_LeftRecursionExpand_Producton_0", Rule_functionCallParams_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_functionCallParams_LeftRecursionExpand_Producton_1", Rule_functionCallParams_LeftRecursionExpand_Producton_1);
@@ -1644,6 +1676,63 @@ GREATER_OR_EQUAL_SIGN
 
     public static object Rule_functionParams_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
         List<CCompilerNs.Variable> _0 = new List<CCompilerNs.Variable>();
+
+        return _0;
+    }
+
+    public static object Rule_functionParamDeclare_Producton_0(Dictionary<int, object> objects) { 
+        CCompilerNs.Declare _0 = new CCompilerNs.Declare();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+
+        // user-defined action
+        _0 = CCompilerNs.LexYaccCallback.FunctionParamDeclare(_1, _2, false, null);
+
+        return _0;
+    }
+
+    public static object Rule_functionParamDeclare_Producton_1(Dictionary<int, object> objects) { 
+        CCompilerNs.Declare _0 = new CCompilerNs.Declare();
+        string _1 = (string)objects[1];
+        string _4 = (string)objects[4];
+
+        // user-defined action
+        _0 = CCompilerNs.LexYaccCallback.FunctionParamDeclare(_1, _4, true, null);
+
+        return _0;
+    }
+
+    public static object Rule_functionParamDeclare_Producton_2(Dictionary<int, object> objects) { 
+        CCompilerNs.Declare _0 = new CCompilerNs.Declare();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+
+        // user-defined action
+        _0 = CCompilerNs.LexYaccCallback.FunctionParamDeclare(_1, _2, true, null);
+
+        return _0;
+    }
+
+    public static object Rule_functionParamDeclare_Producton_3(Dictionary<int, object> objects) { 
+        CCompilerNs.Declare _0 = new CCompilerNs.Declare();
+        string _1 = (string)objects[1];
+        List<int> _4 = (List<int>)objects[4];
+        string _5 = (string)objects[5];
+
+        // user-defined action
+        _0 = CCompilerNs.LexYaccCallback.FunctionParamDeclare(_1, _5, true, _4);
+
+        return _0;
+    }
+
+    public static object Rule_functionParamDeclare_Producton_4(Dictionary<int, object> objects) { 
+        CCompilerNs.Declare _0 = new CCompilerNs.Declare();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        List<int> _5 = (List<int>)objects[5];
+
+        // user-defined action
+        _0 = CCompilerNs.LexYaccCallback.FunctionParamDeclare(_1, _2, true, _5);
 
         return _0;
     }
