@@ -258,10 +258,10 @@ new %rbp - 16-> local2
                 stack:
                 param6
                 param5
-                param1
-                param2
-                param3
                 param4
+                param3
+                param2
+                param1
                 return address
 new %rbp     -> old %rbp (to set as %rsp after ret)
 new %rbp - 8 -> local1
@@ -269,7 +269,6 @@ new %rbp - 16-> local2
 
              */
 
-            int shadowSpace = 32;
             int returnAddress = 8;
 
             if (functionName == "main")
@@ -277,42 +276,10 @@ new %rbp - 16-> local2
             else
                 returnAddress = 8;
 
-            if (paramsInOrder.Count >= 1)
-            {
-                Variable p = paramsInOrder[0];
-                p.stackOffset = returnAddress + 32;
-                if (p.typeInfo.typeEnum == VariableTypeEnum.struct_type)
-                    p.typeInfo.UpdateStructInfo();
-            }
-
-            if (paramsInOrder.Count >= 2)
-            {
-                Variable p = paramsInOrder[1];
-                p.stackOffset = returnAddress + 24;
-                if (p.typeInfo.typeEnum == VariableTypeEnum.struct_type)
-                    p.typeInfo.UpdateStructInfo();
-            }
-
-            if (paramsInOrder.Count >= 3)
-            {
-                Variable p = paramsInOrder[2];
-                p.stackOffset = returnAddress + 16;
-                if (p.typeInfo.typeEnum == VariableTypeEnum.struct_type)
-                    p.typeInfo.UpdateStructInfo();
-            }
-
-            if (paramsInOrder.Count >= 4)
-            {
-                Variable p = paramsInOrder[3];
-                p.stackOffset = returnAddress + 8;
-                if (p.typeInfo.typeEnum == VariableTypeEnum.struct_type)
-                    p.typeInfo.UpdateStructInfo();
-            }
-
-            for (int i = 4; i < paramsInOrder.Count; i++)
+            for (int i = 0; i < paramsInOrder.Count; i++)
             {
                 Variable p = paramsInOrder[i];
-                p.stackOffset = returnAddress + shadowSpace + (i + 1) * 8;
+                p.stackOffset = returnAddress + (i + 1) * 8;
                 if (p.typeInfo.typeEnum == VariableTypeEnum.struct_type)
                     p.typeInfo.UpdateStructInfo();
             }
