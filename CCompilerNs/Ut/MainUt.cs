@@ -1755,6 +1755,65 @@ int main() {
             Check(output.Contains("Sorted array:11,12,22,25,34,64,90"));
         }
 
+        public void BinarySearch()
+        {
+            string src = @"
+
+int binarySearch(int arr[8], int size, int target) {
+    int i;
+    int low = 0;
+    int high = size - 1;
+    int mid;
+
+    for (i = 0; low <= high; i++) {
+        mid = low + (high - low) / 2;
+
+        if (arr[mid] == target) 
+            return mid;        
+        else if (arr[mid] < target) 
+            low = mid + 1;        
+        else 
+            high = mid - 1;
+    }
+    return 10000;
+}
+
+int main() {
+    int a[8];
+    int target = 7;
+    int result = 10000;
+
+    a[0] = 1;
+    a[1] = 3; 
+    a[2] = 5; 
+    a[3] = 7; 
+    a[4] = 9; 
+    a[5] = 11; 
+    a[6] = 13;
+    a[7] = 15;
+
+    result = binarySearch(a, 8, target);
+
+    if (result != 10000)
+        printf(""Element found at index:%d\n"", result);
+    else
+        printf(""Element not found in the array.\n"");
+    
+
+    return 0;
+}
+
+
+";
+            Compiler.GenerateAsm(src, "test.s");
+            Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
+            int exitCode = ret2.Item1;
+            string output = ret2.Item2;
+
+            Check(exitCode == 0);
+            Check(output.Contains("Element found at index:3"));
+        }
+
         public static void RunAllUt()
         {
             MainUt mainUt = new MainUt();
@@ -1843,6 +1902,7 @@ int main() {
 
             mainUt.EightQueen();
             mainUt.BubbleSort();
+            mainUt.BinarySearch();
         }
 
         public static void Ut()
