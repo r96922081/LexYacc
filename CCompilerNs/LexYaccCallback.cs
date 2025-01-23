@@ -323,10 +323,10 @@
             return f;
         }
 
-        public static IfStatement IfStatement(BooleanExpression booleanExpression, List<Statement> statements)
+        public static IfStatement IfStatement(BooleanExpressions booleanExpressions, List<Statement> statements)
         {
             IfStatement i = new IfStatement();
-            i.booleanExpression = booleanExpression;
+            i.booleanExpressions = booleanExpressions;
             i.statements = statements;
 
             return i;
@@ -383,24 +383,34 @@
             return c;
         }
 
-        public static ForLoopStatement ForLoopStatement(AssignmentStatement initializer, BooleanExpression booleanExpression, AssignmentStatement updater, List<Statement> statements)
+        public static ForLoopStatement ForLoopStatement(AssignmentStatement initializer, BooleanExpressions booleanExpressions, AssignmentStatement updater, List<Statement> statements)
         {
             ForLoopStatement f = new ForLoopStatement();
             f.initializer = initializer;
-            f.booleanExpression = booleanExpression;
+            f.booleanExpressions = booleanExpressions;
             f.updater = updater;
             f.statements = statements;
 
             return f;
         }
 
-        public static WhileLoopStatement WhileLoopStatement(BooleanExpression booleanExpression, List<Statement> statements)
+        public static WhileLoopStatement WhileLoopStatement(BooleanExpressions booleanExpressions, List<Statement> statements)
         {
             WhileLoopStatement w = new WhileLoopStatement();
-            w.booleanExpression = booleanExpression;
+            w.booleanExpressions = booleanExpressions;
             w.statements = statements;
 
             return w;
+        }
+
+        public static BooleanExpressions BooleanExpressions(BooleanExpression b2, BooleanExpressions prev)
+        {
+            BooleanExpressions b = new BooleanExpressions();
+            if (prev != null)
+                b.booleanExpressions.AddRange(prev.booleanExpressions);
+
+            b.booleanExpressions.Add(b2);
+            return b;
         }
 
         public static BooleanExpression BooleanExpression(Expression lhs, string op, Expression rhs)

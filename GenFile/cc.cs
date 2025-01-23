@@ -21,7 +21,7 @@ public class YaccActions{
 
 %token <char>        CHAR_VALUE
 %token <int>         INT_VALUE
-%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR WHILE BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE STRUCT STRING_LITERAL
+%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR WHILE BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE STRUCT STRING_LITERAL LOGICAL_AND LOGICAL_OR
 
 %type <CCompilerNs.Program>                    program
 %type <CCompilerNs.GlobalDeclare>              globalDeclare
@@ -54,12 +54,13 @@ public class YaccActions{
 
 %type <CCompilerNs.FunctionCallExpression>     functionCallExpression
 %type <CCompilerNs.Expression>                 addExpression mulExpression
+%type <CCompilerNs.BooleanExpressions>         booleanExpressions
 %type <CCompilerNs.BooleanExpression>          booleanExpression
 
 %type <List<int>>                              arraySize
 %type <List<CCompilerNs.Expression>>           arrayIndex
 
-%type <string>                                 typeSpec relationalOp opAssign incrementDecrement addMinusOp multiplyDivideOp
+%type <string>                                 typeSpec relationalOp opAssign incrementDecrement addMinusOp multiplyDivideOp logicalOperation
 
 
 %%
@@ -225,7 +226,7 @@ ifStatement elseStatement
 ;
 
 ifStatement:
-IF '(' booleanExpression ')' ifBodyStatements
+IF '(' booleanExpressions ')' ifBodyStatements
 {
     $$ = CCompilerNs.LexYaccCallback.IfStatement($3, $5);
 }
@@ -244,7 +245,7 @@ elseIfStatement
 ;
 
 elseIfStatement:
-ELSE IF '(' booleanExpression ')' ifBodyStatements
+ELSE IF '(' booleanExpressions ')' ifBodyStatements
 {
     $$= CCompilerNs.LexYaccCallback.IfStatement($4, $6);
 }
@@ -561,18 +562,31 @@ CONTINUE ';'
 ;
 
 forLoopStatement:
-FOR '(' assignmentNoSemicolon ';' booleanExpression ';' assignmentNoSemicolon ')' ifBodyStatements
+FOR '(' assignmentNoSemicolon ';' booleanExpressions ';' assignmentNoSemicolon ')' ifBodyStatements
 {
     $$ = CCompilerNs.LexYaccCallback.ForLoopStatement($3, $5, $7, $9);
 }
 ;
 
 whileLoopStatement:
-WHILE '(' booleanExpression ')' ifBodyStatements
+WHILE '(' booleanExpressions ')' ifBodyStatements
 {
     $$ = CCompilerNs.LexYaccCallback.WhileLoopStatement($3, $5);
 }
 ;
+
+booleanExpressions:
+booleanExpressions logicalOperation booleanExpression
+{
+    $$ = CCompilerNs.LexYaccCallback.BooleanExpressions($3, $1);
+}
+|
+booleanExpression
+{
+    $$ = CCompilerNs.LexYaccCallback.BooleanExpressions($1, null);
+}
+;
+
 
 booleanExpression:
 addExpression relationalOp addExpression
@@ -585,6 +599,19 @@ addExpression
     $$ = CCompilerNs.LexYaccCallback.BooleanExpression($1, null, null);
 }
 ;
+
+logicalOperation:
+LOGICAL_AND 
+{
+    $$ = $1;
+}
+|
+LOGICAL_OR
+{
+    $$ = $1;
+}
+;
+
 
 arrayIndex:
 arrayIndex '[' addExpression ']'
@@ -815,8 +842,13 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_continueStatement_Producton_0", Rule_continueStatement_Producton_0);
         actions.Add("Rule_forLoopStatement_Producton_0", Rule_forLoopStatement_Producton_0);
         actions.Add("Rule_whileLoopStatement_Producton_0", Rule_whileLoopStatement_Producton_0);
+        actions.Add("Rule_booleanExpressions_Producton_0", Rule_booleanExpressions_Producton_0);
+        actions.Add("Rule_booleanExpressions_LeftRecursionExpand_Producton_0", Rule_booleanExpressions_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_booleanExpressions_LeftRecursionExpand_Producton_1", Rule_booleanExpressions_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_booleanExpression_Producton_0", Rule_booleanExpression_Producton_0);
         actions.Add("Rule_booleanExpression_Producton_1", Rule_booleanExpression_Producton_1);
+        actions.Add("Rule_logicalOperation_Producton_0", Rule_logicalOperation_Producton_0);
+        actions.Add("Rule_logicalOperation_Producton_1", Rule_logicalOperation_Producton_1);
         actions.Add("Rule_arrayIndex_Producton_0", Rule_arrayIndex_Producton_0);
         actions.Add("Rule_arrayIndex_LeftRecursionExpand_Producton_0", Rule_arrayIndex_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_arrayIndex_LeftRecursionExpand_Producton_1", Rule_arrayIndex_LeftRecursionExpand_Producton_1);
@@ -1168,7 +1200,7 @@ GREATER_OR_EQUAL_SIGN
     public static object Rule_ifStatement_Producton_0(Dictionary<int, object> objects) { 
         CCompilerNs.IfStatement _0 = new CCompilerNs.IfStatement();
         string _1 = (string)objects[1];
-        CCompilerNs.BooleanExpression _3 = (CCompilerNs.BooleanExpression)objects[3];
+        CCompilerNs.BooleanExpressions _3 = (CCompilerNs.BooleanExpressions)objects[3];
         List<CCompilerNs.Statement> _5 = (List<CCompilerNs.Statement>)objects[5];
 
         // user-defined action
@@ -1208,7 +1240,7 @@ GREATER_OR_EQUAL_SIGN
         CCompilerNs.IfStatement _0 = new CCompilerNs.IfStatement();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
-        CCompilerNs.BooleanExpression _4 = (CCompilerNs.BooleanExpression)objects[4];
+        CCompilerNs.BooleanExpressions _4 = (CCompilerNs.BooleanExpressions)objects[4];
         List<CCompilerNs.Statement> _6 = (List<CCompilerNs.Statement>)objects[6];
 
         // user-defined action
@@ -1819,7 +1851,7 @@ GREATER_OR_EQUAL_SIGN
         CCompilerNs.ForLoopStatement _0 = new CCompilerNs.ForLoopStatement();
         string _1 = (string)objects[1];
         CCompilerNs.AssignmentStatement _3 = (CCompilerNs.AssignmentStatement)objects[3];
-        CCompilerNs.BooleanExpression _5 = (CCompilerNs.BooleanExpression)objects[5];
+        CCompilerNs.BooleanExpressions _5 = (CCompilerNs.BooleanExpressions)objects[5];
         CCompilerNs.AssignmentStatement _7 = (CCompilerNs.AssignmentStatement)objects[7];
         List<CCompilerNs.Statement> _9 = (List<CCompilerNs.Statement>)objects[9];
 
@@ -1832,11 +1864,39 @@ GREATER_OR_EQUAL_SIGN
     public static object Rule_whileLoopStatement_Producton_0(Dictionary<int, object> objects) { 
         CCompilerNs.WhileLoopStatement _0 = new CCompilerNs.WhileLoopStatement();
         string _1 = (string)objects[1];
-        CCompilerNs.BooleanExpression _3 = (CCompilerNs.BooleanExpression)objects[3];
+        CCompilerNs.BooleanExpressions _3 = (CCompilerNs.BooleanExpressions)objects[3];
         List<CCompilerNs.Statement> _5 = (List<CCompilerNs.Statement>)objects[5];
 
         // user-defined action
         _0 = CCompilerNs.LexYaccCallback.WhileLoopStatement(_3, _5);
+
+        return _0;
+    }
+
+    public static object Rule_booleanExpressions_Producton_0(Dictionary<int, object> objects) { 
+        CCompilerNs.BooleanExpressions _0 = new CCompilerNs.BooleanExpressions();
+        CCompilerNs.BooleanExpression _1 = (CCompilerNs.BooleanExpression)objects[1];
+
+        // user-defined action
+        _0 = CCompilerNs.LexYaccCallback.BooleanExpressions(_1, null);
+
+        return _0;
+    }
+
+    public static object Rule_booleanExpressions_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        CCompilerNs.BooleanExpressions _0 = new CCompilerNs.BooleanExpressions();
+        CCompilerNs.BooleanExpressions _1 =(CCompilerNs.BooleanExpressions)objects[1];
+        string _2 = (string)objects[2];
+        CCompilerNs.BooleanExpression _3 = (CCompilerNs.BooleanExpression)objects[3];
+
+        // user-defined action
+        _0 = CCompilerNs.LexYaccCallback.BooleanExpressions(_3, _1);
+
+        return _0;
+    }
+
+    public static object Rule_booleanExpressions_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        CCompilerNs.BooleanExpressions _0 = new CCompilerNs.BooleanExpressions();
 
         return _0;
     }
@@ -1859,6 +1919,26 @@ GREATER_OR_EQUAL_SIGN
 
         // user-defined action
         _0 = CCompilerNs.LexYaccCallback.BooleanExpression(_1, null, null);
+
+        return _0;
+    }
+
+    public static object Rule_logicalOperation_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_logicalOperation_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
 
         return _0;
     }
@@ -2134,6 +2214,8 @@ namespace ccNs
             { 278, "CHAR_TYPE"},
             { 279, "STRUCT"},
             { 280, "STRING_LITERAL"},
+            { 281, "LOGICAL_AND"},
+            { 282, "LOGICAL_OR"},
         };
 
         public static int CHAR_VALUE = 256;
@@ -2161,6 +2243,8 @@ namespace ccNs
         public static int CHAR_TYPE = 278;
         public static int STRUCT = 279;
         public static int STRING_LITERAL = 280;
+        public static int LOGICAL_AND = 281;
+        public static int LOGICAL_OR = 282;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -2205,6 +2289,8 @@ namespace ccNs
 ""-=""                      { value = yytext; return MINUS_ASSIGN; }
 ""*=""                      { value = yytext; return MULTIPLY_ASSIGN; }
 ""/=""                      { value = yytext; return DIVIDE_ASSIGN; }
+""&&""                      { value = yytext; return LOGICAL_AND; }
+""||""                      { value = yytext; return LOGICAL_OR; }
 -?[0-9]+                  { value = int.Parse(yytext); return INT_VALUE; }
 '[ -~]'                   { value = yytext[1]; return CHAR_VALUE; }
 '\\r'                     { value = '\r'; return CHAR_VALUE; }
@@ -2286,6 +2372,8 @@ namespace ccNs
             actions.Add("LexRule44", LexAction44);
             actions.Add("LexRule45", LexAction45);
             actions.Add("LexRule46", LexAction46);
+            actions.Add("LexRule47", LexAction47);
+            actions.Add("LexRule48", LexAction48);
         }
         public static object LexAction0(string yytext)
         {
@@ -2481,7 +2569,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = int.Parse(yytext); return INT_VALUE; 
+            value = yytext; return LOGICAL_AND; 
 
             return 0;
         }
@@ -2490,7 +2578,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = yytext[1]; return CHAR_VALUE; 
+            value = yytext; return LOGICAL_OR; 
 
             return 0;
         }
@@ -2499,7 +2587,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = '\r'; return CHAR_VALUE; 
+            value = int.Parse(yytext); return INT_VALUE; 
 
             return 0;
         }
@@ -2508,7 +2596,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = '\n'; return CHAR_VALUE; 
+            value = yytext[1]; return CHAR_VALUE; 
 
             return 0;
         }
@@ -2517,7 +2605,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = '\t'; return CHAR_VALUE; 
+            value = '\r'; return CHAR_VALUE; 
 
             return 0;
         }
@@ -2526,7 +2614,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = '\0'; return CHAR_VALUE; 
+            value = '\n'; return CHAR_VALUE; 
 
             return 0;
         }
@@ -2535,7 +2623,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            value = '\t'; return CHAR_VALUE; 
 
             return 0;
         }
@@ -2544,13 +2632,16 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            yytext = yytext.Substring(1); value = yytext.Substring(0, yytext.Length - 1); return STRING_LITERAL;
+            value = '\0'; return CHAR_VALUE; 
 
             return 0;
         }
         public static object LexAction29(string yytext)
         {
             value = null;
+
+            // user-defined action
+            value = yytext; return ID; 
 
             return 0;
         }
@@ -2559,16 +2650,13 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            return yytext[0]; 
+            yytext = yytext.Substring(1); value = yytext.Substring(0, yytext.Length - 1); return STRING_LITERAL;
 
             return 0;
         }
         public static object LexAction31(string yytext)
         {
             value = null;
-
-            // user-defined action
-            return yytext[0]; 
 
             return 0;
         }
@@ -2699,6 +2787,24 @@ namespace ccNs
             return 0;
         }
         public static object LexAction46(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return yytext[0]; 
+
+            return 0;
+        }
+        public static object LexAction47(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return yytext[0]; 
+
+            return 0;
+        }
+        public static object LexAction48(string yytext)
         {
             value = null;
 

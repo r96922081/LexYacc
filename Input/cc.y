@@ -3,7 +3,7 @@
 
 %token <char>        CHAR_VALUE
 %token <int>         INT_VALUE
-%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR WHILE BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE STRUCT STRING_LITERAL
+%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR WHILE BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE STRUCT STRING_LITERAL LOGICAL_AND LOGICAL_OR
 
 %type <CCompilerNs.Program>                    program
 %type <CCompilerNs.GlobalDeclare>              globalDeclare
@@ -36,12 +36,13 @@
 
 %type <CCompilerNs.FunctionCallExpression>     functionCallExpression
 %type <CCompilerNs.Expression>                 addExpression mulExpression
+%type <CCompilerNs.BooleanExpressions>         booleanExpressions
 %type <CCompilerNs.BooleanExpression>          booleanExpression
 
 %type <List<int>>                              arraySize
 %type <List<CCompilerNs.Expression>>           arrayIndex
 
-%type <string>                                 typeSpec relationalOp opAssign incrementDecrement addMinusOp multiplyDivideOp
+%type <string>                                 typeSpec relationalOp opAssign incrementDecrement addMinusOp multiplyDivideOp logicalOperation
 
 
 %%
@@ -207,7 +208,7 @@ ifStatement elseStatement
 ;
 
 ifStatement:
-IF '(' booleanExpression ')' ifBodyStatements
+IF '(' booleanExpressions ')' ifBodyStatements
 {
     $$ = CCompilerNs.LexYaccCallback.IfStatement($3, $5);
 }
@@ -226,7 +227,7 @@ elseIfStatement
 ;
 
 elseIfStatement:
-ELSE IF '(' booleanExpression ')' ifBodyStatements
+ELSE IF '(' booleanExpressions ')' ifBodyStatements
 {
     $$= CCompilerNs.LexYaccCallback.IfStatement($4, $6);
 }
@@ -543,18 +544,31 @@ CONTINUE ';'
 ;
 
 forLoopStatement:
-FOR '(' assignmentNoSemicolon ';' booleanExpression ';' assignmentNoSemicolon ')' ifBodyStatements
+FOR '(' assignmentNoSemicolon ';' booleanExpressions ';' assignmentNoSemicolon ')' ifBodyStatements
 {
     $$ = CCompilerNs.LexYaccCallback.ForLoopStatement($3, $5, $7, $9);
 }
 ;
 
 whileLoopStatement:
-WHILE '(' booleanExpression ')' ifBodyStatements
+WHILE '(' booleanExpressions ')' ifBodyStatements
 {
     $$ = CCompilerNs.LexYaccCallback.WhileLoopStatement($3, $5);
 }
 ;
+
+booleanExpressions:
+booleanExpressions logicalOperation booleanExpression
+{
+    $$ = CCompilerNs.LexYaccCallback.BooleanExpressions($3, $1);
+}
+|
+booleanExpression
+{
+    $$ = CCompilerNs.LexYaccCallback.BooleanExpressions($1, null);
+}
+;
+
 
 booleanExpression:
 addExpression relationalOp addExpression
@@ -567,6 +581,19 @@ addExpression
     $$ = CCompilerNs.LexYaccCallback.BooleanExpression($1, null, null);
 }
 ;
+
+logicalOperation:
+LOGICAL_AND 
+{
+    $$ = $1;
+}
+|
+LOGICAL_OR
+{
+    $$ = $1;
+}
+;
+
 
 arrayIndex:
 arrayIndex '[' addExpression ']'

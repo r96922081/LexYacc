@@ -74,4 +74,11 @@
         public List<string> name = new List<string>();
         public List<List<Expression>> arrayIndexList = new List<List<Expression>>();
     }
+
+    public class BooleanExpression
+    {
+        public Expression lhs;
+        public string op;
+        public Expression rhs;
+    }
 }

@@ -1655,6 +1655,82 @@ int main()
         }
 
 
+        public void boolean_expression_1()
+        {
+            string src = @"
+
+int main()
+{
+    if (1)
+        return 1;
+    else
+        return 2;
+}
+
+";
+
+            Compiler.GenerateAsm(src, "test.s");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
+            Check(exitCode == 1);
+        }
+
+        public void boolean_expression_2()
+        {
+            string src = @"
+
+int main()
+{
+    if (0)
+        return 1;
+    else
+        return 2;
+}
+
+";
+
+            Compiler.GenerateAsm(src, "test.s");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
+            Check(exitCode == 2);
+        }
+
+        public void boolean_expression_3()
+        {
+            string src = @"
+
+int main()
+{
+    if (2 > 3 || 3 > 2 )
+        return 1;
+    else
+        return 2;
+}
+
+";
+
+            Compiler.GenerateAsm(src, "test.s");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
+            Check(exitCode == 1);
+        }
+
+        public void boolean_expression_4()
+        {
+            string src = @"
+
+int main()
+{
+    if (1 > 2 || 3 > 4 )
+        return 1;
+    else
+        return 2;
+}
+
+";
+
+            Compiler.GenerateAsm(src, "test.s");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
+            Check(exitCode == 2);
+        }
+
         public void adhoc()
         {
             string src = @"
@@ -1945,6 +2021,11 @@ int main() {
             MainUt mainUt = new MainUt();
 
             mainUt.adhoc();
+
+            mainUt.boolean_expression_1();
+            mainUt.boolean_expression_2();
+            mainUt.boolean_expression_3();
+            mainUt.boolean_expression_4();
 
             mainUt.struct_1();
             mainUt.struct_2();

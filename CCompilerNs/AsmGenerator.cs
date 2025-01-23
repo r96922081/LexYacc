@@ -478,7 +478,7 @@ ret
 
     public class IfStatement : Statement
     {
-        public BooleanExpression booleanExpression;
+        public BooleanExpressions booleanExpressions;
         public List<Statement> statements = new List<Statement>();
         public string matchLabel;
 
@@ -487,15 +487,15 @@ ret
             matchLabel = "branch_" + (Gv.sn++);
 
             // else case. no lhs, rhs
-            if (booleanExpression == null)
+            if (booleanExpressions == null)
             {
                 Emit("jmp " + matchLabel);
             }
             else
             {
-                booleanExpression.jmpLabel = matchLabel;
-                booleanExpression.jmpCondition = BooleanExpression.JmpCondition.Match;
-                booleanExpression.EmitAsm();
+                booleanExpressions.jmpLabel = matchLabel;
+                booleanExpressions.jmpCondition = BooleanExpressions.JmpCondition.Match;
+                booleanExpressions.EmitAsm();
             }
 
         }
@@ -767,11 +767,9 @@ new %rbp - 16-> local2
         }
     }
 
-    public class BooleanExpression : Expression
+    public class BooleanExpressions : Expression
     {
-        public Expression lhs;
-        public string op;
-        public Expression rhs;
+        public List<BooleanExpression> booleanExpressions = new List<BooleanExpression>();
 
         public string jmpLabel;
         public JmpCondition jmpCondition = JmpCondition.None;
@@ -785,46 +783,43 @@ new %rbp - 16-> local2
 
         public override void EmitAsm()
         {
-            lhs.EmitAsm();
-            rhs.EmitAsm();
+            string booleanFalseLabel = "boolean_false_label_" + (Gv.sn++);
+            string booleanTrueLabel = "boolean_true_label_" + (Gv.sn++);
+            string booleanNoJmpLabel = "boolean_no_jmp_label_" + (Gv.sn++);
 
-            Emit("pop %rbx");
-            Emit("pop %rax");
+            foreach (BooleanExpression b in booleanExpressions)
+            {
+                b.lhs.EmitAsm();
+                b.rhs.EmitAsm();
 
-            Emit("cmp %rbx, %rax");
+                Emit("pop %rbx");
+                Emit("pop %rax");
 
+                Emit("cmp %rbx, %rax");
+
+                if (b.op == "==")
+                    Emit("je " + booleanTrueLabel);
+                else if (b.op == "!=")
+                    Emit("jne " + booleanTrueLabel);
+                else if (b.op == ">")
+                    Emit("jg " + booleanTrueLabel);
+                else if (b.op == "<")
+                    Emit("jl " + booleanTrueLabel);
+                else if (b.op == "<=")
+                    Emit("jle " + booleanTrueLabel);
+                else if (b.op == ">=")
+                    Emit("jge " + booleanTrueLabel);
+            }
+
+            Emit(booleanFalseLabel + ":");
+            if (jmpCondition == JmpCondition.NotMatch)
+                Emit("jmp " + jmpLabel);
+            Emit("jmp " + booleanNoJmpLabel);
+
+            Emit(booleanTrueLabel + ":");
             if (jmpCondition == JmpCondition.Match)
-            {
-                if (op == "==")
-                    Emit("je " + jmpLabel);
-                else if (op == "!=")
-                    Emit("jne " + jmpLabel);
-                else if (op == ">")
-                    Emit("jg " + jmpLabel);
-                else if (op == "<")
-                    Emit("jl " + jmpLabel);
-                else if (op == "<=")
-                    Emit("jle " + jmpLabel);
-                else if (op == ">=")
-                    Emit("jge " + jmpLabel);
-            }
-            else if (jmpCondition == JmpCondition.NotMatch)
-            {
-                if (op == "==")
-                    Emit("jne " + jmpLabel);
-                else if (op == "!=")
-                    Emit("je " + jmpLabel);
-                else if (op == ">")
-                    Emit("jle " + jmpLabel);
-                else if (op == "<")
-                    Emit("jge " + jmpLabel);
-                else if (op == "<=")
-                    Emit("jg " + jmpLabel);
-                else if (op == ">=")
-                    Emit("jl " + jmpLabel);
-            }
-            else
-                throw new Exception();
+                Emit("jmp " + jmpLabel);
+            Emit(booleanNoJmpLabel + ":");
         }
     }
 
@@ -837,7 +832,7 @@ new %rbp - 16-> local2
     public class ForLoopStatement : LoopStatement
     {
         public AssignmentStatement initializer;
-        public BooleanExpression booleanExpression;
+        public BooleanExpressions booleanExpressions;
         public AssignmentStatement updater;
 
         public List<Statement> statements = new List<Statement>();
@@ -854,9 +849,9 @@ new %rbp - 16-> local2
             initializer.EmitAsm();
             Emit(loopStartLabel + ":");
 
-            booleanExpression.jmpLabel = loopEndLabel;
-            booleanExpression.jmpCondition = BooleanExpression.JmpCondition.NotMatch;
-            booleanExpression.EmitAsm();
+            booleanExpressions.jmpLabel = loopEndLabel;
+            booleanExpressions.jmpCondition = BooleanExpressions.JmpCondition.NotMatch;
+            booleanExpressions.EmitAsm();
 
             Gv.program.loopStatementStack.Push(this);
             foreach (Statement s in statements)
@@ -874,7 +869,7 @@ new %rbp - 16-> local2
 
     public class WhileLoopStatement : LoopStatement
     {
-        public BooleanExpression booleanExpression;
+        public BooleanExpressions booleanExpressions;
 
         public List<Statement> statements = new List<Statement>();
 
@@ -890,9 +885,9 @@ new %rbp - 16-> local2
 
             Emit(loopStartLabel + ":");
 
-            booleanExpression.jmpLabel = loopEndLabel;
-            booleanExpression.jmpCondition = BooleanExpression.JmpCondition.NotMatch;
-            booleanExpression.EmitAsm();
+            booleanExpressions.jmpLabel = loopEndLabel;
+            booleanExpressions.jmpCondition = BooleanExpressions.JmpCondition.NotMatch;
+            booleanExpressions.EmitAsm();
 
             Gv.program.loopStatementStack.Push(this);
             foreach (Statement s in statements)
