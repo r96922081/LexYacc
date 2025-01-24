@@ -113,7 +113,9 @@ namespace CCompilerNs
             }
         }
 
-        public static void PushVariableAddress(VariableId variableId)
+
+
+        public static VariableAddressOrValue PushVariableAddress(VariableId variableId)
         {
             VariablePartInfo partInfo = GetVariableTypeInfo(variableId);
 
@@ -161,6 +163,13 @@ namespace CCompilerNs
                     Emit("push %rbx");
                 }
             }
+
+            if (partInfo.type[partInfo.count - 1].arraySize.Count != partInfo.arrayIndexList[partInfo.count - 1].Count
+                || partInfo.type[0].typeEnum == VariableTypeEnum.struct_type && variableId.name.Count == 1)
+                return VariableAddressOrValue.Address;
+            else
+                return VariableAddressOrValue.Value;
+
         }
 
         public static Variable GetVariableFrom_Local_Param_Global(string name)

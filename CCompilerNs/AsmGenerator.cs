@@ -746,15 +746,14 @@ new %rbp - 16-> local2
 
         public override void EmitAsm()
         {
-            Util.PushVariableAddress(variableId);
+            Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name[0]);
+            VariableAddressOrValue addrOrValue = Util.PushVariableAddress(variableId);
             Emit("pop %rbx");
 
-            Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name[0]);
-            if (variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.GetSize() == 1)
+            if (addrOrValue == VariableAddressOrValue.Address)
+                Emit(string.Format("mov %rbx, %rax"));
+            else if (variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.GetSize() == 1)
                 Emit(string.Format("movzbq (%rbx), %rax")); // case a[1][2]
-            else if ((variableId.arrayIndexList[0].Count == 0 && variable.typeInfo.arraySize.Count != 0)
-                || (variable.typeInfo.typeEnum == VariableTypeEnum.struct_type && variableId.name.Count == 1 && variableId.arrayIndexList[0].Count == 0))
-                Emit(string.Format("mov %rbx, %rax")); // case a[1][2] but pass a as parameter and case a.b.c but pass a as parameter
             else
                 Emit(string.Format("mov (%rbx), %rax")); // case local, or array with element size = 8
 

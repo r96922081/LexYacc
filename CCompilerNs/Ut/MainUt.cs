@@ -1791,7 +1791,16 @@ int main()
         public void adhoc()
         {
             string src = @"
+struct Department {
+    int id;
+    char name[50];
+};
+
+
 int main() {
+    struct Department d;
+    strcpy(d.name, ""Engineering"");
+
     return 0;
 }
 ";
@@ -2133,6 +2142,100 @@ int main() {
             Check(output.Contains("22  31  40  49   2  11  20"));
         }
 
+        public void JobAssignment()
+        {
+            string src = @"
+struct Project {
+    int id;
+    char name[50];
+};
+
+struct Department {
+    int id;
+    char name[50];
+};
+
+struct Employee {
+    int id;
+    char name[50];
+    struct Department department;
+    struct Project projects[5];
+    int project_count;
+};
+
+void print_project(struct Project project) {
+    printf(""Project ID: %d, Name: %s\n"", project.id, project.name);
+}
+
+void print_department(struct Department department) {
+    printf(""Department ID: %d, Name: %s\n"", department.id, department.name);
+}
+
+void print_employee(struct Employee employee) {
+    int i;
+    printf(""Employee ID: %d, Name: %s\n"", employee.id, employee.name);
+    printf(""Department: "");
+    print_department(employee.department);
+    printf(""Projects:\n"");
+    for (i = 0; i < employee.project_count; i++) {
+        print_project(employee.projects[i]);
+    }
+}
+
+int main() {
+    struct Department dept1;
+    struct Department dept2;
+    struct Employee employees[10];
+
+    dept1.id = 1;
+    strcpy(dept1.name, ""Engineering"");
+    dept2.id = 2;
+    strcpy(dept2.name, ""Marketing"");
+
+    struct Project proj1; 
+    struct Project proj2; 
+    struct Project proj3;
+    proj1.id = 101;
+    strcpy(proj1.name, ""AI Development"");
+    proj2.id = 102;
+    strcpy(proj2.name, ""Website Redesign"");
+    proj3.id = 103;
+    strcpy(proj3.name, ""Market Analysis"");
+
+    
+
+    employees[0].id = 1;
+    strcpy(employees[0].name, ""Alice"");
+    employees[0].department = dept1;
+    employees[0].projects[0] = proj1;
+    employees[0].projects[1] = proj2;
+    employees[0].project_count = 2;
+
+    employees[1].id = 2;
+    strcpy(employees[1].name, ""Bob"");
+    employees[1].department = dept2;
+    employees[1].projects[0] = proj3;
+    employees[1].project_count = 1;
+
+    int i;
+    for (i = 0; i < 2; i++) {
+        print_employee(employees[i]);
+        printf(""\n"");
+    }
+
+    return 0;
+}
+";
+            Compiler.GenerateAsm(src, "test.s");
+            Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
+            int exitCode = ret2.Item1;
+            string output = ret2.Item2;
+
+            Check(exitCode == 0);
+            Check(output.Contains("Employee ID: 1, Name: Alice"));
+            Check(output.Contains("Department: Department ID: 1, Name: Engineering"));
+        }
+
         public static void RunAllUt()
         {
             MainUt mainUt = new MainUt();
@@ -2231,6 +2334,7 @@ int main() {
             mainUt.BinarySearch();
             mainUt.LCS();
             mainUt.MagicNumber();
+            mainUt.JobAssignment();
 
         }
 

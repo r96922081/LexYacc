@@ -52,6 +52,12 @@
         local,
     }
 
+    public enum VariableAddressOrValue
+    {
+        Value,
+        Address
+    }
+
     public class Variable
     {
         public string name;
