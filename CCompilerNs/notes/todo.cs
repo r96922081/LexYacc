@@ -5,6 +5,8 @@
 - add comment and format asm
 ====
 not supported:
+- %
+- variable in {} scope
 - union
 - typedef
 - double

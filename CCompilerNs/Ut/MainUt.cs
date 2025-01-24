@@ -1791,18 +1791,16 @@ int main()
         public void adhoc()
         {
             string src = @"
-
-int main()
-{
-    if (1 || 0)
-        return 1;
-    else
-        return 2;
+int main() {
+    return 0;
 }
 ";
             Compiler.GenerateAsm(src, "test.s");
-            int exitCode = CompileAsmAndRun("test.s", "test.exe");
-            Check(exitCode == 1);
+            Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
+            int exitCode = ret2.Item1;
+            string output = ret2.Item2;
+
+            Check(exitCode == 0);
         }
 
         public void EightQueen()
@@ -2000,7 +1998,7 @@ int main() {
         }
 
 
-        public void lcs()
+        public void LCS()
         {
             string src = @"
 
@@ -2069,12 +2067,77 @@ int main() {
             Check(output.Contains("Longest Common Subsequence: GTABZ"));
         }
 
+        public void MagicNumber()
+        {
+            string src = @"
+
+int magicSquare[15][15];
+
+void generateMagicSquare(int n) {
+    int i;
+    int j;
+    int new_i;
+    int new_j;
+
+    int num = 1;
+    i = 0;
+    j = n / 2;
+
+    while (num <= n * n) {
+        magicSquare[i][j] = num;
+        num++;
+
+        new_i = i - 1;
+        new_j = j + 1;
+
+        if (new_i < 0) {
+            new_i = n - 1;
+        }
+        if (new_j >= n) {
+            new_j = 0;
+        }
+
+        if (magicSquare[new_i][new_j] != 0) {
+            new_i = i + 1;
+            if (new_i >= n) 
+                new_i = 0;
+            new_j = j;
+        }
+
+        i = new_i;
+        j = new_j;
+    }
+
+    printf(""Magic Square of size %d:\n"", n);
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++) {
+            printf(""%4d"", magicSquare[i][j]);
+        }
+        printf(""\n"");
+    }
+}
+
+int main() {
+    generateMagicSquare(7);
+    return 0;
+}
+";
+            Compiler.GenerateAsm(src, "test.s");
+            Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
+            int exitCode = ret2.Item1;
+            string output = ret2.Item2;
+
+            Check(exitCode == 0);
+            Check(output.Contains("Magic Square of size 7:"));
+            Check(output.Contains("30  39  48   1  10  19  28"));
+            Check(output.Contains("22  31  40  49   2  11  20"));
+        }
 
         public static void RunAllUt()
         {
             MainUt mainUt = new MainUt();
 
-            //mainUt.adhoc();
+            mainUt.adhoc();
 
             mainUt.boolean_expression_1();
             mainUt.boolean_expression_2();
@@ -2166,7 +2229,8 @@ int main() {
             mainUt.EightQueen();
             mainUt.BubbleSort();
             mainUt.BinarySearch();
-            mainUt.lcs();
+            mainUt.LCS();
+            mainUt.MagicNumber();
 
         }
 
