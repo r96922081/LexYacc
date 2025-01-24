@@ -1630,7 +1630,7 @@ struct A {
     char a3;
 };
 
-int f1(struct A a[3])
+int f1(struct A a[])
 {
     a[2].a2[3].b3[1][2].c1 = 5;
     a[2].a2[3].b3[1][2].c2 = 7;
@@ -1731,25 +1731,78 @@ int main()
             Check(exitCode == 2);
         }
 
+        public void boolean_expression_5()
+        {
+            string src = @"
+
+int main()
+{
+    if (2 < 1 && 3 < 1 && 1 > 2 || 5 > 6 && 3 > 4 || 2 > 1 && 3 > 1 )
+        return 1;
+    else
+        return 2;
+}
+
+";
+
+            Compiler.GenerateAsm(src, "test.s");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
+            Check(exitCode == 1);
+        }
+
+        public void boolean_expression_6()
+        {
+            string src = @"
+
+int main()
+{
+    if (2 < 1 && 3 < 1 && 1 > 2 || 5 > 6 && 3 > 4 || 2 > 1 && 3 > 1 && 0 )
+        return 1;
+    else
+        return 2;
+}
+
+";
+
+            Compiler.GenerateAsm(src, "test.s");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
+            Check(exitCode == 2);
+        }
+
+        public void boolean_expression_7()
+        {
+            string src = @"
+
+int main()
+{
+    if (1 || 0)
+        return 1;
+    else
+        return 2;
+}
+
+";
+
+            Compiler.GenerateAsm(src, "test.s");
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
+            Check(exitCode == 1);
+        }
+
         public void adhoc()
         {
             string src = @"
 
 int main()
 {
-int a = -2;
-int b = -3;
-    return a + b + -3;
+    if (1 || 0)
+        return 1;
+    else
+        return 2;
 }
-
 ";
             Compiler.GenerateAsm(src, "test.s");
-            Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
-            int exitCode = ret2.Item1;
-            string output = ret2.Item2;
-
-            //Check(exitCode == 0);
-            //Check(output.Contains(""));
+            int exitCode = CompileAsmAndRun("test.s", "test.exe");
+            Check(exitCode == 1);
         }
 
         public void EightQueen()
@@ -1952,9 +2005,9 @@ int main() {
             string src = @"
 
 void lcs(char str1[], char str2[], int m, int n) {
-    int dp[100][100];
+    int dp[10][10];
     int lcs_length = 0;
-    char lcs_str[100];
+    char lcs_str[10];
     int i;
     int j;
     int k;
@@ -1972,7 +2025,7 @@ void lcs(char str1[], char str2[], int m, int n) {
                 dp[i][j] = dp[i][j - 1];
 
     lcs_length = dp[m][n];
-    printf(""Length of Longest Common Subsequence: %d\n"", lcs_length);
+    printf(""Length of Longest Common Subsequence : % d\n"", lcs_length);
 
     lcs_str[lcs_length] = '\0';
 
@@ -1995,15 +2048,16 @@ void lcs(char str1[], char str2[], int m, int n) {
 }
 
 int main() {
-    char str1[100];
-    strcpy(str1, ""AGGTAB"");
-    char str2[100];
-    strcpy(str2, ""GXTXAYB"");
+    char str1[10];
+    strcpy_s(str1, 10, ""AGGTABWZ"");
+    char str2[10];
+    strcpy_s(str2, 10, ""GXTXAYBYZ"");
     int m = strlen(str1);
     int n = strlen(str2);
     lcs(str1, str2, m, n);
     return 0;
 }
+
 
 ";
             Compiler.GenerateAsm(src, "test.s");
@@ -2012,7 +2066,7 @@ int main() {
             string output = ret2.Item2;
 
             Check(exitCode == 0);
-            Check(output.Contains("Solution count = 92"));
+            Check(output.Contains("Longest Common Subsequence: GTABZ"));
         }
 
 
@@ -2020,12 +2074,15 @@ int main() {
         {
             MainUt mainUt = new MainUt();
 
-            mainUt.adhoc();
+            //mainUt.adhoc();
 
             mainUt.boolean_expression_1();
             mainUt.boolean_expression_2();
             mainUt.boolean_expression_3();
             mainUt.boolean_expression_4();
+            mainUt.boolean_expression_5();
+            mainUt.boolean_expression_6();
+            mainUt.boolean_expression_7();
 
             mainUt.struct_1();
             mainUt.struct_2();
@@ -2034,13 +2091,9 @@ int main() {
             mainUt.struct_5();
             mainUt.struct_6();
             mainUt.struct_7();
-
-            //mojo fail randomly
-            //mainUt.struct_8();
+            mainUt.struct_8();
             mainUt.struct_9();
-
-            //mojo fail randomly
-            //mainUt.struct_10();
+            mainUt.struct_10();
 
             mainUt.Ut1();
             mainUt.Ut2();
@@ -2113,9 +2166,8 @@ int main() {
             mainUt.EightQueen();
             mainUt.BubbleSort();
             mainUt.BinarySearch();
+            mainUt.lcs();
 
-            //mojo syntax if (xx && yy) not supported yet
-            //mainUt.lcs();
         }
 
         public static void Ut()

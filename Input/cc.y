@@ -560,12 +560,12 @@ WHILE '(' booleanExpressions ')' ifBodyStatements
 booleanExpressions:
 booleanExpressions logicalOperation booleanExpression
 {
-    $$ = CCompilerNs.LexYaccCallback.BooleanExpressions($3, $1);
+    $$ = CCompilerNs.LexYaccCallback.BooleanExpressions($3, $2, $1);
 }
 |
 booleanExpression
 {
-    $$ = CCompilerNs.LexYaccCallback.BooleanExpressions($1, null);
+    $$ = CCompilerNs.LexYaccCallback.BooleanExpressions($1, null, null);
 }
 ;
 

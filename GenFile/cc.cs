@@ -578,12 +578,12 @@ WHILE '(' booleanExpressions ')' ifBodyStatements
 booleanExpressions:
 booleanExpressions logicalOperation booleanExpression
 {
-    $$ = CCompilerNs.LexYaccCallback.BooleanExpressions($3, $1);
+    $$ = CCompilerNs.LexYaccCallback.BooleanExpressions($3, $2, $1);
 }
 |
 booleanExpression
 {
-    $$ = CCompilerNs.LexYaccCallback.BooleanExpressions($1, null);
+    $$ = CCompilerNs.LexYaccCallback.BooleanExpressions($1, null, null);
 }
 ;
 
@@ -1878,7 +1878,7 @@ GREATER_OR_EQUAL_SIGN
         CCompilerNs.BooleanExpression _1 = (CCompilerNs.BooleanExpression)objects[1];
 
         // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.BooleanExpressions(_1, null);
+        _0 = CCompilerNs.LexYaccCallback.BooleanExpressions(_1, null, null);
 
         return _0;
     }
@@ -1890,7 +1890,7 @@ GREATER_OR_EQUAL_SIGN
         CCompilerNs.BooleanExpression _3 = (CCompilerNs.BooleanExpression)objects[3];
 
         // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.BooleanExpressions(_3, _1);
+        _0 = CCompilerNs.LexYaccCallback.BooleanExpressions(_3, _2, _1);
 
         return _0;
     }

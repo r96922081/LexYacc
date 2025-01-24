@@ -11,7 +11,7 @@ namespace CCompilerNs
                 VariableTypeInfo t = new VariableTypeInfo();
                 t.typeEnum = VariableTypeEnum.int_type;
                 t.typeName = type;
-                t.size = 8;
+                t.SetSize(8);
                 return t;
             }
             else if (type == "void")
@@ -19,7 +19,7 @@ namespace CCompilerNs
                 VariableTypeInfo t = new VariableTypeInfo();
                 t.typeEnum = VariableTypeEnum.void_type;
                 t.typeName = type;
-                t.size = 8;
+                t.SetSize(8);
                 return t;
             }
             else if (type == "char")
@@ -27,7 +27,7 @@ namespace CCompilerNs
                 VariableTypeInfo t = new VariableTypeInfo();
                 t.typeEnum = VariableTypeEnum.char_type;
                 t.typeName = type;
-                t.size = 1;
+                t.SetSize(1);
                 return t;
             }
             else if (type.StartsWith("struct "))
@@ -35,7 +35,7 @@ namespace CCompilerNs
                 VariableTypeInfo t = new VariableTypeInfo();
                 t.typeEnum = VariableTypeEnum.struct_type;
                 t.typeName = type.Replace("struct ", "");
-                t.size = -1;
+                t.SetSize(-1);
                 return t;
             }
             else
@@ -128,19 +128,23 @@ namespace CCompilerNs
                     Emit("push %rbx");
                 }
 
-                if (partInfo.arrayIndexList[i].Count != 0)
+                // [2][3][4] => 2,3,4
+                List<Expression> arrayIndexList = partInfo.arrayIndexList[i];
+                List<int> arraySizeList = partInfo.type[i].arraySize;
+
+                if (arrayIndexList.Count != 0)
                 {
-                    for (int j = partInfo.arrayIndexList[i].Count - 1; j >= 0; j--)
+                    for (int j = arrayIndexList.Count - 1; j >= 0; j--)
                     {
                         int levelCount = 1;
-                        for (int k = j + 1; k < partInfo.arrayIndexList[i].Count; k++)
-                            levelCount *= partInfo.type[i].arraySize[k];
+                        for (int k = j + 1; k < arraySizeList.Count; k++)
+                            levelCount *= arraySizeList[k];
 
-                        partInfo.arrayIndexList[i][j].EmitAsm();
+                        arrayIndexList[j].EmitAsm();
                         Emit("pop %rax");
                         Emit(string.Format("mov ${0}, %rcx", levelCount));
                         Emit("mul %rcx");
-                        Emit(string.Format("mov ${0}, %rcx", partInfo.type[i].size));
+                        Emit(string.Format("mov ${0}, %rcx", partInfo.type[i].GetSize()));
                         Emit("mul %rcx");
                         Emit("push %rax");
                     }

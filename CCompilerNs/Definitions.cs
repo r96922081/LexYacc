@@ -11,16 +11,29 @@
     {
         public string typeName;
         public VariableTypeEnum typeEnum;
-        public int size;
+        private int size;
         public List<int> arraySize = new List<int>();
 
-        public void UpdateStructInfo()
+        private void UpdateStructInfo()
         {
             if (typeEnum == VariableTypeEnum.struct_type)
                 size = Util.GetStructDef(typeName).size;
 
             if (size == -1)
                 throw new Exception("size not set");
+        }
+
+        public int GetSize()
+        {
+            if (size == -1)
+                UpdateStructInfo();
+
+            return size;
+        }
+
+        public void SetSize(int size)
+        {
+            this.size = size;
         }
     }
 

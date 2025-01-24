@@ -76,7 +76,6 @@
                         v.name = gv2.name;
                         v.typeInfo = gv2.typeInfo;
                         v.scope = VariableScopeEnum.global;
-                        v.typeInfo.arraySize.AddRange(gv2.typeInfo.arraySize);
                         gv.Add(v.name, v);
                     }
                     else
@@ -86,7 +85,6 @@
                         v.name = gv2.name;
                         v.typeInfo = gv2.typeInfo;
                         v.scope = VariableScopeEnum.global;
-                        v.typeInfo.arraySize.AddRange(gv2.typeInfo.arraySize);
                         gv.Add(v.name, v);
                     }
                 }
@@ -104,14 +102,14 @@
                     if (f.typeInfo.typeEnum == VariableTypeEnum.struct_type)
                     {
                         StructDef subStruct = Gv.program.structDefs[f.typeInfo.typeName];
-                        f.typeInfo.size = subStruct.size;
+                        f.typeInfo.SetSize(subStruct.size);
                     }
 
                     int count = 1;
                     for (int i = 0; i < f.typeInfo.arraySize.Count; i++)
                         count *= f.typeInfo.arraySize[i];
 
-                    offset += f.typeInfo.size * count;
+                    offset += f.typeInfo.GetSize() * count;
 
                     // align 8 bytes
                     offset = (offset + 7) / 8 * 8;
@@ -199,7 +197,7 @@
                     if (typeInfo.typeEnum == VariableTypeEnum.struct_type)
                         typeSize = Util.GetStructDef(typeInfo.typeName).size;
                     else
-                        typeSize = typeInfo.size;
+                        typeSize = typeInfo.GetSize();
 
 
                     Emit(string.Format(".lcomm {0}, {1}", name, typeSize * count));
@@ -288,8 +286,6 @@ new %rbp - 16-> local2
             {
                 Variable p = paramsInOrder[i];
                 p.stackOffset = returnAddress + (i + 1) * 8;
-                if (p.typeInfo.typeEnum == VariableTypeEnum.struct_type)
-                    p.typeInfo.UpdateStructInfo();
             }
 
             foreach (Variable l in localsInOrder)
@@ -300,8 +296,7 @@ new %rbp - 16-> local2
                 {
                     if (l.typeInfo.typeEnum == VariableTypeEnum.struct_type)
                     {
-                        l.typeInfo.UpdateStructInfo();
-                        localSize += l.typeInfo.size;
+                        localSize += l.typeInfo.GetSize();
                     }
                     else
                     {
@@ -314,7 +309,7 @@ new %rbp - 16-> local2
                     foreach (int arraySize in l.typeInfo.arraySize)
                         count *= arraySize;
 
-                    int size = count * l.typeInfo.size;
+                    int size = count * l.typeInfo.GetSize();
                     size = (size + 7) / 8 * 8;
                     localSize += size;
                 }
@@ -359,7 +354,7 @@ new %rbp - 16-> local2
             foreach (var p in paramsInOrder)
             {
                 if (p.typeInfo.typeEnum == VariableTypeEnum.struct_type)
-                    size += p.typeInfo.size;
+                    size += p.typeInfo.GetSize();
             }
 
             return size;
@@ -372,7 +367,7 @@ new %rbp - 16-> local2
                 if (p.typeInfo.typeEnum != VariableTypeEnum.struct_type)
                     continue;
 
-                int size = p.typeInfo.size;
+                int size = p.typeInfo.GetSize();
                 int oldStackOffset = p.stackOffset;
                 p.stackOffset = -(oldLocalSize + size);
                 int oldAddress = p.stackOffset;
@@ -544,7 +539,7 @@ ret";
             Emit("pop %rax");
 
             Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name[0]);
-            if (variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.size == 1)
+            if (variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.GetSize() == 1)
                 Emit("mov %al, (%rbx)");
             else
                 Emit("mov %rax, (%rbx)");
@@ -755,7 +750,7 @@ new %rbp - 16-> local2
             Emit("pop %rbx");
 
             Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name[0]);
-            if (variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.size == 1)
+            if (variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.GetSize() == 1)
                 Emit(string.Format("movzbq (%rbx), %rax")); // case a[1][2]
             else if ((variableId.arrayIndexList[0].Count == 0 && variable.typeInfo.arraySize.Count != 0)
                 || (variable.typeInfo.typeEnum == VariableTypeEnum.struct_type && variableId.name.Count == 1 && variableId.arrayIndexList[0].Count == 0))
@@ -770,6 +765,9 @@ new %rbp - 16-> local2
     public class BooleanExpressions : Expression
     {
         public List<BooleanExpression> booleanExpressions = new List<BooleanExpression>();
+        public List<string> ops = new List<string>();
+
+        private List<List<BooleanExpression>> andGroups = new List<List<BooleanExpression>>();
 
         public string jmpLabel;
         public JmpCondition jmpCondition = JmpCondition.None;
@@ -781,34 +779,64 @@ new %rbp - 16-> local2
             None
         }
 
+        private void SetAndGroups()
+        {
+            List<BooleanExpression> andGroup = new List<BooleanExpression>();
+            andGroup.Add(booleanExpressions[0]);
+
+            for (int i = 0; i < ops.Count; i++)
+            {
+                if (ops[i] == "&&")
+                    andGroup.Add(booleanExpressions[i + 1]);
+                else
+                {
+                    andGroups.Add(andGroup);
+                    andGroup = new List<BooleanExpression>();
+                    andGroup.Add(booleanExpressions[i + 1]);
+                }
+            }
+
+            andGroups.Add(andGroup);
+        }
+
         public override void EmitAsm()
         {
+            SetAndGroups();
             string booleanFalseLabel = "boolean_false_label_" + (Gv.sn++);
             string booleanTrueLabel = "boolean_true_label_" + (Gv.sn++);
             string booleanNoJmpLabel = "boolean_no_jmp_label_" + (Gv.sn++);
 
-            foreach (BooleanExpression b in booleanExpressions)
+            foreach (List<BooleanExpression> andGroup in andGroups)
             {
-                b.lhs.EmitAsm();
-                b.rhs.EmitAsm();
+                string groupFalseLabel = "group_false_label_" + (Gv.sn++);
+                string groupTrueLabel = "group_true_label_" + (Gv.sn++);
 
-                Emit("pop %rbx");
-                Emit("pop %rax");
+                foreach (BooleanExpression b in andGroup)
+                {
+                    b.lhs.EmitAsm();
+                    b.rhs.EmitAsm();
 
-                Emit("cmp %rbx, %rax");
+                    Emit("pop %rbx");
+                    Emit("pop %rax");
 
-                if (b.op == "==")
-                    Emit("je " + booleanTrueLabel);
-                else if (b.op == "!=")
-                    Emit("jne " + booleanTrueLabel);
-                else if (b.op == ">")
-                    Emit("jg " + booleanTrueLabel);
-                else if (b.op == "<")
-                    Emit("jl " + booleanTrueLabel);
-                else if (b.op == "<=")
-                    Emit("jle " + booleanTrueLabel);
-                else if (b.op == ">=")
-                    Emit("jge " + booleanTrueLabel);
+                    Emit("cmp %rbx, %rax");
+
+                    if (b.op == "==")
+                        Emit("jne " + groupFalseLabel);
+                    else if (b.op == "!=")
+                        Emit("je " + groupFalseLabel);
+                    else if (b.op == ">")
+                        Emit("jle " + groupFalseLabel);
+                    else if (b.op == "<")
+                        Emit("jge " + groupFalseLabel);
+                    else if (b.op == "<=")
+                        Emit("jg " + groupFalseLabel);
+                    else if (b.op == ">=")
+                        Emit("jl " + groupFalseLabel);
+                }
+                Emit(groupTrueLabel + ":");
+                Emit("jmp " + booleanTrueLabel);
+                Emit(groupFalseLabel + ":");
             }
 
             Emit(booleanFalseLabel + ":");

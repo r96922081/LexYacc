@@ -403,13 +403,18 @@
             return w;
         }
 
-        public static BooleanExpressions BooleanExpressions(BooleanExpression b2, BooleanExpressions prev)
+        public static BooleanExpressions BooleanExpressions(BooleanExpression b2, string op, BooleanExpressions prev)
         {
             BooleanExpressions b = new BooleanExpressions();
             if (prev != null)
+            {
                 b.booleanExpressions.AddRange(prev.booleanExpressions);
+                b.ops.AddRange(prev.ops);
+            }
 
             b.booleanExpressions.Add(b2);
+            if (op != null)
+                b.ops.Add(op);
             return b;
         }
 
