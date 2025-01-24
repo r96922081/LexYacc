@@ -169,12 +169,12 @@ int main()
             string src = @"
 int main()
 {
-	return (10 + 20) * (30 − 5);
+	return (10 + 20) * (30 - 5);
 }
 ";
             Compiler.GenerateAsm(src, "test.s");
             int exitCode = CompileAsmAndRun("test.s", "test.exe");
-            Check(exitCode == 22);
+            Check(exitCode == 750);
         }
 
         public void Ut7()
@@ -2240,7 +2240,20 @@ int main() {
         {
             MainUt mainUt = new MainUt();
 
+
             mainUt.adhoc();
+
+            mainUt.Ut1();
+            mainUt.Ut2();
+            mainUt.Ut3();
+            mainUt.Ut4();
+            mainUt.Ut5();
+            mainUt.Ut6();
+            mainUt.Ut7();
+            mainUt.Ut8();
+            mainUt.Ut9();
+            mainUt.Ut10();
+            mainUt.Ut15();
 
             mainUt.boolean_expression_1();
             mainUt.boolean_expression_2();
@@ -2260,19 +2273,6 @@ int main() {
             mainUt.struct_8();
             mainUt.struct_9();
             mainUt.struct_10();
-
-            mainUt.Ut1();
-            mainUt.Ut2();
-            mainUt.Ut3();
-            mainUt.Ut4();
-            mainUt.Ut5();
-            // mojo why?
-            //mainUt.Ut6();
-            mainUt.Ut7();
-            mainUt.Ut8();
-            mainUt.Ut9();
-            mainUt.Ut10();
-            mainUt.Ut15();
 
             mainUt.if_1();
             mainUt.if_2();
