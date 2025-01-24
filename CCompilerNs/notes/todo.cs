@@ -1,4 +1,8 @@
 ﻿/*
+todo:
+Fix LCS str1 output
+ 
+==
 not supported:
 - pointer
 - %
