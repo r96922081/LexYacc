@@ -2241,7 +2241,6 @@ int main() {
         {
             MainUt mainUt = new MainUt();
 
-            mainUt.LCS();
             mainUt.adhoc();
 
             mainUt.Ut1();
