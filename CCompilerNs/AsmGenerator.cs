@@ -748,7 +748,22 @@ new %rbp - 16-> local2
             Util.PushVariableAddress(variableId);
             Emit("pop %rbx");
 
-            if (variable.scope == VariableScopeEnum.param || variable.scope == VariableScopeEnum.local || variable.scope == VariableScopeEnum.global)
+            if (variable.scope == VariableScopeEnum.param)
+            {
+                // case: int a[2][3][4], use a, a[0], a[0][1]
+                if (partInfo.type[partInfo.count - 1].arraySize.Count != partInfo.arrayIndexList[partInfo.count - 1].Count)
+                    Emit(string.Format("mov %rbx, %rax"));
+                // case: f1(struct A a);  // a is copy to stack
+                else if (partInfo.type[partInfo.count - 1].typeEnum == VariableTypeEnum.struct_type)
+                    Emit(string.Format("mov (%rbx), %rax"));
+                // case: char in array, ex: char a[2][3], use a[1][2];
+                else if (variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.GetSize() == 1)
+                    Emit(string.Format("movzbq (%rbx), %rax"));
+                // case: local, or array with element size = 8
+                else
+                    Emit(string.Format("mov (%rbx), %rax"));
+            }
+            else if (variable.scope == VariableScopeEnum.local || variable.scope == VariableScopeEnum.global)
             {
                 // case: a = &b
                 if (addressOf)
@@ -756,8 +771,6 @@ new %rbp - 16-> local2
                 // case int a[2][3][4], use a, a[0], a[0][1]
                 else if (partInfo.type[partInfo.count - 1].arraySize.Count != partInfo.arrayIndexList[partInfo.count - 1].Count)
                     Emit(string.Format("mov %rbx, %rax"));
-                else if (variable.scope == VariableScopeEnum.param && partInfo.type[partInfo.count - 1].typeEnum == VariableTypeEnum.struct_type)
-                    Emit(string.Format("mov (%rbx), %rax"));
                 // case: a, a is struct; a.b.c, c is struct
                 else if (partInfo.type[partInfo.count - 1].typeEnum == VariableTypeEnum.struct_type)
                     Emit(string.Format("mov %rbx, %rax"));
