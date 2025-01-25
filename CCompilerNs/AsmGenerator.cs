@@ -538,6 +538,9 @@ ret";
             value.EmitAsm();
             Util.PushVariableAddress(variableId);
             Emit("pop %rbx");
+            for (int i = 0; i < variableId.dereferenceCount; i++)
+                Emit("mov (%rbx), %rbx");
+            
             Emit("pop %rax");
 
             Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name[0]);
@@ -592,20 +595,6 @@ new %rbp - 16-> local2
         {
             Emit("#FunctionCallExpression =>");
 
-            // 16-byte align seemed unnecessary, and it may has bug in my implementation
-            // because some test case failed after uncommenting it
-            /*
-            Emit(string.Format("mov %rsp, %rax # stack 16-byte align, before calling function"));
-            Emit(string.Format("andq $0xF, %rax"));
-            string alignedLabel = string.Format("aligned_{0}", (Gv.sn++));
-            if (parameters == null || parameters.Count % 2 == 0)
-                Emit(string.Format("jz {0}", alignedLabel));
-            else
-                Emit(string.Format("jnz {0}", alignedLabel));
-            Emit(string.Format("pushq $0"));
-            Emit(string.Format("{0}:", alignedLabel));*/
-
-
             if (parameters != null)
             {
                 // Additional arguments beyond the first four are passed on the stack, push in reserve order
@@ -650,18 +639,6 @@ new %rbp - 16-> local2
                     Emit(string.Format("pop %rbx # clear parameter on stack")); // caller cleaning up the stack to follow Win64 function calling conventions
                 }
             }
-
-            /*
-            Emit(string.Format("mov %rsp, %rax # restore stack 16-byte align fix, after calling function"));
-            Emit(string.Format("andq $0xF, %rax"));
-            alignedLabel = string.Format("aligned_{0}", (Gv.sn++));
-            if (parameters == null || parameters.Count % 2 == 0)
-                Emit(string.Format("jz {0}", alignedLabel));
-            else
-                Emit(string.Format("jnz {0}", alignedLabel));
-            Emit(string.Format("pop %rax"));
-            Emit(string.Format("{0}:", alignedLabel));*/
-
 
             Emit("#<= FunctionCallExpression");
         }
@@ -738,8 +715,13 @@ new %rbp - 16-> local2
     // save result in stack
     public class VariableIdExpression : Expression
     {
+        // variable id can be on both lhs and rhs, but VariableIdExpression can only be rhs
         public VariableId variableId;
+        
+        // address of &a
         public bool addressOf = false;
+        // deference *a, **a
+        public int dereferenceCount = 0;
 
         public override void EmitAsm()
         {
@@ -750,11 +732,28 @@ new %rbp - 16-> local2
 
             if (variable.scope == VariableScopeEnum.param)
             {
+                // case: int *a, int **a;
+                if (partInfo.type[partInfo.count - 1].pointerCount != 0)
+                {
+                    // case: a = &b
+                    if (addressOf)
+                        Emit(string.Format("mov %rbx, %rax"));
+                    // case: a =*b; c = **b;
+                    else if (dereferenceCount != 0)
+                    {
+                        Emit(string.Format("mov (%rbx), %rbx"));
+                        for (int i = 0; i < dereferenceCount; i++)
+                            Emit(string.Format("mov (%rbx), %rbx"));
+                        Emit(string.Format("mov %rbx, %rax"));
+                    }
+                }
                 // case: int a[2][3][4], use a, a[0], a[0][1]
-                if (partInfo.type[partInfo.count - 1].arraySize.Count != partInfo.arrayIndexList[partInfo.count - 1].Count)
+                else if (partInfo.type[partInfo.count - 1].arraySize.Count != partInfo.arrayIndexList[partInfo.count - 1].Count)
                     Emit(string.Format("mov %rbx, %rax"));
                 // case: f1(struct A a);  // a is copy to stack
                 else if (partInfo.type[partInfo.count - 1].typeEnum == VariableTypeEnum.struct_type)
+                    Emit(string.Format("mov (%rbx), %rax"));
+                else if (variableId.dereferenceCount != 0)
                     Emit(string.Format("mov (%rbx), %rax"));
                 // case: char in array, ex: char a[2][3], use a[1][2];
                 else if (variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.GetSize() == 1)
@@ -768,6 +767,19 @@ new %rbp - 16-> local2
                 // case: a = &b
                 if (addressOf)
                     Emit(string.Format("mov %rbx, %rax"));
+                // case: a =*b; c = **b;
+                else if (dereferenceCount != 0)
+                {
+                    Emit(string.Format("mov (%rbx), %rbx"));
+                    for (int i = 0; i < dereferenceCount; i++)
+                        Emit(string.Format("mov (%rbx), %rbx"));
+                    Emit(string.Format("mov %rbx, %rax"));
+                }
+                // case: int* a, int **a, pass a into a function
+                else if (partInfo.type[partInfo.count - 1].pointerCount != 0)
+                {
+                    Emit(string.Format("mov (%rbx), %rax"));
+                }
                 // case int a[2][3][4], use a, a[0], a[0][1]
                 else if (partInfo.type[partInfo.count - 1].arraySize.Count != partInfo.arrayIndexList[partInfo.count - 1].Count)
                     Emit(string.Format("mov %rbx, %rax"));

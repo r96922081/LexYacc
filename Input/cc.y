@@ -31,7 +31,7 @@
 %type <CCompilerNs.GlobalVariable>             globalVariable
 %type <List<CCompilerNs.StructField>>          structFields
 %type <CCompilerNs.StructField>                structField
-%type <CCompilerNs.VariableId>                 variableId
+%type <CCompilerNs.VariableId>                 variableId AssignmentLhsVariableId
 %type <CCompilerNs.Declare>                    declare functionParamDeclare
 
 %type <CCompilerNs.FunctionCallExpression>     functionCallExpression
@@ -42,7 +42,7 @@
 %type <List<int>>                              arraySize
 %type <List<CCompilerNs.Expression>>           arrayIndex
 
-%type <string>                                 typeSpec relationalOp opAssign incrementDecrement addMinusOp multiplyDivideOp logicalOperation pointer
+%type <string>                                 typeSpec relationalOp opAssign incrementDecrement addMinusOp multiplyDivideOp logicalOperation pointers
 
 
 %%
@@ -105,7 +105,7 @@ INT_TYPE
     $$ = $1;
 }
 |
-INT_TYPE pointer
+INT_TYPE pointers
 {
     $$ = $1 + $2;
 }
@@ -115,7 +115,7 @@ CHAR_TYPE
     $$ = $1;
 }
 |
-CHAR_TYPE pointer
+CHAR_TYPE pointers
 {
     $$ = $1 + $2;
 }
@@ -125,7 +125,7 @@ VOID_TYPE
     $$ = $1;
 }
 |
-VOID_TYPE pointer
+VOID_TYPE pointers
 {
     $$ = $1 + $2;
 }
@@ -135,17 +135,18 @@ STRUCT ID
     $$ = $1 + " " + $2;
 }
 |
-STRUCT ID pointer
+STRUCT ID pointers
 {
     $$ = $1 + " " + $2 + $3;
 }
 ;
 
-pointer:
-pointer '*'
+pointers:
+pointers '*'
 {
-    $$ += "*";
+    $$ = $1 + "*";
 }
+|
 '*'
 {
     $$ = "*";
@@ -307,6 +308,10 @@ declare '=' addExpression ';'
     $$= CCompilerNs.LexYaccCallback.DeclareStatement($1, $3);
 }
 |
+declare '=' '&' variableId ';'
+{
+    $$= CCompilerNs.LexYaccCallback.DeclareStatement($1, $4, true);
+}
 declare ';'
 {
     $$= CCompilerNs.LexYaccCallback.DeclareStatement($1, null);
@@ -328,22 +333,22 @@ emptyStatement:
 ;
 
 assignmentNoSemicolon: 
-variableId '=' addExpression
+AssignmentLhsVariableId '=' addExpression
 {
     $$= CCompilerNs.LexYaccCallback.AssignmentStatement($1, $3);
 }
 |
-variableId '=' '&' variableId
+AssignmentLhsVariableId '=' '&' variableId
 {
     $$= CCompilerNs.LexYaccCallback.AssignmentStatement($1, $4, true);
 }
 |
-variableId opAssign addExpression
+AssignmentLhsVariableId opAssign addExpression
 {
     $$= CCompilerNs.LexYaccCallback.OpAssignmentStatement($1, $3, $2);
 }
 |
-variableId incrementDecrement
+AssignmentLhsVariableId incrementDecrement
 {
     $$= CCompilerNs.LexYaccCallback.IncrementDecrement($1, $2);
 }
@@ -368,6 +373,18 @@ ID
 ID arrayIndex
 {
     $$ = CCompilerNs.LexYaccCallback.VariableId(null, $1, $2);
+}
+;
+
+AssignmentLhsVariableId:
+variableId
+{
+    $$ = CCompilerNs.LexYaccCallback.VariableId($1, null);
+}
+|
+pointers variableId
+{
+    $$ = CCompilerNs.LexYaccCallback.VariableId($2, $1);
 }
 ;
 
@@ -465,6 +482,11 @@ INT_VALUE
 variableId
 {   
     $$ = CCompilerNs.LexYaccCallback.Expression($1);
+}
+|
+pointers variableId
+{   
+    $$ = CCompilerNs.LexYaccCallback.Expression($2, $1);
 }
 |
 functionCallExpression

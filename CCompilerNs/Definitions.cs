@@ -101,6 +101,7 @@
     {
         public List<string> name = new List<string>();
         public List<List<Expression>> arrayIndexList = new List<List<Expression>>();
+        public int dereferenceCount = 0;
     }
 
     public class BooleanExpression

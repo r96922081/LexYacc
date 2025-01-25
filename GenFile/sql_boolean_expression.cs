@@ -1658,6 +1658,7 @@ namespace LexYaccNs
 
                 if (matchedRule == null)
                 {
+                    Console.WriteLine("Error starts at: " + input.Substring(start));
                     throw new Exception("Syntax Error, at pos " + start);
                 }
                 else

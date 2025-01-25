@@ -1791,13 +1791,197 @@ int main()
         public void adhoc()
         {
             string src = @"
+
+
+int f1(int* a, int** b)
+{
+    int c = 100;
+    a = *b;
+    if (*a == 77)
+        ;
+    else
+        return 3;
+
+    c = **b;
+    if (c == 77)
+        ;
+    else
+        return 4;
+
+    *a = 8;
+    if (c == 8)
+        ;
+    else
+        return 5;
+
+    **b = 3;
+    if (c == 3)
+        ;
+    else
+        return 6;
+
+    return 0;
+}
+
+int main() {
+    int* a = 0;
+    int** b = 0;
+    int c = 77;
+    a = &c;
+    b = &a;
+    
+    int ret = f1(a, b);
+
+    if (ret != 0)
+        return ret;
+
+    if (c == 3)
+        ;
+    else
+        return 7;
+
+    return 0;
+}
+";
+            Compiler.GenerateAsm(src, "test.s");
+            Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
+            int exitCode = ret2.Item1;
+            string output = ret2.Item2;
+
+            Check(exitCode == 0);
+        }
+
+        public void pointer_1()
+        {
+            string src = @"
 int* a = 0;
 int** b = 0;
 int c = 2;
 
 int main() {
-    a = &b;
+    a = &c;
+    b = &a;
+    int* d = &a;
     
+    a = *b;
+    c = **b;
+
+    a = &c;
+    *a = 5;
+    **b = 6;
+
+    return 0;
+}
+";
+            Compiler.GenerateAsm(src, "test.s");
+            Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
+            int exitCode = ret2.Item1;
+            string output = ret2.Item2;
+
+            Check(exitCode == 0);
+        }
+
+        public void pointer_2()
+        {
+            string src = @"
+int* a = 0;
+int** b = 0;
+int c = 77;
+
+int main() {
+    a = &c;
+    b = &a;
+    int* d = &a;
+
+    if (b != 0)
+        ;
+    else
+        return 1;
+
+    if (b == d)
+        ;
+    else
+        return 2;
+    
+    a = *b;
+    if (*a == 77)
+        ;
+    else
+        return 3;
+
+    c = **b;
+    if (c == 77)
+        ;
+    else
+        return 4;
+
+    a = &c;
+    b = &a;
+
+    *a = 8;
+    if (c == 8)
+        ;
+    else
+        return 5;
+
+    **b = 3;
+    if (c == 3)
+        ;
+    else
+        return 6;
+
+    return 0;
+}
+";
+            Compiler.GenerateAsm(src, "test.s");
+            Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
+            int exitCode = ret2.Item1;
+            string output = ret2.Item2;
+
+            Check(exitCode == 0);
+        }
+
+        public void pointer_3()
+        {
+            string src = @"
+
+int f1(int* a, int** b)
+{
+    int c = 100;
+    a = *b;
+    if (*a == 77)
+        ;
+    else
+        return 3;
+
+    c = **b;
+    if (c == 77)
+        ;
+    else
+        return 4;
+
+    **b = 3;
+
+    return 0;
+}
+
+int main() {
+    int* a = 0;
+    int** b = 0;
+    int c = 77;
+    a = &c;
+    b = &a;
+    
+    int ret = f1(a, b);
+
+    if (ret != 0)
+        return ret;
+
+    if (c == 3)
+        ;
+    else
+        return 7;
+
     return 0;
 }
 ";
@@ -2237,8 +2421,10 @@ int main() {
         {
             MainUt mainUt = new MainUt();
 
-            //mainUt.JobAssignment();
-            mainUt.adhoc();
+            //mainUt.adhoc();
+            mainUt.pointer_1();
+            mainUt.pointer_2();
+            mainUt.pointer_3();
 
             mainUt.Ut1();
             mainUt.Ut2();

@@ -102,6 +102,23 @@
             return n;
         }
 
+        public static DeclareStatement DeclareStatement(Declare d, VariableId variableId, bool addressOf)
+        {
+            DeclareStatement n = new DeclareStatement();
+            n.typeInfo = Util.GetType(d.type);
+            n.name = d.name;
+
+            VariableIdExpression e = new VariableIdExpression();
+            e.variableId = variableId;
+            e.addressOf = addressOf;
+            n.value = e;
+
+            if (d.arraySize != null)
+                n.typeInfo.arraySize.AddRange(d.arraySize);
+
+            return n;
+        }
+
         public static AssignmentStatement AssignmentStatement(VariableId variableId, Expression expression)
         {
             AssignmentStatement a = new AssignmentStatement();
@@ -184,6 +201,15 @@
         {
             VariableIdExpression v = new VariableIdExpression();
             v.variableId = variableId;
+
+            return v;
+        }
+
+        public static Expression Expression(VariableId variableId, string pointers)
+        {
+            VariableIdExpression v = new VariableIdExpression();
+            v.variableId = variableId;
+            v.dereferenceCount= pointers.Length;
 
             return v;
         }
@@ -543,6 +569,16 @@
                 v.arrayIndexList.Add(arrayIndex);
             else
                 v.arrayIndexList.Add(new List<Expression>());
+
+            return v;
+        }
+
+        public static VariableId VariableId(VariableId v, string pointers)
+        {
+            if (pointers == null)
+                v.dereferenceCount = 0;
+            else
+                v.dereferenceCount = pointers.Length;
 
             return v;
         }
