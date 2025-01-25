@@ -87,7 +87,7 @@ namespace CCompilerNs
             return p;
         }
 
-        private static void PushBaseAddress(string name, VariablePartInfo partInfo)
+        private static void PushBaseAddress(string name)
         {
             Variable variable = GetVariableFrom_Local_Param_Global(name);
 
@@ -106,7 +106,7 @@ namespace CCompilerNs
                 Emit(string.Format("lea {0}(%rbp), %rbx", variable.stackOffset));
 
                 // if pass array as param, then it's address, need to dereference
-                if (partInfo.arrayIndexList[0].Count != 0)
+                if (variable.typeInfo.arraySize.Count != 0)
                     Emit("mov (%rbx), %rbx");
                 Emit(string.Format("push %rbx", variable.name));
             }
@@ -119,7 +119,7 @@ namespace CCompilerNs
             Variable variable = GetVariableFrom_Local_Param_Global(variableId.name[0]);
             VariablePartInfo partInfo = GetVariableTypeInfo(variable, variableId);
 
-            PushBaseAddress(variableId.name[0], partInfo);
+            PushBaseAddress(variableId.name[0]);
 
             for (int i = 0; i < partInfo.count; i++)
             {

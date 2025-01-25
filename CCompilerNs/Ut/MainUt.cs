@@ -1794,12 +1794,12 @@ int main()
 
 void f1(char str1[])
 {
-    printf(""%src\n"", str1);
+    printf(""%s\n"", str1);
 
 }
 int main() {
     char str1[100];
-    strcpy(str1, ""hello"");
+    strcpy(str1, ""hi"");
     f1(str1);
 
     return 0;
@@ -2241,8 +2241,8 @@ int main() {
         {
             MainUt mainUt = new MainUt();
 
-            //mainUt.LCS();
-            //mainUt.adhoc();
+            mainUt.LCS();
+            mainUt.adhoc();
 
             mainUt.Ut1();
             mainUt.Ut2();
