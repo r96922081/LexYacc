@@ -13,6 +13,7 @@
         public VariableTypeEnum typeEnum;
         private int size;
         public List<int> arraySize = new List<int>();
+        public int pointerCount = 0;
 
         private void UpdateStructInfo()
         {
@@ -35,6 +36,14 @@
         {
             this.size = size;
         }
+    }
+
+    public class VariablePartInfo
+    {
+        public int count;
+        public List<VariableTypeInfo> type = new List<VariableTypeInfo>();
+        public List<int> offsets = new List<int>();
+        public List<List<Expression>> arrayIndexList = new List<List<Expression>>();
     }
 
     public enum VariableTypeEnum

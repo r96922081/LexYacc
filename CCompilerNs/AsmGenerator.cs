@@ -4,6 +4,7 @@
     {
         public string s = "";
         public static string outputFilePath = null;
+        public static bool outputToConsole = true;
 
         public virtual void EmitAsm()
         {
@@ -17,7 +18,8 @@
 
         public static void EmitToChannel(string asm)
         {
-            Console.WriteLine(asm);
+            if (outputToConsole)
+                Console.WriteLine(asm);
             if (outputFilePath != null)
                 File.AppendAllText(outputFilePath, asm + "\n");
         }
@@ -737,19 +739,37 @@ new %rbp - 16-> local2
     public class VariableIdExpression : Expression
     {
         public VariableId variableId;
+        public bool addressOf = false;
 
         public override void EmitAsm()
         {
             Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name[0]);
-            VariableAddressOrValue addrOrValue = Util.PushVariableAddress(variableId);
+            VariablePartInfo partInfo = Util.GetVariableTypeInfo(variable, variableId);
+            Util.PushVariableAddress(variableId);
             Emit("pop %rbx");
 
-            if (addrOrValue == VariableAddressOrValue.Address)
-                Emit(string.Format("mov %rbx, %rax"));
-            else if (variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.GetSize() == 1)
-                Emit(string.Format("movzbq (%rbx), %rax")); // case a[1][2]
+            if (variable.scope == VariableScopeEnum.param || variable.scope == VariableScopeEnum.local || variable.scope == VariableScopeEnum.global)
+            {
+                // case: a = &b
+                if (addressOf)
+                    Emit(string.Format("mov %rbx, %rax"));
+                // case int a[2][3][4], use a, a[0], a[0][1]
+                else if (partInfo.type[partInfo.count - 1].arraySize.Count != partInfo.arrayIndexList[partInfo.count - 1].Count)
+                    Emit(string.Format("mov %rbx, %rax"));
+                else if (variable.scope == VariableScopeEnum.param && partInfo.type[partInfo.count - 1].typeEnum == VariableTypeEnum.struct_type)
+                    Emit(string.Format("mov (%rbx), %rax"));
+                // case: a, a is struct; a.b.c, c is struct
+                else if (partInfo.type[partInfo.count - 1].typeEnum == VariableTypeEnum.struct_type)
+                    Emit(string.Format("mov %rbx, %rax"));
+                // case: char in array, ex: char a[2][3], use a[1][2];
+                else if (variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.GetSize() == 1)
+                    Emit(string.Format("movzbq (%rbx), %rax"));
+                // case: local, or array with element size = 8
+                else
+                    Emit(string.Format("mov (%rbx), %rax"));
+            }
             else
-                Emit(string.Format("mov (%rbx), %rax")); // case local, or array with element size = 8
+                throw new Exception();
 
             Emit(string.Format("push %rax"));
         }

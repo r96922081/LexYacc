@@ -6,9 +6,15 @@ namespace CCompilerNs
     {
         public static VariableTypeInfo GetType(string type)
         {
+            VariableTypeInfo t = new VariableTypeInfo();
+            t.SetSize(-1);
+
+            int pointerCount = type.Count(f => f == '*');
+            type = type.Replace("*", "");
+            t.pointerCount = pointerCount;
+
             if (type == "int")
             {
-                VariableTypeInfo t = new VariableTypeInfo();
                 t.typeEnum = VariableTypeEnum.int_type;
                 t.typeName = type;
                 t.SetSize(8);
@@ -16,7 +22,6 @@ namespace CCompilerNs
             }
             else if (type == "void")
             {
-                VariableTypeInfo t = new VariableTypeInfo();
                 t.typeEnum = VariableTypeEnum.void_type;
                 t.typeName = type;
                 t.SetSize(8);
@@ -24,7 +29,6 @@ namespace CCompilerNs
             }
             else if (type == "char")
             {
-                VariableTypeInfo t = new VariableTypeInfo();
                 t.typeEnum = VariableTypeEnum.char_type;
                 t.typeName = type;
                 t.SetSize(1);
@@ -32,10 +36,8 @@ namespace CCompilerNs
             }
             else if (type.StartsWith("struct "))
             {
-                VariableTypeInfo t = new VariableTypeInfo();
                 t.typeEnum = VariableTypeEnum.struct_type;
                 t.typeName = type.Replace("struct ", "");
-                t.SetSize(-1);
                 return t;
             }
             else
@@ -47,15 +49,7 @@ namespace CCompilerNs
             AsmGenerator.EmitToChannel(asm);
         }
 
-        private class VariablePartInfo
-        {
-            public int count;
-            public List<VariableTypeInfo> type = new List<VariableTypeInfo>();
-            public List<int> offsets = new List<int>();
-            public List<List<Expression>> arrayIndexList = new List<List<Expression>>();
-        }
-
-        private static VariablePartInfo GetVariableTypeInfo(Variable variable, VariableId variableId)
+        public static VariablePartInfo GetVariableTypeInfo(Variable variable, VariableId variableId)
         {
             VariablePartInfo p = new VariablePartInfo();
             p.count = variableId.name.Count;
@@ -114,7 +108,7 @@ namespace CCompilerNs
 
 
 
-        public static VariableAddressOrValue PushVariableAddress(VariableId variableId)
+        public static void PushVariableAddress(VariableId variableId)
         {
             Variable variable = GetVariableFrom_Local_Param_Global(variableId.name[0]);
             VariablePartInfo partInfo = GetVariableTypeInfo(variable, variableId);
@@ -163,13 +157,6 @@ namespace CCompilerNs
                     Emit("push %rbx");
                 }
             }
-
-            if (partInfo.type[partInfo.count - 1].arraySize.Count != partInfo.arrayIndexList[partInfo.count - 1].Count
-                || partInfo.type[0].typeEnum == VariableTypeEnum.struct_type && variableId.name.Count == 1)
-                return VariableAddressOrValue.Address;
-            else
-                return VariableAddressOrValue.Value;
-
         }
 
         public static Variable GetVariableFrom_Local_Param_Global(string name)

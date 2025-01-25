@@ -42,7 +42,7 @@
 %type <List<int>>                              arraySize
 %type <List<CCompilerNs.Expression>>           arrayIndex
 
-%type <string>                                 typeSpec relationalOp opAssign incrementDecrement addMinusOp multiplyDivideOp logicalOperation
+%type <string>                                 typeSpec relationalOp opAssign incrementDecrement addMinusOp multiplyDivideOp logicalOperation pointer
 
 
 %%
@@ -105,9 +105,19 @@ INT_TYPE
     $$ = $1;
 }
 |
+INT_TYPE pointer
+{
+    $$ = $1 + $2;
+}
+|
 CHAR_TYPE
 {
     $$ = $1;
+}
+|
+CHAR_TYPE pointer
+{
+    $$ = $1 + $2;
 }
 |
 VOID_TYPE
@@ -115,9 +125,30 @@ VOID_TYPE
     $$ = $1;
 }
 |
-STRUCT ID
+VOID_TYPE pointer
+{
+    $$ = $1 + $2;
+}
+|
+STRUCT ID 
 {
     $$ = $1 + " " + $2;
+}
+|
+STRUCT ID pointer
+{
+    $$ = $1 + " " + $2 + $3;
+}
+;
+
+pointer:
+pointer '*'
+{
+    $$ += "*";
+}
+'*'
+{
+    $$ = "*";
 }
 ;
 
@@ -300,6 +331,11 @@ assignmentNoSemicolon:
 variableId '=' addExpression
 {
     $$= CCompilerNs.LexYaccCallback.AssignmentStatement($1, $3);
+}
+|
+variableId '=' '&' variableId
+{
+    $$= CCompilerNs.LexYaccCallback.AssignmentStatement($1, $4, true);
 }
 |
 variableId opAssign addExpression

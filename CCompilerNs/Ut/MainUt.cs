@@ -1791,17 +1791,13 @@ int main()
         public void adhoc()
         {
             string src = @"
+int* a = 0;
+int** b = 0;
+int c = 2;
 
-void f1(char str1[])
-{
-    printf(""%s\n"", str1);
-
-}
 int main() {
-    char str1[100];
-    strcpy(str1, ""hi"");
-    f1(str1);
-
+    a = &b;
+    
     return 0;
 }
 ";
@@ -2241,6 +2237,7 @@ int main() {
         {
             MainUt mainUt = new MainUt();
 
+            //mainUt.JobAssignment();
             mainUt.adhoc();
 
             mainUt.Ut1();

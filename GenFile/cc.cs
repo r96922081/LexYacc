@@ -60,7 +60,7 @@ public class YaccActions{
 %type <List<int>>                              arraySize
 %type <List<CCompilerNs.Expression>>           arrayIndex
 
-%type <string>                                 typeSpec relationalOp opAssign incrementDecrement addMinusOp multiplyDivideOp logicalOperation
+%type <string>                                 typeSpec relationalOp opAssign incrementDecrement addMinusOp multiplyDivideOp logicalOperation pointer
 
 
 %%
@@ -123,9 +123,19 @@ INT_TYPE
     $$ = $1;
 }
 |
+INT_TYPE pointer
+{
+    $$ = $1 + $2;
+}
+|
 CHAR_TYPE
 {
     $$ = $1;
+}
+|
+CHAR_TYPE pointer
+{
+    $$ = $1 + $2;
 }
 |
 VOID_TYPE
@@ -133,9 +143,30 @@ VOID_TYPE
     $$ = $1;
 }
 |
-STRUCT ID
+VOID_TYPE pointer
+{
+    $$ = $1 + $2;
+}
+|
+STRUCT ID 
 {
     $$ = $1 + "" "" + $2;
+}
+|
+STRUCT ID pointer
+{
+    $$ = $1 + "" "" + $2 + $3;
+}
+;
+
+pointer:
+pointer '*'
+{
+    $$ += ""*"";
+}
+'*'
+{
+    $$ = ""*"";
 }
 ;
 
@@ -318,6 +349,11 @@ assignmentNoSemicolon:
 variableId '=' addExpression
 {
     $$= CCompilerNs.LexYaccCallback.AssignmentStatement($1, $3);
+}
+|
+variableId '=' '&' variableId
+{
+    $$= CCompilerNs.LexYaccCallback.AssignmentStatement($1, $4, true);
 }
 |
 variableId opAssign addExpression
@@ -759,6 +795,13 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_typeSpec_Producton_1", Rule_typeSpec_Producton_1);
         actions.Add("Rule_typeSpec_Producton_2", Rule_typeSpec_Producton_2);
         actions.Add("Rule_typeSpec_Producton_3", Rule_typeSpec_Producton_3);
+        actions.Add("Rule_typeSpec_Producton_4", Rule_typeSpec_Producton_4);
+        actions.Add("Rule_typeSpec_Producton_5", Rule_typeSpec_Producton_5);
+        actions.Add("Rule_typeSpec_Producton_6", Rule_typeSpec_Producton_6);
+        actions.Add("Rule_typeSpec_Producton_7", Rule_typeSpec_Producton_7);
+        actions.Add("Rule_pointer_Producton_0", Rule_pointer_Producton_0);
+        actions.Add("Rule_pointer_LeftRecursionExpand_Producton_0", Rule_pointer_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_pointer_LeftRecursionExpand_Producton_1", Rule_pointer_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_statements_Producton_0", Rule_statements_Producton_0);
         actions.Add("Rule_statements_LeftRecursionExpand_Producton_0", Rule_statements_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_statements_LeftRecursionExpand_Producton_1", Rule_statements_LeftRecursionExpand_Producton_1);
@@ -794,6 +837,7 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_assignmentNoSemicolon_Producton_0", Rule_assignmentNoSemicolon_Producton_0);
         actions.Add("Rule_assignmentNoSemicolon_Producton_1", Rule_assignmentNoSemicolon_Producton_1);
         actions.Add("Rule_assignmentNoSemicolon_Producton_2", Rule_assignmentNoSemicolon_Producton_2);
+        actions.Add("Rule_assignmentNoSemicolon_Producton_3", Rule_assignmentNoSemicolon_Producton_3);
         actions.Add("Rule_variableId_Producton_0", Rule_variableId_Producton_0);
         actions.Add("Rule_variableId_Producton_1", Rule_variableId_Producton_1);
         actions.Add("Rule_variableId_LeftRecursionExpand_Producton_0", Rule_variableId_LeftRecursionExpand_Producton_0);
@@ -998,9 +1042,10 @@ GREATER_OR_EQUAL_SIGN
     public static object Rule_typeSpec_Producton_1(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
 
         // user-defined action
-        _0 = _1;
+        _0 = _1 + _2;
 
         return _0;
     }
@@ -1021,7 +1066,76 @@ GREATER_OR_EQUAL_SIGN
         string _2 = (string)objects[2];
 
         // user-defined action
+        _0 = _1 + _2;
+
+        return _0;
+    }
+
+    public static object Rule_typeSpec_Producton_4(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_typeSpec_Producton_5(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+
+        // user-defined action
+        _0 = _1 + _2;
+
+        return _0;
+    }
+
+    public static object Rule_typeSpec_Producton_6(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+
+        // user-defined action
         _0 = _1 + " " + _2;
+
+        return _0;
+    }
+
+    public static object Rule_typeSpec_Producton_7(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = _1 + " " + _2 + _3;
+
+        return _0;
+    }
+
+    public static object Rule_pointer_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+
+        // user-defined action
+        _0 = "*";
+
+        return _0;
+    }
+
+    public static object Rule_pointer_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 =(string)objects[1];
+
+        // user-defined action
+        _0 += "*";
+
+        return _0;
+    }
+
+    public static object Rule_pointer_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
 
         return _0;
     }
@@ -1365,6 +1479,17 @@ GREATER_OR_EQUAL_SIGN
     public static object Rule_assignmentNoSemicolon_Producton_1(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         CCompilerNs.VariableId _1 = (CCompilerNs.VariableId)objects[1];
+        CCompilerNs.VariableId _4 = (CCompilerNs.VariableId)objects[4];
+
+        // user-defined action
+        _0= CCompilerNs.LexYaccCallback.AssignmentStatement(_1, _4, true);
+
+        return _0;
+    }
+
+    public static object Rule_assignmentNoSemicolon_Producton_2(Dictionary<int, object> objects) { 
+        CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
+        CCompilerNs.VariableId _1 = (CCompilerNs.VariableId)objects[1];
         string _2 = (string)objects[2];
         CCompilerNs.Expression _3 = (CCompilerNs.Expression)objects[3];
 
@@ -1374,7 +1499,7 @@ GREATER_OR_EQUAL_SIGN
         return _0;
     }
 
-    public static object Rule_assignmentNoSemicolon_Producton_2(Dictionary<int, object> objects) { 
+    public static object Rule_assignmentNoSemicolon_Producton_3(Dictionary<int, object> objects) { 
         CCompilerNs.AssignmentStatement _0 = new CCompilerNs.AssignmentStatement();
         CCompilerNs.VariableId _1 = (CCompilerNs.VariableId)objects[1];
         string _2 = (string)objects[2];
@@ -2318,6 +2443,7 @@ namespace ccNs
 ""%""                       { return yytext[0]; }
 "",""                       { return yytext[0]; }
 "".""                       { return yytext[0]; }
+""&""                       { return yytext[0]; }
 %%";
 
 
@@ -2374,6 +2500,7 @@ namespace ccNs
             actions.Add("LexRule46", LexAction46);
             actions.Add("LexRule47", LexAction47);
             actions.Add("LexRule48", LexAction48);
+            actions.Add("LexRule49", LexAction49);
         }
         public static object LexAction0(string yytext)
         {
@@ -2805,6 +2932,15 @@ namespace ccNs
             return 0;
         }
         public static object LexAction48(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return yytext[0]; 
+
+            return 0;
+        }
+        public static object LexAction49(string yytext)
         {
             value = null;
 

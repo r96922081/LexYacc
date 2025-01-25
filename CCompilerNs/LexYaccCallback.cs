@@ -111,6 +111,20 @@
             return a;
         }
 
+        public static AssignmentStatement AssignmentStatement(VariableId lhs, VariableId rhs, bool addressOf)
+        {
+            AssignmentStatement a = new AssignmentStatement();
+            a.variableId = lhs;
+
+            VariableIdExpression e = new VariableIdExpression();
+            e.variableId = rhs;
+            e.addressOf = addressOf;
+
+            a.value = e;
+
+            return a;
+        }
+
         public static AssignmentStatement OpAssignmentStatement(VariableId variableId, Expression rhs, string op)
         {
             AssignmentStatement a = new AssignmentStatement();
