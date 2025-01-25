@@ -1791,15 +1791,16 @@ int main()
         public void adhoc()
         {
             string src = @"
-struct Department {
-    int id;
-    char name[50];
-};
 
+void f1(char str1[])
+{
+    printf(""%src\n"", str1);
 
+}
 int main() {
-    struct Department d;
-    strcpy(d.name, ""Engineering"");
+    char str1[100];
+    strcpy(str1, ""hello"");
+    f1(str1);
 
     return 0;
 }
@@ -2240,8 +2241,8 @@ int main() {
         {
             MainUt mainUt = new MainUt();
 
-            mainUt.LCS();
-            mainUt.adhoc();
+            //mainUt.LCS();
+            //mainUt.adhoc();
 
             mainUt.Ut1();
             mainUt.Ut2();

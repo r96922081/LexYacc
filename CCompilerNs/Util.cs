@@ -55,13 +55,12 @@ namespace CCompilerNs
             public List<List<Expression>> arrayIndexList = new List<List<Expression>>();
         }
 
-        private static VariablePartInfo GetVariableTypeInfo(VariableId variableId)
+        private static VariablePartInfo GetVariableTypeInfo(Variable variable, VariableId variableId)
         {
             VariablePartInfo p = new VariablePartInfo();
             p.count = variableId.name.Count;
             p.arrayIndexList = variableId.arrayIndexList;
 
-            Variable variable = GetVariableFrom_Local_Param_Global(variableId.name[0]);
             p.type.Add(variable.typeInfo);
             p.offsets.Add(0);
 
@@ -117,7 +116,8 @@ namespace CCompilerNs
 
         public static VariableAddressOrValue PushVariableAddress(VariableId variableId)
         {
-            VariablePartInfo partInfo = GetVariableTypeInfo(variableId);
+            Variable variable = GetVariableFrom_Local_Param_Global(variableId.name[0]);
+            VariablePartInfo partInfo = GetVariableTypeInfo(variable, variableId);
 
             PushBaseAddress(variableId.name[0], partInfo);
 
@@ -163,10 +163,6 @@ namespace CCompilerNs
                     Emit("push %rbx");
                 }
             }
-
-            //mojo
-            if (variableId.name[0] == "str1")
-                Console.WriteLine();
 
             if (partInfo.type[partInfo.count - 1].arraySize.Count != partInfo.arrayIndexList[partInfo.count - 1].Count
                 || partInfo.type[0].typeEnum == VariableTypeEnum.struct_type && variableId.name.Count == 1)

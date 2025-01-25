@@ -696,16 +696,10 @@ new %rbp - 16-> local2
             }
             else
             {
-                if (rhs == null)
-                {
-                    lhs.EmitAsm();
-                    Emit(string.Format("pop %rax"));
-                    Emit(string.Format("push %rax"));
-                }
-                else
-                {
-                    lhs.EmitAsm();
+                lhs.EmitAsm();
 
+                if (rhs != null)
+                {
                     // case addExpression: addExpression '+' mulExpression
                     if (rhs is Expression)
                     {
