@@ -99,9 +99,20 @@
     // a[1].b.c[2][3].d
     public class VariableId
     {
+        public bool addressOf = false; // &a.b.c
         public List<string> name = new List<string>();
         public List<List<Expression>> arrayIndexList = new List<List<Expression>>();
-        public int dereferenceCount = 0;
+        public int pointerCount = 0; // **a.b.c
+    }
+
+    public enum VariableIdExpressionType
+    {
+        LhsAssignPlain, // a = 3
+        LhsAssignDereference, // **a = 1
+        RhsAddressOf, // &a
+        RhsArrayAddress, // int a[2][3], int* b = a[1], int** b = a;
+        RhsDereference, // int b = **a;
+        RhsStruct, // struct A a
     }
 
     public class BooleanExpression

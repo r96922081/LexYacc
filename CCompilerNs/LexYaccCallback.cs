@@ -110,7 +110,7 @@
 
             VariableIdExpression e = new VariableIdExpression();
             e.variableId = variableId;
-            e.addressOf = addressOf;
+            e.variableId.addressOf = addressOf;
             n.value = e;
 
             if (d.arraySize != null)
@@ -135,7 +135,7 @@
 
             VariableIdExpression e = new VariableIdExpression();
             e.variableId = rhs;
-            e.addressOf = addressOf;
+            e.variableId.addressOf = addressOf;
 
             a.value = e;
 
@@ -209,7 +209,7 @@
         {
             VariableIdExpression v = new VariableIdExpression();
             v.variableId = variableId;
-            v.dereferenceCount= pointers.Length;
+            v.variableId.pointerCount = pointers.Length;
 
             return v;
         }
@@ -576,9 +576,9 @@
         public static VariableId VariableId(VariableId v, string pointers)
         {
             if (pointers == null)
-                v.dereferenceCount = 0;
+                v.pointerCount = 0;
             else
-                v.dereferenceCount = pointers.Length;
+                v.pointerCount = pointers.Length;
 
             return v;
         }
