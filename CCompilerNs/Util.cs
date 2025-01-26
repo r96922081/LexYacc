@@ -89,12 +89,12 @@ namespace CCompilerNs
             if (variable.scope == VariableScopeEnum.global)
             {
                 Emit(string.Format("lea {0}(%rip), %rbx # global, {1}", variable.name, variableId.ToString()));
-                Emit(string.Format("push %rbx", variable.name));
+                Emit(string.Format("push %rbx"));
             }
             else if (variable.scope == VariableScopeEnum.local)
             {
                 Emit(string.Format("lea {0}(%rbp), %rbx # local, {1}", variable.stackOffset, variableId.ToString()));
-                Emit(string.Format("push %rbx", variable.name));
+                Emit(string.Format("push %rbx"));
             }
             else if (variable.scope == VariableScopeEnum.param)
             {
@@ -212,6 +212,61 @@ namespace CCompilerNs
         {
             if (e is VariableIdExpression)
                 ((VariableIdExpression)e).variableId.lhsRhs = type;
+        }
+
+
+        public static VariableIdType GetVariableIdType(VariableId variableId, VariablePartInfo partInfo)
+        {
+            if (variableId.pointerCount > 0)
+                return VariableIdType.Dereference;
+
+            for (int i = 0; i < partInfo.count; i++)
+            {
+                if (partInfo.type[i].arraySize.Count != partInfo.arrayIndexList[i].Count) // int a[1][2][3], use a[1]
+                    return VariableIdType.ArrayAddress;
+            }
+
+
+            if (variableId.addressOf)
+                return VariableIdType.AddressOf;
+
+            if (partInfo.type[partInfo.count - 1].typeEnum == VariableTypeEnum.struct_type)
+                return VariableIdType.Struct;
+
+            return VariableIdType.PureValue;
+        }
+
+        // push dest address
+        // push src address
+        public static void GenCopyParamStructAsm(int size)
+        {
+            if (size % 8 != 0)
+                throw new Exception();
+
+            string copyParamStructLabel = "copy_param_struct_" + +(Gv.sn++);
+            Emit(string.Format("#copy memory macro => "));
+            Emit(string.Format("mov $0, %rcx # copy memory macro start. copy struct counter"));
+
+            Emit(string.Format(copyParamStructLabel + ":"));
+            Emit(string.Format("pop %rbx # pop dest address"));
+            Emit(string.Format("pop %rax # pop src address"));
+
+            Emit(string.Format("push %rax"));
+            Emit(string.Format("mov (%rax), %rax"));
+            Emit(string.Format("mov %rax, (%rbx)"));
+
+            Emit(string.Format("pop %rax"));
+            Emit(string.Format("add $8, %rax # add src address"));
+            Emit(string.Format("push %rax"));
+            Emit(string.Format("add $8, %rbx  # add dest address"));
+            Emit(string.Format("push %rbx"));
+
+            Emit(string.Format("add $8, %rcx"));
+            Emit(string.Format("mov ${0}, %rax", size));
+            Emit(string.Format("cmp %rax, %rcx"));
+            Emit(string.Format("jl " + copyParamStructLabel));
+
+            Emit(string.Format("#<= copy memory macro"));
         }
     }
 }

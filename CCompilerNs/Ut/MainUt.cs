@@ -1804,7 +1804,7 @@ int main()
             int exitCode = ret2.Item1;
             string output = ret2.Item2;
 
-            Check(exitCode == 0);
+              Check(exitCode == 0);
         }
 
         public void pointer_1()

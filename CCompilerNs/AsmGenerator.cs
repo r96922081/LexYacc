@@ -364,33 +364,6 @@ new %rbp - 16-> local2
             return size;
         }
 
-        // push dest address
-        // push src address
-        private void GenCopyParamStructAsm(int size)
-        {
-            string copyParamStructLabel = "copy_param_struct_" + +(Gv.sn++);
-            Emit(string.Format("mov $0, %rcx # copy memory macro start. copy struct counter"));
-
-            Emit(string.Format(copyParamStructLabel + ":"));
-            Emit(string.Format("pop %rbx # pop dest address"));
-            Emit(string.Format("pop %rax # pop src address"));
-
-            Emit(string.Format("push %rax"));
-            Emit(string.Format("mov (%rax), %rax"));
-            Emit(string.Format("mov %rax, (%rbx)"));
-
-            Emit(string.Format("pop %rax"));
-            Emit(string.Format("add $8, %rax # add src address"));
-            Emit(string.Format("push %rax"));
-            Emit(string.Format("add $8, %rbx  # add dest address"));
-            Emit(string.Format("push %rbx"));
-
-            Emit(string.Format("add $8, %rcx"));
-            Emit(string.Format("mov ${0}, %rax", size));
-            Emit(string.Format("cmp %rax, %rcx"));
-            Emit(string.Format("jl " + copyParamStructLabel));
-        }
-
         private void CopyParamStruct(int oldLocalSize)
         {
             foreach (var p in paramsInOrder)
@@ -417,7 +390,7 @@ new %rbp - 16-> local2
                 Emit(string.Format("lea {0}(%rbp), %rax", p.stackOffset));                
                 Emit(string.Format("push %rax"));
 
-                GenCopyParamStructAsm(size);
+                Util.GenCopyParamStructAsm(size);
 
                 oldLocalSize += size;
             }
@@ -572,10 +545,25 @@ ret";
             Emit("pop %rax");
 
             Variable variable = Util.GetVariableFrom_Local_Param_Global(lhs.variableId.name[0]);
-            if (lhs.variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.GetSize() == 1)
+            VariablePartInfo partInfo = Util.GetVariableTypeInfo(variable, lhs.variableId);
+            VariableIdType type = Util.GetVariableIdType(lhs.variableId, partInfo);
+            if (type == VariableIdType.Struct)
+            {
+                // push src
+                Emit(string.Format("push %rax"));
+                // push dest
+                Emit(string.Format("push %rbx"));
+
+                Util.GenCopyParamStructAsm(partInfo.type[partInfo.count - 1].GetSize());
+            }
+            else if (lhs.variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.GetSize() == 1)
+            {
                 Emit("mov %al, (%rbx)");
+            }
             else
+            {
                 Emit("mov %rax, (%rbx)");
+            }
 
             Emit("#<= AssignmentStatement");
         }
@@ -748,50 +736,11 @@ new %rbp - 16-> local2
     {
         public VariableId variableId;
 
-        /*
-            LhsAssignPlain, // a = 3
-            LhsAssignDereference, // **a = 1
-            RhsAddressOf, // &a
-            RhsArrayAddress, // int a[2][3], int* b = a[1], int** b = a;
-            RhsDereference, // int b = **a;
-            RhsStruct, // struct A a
-        */
-
-        private enum VariableIdType
-        {
-            Dereference,
-            ArrayAddress,
-            AddressOf,
-            Struct,
-            PureValue
-        }
-
-        private VariableIdType GetVariableIdType(VariablePartInfo partInfo)
-        {
-            if (variableId.pointerCount > 0)
-                return VariableIdType.Dereference;
-
-            for (int i = 0; i < partInfo.count; i++)
-            {
-                if (partInfo.type[i].arraySize.Count != partInfo.arrayIndexList[i].Count) // int a[1][2][3], use a[1]
-                    return VariableIdType.ArrayAddress;
-            }
-
-
-            if (variableId.addressOf)
-                return VariableIdType.AddressOf;
-
-            if (partInfo.type[partInfo.count - 1].typeEnum == VariableTypeEnum.struct_type)
-                return VariableIdType.Struct;
-
-            return VariableIdType.PureValue;
-        }
-
         public override void EmitAsm()
         {
             Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name[0]);
             VariablePartInfo partInfo = Util.GetVariableTypeInfo(variable, variableId);
-            VariableIdType type = GetVariableIdType(partInfo);
+            VariableIdType type = Util.GetVariableIdType(variableId, partInfo);
             Util.PushVariableAddress(variableId);
             Emit("pop %rbx");
 
@@ -830,8 +779,7 @@ new %rbp - 16-> local2
                 else if (type == VariableIdType.Struct)
                 {
                     // if pass struct as value, then pass its address
-                    if (partInfo.type[partInfo.count - 1].typeEnum == VariableTypeEnum.struct_type)
-                        Emit(string.Format("mov %rbx, %rax"));
+                    Emit(string.Format("push %rbx"));
                     return;
                 }
                 else

@@ -129,6 +129,15 @@
         }
     }
 
+    public enum VariableIdType
+    {
+        Dereference,
+        ArrayAddress,
+        AddressOf,
+        Struct,
+        PureValue
+    }
+
     public class BooleanExpression
     {
         public Expression lhs;
