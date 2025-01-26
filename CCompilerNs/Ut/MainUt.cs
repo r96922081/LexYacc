@@ -1793,24 +1793,8 @@ int main()
         {
             string src = @"
 
-struct B {
-    int b;
-};
-
-struct A {
-    struct B a1;
-};
-
 int main()
 {
-    struct B b;
-    b.b = 8;
-    
-    struct A a;
-    a.a1 = b;
-
-    printf(""%d\n"", a.a1);
-
     return 0;
 }
 

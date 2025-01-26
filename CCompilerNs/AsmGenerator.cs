@@ -1,4 +1,6 @@
-﻿namespace CCompilerNs
+﻿using System.Drawing;
+
+namespace CCompilerNs
 {
     public class AsmGenerator
     {
@@ -362,6 +364,33 @@ new %rbp - 16-> local2
             return size;
         }
 
+        // push dest address
+        // push src address
+        private void GenCopyParamStructAsm(int size)
+        {
+            string copyParamStructLabel = "copy_param_struct_" + +(Gv.sn++);
+            Emit(string.Format("mov $0, %rcx # copy memory macro start. copy struct counter"));
+
+            Emit(string.Format(copyParamStructLabel + ":"));
+            Emit(string.Format("pop %rbx # pop dest address"));
+            Emit(string.Format("pop %rax # pop src address"));
+
+            Emit(string.Format("push %rax"));
+            Emit(string.Format("mov (%rax), %rax"));
+            Emit(string.Format("mov %rax, (%rbx)"));
+
+            Emit(string.Format("pop %rax"));
+            Emit(string.Format("add $8, %rax # add src address"));
+            Emit(string.Format("push %rax"));
+            Emit(string.Format("add $8, %rbx  # add dest address"));
+            Emit(string.Format("push %rbx"));
+
+            Emit(string.Format("add $8, %rcx"));
+            Emit(string.Format("mov ${0}, %rax", size));
+            Emit(string.Format("cmp %rax, %rcx"));
+            Emit(string.Format("jl " + copyParamStructLabel));
+        }
+
         private void CopyParamStruct(int oldLocalSize)
         {
             foreach (var p in paramsInOrder)
@@ -379,21 +408,16 @@ new %rbp - 16-> local2
                 int oldStackOffset = p.stackOffset;
                 p.stackOffset = -(oldLocalSize + size);
                 int oldAddress = p.stackOffset;
-
-                string copyParamStructLabel = "copy_param_struct_" + +(Gv.sn++);
-
-                Emit(string.Format("mov $0, %rcx # copy struct counter"));
-                Emit(string.Format(copyParamStructLabel + ":"));
-                Emit(string.Format("mov {0}(%rbp), %rax # copy struct, set src to %rax", oldStackOffset));
-                Emit(string.Format("add %rcx, %rax"));
+                // push src
+                Emit(string.Format("lea {0}(%rbp), %rax", oldStackOffset));
                 Emit(string.Format("mov (%rax), %rax"));
-                Emit(string.Format("lea {0}(%rbp), %rbx # copy struct, set dest to %rbx", p.stackOffset));
-                Emit(string.Format("add %rcx, %rbx"));
-                Emit(string.Format("mov %rax, (%rbx)"));
-                Emit(string.Format("add $8, %rcx"));
-                Emit(string.Format("mov ${0}, %rax", size));
-                Emit(string.Format("cmp %rax, %rcx"));
-                Emit(string.Format("jl " + copyParamStructLabel));
+                Emit(string.Format("push %rax"));
+
+                // push dest
+                Emit(string.Format("lea {0}(%rbp), %rax", p.stackOffset));                
+                Emit(string.Format("push %rax"));
+
+                GenCopyParamStructAsm(size);
 
                 oldLocalSize += size;
             }
