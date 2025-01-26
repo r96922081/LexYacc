@@ -96,6 +96,13 @@
         public int offset;
     };
 
+    public enum VariableIdLhsRhsType
+    {
+        Lhs,
+        Value,
+        None
+    }
+
     // a[1].b.c[2][3].d
     public class VariableId
     {
@@ -103,16 +110,23 @@
         public List<string> name = new List<string>();
         public List<List<Expression>> arrayIndexList = new List<List<Expression>>();
         public int pointerCount = 0; // **a.b.c
-    }
+        public VariableIdLhsRhsType lhsRhs = VariableIdLhsRhsType.None;
 
-    public enum VariableIdExpressionType
-    {
-        LhsAssignPlain, // a = 3
-        LhsAssignDereference, // **a = 1
-        RhsAddressOf, // &a
-        RhsArrayAddress, // int a[2][3], int* b = a[1], int** b = a;
-        RhsDereference, // int b = **a;
-        RhsStruct, // struct A a
+        public override string ToString()
+        {
+            string s = name[0];
+            for (int i = 1; i < name.Count; i++)
+                s += "." + name[i];
+
+            if (addressOf)
+                s = "&" + s;
+
+            for (int i = 0; i < arrayIndexList.Count; i++)
+                if (arrayIndexList[i].Count != 0)
+                    s += "[]";
+
+            return s;
+        }
     }
 
     public class BooleanExpression

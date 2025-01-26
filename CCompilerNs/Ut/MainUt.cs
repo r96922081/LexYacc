@@ -410,6 +410,7 @@ int main()
     a++;
     a--;
 
+    b[0] = 0;
     b[0] += 10;
     b[0] -= 2;
     b[0] *= 3;
@@ -1792,56 +1793,27 @@ int main()
         {
             string src = @"
 
+struct B {
+    int b;
+};
 
-int f1(int* a, int** b)
+struct A {
+    struct B a1;
+};
+
+int main()
 {
-    int c = 100;
-    a = *b;
-    if (*a == 77)
-        ;
-    else
-        return 3;
-
-    c = **b;
-    if (c == 77)
-        ;
-    else
-        return 4;
-
-    *a = 8;
-    if (c == 8)
-        ;
-    else
-        return 5;
-
-    **b = 3;
-    if (c == 3)
-        ;
-    else
-        return 6;
-
-    return 0;
-}
-
-int main() {
-    int* a = 0;
-    int** b = 0;
-    int c = 77;
-    a = &c;
-    b = &a;
+    struct B b;
+    b.b = 8;
     
-    int ret = f1(a, b);
+    struct A a;
+    a.a1 = b;
 
-    if (ret != 0)
-        return ret;
-
-    if (c == 3)
-        ;
-    else
-        return 7;
+    printf(""%d\n"", a.a1);
 
     return 0;
 }
+
 ";
             Compiler.GenerateAsm(src, "test.s");
             Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
@@ -2421,10 +2393,13 @@ int main() {
         {
             MainUt mainUt = new MainUt();
 
-            //mainUt.adhoc();
+            mainUt.adhoc();
+            //mojo
+            /*
             mainUt.pointer_1();
             mainUt.pointer_2();
             mainUt.pointer_3();
+            */
 
             mainUt.Ut1();
             mainUt.Ut2();

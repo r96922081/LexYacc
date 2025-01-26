@@ -81,27 +81,33 @@ namespace CCompilerNs
             return p;
         }
 
-        private static void PushBaseAddress(string name)
+        private static void PushBaseAddress(VariableId variableId)
         {
+            string name = variableId.name[0];
             Variable variable = GetVariableFrom_Local_Param_Global(name);
 
             if (variable.scope == VariableScopeEnum.global)
             {
-                Emit(string.Format("lea {0}(%rip), %rbx", variable.name));
+                Emit(string.Format("lea {0}(%rip), %rbx # global, {1}", variable.name, variableId.ToString()));
                 Emit(string.Format("push %rbx", variable.name));
             }
             else if (variable.scope == VariableScopeEnum.local)
             {
-                Emit(string.Format("lea {0}(%rbp), %rbx", variable.stackOffset));
+                Emit(string.Format("lea {0}(%rbp), %rbx # local, {1}", variable.stackOffset, variableId.ToString()));
                 Emit(string.Format("push %rbx", variable.name));
             }
             else if (variable.scope == VariableScopeEnum.param)
             {
-                Emit(string.Format("lea {0}(%rbp), %rbx", variable.stackOffset));
+                Emit(string.Format("lea {0}(%rbp), %rbx # param, {1}", variable.stackOffset, variableId.ToString()));
 
                 // if pass array as param, then it's address, need to dereference
                 if (variable.typeInfo.arraySize.Count != 0)
                     Emit("mov (%rbx), %rbx");
+                else if (variable.typeInfo.pointerCount != 0)
+                    throw new NotImplementedException();
+                // struct is copy to local, and offset is adjusted in CopyParamStruct
+                else if (variable.typeInfo.typeEnum == VariableTypeEnum.struct_type)
+                    Emit("mov %rbx, %rbx");
                 Emit(string.Format("push %rbx", variable.name));
             }
         }
@@ -113,11 +119,11 @@ namespace CCompilerNs
             Variable variable = GetVariableFrom_Local_Param_Global(variableId.name[0]);
             VariablePartInfo partInfo = GetVariableTypeInfo(variable, variableId);
 
-            PushBaseAddress(variableId.name[0]);
+            PushBaseAddress(variableId);
 
             for (int i = 0; i < partInfo.count; i++)
-            {
-                if (i > 0)
+              {
+                 if (i > 0)
                 {
                     Emit("pop %rbx");
                     Emit(string.Format("add ${0}, %rbx", partInfo.offsets[i]));
@@ -201,5 +207,11 @@ namespace CCompilerNs
             return string.Join(" -> ", methodNames);
         }
 
+
+        public static void SetVaraibleIdLhsRhsType(Expression e, VariableIdLhsRhsType type)
+        {
+            if (e is VariableIdExpression)
+                ((VariableIdExpression)e).variableId.lhsRhs = type;
+        }
     }
 }
