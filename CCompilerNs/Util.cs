@@ -100,11 +100,12 @@ namespace CCompilerNs
             {
                 Emit(string.Format("lea {0}(%rbp), %rbx # param, {1}", variable.stackOffset, variableId.ToString()));
 
-                // if pass array as param, then it's address, need to dereference
+                // if pass array as param, then it's address
                 if (variable.typeInfo.arraySize.Count != 0)
                     Emit("mov (%rbx), %rbx");
+                // it's address
                 else if (variable.typeInfo.pointerCount != 0)
-                    throw new NotImplementedException();
+                    Emit("mov %rbx, %rbx");
                 // struct is copy to local, and offset is adjusted in CopyParamStruct
                 else if (variable.typeInfo.typeEnum == VariableTypeEnum.struct_type)
                     Emit("mov %rbx, %rbx");

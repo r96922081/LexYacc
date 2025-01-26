@@ -1793,18 +1793,27 @@ int main()
         {
             string src = @"
 
-int main()
+void f1(int* a)
 {
-    return 0;
+    *a = 7;
 }
 
+int main() {
+    int* a = 0;
+    int b = 3;
+    a = &b;
+
+    f1(a);
+
+    return b;
+}
 ";
             Compiler.GenerateAsm(src, "test.s");
             Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
             int exitCode = ret2.Item1;
             string output = ret2.Item2;
 
-              Check(exitCode == 0);
+            Check(exitCode == 7);
         }
 
         public void pointer_1()
@@ -2378,12 +2387,10 @@ int main() {
             MainUt mainUt = new MainUt();
 
             mainUt.adhoc();
-            //mojo
-            /*
+
             mainUt.pointer_1();
             mainUt.pointer_2();
             mainUt.pointer_3();
-            */
 
             mainUt.Ut1();
             mainUt.Ut2();
