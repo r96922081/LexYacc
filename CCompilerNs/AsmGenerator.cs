@@ -546,7 +546,7 @@ ret";
 
             Variable variable = Util.GetVariableFrom_Local_Param_Global(lhs.variableId.name[0]);
             VariablePartInfo partInfo = Util.GetVariableTypeInfo(variable, lhs.variableId);
-            VariableIdType type = Util.GetVariableIdType(lhs.variableId, partInfo);
+            VariableIdType type = Util.GetVariableIdType(variable, lhs.variableId, partInfo);
             if (type == VariableIdType.Struct)
             {
                 // push src
@@ -740,7 +740,7 @@ new %rbp - 16-> local2
         {
             Variable variable = Util.GetVariableFrom_Local_Param_Global(variableId.name[0]);
             VariablePartInfo partInfo = Util.GetVariableTypeInfo(variable, variableId);
-            VariableIdType type = Util.GetVariableIdType(variableId, partInfo);
+            VariableIdType type = Util.GetVariableIdType(variable, variableId, partInfo);
             Util.PushVariableAddress(variableId);
             Emit("pop %rbx");
 
@@ -780,7 +780,7 @@ new %rbp - 16-> local2
                     Emit(string.Format("push %rbx"));
                 }
                 // return value
-                else if (type == VariableIdType.PureValue)
+                else if (type == VariableIdType.PureValue || type == VariableIdType.Pointer)
                 {
                     // only char in char array size is 1, not 8
                     if (variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.GetSize() == 1)

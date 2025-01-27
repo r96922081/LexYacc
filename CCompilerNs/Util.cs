@@ -218,10 +218,16 @@ namespace CCompilerNs
         }
 
 
-        public static VariableIdType GetVariableIdType(VariableId variableId, VariablePartInfo partInfo)
+        public static VariableIdType GetVariableIdType(Variable variable, VariableId variableId, VariablePartInfo partInfo)
         {
             if (variableId.pointerCount > 0)
                 return VariableIdType.Dereference;
+
+            if (variableId.addressOf)
+                return VariableIdType.AddressOf;
+
+            if (variable.typeInfo.pointerCount > 0)
+                return VariableIdType.Pointer;
 
             if (partInfo.count > 1 && partInfo.type[partInfo.count - 1].pointerCount > 0)
                 return VariableIdType.Pointer;
@@ -231,10 +237,6 @@ namespace CCompilerNs
                 if (partInfo.type[i].arraySize.Count != partInfo.arrayIndexList[i].Count) // int a[1][2][3], use a[1]
                     return VariableIdType.ArrayAddress;
             }
-
-
-            if (variableId.addressOf)
-                return VariableIdType.AddressOf;
 
             if (partInfo.type[partInfo.count - 1].typeEnum == VariableTypeEnum.struct_type)
                 return VariableIdType.Struct;

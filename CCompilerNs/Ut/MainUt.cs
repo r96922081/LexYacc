@@ -2581,12 +2581,12 @@ int main() {
     add_node(&head, 40);
     add_node(&head, 50);
 
-    printf(""Original list:\n"");
+    printf(""Original list: "");
     print_list(head);
 
     reverse_list(&head);
 
-    printf(""Reversed list:\n"");
+    printf(""Reversed list: "");
     print_list(head);
 
     return 0;
@@ -2598,14 +2598,14 @@ int main() {
             string output = ret2.Item2;
 
             Check(exitCode == 0);
+            Check(output.Contains("Original list: 50 -> 40 -> 30 -> 20 -> 10 -> NULL"));
+            Check(output.Contains("Reversed list: 10 -> 20 -> 30 -> 40 -> 50 -> NULL"));
         }
 
         public static void RunAllUt()
         {
             MainUt mainUt = new MainUt();
 
-
-            //mainUt.ReverseLinkedList();
             mainUt.adhoc();
 
             mainUt.Ut1();
@@ -2707,6 +2707,7 @@ int main() {
             mainUt.LCS();
             mainUt.MagicNumber();
             mainUt.JobAssignment();
+            mainUt.ReverseLinkedList();
 
         }
 
