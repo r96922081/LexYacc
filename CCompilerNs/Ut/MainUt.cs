@@ -1954,6 +1954,38 @@ int main() {
             Check(exitCode == 0);
         }
 
+        public void pointer_4()
+        {
+            string src = @"
+
+char c[20];
+
+int main() {
+    char* a = malloc(10);
+    strcpy(a, ""hi"");
+    printf(""%s\n"", a);
+
+    char* b = ""hello"";
+    printf(""%s\n"", b);
+
+    sprintf(c, ""%s!%s!"", a, b);
+
+    printf(""%s\n"", c);
+
+    return 0;
+}
+";
+            Compiler.GenerateAsm(src, "test.s");
+            Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
+            int exitCode = ret2.Item1;
+            string output = ret2.Item2;
+
+            Check(exitCode == 0);
+            Check(output.Contains("hi"));
+            Check(output.Contains("hello"));
+            Check(output.Contains("hi!hello!"));
+        }
+
         public void EightQueen()
         {
             string src = @"
@@ -2197,10 +2229,8 @@ void lcs(char str1[], char str2[], int m, int n) {
 }
 
 int main() {
-    char str1[10];
-    strcpy_s(str1, 10, ""AGGTABWZ"");
-    char str2[10];
-    strcpy_s(str2, 10, ""GXTXAYBYZ"");
+    char *str1 = ""AGGTABWZ"";
+    char *str2 = ""GXTXAYBYZ"";
     int m = strlen(str1);
     int n = strlen(str2);
     lcs(str1, str2, m, n);
@@ -2382,6 +2412,7 @@ int main() {
         {
             MainUt mainUt = new MainUt();
 
+            mainUt.pointer_4();
             mainUt.adhoc();
 
             mainUt.pointer_1();
