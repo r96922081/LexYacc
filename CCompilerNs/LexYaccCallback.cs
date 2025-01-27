@@ -102,23 +102,6 @@
             return n;
         }
 
-        public static DeclareStatement DeclareStatement(Declare d, VariableId variableId, bool addressOf)
-        {
-            DeclareStatement n = new DeclareStatement();
-            n.typeInfo = Util.GetType(d.type);
-            n.name = d.name;
-
-            VariableIdExpression e = new VariableIdExpression();
-            e.variableId = variableId;
-            e.variableId.addressOf = addressOf;
-            n.rhsValue = e;
-
-            if (d.arraySize != null)
-                n.typeInfo.arraySize.AddRange(d.arraySize);
-
-            return n;
-        }
-
         public static AssignmentStatement AssignmentStatement(VariableId variableId, Expression expression)
         {
             AssignmentStatement a = new AssignmentStatement();
@@ -128,22 +111,6 @@
 
             a.lhs = e;
             a.rhsValue = expression;
-
-            return a;
-        }
-
-        public static AssignmentStatement AssignmentStatement(VariableId lhs, VariableId rhs, bool addressOf)
-        {
-            AssignmentStatement a = new AssignmentStatement();
-
-            VariableIdExpression e = new VariableIdExpression();
-            e.variableId = lhs;
-            a.lhs = e;
-
-            VariableIdExpression e2 = new VariableIdExpression();
-            e2.variableId = rhs;
-            e2.variableId.addressOf = addressOf;
-            a.rhsValue = e2;
 
             return a;
         }
