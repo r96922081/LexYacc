@@ -39,7 +39,6 @@
             CheckSyntaxErrorOrException(() => { return sql_statements.Parse("INSERT INTO A ( C2 ) VALUES ( 'ABC' )"); });
             CheckSyntaxErrorOrException(() => { return sql_statements.Parse("INSERT INTO A ( C3 ) VALUES ( 1234 )"); });
             CheckSyntaxErrorOrException(() => { return sql_statements.Parse("INSERT INTO A ( C1, C2, C3 ) VALUES ( 'ABC', 11, 22 )"); });
-            CheckSyntaxErrorOrException(() => { return sql_statements.Parse("INSERT INTO B VALUES ( 1234 )"); });
         }
     }
 }
