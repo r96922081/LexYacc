@@ -2033,6 +2033,82 @@ int main() {
             Check(exitCode == 0);
         }
 
+        public void pointer_6()
+        {
+            string src = @"
+
+struct A {
+    int* a0;
+    int a1;
+    int a2;
+};
+
+struct B {
+    int b0;
+    struct A *b1;
+    int* b2;
+    int b3;
+};
+
+struct C {
+    int c1;
+    struct B *c2;
+};
+
+int main() {
+    
+    struct C c;
+    struct B b;
+    struct A a;
+    int x = 8;
+    int *y = 0;
+
+    c.c2 = &b;
+    b.b1 = &a;
+
+    c.c2->b3 = 9;
+    if (c.c2->b3 == 9 && b.b3 == 9)
+        ;
+    else
+        return 1;
+
+    c.c2->b1->a1 = 2;
+
+
+    if (c.c2->b1->a1 == 2 && a.a1 == 2)
+        ;
+    else
+        return 2;
+
+    c.c2->b1->a1 = &x;
+    *c.c2->b1->a1 = 4;
+
+    if (*c.c2->b1->a1 == 4 && x == 4)
+        ;
+    else
+        return 3;
+
+    y = &c.c2->b1->a2;
+    *y = 5;
+
+    if (c.c2->b1->a2 == 5 && *y == 5)
+        ;
+    else
+        return 4;
+
+    printf(""%d"", *c.c2->b1->a1);
+    
+    return 0;
+}
+";
+            Compiler.GenerateAsm(src, "test.s");
+            Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
+            int exitCode = ret2.Item1;
+            string output = ret2.Item2;
+
+            Check(exitCode == 0);
+        }
+
         public void EightQueen()
         {
             string src = @"
@@ -2459,13 +2535,8 @@ int main() {
         {
             MainUt mainUt = new MainUt();
 
-            mainUt.pointer_5();
+            
             mainUt.adhoc();
-
-            mainUt.pointer_1();
-            mainUt.pointer_2();
-            mainUt.pointer_3();
-            mainUt.pointer_4();
 
             mainUt.Ut1();
             mainUt.Ut2();
@@ -2549,6 +2620,13 @@ int main() {
             mainUt.call_c_function_3();
             mainUt.call_c_function_4();
             mainUt.call_c_function_5();
+
+            mainUt.pointer_1();
+            mainUt.pointer_2();
+            mainUt.pointer_3();
+            mainUt.pointer_4();
+            mainUt.pointer_5();
+            mainUt.pointer_6();
 
             mainUt.comment_1();
             mainUt.comment_2();
