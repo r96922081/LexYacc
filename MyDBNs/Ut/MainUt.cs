@@ -20,7 +20,7 @@
                 new GroupByUt().Ut();
                 Console.WriteLine("MyDB Ut Done!");
 
-                //DBConsole.Interactive();
+                DBConsole.Interactive();
             }
             else
             {

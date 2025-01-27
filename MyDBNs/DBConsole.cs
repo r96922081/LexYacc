@@ -128,7 +128,6 @@
         public static void Interactive()
         {
 #if !MarkUserOfSqlCodeGen
-            sql_statements.Parse("load db 1.txt");
             sql_statements.Parse("show tables");
 
 
