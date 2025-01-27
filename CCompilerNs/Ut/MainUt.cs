@@ -2010,7 +2010,19 @@ int main() {
     b.b1 = a;
     a.a1 = 9;
 
-    return b.b1->a1;
+    if (b.b1->a1 == 9)
+        ;
+    else
+        return 1;
+
+    b.b1->a1 = 7;
+
+    if (a.a1 == 7)
+        ;
+    else
+        return 2;
+
+    return 0;
 }
 ";
             Compiler.GenerateAsm(src, "test.s");
@@ -2018,7 +2030,7 @@ int main() {
             int exitCode = ret2.Item1;
             string output = ret2.Item2;
 
-            Check(exitCode == 9);
+            Check(exitCode == 0);
         }
 
         public void EightQueen()
