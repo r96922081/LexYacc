@@ -1,40 +1,246 @@
 //LexYacc Gen
-public class pair
+public class sql_boolean_expression
 {
     public static object Parse(string input)
     {
-        return pairNs.LexYaccNs.LexYacc.Parse(input, pairNs.LexActions.ruleInput, pairNs.YaccActions.ruleInput, pairNs.LexActions.CallAction, pairNs.YaccActions.CallAction);
+        return sql_boolean_expressionNs.LexYaccNs.LexYacc.Parse(input, sql_boolean_expressionNs.LexActions.ruleInput, sql_boolean_expressionNs.YaccActions.ruleInput, sql_boolean_expressionNs.LexActions.CallAction, sql_boolean_expressionNs.YaccActions.CallAction);
     }
 }
 //Yacc Gen 
-namespace pairNs
+namespace sql_boolean_expressionNs
 {
 
-public class Data2 {
-    public static Dictionary<string, string> pair = new Dictionary<string, string>();
-}
+
 
 public class YaccActions{
 
     public static Dictionary<string, Func<Dictionary<int, object>, object>> actions = new Dictionary<string, Func<Dictionary<int, object>, object>>();
 
     public static string ruleInput = @"%{
-public class Data2 {
-    public static Dictionary<string, string> pair = new Dictionary<string, string>();
-}
+
 %}
 
-%token <string> KEY VALUE EQUALS
-%type <int> config line s
+%token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT
+%token <int> POSITIVE_INT
+%token <double> DOUBLE
 
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_column arithmeticExpression_column arithmetic_expression term number_column string_expression string_column string_number_null column
+%type <List<string>> commaSep_column commaSep_column_star commaSep_string_number_null
+%type <List<(string, string)>> column_declare
+%type <HashSet<int>> boolean_expression
+%type <double> number_double
 %%
 
-s: config {
-        foreach (string key in Data2.pair.Keys)
-            Console.WriteLine(key + "" = "" + Data2.pair[key]);
-};
-config : config line {} | line {};
-line: KEY EQUALS VALUE {  Data2.pair.Add($1, $3); };
+boolean_expression:
+boolean_expression AND boolean_expression
+{
+    $1.IntersectWith($3);
+    $$ = $1;
+}
+|
+boolean_expression OR boolean_expression
+{
+    $1.UnionWith($3);
+    $$ = $1;
+}
+| 
+'(' boolean_expression ')'
+{
+    $$ = $2;
+}
+| 
+string_expression '=' string_expression
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, ""="", $3);
+}
+| 
+string_expression '<' string_expression
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, ""<"", $3);
+}
+| 
+string_expression '>' string_expression
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, "">"", $3);
+}
+| 
+string_expression NOT_EQUAL string_expression
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, ""!="", $3);
+}
+| 
+string_expression LESS_OR_EQUAL string_expression
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, ""<="", $3);
+}
+| 
+string_expression GREATER_OR_EQUAL string_expression
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, "">="", $3);
+}
+| 
+arithmeticExpression_column '=' arithmeticExpression_column
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, ""="", $3);
+}
+| 
+arithmeticExpression_column '<' arithmeticExpression_column
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, ""<"", $3);
+}
+| 
+arithmeticExpression_column '>' arithmeticExpression_column
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, "">"", $3);
+}
+| 
+arithmeticExpression_column NOT_EQUAL arithmeticExpression_column
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, ""!="", $3);
+}
+| 
+arithmeticExpression_column LESS_OR_EQUAL arithmeticExpression_column
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, ""<="", $3);
+}
+| 
+arithmeticExpression_column GREATER_OR_EQUAL arithmeticExpression_column
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, "">="", $3);
+}
+|
+column IS NULL
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNullity($1, ""IS"");   
+}
+|
+column IS NOT NULL
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNullity($1, ""IS NOT""); 
+}
+|
+column LIKE STRING
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionLike($1, ""LIKE"", $3);
+}
+|
+column NOT LIKE STRING
+{
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionLike($1, ""NOT LIKE"", $4);
+}
+;
+
+arithmetic_expression:
+arithmetic_expression '+' term 
+{
+    $$ = $1 + "" + "" + $3;
+}
+| 
+arithmetic_expression '-' term 
+{
+    $$ = $1 + "" - "" + $3;
+}
+| 
+term 
+{
+    $$ = $1;
+}
+;
+
+term:
+term '*' number_column 
+{
+    $$ = $1 + "" * "" + $3;
+}
+| term '/' number_column 
+{
+    $$ = $1 + "" / "" + $3;
+}
+|
+term '*' '(' arithmetic_expression ')' 
+{
+    $$ = $1 + "" * ( "" + $4 + "" )"";
+}
+| term '/' '(' arithmetic_expression ')' 
+{
+    $$ = $1 + "" / ( "" + $4 + "" )"";
+}
+|
+'(' arithmetic_expression ')'
+{
+    $$ = $2;
+}
+| 
+number_column
+{
+    $$ = $1;
+}
+;
+
+number_column:
+number_double
+{
+    $$ = """" + $1;
+}
+|
+column
+{
+    $$ = $1;
+}
+;
+
+arithmeticExpression_column:
+ID
+{
+    $$ = $1;
+}
+| 
+arithmetic_expression
+{
+    $$ = $1;
+}
+;
+
+number_double:
+DOUBLE
+{
+    $$ = $1;
+}
+| 
+POSITIVE_INT
+{
+    $$ = $1;
+}
+;
+
+string_expression:
+string_expression TWO_PIPE string_column 
+{
+    $$ = $1 + "" || "" + $3;
+}
+string_column 
+{
+    $$ = $1;
+}
+;
+
+string_column:
+column
+{
+    $$ = $1;
+}
+| 
+STRING
+{
+    $$ = $1;
+}
+;
+
+column:
+ID
+{
+    $$ = $1;
+}
 
 %%";
 
@@ -53,15 +259,451 @@ line: KEY EQUALS VALUE {  Data2.pair.Add($1, $3); };
             return;
 
         actions.Add("Rule_start_Producton_0", Rule_start_Producton_0);
-        actions.Add("Rule_s_Producton_0", Rule_s_Producton_0);
-        actions.Add("Rule_config_Producton_0", Rule_config_Producton_0);
-        actions.Add("Rule_config_LeftRecursionExpand_Producton_0", Rule_config_LeftRecursionExpand_Producton_0);
-        actions.Add("Rule_config_LeftRecursionExpand_Producton_1", Rule_config_LeftRecursionExpand_Producton_1);
-        actions.Add("Rule_line_Producton_0", Rule_line_Producton_0);
+        actions.Add("Rule_boolean_expression_Producton_0", Rule_boolean_expression_Producton_0);
+        actions.Add("Rule_boolean_expression_Producton_1", Rule_boolean_expression_Producton_1);
+        actions.Add("Rule_boolean_expression_Producton_2", Rule_boolean_expression_Producton_2);
+        actions.Add("Rule_boolean_expression_Producton_3", Rule_boolean_expression_Producton_3);
+        actions.Add("Rule_boolean_expression_Producton_4", Rule_boolean_expression_Producton_4);
+        actions.Add("Rule_boolean_expression_Producton_5", Rule_boolean_expression_Producton_5);
+        actions.Add("Rule_boolean_expression_Producton_6", Rule_boolean_expression_Producton_6);
+        actions.Add("Rule_boolean_expression_Producton_7", Rule_boolean_expression_Producton_7);
+        actions.Add("Rule_boolean_expression_Producton_8", Rule_boolean_expression_Producton_8);
+        actions.Add("Rule_boolean_expression_Producton_9", Rule_boolean_expression_Producton_9);
+        actions.Add("Rule_boolean_expression_Producton_10", Rule_boolean_expression_Producton_10);
+        actions.Add("Rule_boolean_expression_Producton_11", Rule_boolean_expression_Producton_11);
+        actions.Add("Rule_boolean_expression_Producton_12", Rule_boolean_expression_Producton_12);
+        actions.Add("Rule_boolean_expression_Producton_13", Rule_boolean_expression_Producton_13);
+        actions.Add("Rule_boolean_expression_Producton_14", Rule_boolean_expression_Producton_14);
+        actions.Add("Rule_boolean_expression_Producton_15", Rule_boolean_expression_Producton_15);
+        actions.Add("Rule_boolean_expression_Producton_16", Rule_boolean_expression_Producton_16);
+        actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_0", Rule_boolean_expression_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_1", Rule_boolean_expression_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_2", Rule_boolean_expression_LeftRecursionExpand_Producton_2);
+        actions.Add("Rule_arithmetic_expression_Producton_0", Rule_arithmetic_expression_Producton_0);
+        actions.Add("Rule_arithmetic_expression_LeftRecursionExpand_Producton_0", Rule_arithmetic_expression_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_arithmetic_expression_LeftRecursionExpand_Producton_1", Rule_arithmetic_expression_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_arithmetic_expression_LeftRecursionExpand_Producton_2", Rule_arithmetic_expression_LeftRecursionExpand_Producton_2);
+        actions.Add("Rule_term_Producton_0", Rule_term_Producton_0);
+        actions.Add("Rule_term_Producton_1", Rule_term_Producton_1);
+        actions.Add("Rule_term_LeftRecursionExpand_Producton_0", Rule_term_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_term_LeftRecursionExpand_Producton_1", Rule_term_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_term_LeftRecursionExpand_Producton_2", Rule_term_LeftRecursionExpand_Producton_2);
+        actions.Add("Rule_term_LeftRecursionExpand_Producton_3", Rule_term_LeftRecursionExpand_Producton_3);
+        actions.Add("Rule_term_LeftRecursionExpand_Producton_4", Rule_term_LeftRecursionExpand_Producton_4);
+        actions.Add("Rule_number_column_Producton_0", Rule_number_column_Producton_0);
+        actions.Add("Rule_number_column_Producton_1", Rule_number_column_Producton_1);
+        actions.Add("Rule_arithmeticExpression_column_Producton_0", Rule_arithmeticExpression_column_Producton_0);
+        actions.Add("Rule_arithmeticExpression_column_Producton_1", Rule_arithmeticExpression_column_Producton_1);
+        actions.Add("Rule_number_double_Producton_0", Rule_number_double_Producton_0);
+        actions.Add("Rule_number_double_Producton_1", Rule_number_double_Producton_1);
+        actions.Add("Rule_string_expression_Producton_0", Rule_string_expression_Producton_0);
+        actions.Add("Rule_string_expression_LeftRecursionExpand_Producton_0", Rule_string_expression_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_string_expression_LeftRecursionExpand_Producton_1", Rule_string_expression_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_string_column_Producton_0", Rule_string_column_Producton_0);
+        actions.Add("Rule_string_column_Producton_1", Rule_string_column_Producton_1);
+        actions.Add("Rule_column_Producton_0", Rule_column_Producton_0);
     }
 
     public static object Rule_start_Producton_0(Dictionary<int, object> objects) { 
-        int _0 = new int();
+        HashSet<int> _0 = new HashSet<int>();
+        HashSet<int> _1 = (HashSet<int>)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_0(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        HashSet<int> _2 = (HashSet<int>)objects[2];
+
+        // user-defined action
+        _0 = _2;
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_1(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn(_1, "=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_2(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn(_1, "<", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_3(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn(_1, ">", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_4(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn(_1, "!=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_5(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn(_1, "<=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_6(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn(_1, ">=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_7(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn(_1, "=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_8(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn(_1, "<", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_9(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn(_1, ">", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_10(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn(_1, "!=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_11(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn(_1, "<=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_12(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn(_1, ">=", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_13(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNullity(_1, "IS");   
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_14(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+        string _4 = (string)objects[4];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNullity(_1, "IS NOT"); 
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_15(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionLike(_1, "LIKE", _3);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_Producton_16(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+        string _4 = (string)objects[4];
+
+        // user-defined action
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionLike(_1, "NOT LIKE", _4);
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        HashSet<int> _1 =(HashSet<int>)objects[1];
+        string _2 = (string)objects[2];
+        HashSet<int> _3 = (HashSet<int>)objects[3];
+
+        // user-defined action
+        _1.IntersectWith(_3);
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+        HashSet<int> _1 =(HashSet<int>)objects[1];
+        string _2 = (string)objects[2];
+        HashSet<int> _3 = (HashSet<int>)objects[3];
+
+        // user-defined action
+        _1.UnionWith(_3);
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_boolean_expression_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
+        HashSet<int> _0 = new HashSet<int>();
+
+        return _0;
+    }
+
+    public static object Rule_arithmetic_expression_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_arithmetic_expression_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 =(string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = _1 + " + " + _3;
+
+        return _0;
+    }
+
+    public static object Rule_arithmetic_expression_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 =(string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = _1 + " - " + _3;
+
+        return _0;
+    }
+
+    public static object Rule_arithmetic_expression_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+
+        return _0;
+    }
+
+    public static object Rule_term_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _2 = (string)objects[2];
+
+        // user-defined action
+        _0 = _2;
+
+        return _0;
+    }
+
+    public static object Rule_term_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_term_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 =(string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = _1 + " * " + _3;
+
+        return _0;
+    }
+
+    public static object Rule_term_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 =(string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = _1 + " / " + _3;
+
+        return _0;
+    }
+
+    public static object Rule_term_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 =(string)objects[1];
+        string _4 = (string)objects[4];
+
+        // user-defined action
+        _0 = _1 + " * ( " + _4 + " )";
+
+        return _0;
+    }
+
+    public static object Rule_term_LeftRecursionExpand_Producton_3(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 =(string)objects[1];
+        string _4 = (string)objects[4];
+
+        // user-defined action
+        _0 = _1 + " / ( " + _4 + " )";
+
+        return _0;
+    }
+
+    public static object Rule_term_LeftRecursionExpand_Producton_4(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+
+        return _0;
+    }
+
+    public static object Rule_number_column_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        double _1 = (double)objects[1];
+
+        // user-defined action
+        _0 = "" + _1;
+
+        return _0;
+    }
+
+    public static object Rule_number_column_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_arithmeticExpression_column_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_arithmeticExpression_column_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_number_double_Producton_0(Dictionary<int, object> objects) { 
+        double _0 = new double();
+        double _1 = (double)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_number_double_Producton_1(Dictionary<int, object> objects) { 
+        double _0 = new double();
         int _1 = (int)objects[1];
 
         // user-defined action
@@ -70,46 +712,60 @@ line: KEY EQUALS VALUE {  Data2.pair.Add($1, $3); };
         return _0;
     }
 
-    public static object Rule_s_Producton_0(Dictionary<int, object> objects) { 
-        int _0 = new int();
-        int _1 = (int)objects[1];
+    public static object Rule_string_expression_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
 
         // user-defined action
-        foreach (string key in Data2.pair.Keys)
-            Console.WriteLine(key + " = " + Data2.pair[key]);
+        _0 = _1;
 
         return _0;
     }
 
-    public static object Rule_config_Producton_0(Dictionary<int, object> objects) { 
-        int _0 = new int();
-        int _1 = (int)objects[1];
-
-        return _0;
-    }
-
-    public static object Rule_config_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
-        int _0 = new int();
-        int _1 =(int)objects[1];
-        int _2 = (int)objects[2];
-
-        return _0;
-    }
-
-    public static object Rule_config_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
-        int _0 = new int();
-
-        return _0;
-    }
-
-    public static object Rule_line_Producton_0(Dictionary<int, object> objects) { 
-        int _0 = new int();
-        string _1 = (string)objects[1];
+    public static object Rule_string_expression_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 =(string)objects[1];
         string _2 = (string)objects[2];
         string _3 = (string)objects[3];
 
         // user-defined action
-        Data2.pair.Add(_1, _3); 
+        _0 = _1 + " || " + _3;
+
+        return _0;
+    }
+
+    public static object Rule_string_expression_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+
+        return _0;
+    }
+
+    public static object Rule_string_column_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_string_column_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_column_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
 
         return _0;
     }
@@ -119,7 +775,7 @@ line: KEY EQUALS VALUE {  Data2.pair.Add($1, $3); };
 
 
 //Lex Gen 
-namespace pairNs
+namespace sql_boolean_expressionNs
 {
 
 
@@ -132,14 +788,102 @@ namespace pairNs
 
         public static Dictionary<int, string> tokenDict = new Dictionary<int, string>
         {
-            { 256, "KEY"},
-            { 257, "VALUE"},
-            { 258, "EQUALS"},
+            { 256, "SELECT"},
+            { 257, "ID"},
+            { 258, "CREATE"},
+            { 259, "TABLE"},
+            { 260, "NUMBER"},
+            { 261, "VARCHAR"},
+            { 262, "INSERT"},
+            { 263, "INTO"},
+            { 264, "VALUES"},
+            { 265, "DELETE"},
+            { 266, "FROM"},
+            { 267, "WHERE"},
+            { 268, "AND"},
+            { 269, "OR"},
+            { 270, "NOT"},
+            { 271, "SHOW"},
+            { 272, "TABLES"},
+            { 273, "NOT_EQUAL"},
+            { 274, "LESS_OR_EQUAL"},
+            { 275, "GREATER_OR_EQUAL"},
+            { 276, "STRING"},
+            { 277, "UPDATE"},
+            { 278, "SET"},
+            { 279, "ORDER"},
+            { 280, "BY"},
+            { 281, "ASC"},
+            { 282, "DESC"},
+            { 283, "DROP"},
+            { 284, "SAVE"},
+            { 285, "LOAD"},
+            { 286, "DB"},
+            { 287, "FILE_PATH"},
+            { 288, "TWO_PIPE"},
+            { 289, "NULL"},
+            { 290, "IS"},
+            { 291, "LIKE"},
+            { 292, "TRANSACTION"},
+            { 293, "COMMIT"},
+            { 294, "ROLLBACK"},
+            { 295, "START"},
+            { 296, "GROUP"},
+            { 297, "MIN"},
+            { 298, "MAX"},
+            { 299, "SUM"},
+            { 300, "COUNT"},
+            { 301, "POSITIVE_INT"},
+            { 302, "DOUBLE"},
         };
 
-        public static int KEY = 256;
-        public static int VALUE = 257;
-        public static int EQUALS = 258;
+        public static int SELECT = 256;
+        public static int ID = 257;
+        public static int CREATE = 258;
+        public static int TABLE = 259;
+        public static int NUMBER = 260;
+        public static int VARCHAR = 261;
+        public static int INSERT = 262;
+        public static int INTO = 263;
+        public static int VALUES = 264;
+        public static int DELETE = 265;
+        public static int FROM = 266;
+        public static int WHERE = 267;
+        public static int AND = 268;
+        public static int OR = 269;
+        public static int NOT = 270;
+        public static int SHOW = 271;
+        public static int TABLES = 272;
+        public static int NOT_EQUAL = 273;
+        public static int LESS_OR_EQUAL = 274;
+        public static int GREATER_OR_EQUAL = 275;
+        public static int STRING = 276;
+        public static int UPDATE = 277;
+        public static int SET = 278;
+        public static int ORDER = 279;
+        public static int BY = 280;
+        public static int ASC = 281;
+        public static int DESC = 282;
+        public static int DROP = 283;
+        public static int SAVE = 284;
+        public static int LOAD = 285;
+        public static int DB = 286;
+        public static int FILE_PATH = 287;
+        public static int TWO_PIPE = 288;
+        public static int NULL = 289;
+        public static int IS = 290;
+        public static int LIKE = 291;
+        public static int TRANSACTION = 292;
+        public static int COMMIT = 293;
+        public static int ROLLBACK = 294;
+        public static int START = 295;
+        public static int GROUP = 296;
+        public static int MIN = 297;
+        public static int MAX = 298;
+        public static int SUM = 299;
+        public static int COUNT = 300;
+        public static int POSITIVE_INT = 301;
+        public static int DOUBLE = 302;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -163,11 +907,71 @@ namespace pairNs
 %}
 
 %%
-[a-zA-Z_][a-zA-Z0-9_]*      { value = yytext; return KEY; }
-[0-9]+                       { value = yytext; return VALUE; }
-""=""                          { return EQUALS; }
-[ \t\n]                      {}
-%%";
+[sS][aA][vV][eE]              { return SAVE; }
+[lL][oO][aA][dD]              { return LOAD; }
+[dD][bB]                      { return DB; }
+[sS][eE][lL][eE][cC][tT]      { return SELECT; }
+[cC][rR][eE][aA][tT][eE]      { return CREATE; }
+[dD][rR][oO][pP]              { return DROP; }
+[tT][aA][bB][lL][eE]          { return TABLE; }
+[iI][nN][sS][eE][rR][tT]      { return INSERT; }
+[dD][eE][lL][eE][tT][eE]      { return DELETE; }
+[uU][pP][dD][aA][tT][eE]      { return UPDATE; }
+[fF][rR][oO][mM]              { return FROM; }
+[iI][nN][tT][oO]              { return INTO; }
+[wW][hH][eE][rR][eE]          { return WHERE; }
+[vV][aA][lL][uU][eE][sS]      { return VALUES; }
+[sS][eE][tT]                  { return SET; }
+[sS][hH][oO][wW]              { return SHOW; }
+[tT][aA][bB][lL][eE][sS]      { return TABLES; }
+[aA][nN][dD]                  { return AND; }
+[oO][rR]                      { return OR; }
+[nN][oO][tT]                  { return NOT; }
+[oO][rR][dD][eE][rR]          { return ORDER; }
+[bB][yY]                      { return BY; }
+[mM][iI][nN]                  { return MIN; }
+[mM][aA][xX]                  { return MAX; }
+[sS][uU][mM]                  { return SUM; }
+[cC][oO][uU][nN][tT]          { return COUNT; }
+[aA][sS][cC]                  { return ASC; }
+[dD][eE][sS][cC]              { return DESC; }
+[nN][uU][lL][lL]              { return NULL; }
+[lL][iI][kK][eE]              { return LIKE; }
+[gG][rR][oO][uU][pP]          { return GROUP; }
+[iI][sS]                      { return IS; }
+[nN][uU][mM][bB][eE][rR]      { value = ""NUMBER""; return NUMBER; }
+[vV][aA][rR][cC][hH][aA][rR]  { value = ""VARCHAR""; return VARCHAR; }
+[sS][tT][aA][rR][tT]          { return START; }
+[cC][oO][mM][mM][iI][tT]      { return COMMIT; }
+[rR][oO][lL][lL][bB][aA][cC][kK]                 { return ROLLBACK; }
+[tT][rR][aA][nN][sS][aA][cC][tT][iI][oO][nN]     { return TRANSACTION; }
+
+""||""                          { return TWO_PIPE; }
+""!=""                          { return NOT_EQUAL; }
+""<=""                          { return LESS_OR_EQUAL; }
+"">=""                          { return GREATER_OR_EQUAL; }
+""{""                           { return '{'; }
+""}""                           { return '}'; }
+""(""                           { return '('; }
+"")""                           { return ')'; }
+"",""                           { return ','; }
+""=""                           { return '='; }
+""<""                           { return '<'; }
+"">""                           { return '>'; }
+""*""                           { return '*'; }
+""+""                           { return '+'; }
+""-""                           { return '-'; }
+""/""                           { return '/'; }
+
+\d+                           { value = int.Parse(yytext); return POSITIVE_INT; }
+-?\d+(\.\d+)?                 { value = double.Parse(yytext); return DOUBLE; }
+'([^']|'')*'                  { value = yytext; return STRING; }
+[a-zA-Z0-9_]*                 { value = yytext; return ID; }
+[a-zA-Z0-9_:\.\\]+            { value = yytext; return FILE_PATH; }
+[ \t\n]                       {}
+
+%%
+";
 
 
         public static void Init()
@@ -178,13 +982,69 @@ namespace pairNs
             actions.Add("LexRule1", LexAction1);
             actions.Add("LexRule2", LexAction2);
             actions.Add("LexRule3", LexAction3);
+            actions.Add("LexRule4", LexAction4);
+            actions.Add("LexRule5", LexAction5);
+            actions.Add("LexRule6", LexAction6);
+            actions.Add("LexRule7", LexAction7);
+            actions.Add("LexRule8", LexAction8);
+            actions.Add("LexRule9", LexAction9);
+            actions.Add("LexRule10", LexAction10);
+            actions.Add("LexRule11", LexAction11);
+            actions.Add("LexRule12", LexAction12);
+            actions.Add("LexRule13", LexAction13);
+            actions.Add("LexRule14", LexAction14);
+            actions.Add("LexRule15", LexAction15);
+            actions.Add("LexRule16", LexAction16);
+            actions.Add("LexRule17", LexAction17);
+            actions.Add("LexRule18", LexAction18);
+            actions.Add("LexRule19", LexAction19);
+            actions.Add("LexRule20", LexAction20);
+            actions.Add("LexRule21", LexAction21);
+            actions.Add("LexRule22", LexAction22);
+            actions.Add("LexRule23", LexAction23);
+            actions.Add("LexRule24", LexAction24);
+            actions.Add("LexRule25", LexAction25);
+            actions.Add("LexRule26", LexAction26);
+            actions.Add("LexRule27", LexAction27);
+            actions.Add("LexRule28", LexAction28);
+            actions.Add("LexRule29", LexAction29);
+            actions.Add("LexRule30", LexAction30);
+            actions.Add("LexRule31", LexAction31);
+            actions.Add("LexRule32", LexAction32);
+            actions.Add("LexRule33", LexAction33);
+            actions.Add("LexRule34", LexAction34);
+            actions.Add("LexRule35", LexAction35);
+            actions.Add("LexRule36", LexAction36);
+            actions.Add("LexRule37", LexAction37);
+            actions.Add("LexRule38", LexAction38);
+            actions.Add("LexRule39", LexAction39);
+            actions.Add("LexRule40", LexAction40);
+            actions.Add("LexRule41", LexAction41);
+            actions.Add("LexRule42", LexAction42);
+            actions.Add("LexRule43", LexAction43);
+            actions.Add("LexRule44", LexAction44);
+            actions.Add("LexRule45", LexAction45);
+            actions.Add("LexRule46", LexAction46);
+            actions.Add("LexRule47", LexAction47);
+            actions.Add("LexRule48", LexAction48);
+            actions.Add("LexRule49", LexAction49);
+            actions.Add("LexRule50", LexAction50);
+            actions.Add("LexRule51", LexAction51);
+            actions.Add("LexRule52", LexAction52);
+            actions.Add("LexRule53", LexAction53);
+            actions.Add("LexRule54", LexAction54);
+            actions.Add("LexRule55", LexAction55);
+            actions.Add("LexRule56", LexAction56);
+            actions.Add("LexRule57", LexAction57);
+            actions.Add("LexRule58", LexAction58);
+            actions.Add("LexRule59", LexAction59);
         }
         public static object LexAction0(string yytext)
         {
             value = null;
 
             // user-defined action
-            value = yytext; return KEY; 
+            return SAVE; 
 
             return 0;
         }
@@ -193,7 +1053,7 @@ namespace pairNs
             value = null;
 
             // user-defined action
-            value = yytext; return VALUE; 
+            return LOAD; 
 
             return 0;
         }
@@ -202,11 +1062,515 @@ namespace pairNs
             value = null;
 
             // user-defined action
-            return EQUALS; 
+            return DB; 
 
             return 0;
         }
         public static object LexAction3(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return SELECT; 
+
+            return 0;
+        }
+        public static object LexAction4(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return CREATE; 
+
+            return 0;
+        }
+        public static object LexAction5(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return DROP; 
+
+            return 0;
+        }
+        public static object LexAction6(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return TABLE; 
+
+            return 0;
+        }
+        public static object LexAction7(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return INSERT; 
+
+            return 0;
+        }
+        public static object LexAction8(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return DELETE; 
+
+            return 0;
+        }
+        public static object LexAction9(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return UPDATE; 
+
+            return 0;
+        }
+        public static object LexAction10(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return FROM; 
+
+            return 0;
+        }
+        public static object LexAction11(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return INTO; 
+
+            return 0;
+        }
+        public static object LexAction12(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return WHERE; 
+
+            return 0;
+        }
+        public static object LexAction13(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return VALUES; 
+
+            return 0;
+        }
+        public static object LexAction14(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return SET; 
+
+            return 0;
+        }
+        public static object LexAction15(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return SHOW; 
+
+            return 0;
+        }
+        public static object LexAction16(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return TABLES; 
+
+            return 0;
+        }
+        public static object LexAction17(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return AND; 
+
+            return 0;
+        }
+        public static object LexAction18(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return OR; 
+
+            return 0;
+        }
+        public static object LexAction19(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return NOT; 
+
+            return 0;
+        }
+        public static object LexAction20(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return ORDER; 
+
+            return 0;
+        }
+        public static object LexAction21(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return BY; 
+
+            return 0;
+        }
+        public static object LexAction22(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return MIN; 
+
+            return 0;
+        }
+        public static object LexAction23(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return MAX; 
+
+            return 0;
+        }
+        public static object LexAction24(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return SUM; 
+
+            return 0;
+        }
+        public static object LexAction25(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return COUNT; 
+
+            return 0;
+        }
+        public static object LexAction26(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return ASC; 
+
+            return 0;
+        }
+        public static object LexAction27(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return DESC; 
+
+            return 0;
+        }
+        public static object LexAction28(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return NULL; 
+
+            return 0;
+        }
+        public static object LexAction29(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return LIKE; 
+
+            return 0;
+        }
+        public static object LexAction30(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return GROUP; 
+
+            return 0;
+        }
+        public static object LexAction31(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return IS; 
+
+            return 0;
+        }
+        public static object LexAction32(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = "NUMBER"; return NUMBER; 
+
+            return 0;
+        }
+        public static object LexAction33(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = "VARCHAR"; return VARCHAR; 
+
+            return 0;
+        }
+        public static object LexAction34(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return START; 
+
+            return 0;
+        }
+        public static object LexAction35(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return COMMIT; 
+
+            return 0;
+        }
+        public static object LexAction36(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return ROLLBACK; 
+
+            return 0;
+        }
+        public static object LexAction37(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return TRANSACTION; 
+
+            return 0;
+        }
+        public static object LexAction38(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return TWO_PIPE; 
+
+            return 0;
+        }
+        public static object LexAction39(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return NOT_EQUAL; 
+
+            return 0;
+        }
+        public static object LexAction40(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return LESS_OR_EQUAL; 
+
+            return 0;
+        }
+        public static object LexAction41(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return GREATER_OR_EQUAL; 
+
+            return 0;
+        }
+        public static object LexAction42(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '{'; 
+
+            return 0;
+        }
+        public static object LexAction43(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '}'; 
+
+            return 0;
+        }
+        public static object LexAction44(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '('; 
+
+            return 0;
+        }
+        public static object LexAction45(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return ')'; 
+
+            return 0;
+        }
+        public static object LexAction46(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return ','; 
+
+            return 0;
+        }
+        public static object LexAction47(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '='; 
+
+            return 0;
+        }
+        public static object LexAction48(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '<'; 
+
+            return 0;
+        }
+        public static object LexAction49(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '>'; 
+
+            return 0;
+        }
+        public static object LexAction50(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '*'; 
+
+            return 0;
+        }
+        public static object LexAction51(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '+'; 
+
+            return 0;
+        }
+        public static object LexAction52(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '-'; 
+
+            return 0;
+        }
+        public static object LexAction53(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '/'; 
+
+            return 0;
+        }
+        public static object LexAction54(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = int.Parse(yytext); return POSITIVE_INT; 
+
+            return 0;
+        }
+        public static object LexAction55(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = double.Parse(yytext); return DOUBLE; 
+
+            return 0;
+        }
+        public static object LexAction56(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return STRING; 
+
+            return 0;
+        }
+        public static object LexAction57(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return ID; 
+
+            return 0;
+        }
+        public static object LexAction58(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return FILE_PATH; 
+
+            return 0;
+        }
+        public static object LexAction59(string yytext)
         {
             value = null;
 
@@ -217,7 +1581,7 @@ namespace pairNs
 
 
 //Src files Gen
-namespace pairNs{
+namespace sql_boolean_expressionNs{
 
 namespace LexYaccNs
 {
@@ -310,7 +1674,7 @@ namespace LexYaccNs
 }
 }
 
-namespace pairNs{
+namespace sql_boolean_expressionNs{
 
 using System.Text;
 
@@ -432,7 +1796,7 @@ namespace LexYaccNs
 
 }
 
-namespace pairNs{
+namespace sql_boolean_expressionNs{
 
 using RegexNs;
 
@@ -465,7 +1829,7 @@ namespace LexYaccNs
 
 }
 
-namespace pairNs{
+namespace sql_boolean_expressionNs{
 
 using RegexNs;
 
@@ -539,7 +1903,7 @@ namespace LexYaccNs
 
 }
 
-namespace pairNs{
+namespace sql_boolean_expressionNs{
 
 namespace LexYaccNs
 {
@@ -563,7 +1927,7 @@ namespace LexYaccNs
 }
 }
 
-namespace pairNs{
+namespace sql_boolean_expressionNs{
 
 using System.Text;
 
@@ -625,7 +1989,7 @@ namespace LexYaccNs
 
 }
 
-namespace pairNs{
+namespace sql_boolean_expressionNs{
 
 using System.Text;
 
@@ -697,11 +2061,6 @@ namespace LexYaccNs
             return -1;
         }
 
-        public static string GetGenFileFolder()
-        {
-            return Path.Combine(Directory.GetCurrentDirectory(), "../../../GenFile");
-        }
-
         public static string FixGenCodeIndention(string input, string indention)
         {
             StringBuilder sb = new StringBuilder();
@@ -762,7 +2121,7 @@ namespace LexYaccNs
 }
 }
 
-namespace pairNs{
+namespace sql_boolean_expressionNs{
 
 /*
 Todo:
@@ -786,7 +2145,7 @@ empty rule is not supported correctly, used only in left recursive internal tran
  */
 }
 
-namespace pairNs{
+namespace sql_boolean_expressionNs{
 
 namespace LexYaccNs
 {
@@ -1026,7 +2385,7 @@ namespace LexYaccNs
 }
 }
 
-namespace pairNs{
+namespace sql_boolean_expressionNs{
 
 using System.Text;
 
@@ -1184,7 +2543,7 @@ namespace LexYaccNs
 
 }
 
-namespace pairNs{
+namespace sql_boolean_expressionNs{
 
 namespace LexYaccNs
 {
@@ -1477,7 +2836,7 @@ namespace LexYaccNs
 }
 }
 
-namespace pairNs{
+namespace sql_boolean_expressionNs{
 
 using System.Runtime.CompilerServices;
 
@@ -1706,7 +3065,7 @@ namespace LexYaccNs
 }
 }
 
-namespace pairNs{
+namespace sql_boolean_expressionNs{
 
 using System.Text;
 
@@ -2266,7 +3625,7 @@ namespace LexYaccNs
 
 }
 
-namespace pairNs{
+namespace sql_boolean_expressionNs{
 
 namespace RegexNs
 {
@@ -2529,7 +3888,7 @@ namespace RegexNs
 }
 }
 
-namespace pairNs{
+namespace sql_boolean_expressionNs{
 
 namespace RegexNs
 {
@@ -3137,7 +4496,7 @@ namespace RegexNs
 
 }
 
-namespace pairNs{
+namespace sql_boolean_expressionNs{
 
 namespace RegexNs
 {

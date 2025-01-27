@@ -1,40 +1,292 @@
 //LexYacc Gen
-public class cal
+public class c_grammar
 {
     public static object Parse(string input)
     {
-        return calNs.LexYaccNs.LexYacc.Parse(input, calNs.LexActions.ruleInput, calNs.YaccActions.ruleInput, calNs.LexActions.CallAction, calNs.YaccActions.CallAction);
+        return c_grammarNs.LexYaccNs.LexYacc.Parse(input, c_grammarNs.LexActions.ruleInput, c_grammarNs.YaccActions.ruleInput, c_grammarNs.LexActions.CallAction, c_grammarNs.YaccActions.CallAction);
     }
 }
 //Yacc Gen 
-namespace calNs
+namespace c_grammarNs
 {
 
-
+public class c_grammar_gv{
+    public static AstNode root;
+}
 
 public class YaccActions{
 
     public static Dictionary<string, Func<Dictionary<int, object>, object>> actions = new Dictionary<string, Func<Dictionary<int, object>, object>>();
 
     public static string ruleInput = @"%{
+
+public class c_grammar_gv{
+    public static AstNode root;
+}
+
 %}
-%token <int> DOUBLE
-%type <int> cal exp term
+
+%token <int> CONSTANT
+%token <string>  VOID INT  ID RETURN
+%type <string>   program
+%type <AstNode>  declList decl funDecl typeSpec returnStmt funName param paramList id constant 
+%type <AstNode>  primaryExpression addExpression mulExpression
+%type <AstNode>  compoundStatement statementList statement expressionStatement assignmentExpression
+
 %%
-cal: exp {$$ = $1; Console.WriteLine(""Result = "" + $1); };
- 
-exp:
-  exp '+' term {$$ = $1 + $3;}
-  | exp '-' term {$$ = $1 - $3;}
-  | term {$$ = $1;}
-  ;
-  
-term:
-  term '*' DOUBLE { $$ = $1 * $3;}
-  | term '/' DOUBLE { $$ = $1 / $3;}
-  | DOUBLE {$$ = $1;}
-  ;
-%%";
+program: declList
+  {
+    c_grammar_gv.root = new AstNode(""program"");
+    c_grammar_gv.root.children.Add($1);
+    c_grammar_gv.root.Print();
+    return c_grammar_gv.root.GetPrintString();
+  };
+declList:
+  declList decl
+  {
+     $1.children.Add($2); 
+     $$ = new AstNode(""declList"");
+     $$.children.AddRange($1.children);
+  }
+  |
+  decl
+  {
+    $$ = new AstNode(""declList"");
+    $$.children.Add($1);  
+  };
+decl:
+  funDecl
+  {
+    $$ = new AstNode(""decl"");
+    $$.children.Add($1);
+  };
+funDecl:
+  typeSpec funName '(' ')' compoundStatement
+  {
+    $$ = new AstNode(""funDecl"");
+    $$.children.Add($1);   
+    $$.children.Add($2);
+    $$.children.Add($5);
+  }
+  |
+  typeSpec funName '(' paramList ')' compoundStatement
+  {
+    $$ = new AstNode(""funDecl"");
+    $$.children.Add($1);   
+    $$.children.Add($2);
+    $$.children.Add($4);
+    $$.children.Add($6);
+  }
+  |
+  typeSpec funName '(' ')' compoundStatement
+  {
+    $$ = new AstNode(""funDecl"");
+    $$.children.Add($1);   
+    $$.children.Add($2);
+    $$.children.Add($5);
+  };
+paramList: 
+  paramList ',' typeSpec id 
+  {
+     $1.children.Add($3); 
+     $1.children.Add($4);
+     $$ = new AstNode(""paramList"");
+     $$.children.AddRange($1.children); 
+  }
+  |
+  typeSpec id 
+  {
+    $$ = new AstNode(""param"");
+    $$.children.Add($1); 
+    $$.children.Add($2);
+  };
+funName:
+    id
+    {
+    $$ = new AstNode(""funName"");
+    $$.children.Add($1);
+    }
+    ;
+returnStmt:
+  RETURN ';'
+  {
+    $$ = new AstNode(""returnStmt"");
+    $$.children.Add(new AstNode(""return""));
+  }
+  |
+  RETURN addExpression ';'
+  {
+    $$ = new AstNode(""returnStmt"");
+    $$.children.Add(new AstNode(""return""));
+    $$.children.Add($2);
+  };
+typeSpec:
+  INT 
+  {
+    $$ = new AstNode(""typeSpec"");
+    $$.children.Add(new AstNode(""int""));  
+  }
+  | 
+  VOID
+  {
+    $$ = new AstNode(""typeSpec"");
+    $$.children.Add(new AstNode(""void""));    
+  };
+id: 
+  ID
+  {
+    $$ = new AstNode(""id"");
+    $$.children.Add(new AstNode($1));
+  };
+constant:
+  CONSTANT
+  {
+    $$ = new AstNode(""constant"");
+    $$.children.Add(new AstNode("""" + $1));
+  };
+primaryExpression: 
+  id
+  {
+    $$ = new AstNode(""primaryExpression"");
+    $$.children.Add($1);    
+  }
+  | 
+  constant
+  {
+    $$ = new AstNode(""primaryExpression"");
+    $$.children.Add($1);      
+  };
+
+mulExpression: 
+    primaryExpression
+    {
+        $$ = new AstNode(""mulExpression"");
+        $$.children.Add($1);       
+    }
+	| mulExpression '*' primaryExpression
+    {
+        $$ = new AstNode(""mulExpression"");
+        $$.children.Add($1); 
+        $$.children.Add(new AstNode(""*"")); 
+        $$.children.Add($3); 
+    }
+	| mulExpression '/' primaryExpression
+    {
+        $$ = new AstNode(""mulExpression"");
+        $$.children.Add($1); 
+        $$.children.Add(new AstNode(""/"")); 
+        $$.children.Add($3); 
+    }
+	| mulExpression '%' primaryExpression
+    {
+        $$ = new AstNode(""mulExpression"");
+        $$.children.Add($1); 
+        $$.children.Add(new AstNode(""%"")); 
+        $$.children.Add($3); 
+    }
+	;
+
+addExpression: 
+    mulExpression
+    {
+        $$ = new AstNode(""addExpression"");
+        $$.children.Add($1);     
+    }
+	| addExpression '+' mulExpression
+    {
+        $$ = new AstNode(""addExpression"");
+        $$.children.Add($1); 
+        $$.children.Add(new AstNode(""+"")); 
+        $$.children.Add($3); 
+    }
+	| addExpression '-' mulExpression
+    {
+        $$ = new AstNode(""addExpression"");
+        $$.children.Add($1); 
+        $$.children.Add(new AstNode(""-"")); 
+        $$.children.Add($3); 
+    }
+	;  
+
+compoundStatement: 
+    '{' '}'
+    {
+        $$ = new AstNode(""compoundStatement"");
+    }
+	| 
+    '{' statementList '}'
+    {
+         $$ = new AstNode(""compoundStatement"");
+         $$.children.Add($2);      
+    }
+	;
+statementList: 
+    statement
+    {
+        $$ = new AstNode(""statementList"");
+        $$.children.Add($1);        
+    }
+	| 
+    statementList statement
+    {
+         $1.children.Add($2); 
+         $$ = new AstNode(""statementList"");
+         $$.children.AddRange($1.children);    
+    }
+	;
+
+statement: 
+    compoundStatement
+    {
+        $$ = new AstNode(""statement"");
+        $$.children.Add($1);        
+    }
+	| 
+    assignmentExpression
+    {
+        $$ = new AstNode(""statement"");
+        $$.children.Add($1);       
+    }
+	| 
+    returnStmt
+    {
+        $$ = new AstNode(""statement"");
+        $$.children.Add($1);       
+    }
+    |
+    expressionStatement
+    {
+        $$ = new AstNode(""statement"");
+        $$.children.Add($1);       
+    }
+	;
+
+assignmentExpression:
+    typeSpec id '=' expressionStatement
+    {
+        $$ = new AstNode(""assignmentExpression"");
+        $$.children.Add($1);    
+        $$.children.Add($2); 
+        $$.children.Add(new AstNode(""="")); 
+        $$.children.Add($4); 
+    }
+    ;
+expressionStatement: 
+    ';'
+    {
+        $$ = new AstNode(""expressionStatement"");
+    }
+	| 
+    addExpression ';'
+    {
+        $$ = new AstNode(""expressionStatement"");
+        $$.children.Add($1);       
+    }
+	;
+
+%%
+
+";
 
 
     public static object CallAction(string functionName, Dictionary<int, object> param)
@@ -51,20 +303,52 @@ term:
             return;
 
         actions.Add("Rule_start_Producton_0", Rule_start_Producton_0);
-        actions.Add("Rule_cal_Producton_0", Rule_cal_Producton_0);
-        actions.Add("Rule_exp_Producton_0", Rule_exp_Producton_0);
-        actions.Add("Rule_exp_LeftRecursionExpand_Producton_0", Rule_exp_LeftRecursionExpand_Producton_0);
-        actions.Add("Rule_exp_LeftRecursionExpand_Producton_1", Rule_exp_LeftRecursionExpand_Producton_1);
-        actions.Add("Rule_exp_LeftRecursionExpand_Producton_2", Rule_exp_LeftRecursionExpand_Producton_2);
-        actions.Add("Rule_term_Producton_0", Rule_term_Producton_0);
-        actions.Add("Rule_term_LeftRecursionExpand_Producton_0", Rule_term_LeftRecursionExpand_Producton_0);
-        actions.Add("Rule_term_LeftRecursionExpand_Producton_1", Rule_term_LeftRecursionExpand_Producton_1);
-        actions.Add("Rule_term_LeftRecursionExpand_Producton_2", Rule_term_LeftRecursionExpand_Producton_2);
+        actions.Add("Rule_program_Producton_0", Rule_program_Producton_0);
+        actions.Add("Rule_declList_Producton_0", Rule_declList_Producton_0);
+        actions.Add("Rule_declList_LeftRecursionExpand_Producton_0", Rule_declList_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_declList_LeftRecursionExpand_Producton_1", Rule_declList_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_decl_Producton_0", Rule_decl_Producton_0);
+        actions.Add("Rule_funDecl_Producton_0", Rule_funDecl_Producton_0);
+        actions.Add("Rule_funDecl_Producton_1", Rule_funDecl_Producton_1);
+        actions.Add("Rule_funDecl_Producton_2", Rule_funDecl_Producton_2);
+        actions.Add("Rule_paramList_Producton_0", Rule_paramList_Producton_0);
+        actions.Add("Rule_paramList_LeftRecursionExpand_Producton_0", Rule_paramList_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_paramList_LeftRecursionExpand_Producton_1", Rule_paramList_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_funName_Producton_0", Rule_funName_Producton_0);
+        actions.Add("Rule_returnStmt_Producton_0", Rule_returnStmt_Producton_0);
+        actions.Add("Rule_returnStmt_Producton_1", Rule_returnStmt_Producton_1);
+        actions.Add("Rule_typeSpec_Producton_0", Rule_typeSpec_Producton_0);
+        actions.Add("Rule_typeSpec_Producton_1", Rule_typeSpec_Producton_1);
+        actions.Add("Rule_id_Producton_0", Rule_id_Producton_0);
+        actions.Add("Rule_constant_Producton_0", Rule_constant_Producton_0);
+        actions.Add("Rule_primaryExpression_Producton_0", Rule_primaryExpression_Producton_0);
+        actions.Add("Rule_primaryExpression_Producton_1", Rule_primaryExpression_Producton_1);
+        actions.Add("Rule_mulExpression_Producton_0", Rule_mulExpression_Producton_0);
+        actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_0", Rule_mulExpression_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_1", Rule_mulExpression_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_2", Rule_mulExpression_LeftRecursionExpand_Producton_2);
+        actions.Add("Rule_mulExpression_LeftRecursionExpand_Producton_3", Rule_mulExpression_LeftRecursionExpand_Producton_3);
+        actions.Add("Rule_addExpression_Producton_0", Rule_addExpression_Producton_0);
+        actions.Add("Rule_addExpression_LeftRecursionExpand_Producton_0", Rule_addExpression_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_addExpression_LeftRecursionExpand_Producton_1", Rule_addExpression_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_addExpression_LeftRecursionExpand_Producton_2", Rule_addExpression_LeftRecursionExpand_Producton_2);
+        actions.Add("Rule_compoundStatement_Producton_0", Rule_compoundStatement_Producton_0);
+        actions.Add("Rule_compoundStatement_Producton_1", Rule_compoundStatement_Producton_1);
+        actions.Add("Rule_statementList_Producton_0", Rule_statementList_Producton_0);
+        actions.Add("Rule_statementList_LeftRecursionExpand_Producton_0", Rule_statementList_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_statementList_LeftRecursionExpand_Producton_1", Rule_statementList_LeftRecursionExpand_Producton_1);
+        actions.Add("Rule_statement_Producton_0", Rule_statement_Producton_0);
+        actions.Add("Rule_statement_Producton_1", Rule_statement_Producton_1);
+        actions.Add("Rule_statement_Producton_2", Rule_statement_Producton_2);
+        actions.Add("Rule_statement_Producton_3", Rule_statement_Producton_3);
+        actions.Add("Rule_assignmentExpression_Producton_0", Rule_assignmentExpression_Producton_0);
+        actions.Add("Rule_expressionStatement_Producton_0", Rule_expressionStatement_Producton_0);
+        actions.Add("Rule_expressionStatement_Producton_1", Rule_expressionStatement_Producton_1);
     }
 
     public static object Rule_start_Producton_0(Dictionary<int, object> objects) { 
-        int _0 = new int();
-        int _1 = (int)objects[1];
+        string _0 = new string("");
+        string _1 = (string)objects[1];
 
         // user-defined action
         _0 = _1;
@@ -72,88 +356,472 @@ term:
         return _0;
     }
 
-    public static object Rule_cal_Producton_0(Dictionary<int, object> objects) { 
-        int _0 = new int();
+    public static object Rule_program_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        AstNode _1 = (AstNode)objects[1];
+
+        // user-defined action
+        c_grammar_gv.root = new AstNode("program");
+        c_grammar_gv.root.children.Add(_1);
+        c_grammar_gv.root.Print();
+        return c_grammar_gv.root.GetPrintString();
+
+        return _0;
+    }
+
+    public static object Rule_declList_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 = (AstNode)objects[1];
+
+        // user-defined action
+        _0 = new AstNode("declList");
+        _0.children.Add(_1);  
+
+        return _0;
+    }
+
+    public static object Rule_declList_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 =(AstNode)objects[1];
+        AstNode _2 = (AstNode)objects[2];
+
+        // user-defined action
+        _1.children.Add(_2); 
+        _0 = new AstNode("declList");
+        _0.children.AddRange(_1.children);
+
+        return _0;
+    }
+
+    public static object Rule_declList_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+
+        return _0;
+    }
+
+    public static object Rule_decl_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 = (AstNode)objects[1];
+
+        // user-defined action
+        _0 = new AstNode("decl");
+        _0.children.Add(_1);
+
+        return _0;
+    }
+
+    public static object Rule_funDecl_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 = (AstNode)objects[1];
+        AstNode _2 = (AstNode)objects[2];
+        AstNode _5 = (AstNode)objects[5];
+
+        // user-defined action
+        _0 = new AstNode("funDecl");
+        _0.children.Add(_1);   
+        _0.children.Add(_2);
+        _0.children.Add(_5);
+
+        return _0;
+    }
+
+    public static object Rule_funDecl_Producton_1(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 = (AstNode)objects[1];
+        AstNode _2 = (AstNode)objects[2];
+        AstNode _4 = (AstNode)objects[4];
+        AstNode _6 = (AstNode)objects[6];
+
+        // user-defined action
+        _0 = new AstNode("funDecl");
+        _0.children.Add(_1);   
+        _0.children.Add(_2);
+        _0.children.Add(_4);
+        _0.children.Add(_6);
+
+        return _0;
+    }
+
+    public static object Rule_funDecl_Producton_2(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 = (AstNode)objects[1];
+        AstNode _2 = (AstNode)objects[2];
+        AstNode _5 = (AstNode)objects[5];
+
+        // user-defined action
+        _0 = new AstNode("funDecl");
+        _0.children.Add(_1);   
+        _0.children.Add(_2);
+        _0.children.Add(_5);
+
+        return _0;
+    }
+
+    public static object Rule_paramList_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 = (AstNode)objects[1];
+        AstNode _2 = (AstNode)objects[2];
+
+        // user-defined action
+        _0 = new AstNode("param");
+        _0.children.Add(_1); 
+        _0.children.Add(_2);
+
+        return _0;
+    }
+
+    public static object Rule_paramList_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 =(AstNode)objects[1];
+        AstNode _3 = (AstNode)objects[3];
+        AstNode _4 = (AstNode)objects[4];
+
+        // user-defined action
+        _1.children.Add(_3); 
+        _1.children.Add(_4);
+        _0 = new AstNode("paramList");
+        _0.children.AddRange(_1.children); 
+
+        return _0;
+    }
+
+    public static object Rule_paramList_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+
+        return _0;
+    }
+
+    public static object Rule_funName_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 = (AstNode)objects[1];
+
+        // user-defined action
+        _0 = new AstNode("funName");
+        _0.children.Add(_1);
+
+        return _0;
+    }
+
+    public static object Rule_returnStmt_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = new AstNode("returnStmt");
+        _0.children.Add(new AstNode("return"));
+
+        return _0;
+    }
+
+    public static object Rule_returnStmt_Producton_1(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        string _1 = (string)objects[1];
+        AstNode _2 = (AstNode)objects[2];
+
+        // user-defined action
+        _0 = new AstNode("returnStmt");
+        _0.children.Add(new AstNode("return"));
+        _0.children.Add(_2);
+
+        return _0;
+    }
+
+    public static object Rule_typeSpec_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = new AstNode("typeSpec");
+        _0.children.Add(new AstNode("int"));  
+
+        return _0;
+    }
+
+    public static object Rule_typeSpec_Producton_1(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = new AstNode("typeSpec");
+        _0.children.Add(new AstNode("void"));    
+
+        return _0;
+    }
+
+    public static object Rule_id_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = new AstNode("id");
+        _0.children.Add(new AstNode(_1));
+
+        return _0;
+    }
+
+    public static object Rule_constant_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
         int _1 = (int)objects[1];
 
         // user-defined action
-        _0 = _1; Console.WriteLine("Result = " + _1); 
+        _0 = new AstNode("constant");
+        _0.children.Add(new AstNode("" + _1));
 
         return _0;
     }
 
-    public static object Rule_exp_Producton_0(Dictionary<int, object> objects) { 
-        int _0 = new int();
-        int _1 = (int)objects[1];
+    public static object Rule_primaryExpression_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 = (AstNode)objects[1];
 
         // user-defined action
-        _0 = _1;
+        _0 = new AstNode("primaryExpression");
+        _0.children.Add(_1);    
 
         return _0;
     }
 
-    public static object Rule_exp_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
-        int _0 = new int();
-        int _1 =(int)objects[1];
-        int _3 = (int)objects[3];
+    public static object Rule_primaryExpression_Producton_1(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 = (AstNode)objects[1];
 
         // user-defined action
-        _0 = _1 + _3;
+        _0 = new AstNode("primaryExpression");
+        _0.children.Add(_1);      
 
         return _0;
     }
 
-    public static object Rule_exp_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
-        int _0 = new int();
-        int _1 =(int)objects[1];
-        int _3 = (int)objects[3];
+    public static object Rule_mulExpression_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 = (AstNode)objects[1];
 
         // user-defined action
-        _0 = _1 - _3;
+        _0 = new AstNode("mulExpression");
+        _0.children.Add(_1);       
 
         return _0;
     }
 
-    public static object Rule_exp_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
-        int _0 = new int();
-
-        return _0;
-    }
-
-    public static object Rule_term_Producton_0(Dictionary<int, object> objects) { 
-        int _0 = new int();
-        int _1 = (int)objects[1];
+    public static object Rule_mulExpression_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 =(AstNode)objects[1];
+        AstNode _3 = (AstNode)objects[3];
 
         // user-defined action
-        _0 = _1;
+        _0 = new AstNode("mulExpression");
+        _0.children.Add(_1); 
+        _0.children.Add(new AstNode("*")); 
+        _0.children.Add(_3); 
 
         return _0;
     }
 
-    public static object Rule_term_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
-        int _0 = new int();
-        int _1 =(int)objects[1];
-        int _3 = (int)objects[3];
+    public static object Rule_mulExpression_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 =(AstNode)objects[1];
+        AstNode _3 = (AstNode)objects[3];
 
         // user-defined action
-        _0 = _1 * _3;
+        _0 = new AstNode("mulExpression");
+        _0.children.Add(_1); 
+        _0.children.Add(new AstNode("/")); 
+        _0.children.Add(_3); 
 
         return _0;
     }
 
-    public static object Rule_term_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
-        int _0 = new int();
-        int _1 =(int)objects[1];
-        int _3 = (int)objects[3];
+    public static object Rule_mulExpression_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 =(AstNode)objects[1];
+        AstNode _3 = (AstNode)objects[3];
 
         // user-defined action
-        _0 = _1 / _3;
+        _0 = new AstNode("mulExpression");
+        _0.children.Add(_1); 
+        _0.children.Add(new AstNode("%")); 
+        _0.children.Add(_3); 
 
         return _0;
     }
 
-    public static object Rule_term_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
-        int _0 = new int();
+    public static object Rule_mulExpression_LeftRecursionExpand_Producton_3(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+
+        return _0;
+    }
+
+    public static object Rule_addExpression_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 = (AstNode)objects[1];
+
+        // user-defined action
+        _0 = new AstNode("addExpression");
+        _0.children.Add(_1);     
+
+        return _0;
+    }
+
+    public static object Rule_addExpression_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 =(AstNode)objects[1];
+        AstNode _3 = (AstNode)objects[3];
+
+        // user-defined action
+        _0 = new AstNode("addExpression");
+        _0.children.Add(_1); 
+        _0.children.Add(new AstNode("+")); 
+        _0.children.Add(_3); 
+
+        return _0;
+    }
+
+    public static object Rule_addExpression_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 =(AstNode)objects[1];
+        AstNode _3 = (AstNode)objects[3];
+
+        // user-defined action
+        _0 = new AstNode("addExpression");
+        _0.children.Add(_1); 
+        _0.children.Add(new AstNode("-")); 
+        _0.children.Add(_3); 
+
+        return _0;
+    }
+
+    public static object Rule_addExpression_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+
+        return _0;
+    }
+
+    public static object Rule_compoundStatement_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+
+        // user-defined action
+        _0 = new AstNode("compoundStatement");
+
+        return _0;
+    }
+
+    public static object Rule_compoundStatement_Producton_1(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _2 = (AstNode)objects[2];
+
+        // user-defined action
+        _0 = new AstNode("compoundStatement");
+        _0.children.Add(_2);      
+
+        return _0;
+    }
+
+    public static object Rule_statementList_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 = (AstNode)objects[1];
+
+        // user-defined action
+        _0 = new AstNode("statementList");
+        _0.children.Add(_1);        
+
+        return _0;
+    }
+
+    public static object Rule_statementList_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 =(AstNode)objects[1];
+        AstNode _2 = (AstNode)objects[2];
+
+        // user-defined action
+        _1.children.Add(_2); 
+        _0 = new AstNode("statementList");
+        _0.children.AddRange(_1.children);    
+
+        return _0;
+    }
+
+    public static object Rule_statementList_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 = (AstNode)objects[1];
+
+        // user-defined action
+        _0 = new AstNode("statement");
+        _0.children.Add(_1);        
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_1(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 = (AstNode)objects[1];
+
+        // user-defined action
+        _0 = new AstNode("statement");
+        _0.children.Add(_1);       
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_2(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 = (AstNode)objects[1];
+
+        // user-defined action
+        _0 = new AstNode("statement");
+        _0.children.Add(_1);       
+
+        return _0;
+    }
+
+    public static object Rule_statement_Producton_3(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 = (AstNode)objects[1];
+
+        // user-defined action
+        _0 = new AstNode("statement");
+        _0.children.Add(_1);       
+
+        return _0;
+    }
+
+    public static object Rule_assignmentExpression_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 = (AstNode)objects[1];
+        AstNode _2 = (AstNode)objects[2];
+        AstNode _4 = (AstNode)objects[4];
+
+        // user-defined action
+        _0 = new AstNode("assignmentExpression");
+        _0.children.Add(_1);    
+        _0.children.Add(_2); 
+        _0.children.Add(new AstNode("=")); 
+        _0.children.Add(_4); 
+
+        return _0;
+    }
+
+    public static object Rule_expressionStatement_Producton_0(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+
+        // user-defined action
+        _0 = new AstNode("expressionStatement");
+
+        return _0;
+    }
+
+    public static object Rule_expressionStatement_Producton_1(Dictionary<int, object> objects) { 
+        AstNode _0 = new AstNode();
+        AstNode _1 = (AstNode)objects[1];
+
+        // user-defined action
+        _0 = new AstNode("expressionStatement");
+        _0.children.Add(_1);       
 
         return _0;
     }
@@ -163,9 +831,9 @@ term:
 
 
 //Lex Gen 
-namespace calNs
+namespace c_grammarNs
 {
-// comment
+
 
     using LexYaccNs;
     public class LexActions
@@ -176,10 +844,18 @@ namespace calNs
 
         public static Dictionary<int, string> tokenDict = new Dictionary<int, string>
         {
-            { 256, "DOUBLE"},
+            { 256, "CONSTANT"},
+            { 257, "VOID"},
+            { 258, "INT"},
+            { 259, "ID"},
+            { 260, "RETURN"},
         };
 
-        public static int DOUBLE = 256;
+        public static int CONSTANT = 256;
+        public static int VOID = 257;
+        public static int INT = 258;
+        public static int ID = 259;
+        public static int RETURN = 260;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -200,19 +876,30 @@ namespace calNs
         }
 
         public static string ruleInput = @"%{
-// comment
 %}
 
 %%
+""void"" { return VOID; }
+""int"" { return INT; }
 (\-)?[0-9]+ { 
             value = int.Parse(yytext);
-            return DOUBLE;
+            return CONSTANT;
 }
-[ \t\n]+   {}
+""return"" { return RETURN; }
+[_a-zA-Z][a-zA-Z0-9]* { value = yytext; return ID; }
+[ \t\n\r]+   {}
+""{""  { return '{'; }
+""}""  { return '}'; }
+""(""  { return '('; }
+"")""  { return ')'; }
+"";""  { return ';'; }
 ""+""  {return '+';}
 ""-""  {return '-';}
 ""*""  {return '*';}
 ""/""  {return '/';}
+""=""  { return '='; }
+""%""  { return '%'; }
+"",""  { return ','; }
 %%";
 
 
@@ -226,20 +913,34 @@ namespace calNs
             actions.Add("LexRule3", LexAction3);
             actions.Add("LexRule4", LexAction4);
             actions.Add("LexRule5", LexAction5);
+            actions.Add("LexRule6", LexAction6);
+            actions.Add("LexRule7", LexAction7);
+            actions.Add("LexRule8", LexAction8);
+            actions.Add("LexRule9", LexAction9);
+            actions.Add("LexRule10", LexAction10);
+            actions.Add("LexRule11", LexAction11);
+            actions.Add("LexRule12", LexAction12);
+            actions.Add("LexRule13", LexAction13);
+            actions.Add("LexRule14", LexAction14);
+            actions.Add("LexRule15", LexAction15);
+            actions.Add("LexRule16", LexAction16);
+            actions.Add("LexRule17", LexAction17);
         }
         public static object LexAction0(string yytext)
         {
             value = null;
 
             // user-defined action
-            value = int.Parse(yytext);
-            return DOUBLE;
+            return VOID; 
 
             return 0;
         }
         public static object LexAction1(string yytext)
         {
             value = null;
+
+            // user-defined action
+            return INT; 
 
             return 0;
         }
@@ -248,7 +949,8 @@ namespace calNs
             value = null;
 
             // user-defined action
-            return '+';
+            value = int.Parse(yytext);
+            return CONSTANT;
 
             return 0;
         }
@@ -257,7 +959,7 @@ namespace calNs
             value = null;
 
             // user-defined action
-            return '-';
+            return RETURN; 
 
             return 0;
         }
@@ -266,11 +968,89 @@ namespace calNs
             value = null;
 
             // user-defined action
-            return '*';
+            value = yytext; return ID; 
 
             return 0;
         }
         public static object LexAction5(string yytext)
+        {
+            value = null;
+
+            return 0;
+        }
+        public static object LexAction6(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '{'; 
+
+            return 0;
+        }
+        public static object LexAction7(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '}'; 
+
+            return 0;
+        }
+        public static object LexAction8(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '('; 
+
+            return 0;
+        }
+        public static object LexAction9(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return ')'; 
+
+            return 0;
+        }
+        public static object LexAction10(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return ';'; 
+
+            return 0;
+        }
+        public static object LexAction11(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '+';
+
+            return 0;
+        }
+        public static object LexAction12(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '-';
+
+            return 0;
+        }
+        public static object LexAction13(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '*';
+
+            return 0;
+        }
+        public static object LexAction14(string yytext)
         {
             value = null;
 
@@ -279,12 +1059,39 @@ namespace calNs
 
             return 0;
         }
+        public static object LexAction15(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '='; 
+
+            return 0;
+        }
+        public static object LexAction16(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return '%'; 
+
+            return 0;
+        }
+        public static object LexAction17(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return ','; 
+
+            return 0;
+        }
     }
 }
 
 
 //Src files Gen
-namespace calNs{
+namespace c_grammarNs{
 
 namespace LexYaccNs
 {
@@ -377,7 +1184,7 @@ namespace LexYaccNs
 }
 }
 
-namespace calNs{
+namespace c_grammarNs{
 
 using System.Text;
 
@@ -499,7 +1306,7 @@ namespace LexYaccNs
 
 }
 
-namespace calNs{
+namespace c_grammarNs{
 
 using RegexNs;
 
@@ -532,7 +1339,7 @@ namespace LexYaccNs
 
 }
 
-namespace calNs{
+namespace c_grammarNs{
 
 using RegexNs;
 
@@ -606,7 +1413,7 @@ namespace LexYaccNs
 
 }
 
-namespace calNs{
+namespace c_grammarNs{
 
 namespace LexYaccNs
 {
@@ -630,7 +1437,7 @@ namespace LexYaccNs
 }
 }
 
-namespace calNs{
+namespace c_grammarNs{
 
 using System.Text;
 
@@ -692,7 +1499,7 @@ namespace LexYaccNs
 
 }
 
-namespace calNs{
+namespace c_grammarNs{
 
 using System.Text;
 
@@ -764,11 +1571,6 @@ namespace LexYaccNs
             return -1;
         }
 
-        public static string GetGenFileFolder()
-        {
-            return Path.Combine(Directory.GetCurrentDirectory(), "../../../GenFile");
-        }
-
         public static string FixGenCodeIndention(string input, string indention)
         {
             StringBuilder sb = new StringBuilder();
@@ -829,7 +1631,7 @@ namespace LexYaccNs
 }
 }
 
-namespace calNs{
+namespace c_grammarNs{
 
 /*
 Todo:
@@ -853,7 +1655,7 @@ empty rule is not supported correctly, used only in left recursive internal tran
  */
 }
 
-namespace calNs{
+namespace c_grammarNs{
 
 namespace LexYaccNs
 {
@@ -1093,7 +1895,7 @@ namespace LexYaccNs
 }
 }
 
-namespace calNs{
+namespace c_grammarNs{
 
 using System.Text;
 
@@ -1251,7 +2053,7 @@ namespace LexYaccNs
 
 }
 
-namespace calNs{
+namespace c_grammarNs{
 
 namespace LexYaccNs
 {
@@ -1544,7 +2346,7 @@ namespace LexYaccNs
 }
 }
 
-namespace calNs{
+namespace c_grammarNs{
 
 using System.Runtime.CompilerServices;
 
@@ -1773,7 +2575,7 @@ namespace LexYaccNs
 }
 }
 
-namespace calNs{
+namespace c_grammarNs{
 
 using System.Text;
 
@@ -2333,7 +3135,7 @@ namespace LexYaccNs
 
 }
 
-namespace calNs{
+namespace c_grammarNs{
 
 namespace RegexNs
 {
@@ -2596,7 +3398,7 @@ namespace RegexNs
 }
 }
 
-namespace calNs{
+namespace c_grammarNs{
 
 namespace RegexNs
 {
@@ -3204,7 +4006,7 @@ namespace RegexNs
 
 }
 
-namespace calNs{
+namespace c_grammarNs{
 
 namespace RegexNs
 {

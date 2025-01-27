@@ -35,7 +35,7 @@ public class LexUt
         List<LexTokenDef> lexTokenDef = new List<LexTokenDef>() { l };
 
         string namespaceStr = "UtLex1";
-        LexCodeGen.GenCode(ruleSection, namespaceStr, lexTokenDef, LexYaccUtil.GetGenFileFolder(), false);
+        LexCodeGen.GenCode(ruleSection, namespaceStr, lexTokenDef, UtUtil.GetLexYaccOutput(), false);
     }
 
     public static void GenCodeUt()

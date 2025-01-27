@@ -1,4 +1,5 @@
 ﻿using LexYaccNs;
+using MyDBNs;
 using System.Diagnostics;
 
 public class LexYaccUt
@@ -9,15 +10,15 @@ public class LexYaccUt
             Trace.Assert(false);
     }
 
-    public static void LexYaccUt1()
+    public static void RunAllUt()
     {
         // gen code
-        LexYaccCodeGen.GenCode("../../../input/pair.l", "../../../input/pair.y", LexYaccUtil.GetGenFileFolder(), "pair");
-        LexYaccCodeGen.GenCode("../../../input/cal.l", "../../../input/cal.y", LexYaccUtil.GetGenFileFolder(), "cal");
-        LexYaccCodeGen.GenCode("../../../input/c_grammar.l", "../../../input/c_grammar.y", LexYaccUtil.GetGenFileFolder(), "c_grammar");
-        LexYaccCodeGen.GenCode("../../../input/sql.l", "../../../input/sql_statements.y", LexYaccUtil.GetGenFileFolder(), "sql_statements");
-        LexYaccCodeGen.GenCode("../../../input/sql.l", "../../../input/sql_boolean_expression.y", LexYaccUtil.GetGenFileFolder(), "sql_boolean_expression");
-        LexYaccCodeGen.GenCode("../../../input/sql.l", "../../../input/sql_arithmetic_expression.y", LexYaccUtil.GetGenFileFolder(), "sql_arithmetic_expression");
+        LexYaccCodeGen.GenCode("../../../Ut/LexYaccInput/pair.l", "../../../Ut/LexYaccInput/pair.y", UtUtil.GetLexYaccOutput(), "pair");
+        LexYaccCodeGen.GenCode("../../../Ut/LexYaccInput/cal.l", "../../../Ut/LexYaccInput/cal.y", UtUtil.GetLexYaccOutput(), "cal");
+        LexYaccCodeGen.GenCode("../../../Ut/LexYaccInput/c_grammar.l", "../../../Ut/LexYaccInput/c_grammar.y", UtUtil.GetLexYaccOutput(), "c_grammar");
+        LexYaccCodeGen.GenCode("../../../Applications/MyDBNs/LexYaccInput/sql.l", "../../../Applications/MyDBNs/LexYaccInput/sql_statements.y", "../../../Applications/MyDBNs/LexYaccOutput/", "sql_statements");
+        LexYaccCodeGen.GenCode("../../../Applications/MyDBNs/LexYaccInput/sql.l", "../../../Applications/MyDBNs/LexYaccInput/sql_boolean_expression.y", "../../../Applications/MyDBNs/LexYaccOutput/", "sql_boolean_expression");
+        LexYaccCodeGen.GenCode("../../../Applications/MyDBNs/LexYaccInput/sql.l", "../../../Applications/MyDBNs/LexYaccInput/sql_arithmetic_expression.y", "../../../Applications/MyDBNs/LexYaccOutput/", "sql_arithmetic_expression");
         LexYaccCodeGen.GenCode("../../../Applications/CCompilerNs/LexYaccInput/cc.l", "../../../Applications/CCompilerNs/LexYaccInput/cc.y", "../../../Applications/CCompilerNs/LexYaccOutput", "cc");
 
 #if !DisableGenCodeUt
@@ -35,11 +36,5 @@ void main(int a, int b)
 ";
         ret = c_grammar.Parse(input);
 #endif
-    }
-
-
-    public static void RunAllUt()
-    {
-        LexYaccUt1();
     }
 }

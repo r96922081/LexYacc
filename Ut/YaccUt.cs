@@ -1181,7 +1181,7 @@ c: 'C' { Console.WriteLine(""it is c"");}
 ";
 
         Yacc yacc = new Yacc(s);
-        YaccCodeGen.GenCode(s, "UtYacc1", LexYaccUtil.GetGenFileFolder(), false);
+        YaccCodeGen.GenCode(s, "UtYacc1", UtUtil.GetLexYaccOutput(), false);
 
 #if !DisableGenCodeUt
         tokens.Clear();
@@ -1210,7 +1210,7 @@ a: 'A' a {Console.WriteLine(""A with a"");} | 'A' {Console.WriteLine(""single A"
 %%
 ";
         Yacc yacc = new Yacc(s);
-        YaccCodeGen.GenCode(s, "UtYacc2", LexYaccUtil.GetGenFileFolder(), false);
+        YaccCodeGen.GenCode(s, "UtYacc2", UtUtil.GetLexYaccOutput(), false);
 
 #if !DisableGenCodeUt
         tokens.Clear();
@@ -1234,7 +1234,7 @@ a: a 'A' {Console.WriteLine(""A with a"");} | 'A' {Console.WriteLine(""single A"
 %%
 ";
         Yacc yacc = new Yacc(s);
-        YaccCodeGen.GenCode(s, "UtYacc3", LexYaccUtil.GetGenFileFolder(), false);
+        YaccCodeGen.GenCode(s, "UtYacc3", UtUtil.GetLexYaccOutput(), false);
 
 #if !DisableGenCodeUt
         tokens.Clear();
@@ -1264,7 +1264,7 @@ a: a 'A' {Console.WriteLine(""a with A"");}
 %%
 ";
         Yacc yacc = new Yacc(s);
-        YaccCodeGen.GenCode(s, "UtYacc4", LexYaccUtil.GetGenFileFolder(), false);
+        YaccCodeGen.GenCode(s, "UtYacc4", UtUtil.GetLexYaccOutput(), false);
 
 #if !DisableGenCodeUt
         tokens.Clear();
@@ -1302,7 +1302,7 @@ exp: exp '-' DOUBLE {$$ = $1 - $3;} | exp '+' DOUBLE {$$ = $1 + $3;} | DOUBLE {$
          */
 
         Yacc yacc = new Yacc(s);
-        YaccCodeGen.GenCode(s, "UtYacc5", LexYaccUtil.GetGenFileFolder(), false);
+        YaccCodeGen.GenCode(s, "UtYacc5", UtUtil.GetLexYaccOutput(), false);
 
 #if !DisableGenCodeUt
         tokens.Clear();
@@ -1341,7 +1341,7 @@ term: DOUBLE {$$ = $1;}
 ";
 
         Yacc yacc = new Yacc(s);
-        YaccCodeGen.GenCode(s, "UtYacc6", LexYaccUtil.GetGenFileFolder(), false);
+        YaccCodeGen.GenCode(s, "UtYacc6", UtUtil.GetLexYaccOutput(), false);
 
 #if !DisableGenCodeUt
         tokens.Clear();
@@ -1382,7 +1382,7 @@ term:
 ";
 
         Yacc yacc = new Yacc(s);
-        YaccCodeGen.GenCode(s, "UtYacc7", LexYaccUtil.GetGenFileFolder(), false);
+        YaccCodeGen.GenCode(s, "UtYacc7", UtUtil.GetLexYaccOutput(), false);
 
 #if !DisableGenCodeUt
         tokens.Clear();

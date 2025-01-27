@@ -4,7 +4,7 @@
     {
         public static string GetUtFileFolder()
         {
-            return @"D:\Github\LexYacc\MyDBNs\Ut\UtFile\";
+            return @"D:\github\LexYacc\Applications\MyDBNs\Ut\UtFile";
         }
     }
 }

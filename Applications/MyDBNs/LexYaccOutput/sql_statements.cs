@@ -3390,11 +3390,6 @@ namespace LexYaccNs
             return -1;
         }
 
-        public static string GetGenFileFolder()
-        {
-            return Path.Combine(Directory.GetCurrentDirectory(), "../../../GenFile");
-        }
-
         public static string FixGenCodeIndention(string input, string indention)
         {
             StringBuilder sb = new StringBuilder();
