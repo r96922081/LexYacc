@@ -308,10 +308,6 @@ declare '=' addExpression ';'
     $$= CCompilerNs.LexYaccCallback.DeclareStatement($1, $3);
 }
 |
-declare '=' '&' variableId ';'
-{
-    $$= CCompilerNs.LexYaccCallback.DeclareStatement($1, $4, true);
-}
 declare ';'
 {
     $$= CCompilerNs.LexYaccCallback.DeclareStatement($1, null);
@@ -336,11 +332,6 @@ assignmentNoSemicolon:
 AssignmentLhsVariableId '=' addExpression
 {
     $$= CCompilerNs.LexYaccCallback.AssignmentStatement($1, $3);
-}
-|
-AssignmentLhsVariableId '=' '&' variableId
-{
-    $$= CCompilerNs.LexYaccCallback.AssignmentStatement($1, $4, true);
 }
 |
 AssignmentLhsVariableId opAssign addExpression
@@ -492,6 +483,11 @@ INT_VALUE
 variableId
 {   
     $$ = CCompilerNs.LexYaccCallback.Expression($1);
+}
+|
+'&' variableId
+{   
+    $$ = CCompilerNs.LexYaccCallback.Expression($2, true);
 }
 |
 pointers variableId

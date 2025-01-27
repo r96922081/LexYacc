@@ -214,6 +214,15 @@
             return v;
         }
 
+        public static Expression Expression(VariableId variableId, bool addressOf)
+        {
+            VariableIdExpression v = new VariableIdExpression();
+            v.variableId = variableId;
+            v.variableId.addressOf = addressOf;
+
+            return v;
+        }
+
         public static Expression Expression(VariableId variableId, string pointers)
         {
             VariableIdExpression v = new VariableIdExpression();
