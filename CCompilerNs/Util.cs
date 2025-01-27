@@ -123,10 +123,12 @@ namespace CCompilerNs
             PushBaseAddress(variableId);
 
             for (int i = 0; i < partInfo.count; i++)
-              {
+            {
                  if (i > 0)
                 {
                     Emit("pop %rbx");
+                    if (variableId.op[i - 1] == "->")
+                        Emit("mov (%rbx), %rbx");
                     Emit(string.Format("add ${0}, %rbx", partInfo.offsets[i]));
                     Emit("push %rbx");
                 }
@@ -220,6 +222,9 @@ namespace CCompilerNs
         {
             if (variableId.pointerCount > 0)
                 return VariableIdType.Dereference;
+
+            if (partInfo.count > 1 && partInfo.type[partInfo.count - 1].pointerCount > 0)
+                return VariableIdType.Pointer;
 
             for (int i = 0; i < partInfo.count; i++)
             {

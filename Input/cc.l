@@ -25,6 +25,7 @@
 "/="                      { value = yytext; return DIVIDE_ASSIGN; }
 "&&"                      { value = yytext; return LOGICAL_AND; }
 "||"                      { value = yytext; return LOGICAL_OR; }
+"->"                      { value = yytext; return ARROW; }
 -?[0-9]+                  { value = int.Parse(yytext); return INT_VALUE; }
 '[ -~]'                   { value = yytext[1]; return CHAR_VALUE; }
 '\\r'                     { value = '\r'; return CHAR_VALUE; }

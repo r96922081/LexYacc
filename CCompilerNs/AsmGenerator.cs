@@ -756,7 +756,8 @@ new %rbp - 16-> local2
 
                 // lhs, always return address
                 if (type == VariableIdType.Dereference || type == VariableIdType.ArrayAddress
-                    || type == VariableIdType.PureValue || type == VariableIdType.Struct)
+                    || type == VariableIdType.PureValue || type == VariableIdType.Struct
+                    || type == VariableIdType.Pointer)
                 {
                     Emit(string.Format("push %rbx"));
                 }

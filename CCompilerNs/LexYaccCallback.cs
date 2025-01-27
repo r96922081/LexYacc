@@ -563,13 +563,14 @@
             return fields;
         }
 
-        public static VariableId VariableId(VariableId prev, string id, List<Expression> arrayIndex)
+        public static VariableId VariableId(VariableId prev, string id, List<Expression> arrayIndex, string op)
         {
             VariableId v = new VariableId();
             if (prev != null)
             {
                 v.name.AddRange(prev.name);
                 v.arrayIndexList.AddRange(prev.arrayIndexList);
+                v.op.AddRange(prev.op);
             }
 
             v.name.Add(id);
@@ -578,6 +579,9 @@
                 v.arrayIndexList.Add(arrayIndex);
             else
                 v.arrayIndexList.Add(new List<Expression>());
+
+            if (op != null)
+                v.op.Add(op);
 
             return v;
         }

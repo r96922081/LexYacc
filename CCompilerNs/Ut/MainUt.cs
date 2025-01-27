@@ -1986,6 +1986,41 @@ int main() {
             Check(output.Contains("hi!hello!"));
         }
 
+        public void pointer_5()
+        {
+            string src = @"
+
+struct A {
+    int a0;
+    int a1;
+    int a2;
+};
+
+struct B {
+    int b0;
+    struct A *b1;
+    int b2;
+    int b3;
+};
+
+int main() {
+    
+    struct B b;
+    struct A a;
+    b.b1 = a;
+    a.a1 = 9;
+
+    return b.b1->a1;
+}
+";
+            Compiler.GenerateAsm(src, "test.s");
+            Tuple<int, string> ret2 = CompileAndRun2("test.s", "test.exe");
+            int exitCode = ret2.Item1;
+            string output = ret2.Item2;
+
+            Check(exitCode == 9);
+        }
+
         public void EightQueen()
         {
             string src = @"
@@ -2412,12 +2447,13 @@ int main() {
         {
             MainUt mainUt = new MainUt();
 
-            mainUt.pointer_4();
+            mainUt.pointer_5();
             mainUt.adhoc();
 
             mainUt.pointer_1();
             mainUt.pointer_2();
             mainUt.pointer_3();
+            mainUt.pointer_4();
 
             mainUt.Ut1();
             mainUt.Ut2();

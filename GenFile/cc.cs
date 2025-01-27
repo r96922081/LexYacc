@@ -21,7 +21,7 @@ public class YaccActions{
 
 %token <char>        CHAR_VALUE
 %token <int>         INT_VALUE
-%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR WHILE BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE STRUCT STRING_LITERAL LOGICAL_AND LOGICAL_OR
+%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR WHILE BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE STRUCT STRING_LITERAL LOGICAL_AND LOGICAL_OR ARROW
 
 %type <CCompilerNs.Program>                    program
 %type <CCompilerNs.GlobalDeclare>              globalDeclare
@@ -375,22 +375,32 @@ AssignmentLhsVariableId incrementDecrement
 variableId:
 variableId '.' ID
 {
-    $$ = CCompilerNs.LexYaccCallback.VariableId($1, $3, null);
+    $$ = CCompilerNs.LexYaccCallback.VariableId($1, $3, null, ""."");
 }
 |
 variableId '.' ID arrayIndex
 {
-    $$ = CCompilerNs.LexYaccCallback.VariableId($1, $3, $4);
+    $$ = CCompilerNs.LexYaccCallback.VariableId($1, $3, $4, ""."");
+}
+|
+variableId ARROW ID
+{
+    $$ = CCompilerNs.LexYaccCallback.VariableId($1, $3, null, $2);
+}
+|
+variableId ARROW ID arrayIndex
+{
+    $$ = CCompilerNs.LexYaccCallback.VariableId($1, $3, $4, $2);
 }
 |
 ID
 {
-    $$ = CCompilerNs.LexYaccCallback.VariableId(null, $1, null);
+    $$ = CCompilerNs.LexYaccCallback.VariableId(null, $1, null, null);
 }
 |
 ID arrayIndex
 {
-    $$ = CCompilerNs.LexYaccCallback.VariableId(null, $1, $2);
+    $$ = CCompilerNs.LexYaccCallback.VariableId(null, $1, $2, null);
 }
 ;
 
@@ -866,6 +876,8 @@ GREATER_OR_EQUAL_SIGN
         actions.Add("Rule_variableId_LeftRecursionExpand_Producton_0", Rule_variableId_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_variableId_LeftRecursionExpand_Producton_1", Rule_variableId_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_variableId_LeftRecursionExpand_Producton_2", Rule_variableId_LeftRecursionExpand_Producton_2);
+        actions.Add("Rule_variableId_LeftRecursionExpand_Producton_3", Rule_variableId_LeftRecursionExpand_Producton_3);
+        actions.Add("Rule_variableId_LeftRecursionExpand_Producton_4", Rule_variableId_LeftRecursionExpand_Producton_4);
         actions.Add("Rule_AssignmentLhsVariableId_Producton_0", Rule_AssignmentLhsVariableId_Producton_0);
         actions.Add("Rule_AssignmentLhsVariableId_Producton_1", Rule_AssignmentLhsVariableId_Producton_1);
         actions.Add("Rule_opAssign_Producton_0", Rule_opAssign_Producton_0);
@@ -1552,7 +1564,7 @@ GREATER_OR_EQUAL_SIGN
         string _1 = (string)objects[1];
 
         // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.VariableId(null, _1, null);
+        _0 = CCompilerNs.LexYaccCallback.VariableId(null, _1, null, null);
 
         return _0;
     }
@@ -1563,7 +1575,7 @@ GREATER_OR_EQUAL_SIGN
         List<CCompilerNs.Expression> _2 = (List<CCompilerNs.Expression>)objects[2];
 
         // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.VariableId(null, _1, _2);
+        _0 = CCompilerNs.LexYaccCallback.VariableId(null, _1, _2, null);
 
         return _0;
     }
@@ -1574,7 +1586,7 @@ GREATER_OR_EQUAL_SIGN
         string _3 = (string)objects[3];
 
         // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.VariableId(_1, _3, null);
+        _0 = CCompilerNs.LexYaccCallback.VariableId(_1, _3, null, ".");
 
         return _0;
     }
@@ -1586,12 +1598,37 @@ GREATER_OR_EQUAL_SIGN
         List<CCompilerNs.Expression> _4 = (List<CCompilerNs.Expression>)objects[4];
 
         // user-defined action
-        _0 = CCompilerNs.LexYaccCallback.VariableId(_1, _3, _4);
+        _0 = CCompilerNs.LexYaccCallback.VariableId(_1, _3, _4, ".");
 
         return _0;
     }
 
     public static object Rule_variableId_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
+        CCompilerNs.VariableId _0 = new CCompilerNs.VariableId();
+        CCompilerNs.VariableId _1 =(CCompilerNs.VariableId)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = CCompilerNs.LexYaccCallback.VariableId(_1, _3, null, _2);
+
+        return _0;
+    }
+
+    public static object Rule_variableId_LeftRecursionExpand_Producton_3(Dictionary<int, object> objects) { 
+        CCompilerNs.VariableId _0 = new CCompilerNs.VariableId();
+        CCompilerNs.VariableId _1 =(CCompilerNs.VariableId)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+        List<CCompilerNs.Expression> _4 = (List<CCompilerNs.Expression>)objects[4];
+
+        // user-defined action
+        _0 = CCompilerNs.LexYaccCallback.VariableId(_1, _3, _4, _2);
+
+        return _0;
+    }
+
+    public static object Rule_variableId_LeftRecursionExpand_Producton_4(Dictionary<int, object> objects) { 
         CCompilerNs.VariableId _0 = new CCompilerNs.VariableId();
 
         return _0;
@@ -2410,6 +2447,7 @@ namespace ccNs
             { 280, "STRING_LITERAL"},
             { 281, "LOGICAL_AND"},
             { 282, "LOGICAL_OR"},
+            { 283, "ARROW"},
         };
 
         public static int CHAR_VALUE = 256;
@@ -2439,6 +2477,7 @@ namespace ccNs
         public static int STRING_LITERAL = 280;
         public static int LOGICAL_AND = 281;
         public static int LOGICAL_OR = 282;
+        public static int ARROW = 283;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -2485,6 +2524,7 @@ namespace ccNs
 ""/=""                      { value = yytext; return DIVIDE_ASSIGN; }
 ""&&""                      { value = yytext; return LOGICAL_AND; }
 ""||""                      { value = yytext; return LOGICAL_OR; }
+""->""                      { value = yytext; return ARROW; }
 -?[0-9]+                  { value = int.Parse(yytext); return INT_VALUE; }
 '[ -~]'                   { value = yytext[1]; return CHAR_VALUE; }
 '\\r'                     { value = '\r'; return CHAR_VALUE; }
@@ -2570,6 +2610,7 @@ namespace ccNs
             actions.Add("LexRule47", LexAction47);
             actions.Add("LexRule48", LexAction48);
             actions.Add("LexRule49", LexAction49);
+            actions.Add("LexRule50", LexAction50);
         }
         public static object LexAction0(string yytext)
         {
@@ -2783,7 +2824,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = int.Parse(yytext); return INT_VALUE; 
+            value = yytext; return ARROW; 
 
             return 0;
         }
@@ -2792,7 +2833,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = yytext[1]; return CHAR_VALUE; 
+            value = int.Parse(yytext); return INT_VALUE; 
 
             return 0;
         }
@@ -2801,7 +2842,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = '\r'; return CHAR_VALUE; 
+            value = yytext[1]; return CHAR_VALUE; 
 
             return 0;
         }
@@ -2810,7 +2851,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = '\n'; return CHAR_VALUE; 
+            value = '\r'; return CHAR_VALUE; 
 
             return 0;
         }
@@ -2819,7 +2860,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = '\t'; return CHAR_VALUE; 
+            value = '\n'; return CHAR_VALUE; 
 
             return 0;
         }
@@ -2828,7 +2869,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = '\0'; return CHAR_VALUE; 
+            value = '\t'; return CHAR_VALUE; 
 
             return 0;
         }
@@ -2837,7 +2878,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            value = '\0'; return CHAR_VALUE; 
 
             return 0;
         }
@@ -2846,7 +2887,7 @@ namespace ccNs
             value = null;
 
             // user-defined action
-            yytext = yytext.Substring(1); value = yytext.Substring(0, yytext.Length - 1); return STRING_LITERAL;
+            value = yytext; return ID; 
 
             return 0;
         }
@@ -2854,14 +2895,14 @@ namespace ccNs
         {
             value = null;
 
+            // user-defined action
+            yytext = yytext.Substring(1); value = yytext.Substring(0, yytext.Length - 1); return STRING_LITERAL;
+
             return 0;
         }
         public static object LexAction32(string yytext)
         {
             value = null;
-
-            // user-defined action
-            return yytext[0]; 
 
             return 0;
         }
@@ -3010,6 +3051,15 @@ namespace ccNs
             return 0;
         }
         public static object LexAction49(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            return yytext[0]; 
+
+            return 0;
+        }
+        public static object LexAction50(string yytext)
         {
             value = null;
 

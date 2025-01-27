@@ -106,17 +106,18 @@
     // a[1].b.c[2][3].d
     public class VariableId
     {
-        public bool addressOf = false; // &a.b.c
         public List<string> name = new List<string>();
         public List<List<Expression>> arrayIndexList = new List<List<Expression>>();
         public int pointerCount = 0; // **a.b.c
+        public bool addressOf = false; // &a.b.c
+        public List<string> op = new List<string>(); // . ->
         public VariableIdLhsRhsType lhsRhs = VariableIdLhsRhsType.None;
 
         public override string ToString()
         {
             string s = name[0];
             for (int i = 1; i < name.Count; i++)
-                s += "." + name[i];
+                s += op[i-1] + name[i];
 
             if (addressOf)
                 s = "&" + s;
@@ -132,6 +133,7 @@
     public enum VariableIdType
     {
         Dereference,
+        Pointer,
         ArrayAddress,
         AddressOf,
         Struct,

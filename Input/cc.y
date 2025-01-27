@@ -3,7 +3,7 @@
 
 %token <char>        CHAR_VALUE
 %token <int>         INT_VALUE
-%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR WHILE BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE STRUCT STRING_LITERAL LOGICAL_AND LOGICAL_OR
+%token <string>      RETURN ID INT_TYPE VOID_TYPE IF ELSE EQUAL_SIGN NOT_EQUAL_SIGN LESS_OR_EQUAL_SIGN GREATER_OR_EQUAL_SIGN FOR WHILE BREAK CONTINUE INCREMENT DECREMENT PLUS_ASSIGN MINUS_ASSIGN MULTIPLY_ASSIGN DIVIDE_ASSIGN CHAR_TYPE STRUCT STRING_LITERAL LOGICAL_AND LOGICAL_OR ARROW
 
 %type <CCompilerNs.Program>                    program
 %type <CCompilerNs.GlobalDeclare>              globalDeclare
@@ -357,22 +357,32 @@ AssignmentLhsVariableId incrementDecrement
 variableId:
 variableId '.' ID
 {
-    $$ = CCompilerNs.LexYaccCallback.VariableId($1, $3, null);
+    $$ = CCompilerNs.LexYaccCallback.VariableId($1, $3, null, ".");
 }
 |
 variableId '.' ID arrayIndex
 {
-    $$ = CCompilerNs.LexYaccCallback.VariableId($1, $3, $4);
+    $$ = CCompilerNs.LexYaccCallback.VariableId($1, $3, $4, ".");
+}
+|
+variableId ARROW ID
+{
+    $$ = CCompilerNs.LexYaccCallback.VariableId($1, $3, null, $2);
+}
+|
+variableId ARROW ID arrayIndex
+{
+    $$ = CCompilerNs.LexYaccCallback.VariableId($1, $3, $4, $2);
 }
 |
 ID
 {
-    $$ = CCompilerNs.LexYaccCallback.VariableId(null, $1, null);
+    $$ = CCompilerNs.LexYaccCallback.VariableId(null, $1, null, null);
 }
 |
 ID arrayIndex
 {
-    $$ = CCompilerNs.LexYaccCallback.VariableId(null, $1, $2);
+    $$ = CCompilerNs.LexYaccCallback.VariableId(null, $1, $2, null);
 }
 ;
 
