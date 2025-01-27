@@ -744,79 +744,41 @@ new %rbp - 16-> local2
             Util.PushVariableAddress(variableId);
             Emit("pop %rbx");
 
-            // lhs used only in assigment, save address in stack, and assignment will use it
+            // lhs used only in assigment, save "address" in stack for assignment to use it
+            // rhs, save "value" in stack
             if (variableId.lhsRhs == VariableIdLhsRhsType.Lhs)
             {
                 if (type == VariableIdType.Dereference)
                 {
-                    if (variable.scope == VariableScopeEnum.local || variable.scope == VariableScopeEnum.global || variable.scope == VariableScopeEnum.param)
-                    {
-                        for (int i = 0; i < variableId.pointerCount; i++)
-                            Emit(string.Format("mov (%rbx), %rbx"));
-                        Emit(string.Format("push %rbx"));
-                        return;
-                    }
-                    throw new Exception();
+                    for (int i = 0; i < variableId.pointerCount; i++)
+                        Emit(string.Format("mov (%rbx), %rbx"));
                 }
-                else if (type == VariableIdType.ArrayAddress)
+
+                // lhs, always return address
+                if (type == VariableIdType.Dereference || type == VariableIdType.ArrayAddress
+                    || type == VariableIdType.PureValue || type == VariableIdType.Struct)
                 {
-                    if (variable.scope == VariableScopeEnum.local || variable.scope == VariableScopeEnum.global || variable.scope == VariableScopeEnum.param)
-                    {
-                        Emit(string.Format("push %rbx"));
-                        return;
-                    }
-                    throw new Exception();
-                }
-                else if (type == VariableIdType.PureValue)
-                {
-                    if (variable.scope == VariableScopeEnum.local || variable.scope == VariableScopeEnum.global || variable.scope == VariableScopeEnum.param)
-                    {
-                        Emit(string.Format("push %rbx"));
-                        return;
-                    }
-                    throw new Exception();
-                }
-                else if (type == VariableIdType.Struct)
-                {
-                    // if pass struct as value, then pass its address
                     Emit(string.Format("push %rbx"));
-                    return;
                 }
                 else
                     throw new Exception();
             }
             else if (variableId.lhsRhs == VariableIdLhsRhsType.Value || variableId.lhsRhs == VariableIdLhsRhsType.Value)
             {
-                if (type == VariableIdType.Dereference)
+                // return address
+                if (type == VariableIdType.ArrayAddress || type == VariableIdType.AddressOf || type == VariableIdType.Struct)
                 {
-                    if (variable.scope == VariableScopeEnum.local || variable.scope == VariableScopeEnum.global || variable.scope == VariableScopeEnum.param)
-                    {
+                    Emit(string.Format("push %rbx"));
+                }
+                // return value
+                else if (type == VariableIdType.Dereference)
+                {
+                    Emit(string.Format("mov (%rbx), %rbx"));
+                    for (int i = 0; i < variableId.pointerCount; i++)
                         Emit(string.Format("mov (%rbx), %rbx"));
-                        for (int i = 0; i < variableId.pointerCount; i++)
-                            Emit(string.Format("mov (%rbx), %rbx"));
-                        Emit(string.Format("push %rbx"));
-                        return;
-                    }
+                    Emit(string.Format("push %rbx"));
                 }
-                else if (type == VariableIdType.ArrayAddress)
-                {
-                    if (variable.scope == VariableScopeEnum.local || variable.scope == VariableScopeEnum.global || variable.scope == VariableScopeEnum.param)
-                    {
-                        Emit(string.Format("mov %rbx, %rax"));
-                        Emit(string.Format("push %rax"));
-                        return;
-                    }
-                    throw new Exception();
-                }
-                else if (type == VariableIdType.AddressOf)
-                {
-                    if (variable.scope == VariableScopeEnum.local || variable.scope == VariableScopeEnum.global || variable.scope == VariableScopeEnum.param)
-                    {
-                        Emit(string.Format("push %rbx"));
-                        return;
-                    }
-                    throw new Exception();
-                }
+                // return value
                 else if (type == VariableIdType.PureValue)
                 {
                     if (variable.scope == VariableScopeEnum.local || variable.scope == VariableScopeEnum.global || variable.scope == VariableScopeEnum.param)
@@ -832,13 +794,6 @@ new %rbp - 16-> local2
                     }
                     else
                         throw new Exception();
-                }
-                else if (type == VariableIdType.Struct)
-                {
-                    // if pass struct as value, then pass its address
-                    Emit(string.Format("push %rbx"));
-
-                    return;
                 }
                 else
                     throw new Exception();

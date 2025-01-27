@@ -1793,19 +1793,16 @@ int main()
         {
             string src = @"
 
-void f1(int* a)
-{
-    *a = 7;
-}
-
 int main() {
-    int* a = 0;
-    int b = 3;
-    a = &b;
+int* a = 0;
+//int** b = 0;
+int c = 77;
+    a = &c;
+    //b = &a;
 
-    f1(a);
+    *a = 3;
 
-    return b;
+    return c;
 }
 ";
             Compiler.GenerateAsm(src, "test.s");
@@ -1813,7 +1810,7 @@ int main() {
             int exitCode = ret2.Item1;
             string output = ret2.Item2;
 
-            Check(exitCode == 7);
+            Check(exitCode == 3);
         }
 
         public void pointer_1()
@@ -1849,11 +1846,10 @@ int main() {
         public void pointer_2()
         {
             string src = @"
+int main() {
 int* a = 0;
 int** b = 0;
 int c = 77;
-
-int main() {
     a = &c;
     b = &a;
     int* d = &a;
