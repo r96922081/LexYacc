@@ -1,7 +1,6 @@
 ﻿/* 
 ==
 not supported:
-- pointer
 - macro
 - %
 - variable in {} scope
