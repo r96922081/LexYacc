@@ -765,12 +765,12 @@ new %rbp - 16-> local2
             }
             else if (variableId.lhsRhs == VariableIdLhsRhsType.Value || variableId.lhsRhs == VariableIdLhsRhsType.Value)
             {
-                // return address
+                // return address as value
                 if (type == VariableIdType.ArrayAddress || type == VariableIdType.AddressOf || type == VariableIdType.Struct)
                 {
                     Emit(string.Format("push %rbx"));
                 }
-                // return value
+                // return pure value
                 else if (type == VariableIdType.Dereference)
                 {
                     Emit(string.Format("mov (%rbx), %rbx"));
@@ -781,19 +781,13 @@ new %rbp - 16-> local2
                 // return value
                 else if (type == VariableIdType.PureValue)
                 {
-                    if (variable.scope == VariableScopeEnum.local || variable.scope == VariableScopeEnum.global || variable.scope == VariableScopeEnum.param)
-                    {
-                        // only char in char array size is 1, not 8
-                        if (variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.GetSize() == 1)
-                            Emit(string.Format("movzbq (%rbx), %rax"));
-                        else
-                            Emit(string.Format("mov (%rbx), %rax"));
-
-                        Emit(string.Format("push %rax"));
-                        return;
-                    }
+                    // only char in char array size is 1, not 8
+                    if (variableId.arrayIndexList[0].Count != 0 && variable.typeInfo.GetSize() == 1)
+                        Emit(string.Format("movzbq (%rbx), %rax"));
                     else
-                        throw new Exception();
+                        Emit(string.Format("mov (%rbx), %rax"));
+
+                    Emit(string.Format("push %rax"));
                 }
                 else
                     throw new Exception();
