@@ -1,4 +1,7 @@
-﻿namespace MyDBNs
+﻿using System.Collections.Generic;
+using System.Text;
+
+namespace MyDBNs
 {
     public class Select
     {
@@ -145,16 +148,18 @@
             return s;
         }
 
-
-        public static SelectedData SelectRows(List<AggregationColumn> columns, string tableName, string whereCondition, List<string> groupByColumns, List<OrderByColumn> orderByColumns)
+        private static string GetGroupKey(object[] row, List<int> groupByColumnIndex)
         {
-            Table table = Util.GetTable(tableName);
+            StringBuilder sb = new StringBuilder();
 
-            List<string> columns2 = columns.Select(column => column.columnName).ToList();
+            foreach (int index in groupByColumnIndex)
+                sb.Append(row[index] + "_");
 
-            SelectedData s = GetSelectedData(table, columns2, whereCondition);
-            string tempTableName = "TempTable_" + (Gv.sn++);
+            return sb.ToString();
+        }
 
+        private static void CreateTempGroupByTable(Table srcTable, string tempTableName, List<AggregationColumn> columns)
+        {
             List<ColumnDeclare> columnDeclares = new List<ColumnDeclare>();
             for (int i = 0; i < columns.Count; i++)
             {
@@ -162,32 +167,112 @@
                 if (column.op == AggerationOperation.COUNT || column.op == AggerationOperation.SUM)
                 {
                     ColumnDeclare c = new ColumnDeclare();
-                    c.columnName = column.columnName;
+                    c.columnName = "Column_" + i + "_" + column.op;
                     c.type = ColumnType.NUMBER;
                     c.size = -1;
                     columnDeclares.Add(c);
                 }
-                else
+                else if (column.op == AggerationOperation.MAX || column.op == AggerationOperation.MIN || column.op == AggerationOperation.NONE)
                 {
                     ColumnDeclare c = new ColumnDeclare();
-                    c.columnName = column.columnName;
-                    c.type = table.GetColumnType(column.columnName);
-                    c.size = table.GetColumnSize(column.columnName);
+                    if (column.op != AggerationOperation.NONE)
+                        c.columnName = column.columnName;
+                    else
+                        c.columnName = "Column_" + i + "_" + column.op;
+                    c.type = srcTable.GetColumnType(column.columnName);
+                    c.size = srcTable.GetColumnSize(column.columnName);
                     columnDeclares.Add(c);
                 }
             }
 
             Create.CreateTable(tempTableName, columnDeclares);
-            List<string> row = new List<string>();
+        }
 
-            foreach (AggregationColumn column in columns)
+        public static SelectedData SelectRows(List<AggregationColumn> aggregrationColumns, string tableName, string whereCondition, List<string> groupByColumns, List<OrderByColumn> orderByColumns)
+        {
+            Table srcTable = Util.GetTable(tableName);
+            List<int> groupByColumnIndex = Util.GetColumnIndexFromName(srcTable, groupByColumns);
+            List<int> aggregrationColumnIndex = Util.GetColumnIndexFromName(srcTable, aggregrationColumns.Select(s => s.columnName).ToList());
+            SelectedData src = GetSelectedData(srcTable, aggregrationColumns.Select(s => s.columnName).ToList(), whereCondition);
+
+            string tempTableName = "TempTable_" + (Gv.sn++);
+            CreateTempGroupByTable(srcTable, tempTableName, aggregrationColumns);
+            Dictionary<string, object[]> groupByRows = new Dictionary<string, object[]>();
+
+            foreach (int rowIndex in src.selectedRows)
             {
+                object[] srcRow = srcTable.rows[rowIndex];
 
+                string groupKey = GetGroupKey(srcRow, groupByColumnIndex);
+                if (!groupByRows.ContainsKey(groupKey)) 
+                {
+                    object[] rowToInsert = new object[aggregrationColumns.Count];
+                    for (int i = 0; i < aggregrationColumns.Count; i++)
+                    {
+                        AggregationColumn a = aggregrationColumns[i];
+
+                        if (a.op == AggerationOperation.MAX || a.op == AggerationOperation.MIN || a.op == AggerationOperation.NONE)
+                            rowToInsert[i] = srcRow[aggregrationColumnIndex[i]];
+                        else if (a.op == AggerationOperation.COUNT)
+                            rowToInsert[i] = 1d;
+                        else if (a.op == AggerationOperation.SUM)
+                            rowToInsert[i] = srcRow[aggregrationColumnIndex[i]];
+                }
+                    groupByRows.Add(groupKey, rowToInsert);
+                }
+                else
+                {
+                    object[] groupByRow = groupByRows[groupKey];
+                    for (int i = 0; i < aggregrationColumns.Count; i++)
+                    {
+                        AggregationColumn a = aggregrationColumns[i];
+                        object groupByValue = groupByRow[i];
+                        object srcValue = srcRow[aggregrationColumnIndex[i]];
+
+                        if (a.op == AggerationOperation.NONE)
+                            ;
+                        else if (a.op == AggerationOperation.MAX)
+                        {
+                            if (groupByValue == null)
+                                groupByRow[i] = srcValue;
+                            else if (srcValue == null)
+                                ;
+                            else if (Util.CompareNonNullColumn(srcValue, groupByValue) > 0)
+                                groupByRow[i] = srcValue;
+                        }
+                        else if (a.op == AggerationOperation.MIN)
+                        {
+                            if (groupByValue == null)
+                                groupByRow[i] = srcValue;
+                            else if (srcValue == null)
+                                ;
+                            else if (Util.CompareNonNullColumn(srcValue, groupByValue) < 0)
+                                groupByRow[i] = srcValue;
+                        }
+                        else if (a.op == AggerationOperation.COUNT)
+                        {
+                            if (srcValue != null)
+                                groupByRow[i] = ((double)groupByRow[i]) + 1;
+                        }
+                        else if (a.op == AggerationOperation.SUM)
+                        {
+                            if (srcValue != null)
+                                groupByRow[i] = ((double)groupByRow[i]) + (double)srcValue;
+                        }
+                    }
+                }
             }
 
-            //Insert.InsertRows(tempTableName, null);
+            Insert.InsertRows(tempTableName, groupByRows.Values.ToList());
 
-            return null;
+            SelectedData result = new SelectedData();
+            result.table = Util.GetTable(tempTableName);
+            result.columnNames = result.table.columnNames.ToList();
+            result.columnIndex = Enumerable.Range(0, aggregrationColumns.Count).ToList();
+            result.selectedRows = Enumerable.Range(0, result.table.rows.Count).ToList();
+            result.needToDispose = true;
+
+            return result;
         }
     }
 }

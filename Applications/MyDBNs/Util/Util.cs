@@ -60,5 +60,25 @@
             // remove ' ' 
             return s.Substring(1, s.Length - 2);
         }
+
+        public static List<int> GetColumnIndexFromName(Table t, List<string> names)
+        {
+            List<int> ret = new List<int>();
+            foreach (string name in names)
+                ret.Add(t.GetColumnIndex(name));
+
+            return ret;
+        }
+
+        public static int CompareNonNullColumn(object column1, object column2)
+        {
+            if (column1 == null || column2 == null)
+                throw new Exception();
+
+            if (column1 is double)
+                return ((double)column1).CompareTo((double)column2);
+            else
+                return ((string)column1).CompareTo((string)column2);
+        }
     }
 }

@@ -498,6 +498,11 @@ SUM '(' column ')'
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.SUM, $3);
 }
+|
+ column
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.NONE, $1);
+}
 ;
 
 number_column:

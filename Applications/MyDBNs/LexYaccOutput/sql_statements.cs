@@ -516,6 +516,11 @@ SUM '(' column ')'
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.SUM, $3);
 }
+|
+ column
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.NONE, $1);
+}
 ;
 
 number_column:
@@ -744,6 +749,7 @@ ID
         actions.Add("Rule_aggregation_column_Producton_1", Rule_aggregation_column_Producton_1);
         actions.Add("Rule_aggregation_column_Producton_2", Rule_aggregation_column_Producton_2);
         actions.Add("Rule_aggregation_column_Producton_3", Rule_aggregation_column_Producton_3);
+        actions.Add("Rule_aggregation_column_Producton_4", Rule_aggregation_column_Producton_4);
         actions.Add("Rule_number_column_Producton_0", Rule_number_column_Producton_0);
         actions.Add("Rule_number_column_Producton_1", Rule_number_column_Producton_1);
         actions.Add("Rule_string_number_column_Producton_0", Rule_string_number_column_Producton_0);
@@ -1973,6 +1979,16 @@ ID
 
         // user-defined action
         _0 = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.SUM, _3);
+
+        return _0;
+    }
+
+    public static object Rule_aggregation_column_Producton_4(Dictionary<int, object> objects) { 
+        MyDBNs.AggregationColumn _0 = new MyDBNs.AggregationColumn();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.NONE, _1);
 
         return _0;
     }

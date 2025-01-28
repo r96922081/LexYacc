@@ -66,16 +66,17 @@ namespace MyDBNs
         }
     }
 
-    public class SelectedData
+    public class SelectedData : IDisposable
     {
         public Table table;
         public List<string> columnNames = new List<string>();
         public List<int> columnIndex = new List<int>();
         public List<int> selectedRows = new List<int>();
+        public bool needToDispose = false;
 
         public void Dispose()
         {
-            if (table.tableName.ToUpper().StartsWith("TempTable_"))
+            if (needToDispose)
                 Drop.DropTable(table.tableName);
         }
     }
@@ -134,7 +135,8 @@ namespace MyDBNs
         MAX,
         MIN,
         COUNT,
-        SUM
+        SUM,
+        NONE
     }
 
     public class AggregationColumn

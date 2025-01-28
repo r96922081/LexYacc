@@ -89,10 +89,14 @@
 
         private static void PrintResult(string input, object result)
         {
+
             if (input.ToUpper().Trim().StartsWith("SELECT"))
             {
                 SelectedData s = (SelectedData)result;
-                PrintTable(s);
+                using (s)
+                {
+                    PrintTable(s);
+                }
             }
             else if (input.ToUpper().Trim().StartsWith("INSERT"))
             {

@@ -17,7 +17,8 @@
 
             sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_GROUP_BY.DB"));
 
-            object s = sql_statements.Parse("SELECT MAX(C3) FROM A GROUP BY C3");
+            object s = sql_statements.Parse("SELECT C1, MAX(C3) FROM A GROUP BY C1");
+            List<object[]> rows = Util.GetSelectRows((SelectedData)s);
         }
     }
 }

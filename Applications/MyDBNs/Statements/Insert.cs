@@ -58,5 +58,11 @@
 
             return 1;
         }
+
+        public static void InsertRows(string tableName, List<object[]> rows)
+        {
+            Table table = Util.GetTable(tableName);
+            table.rows.AddRange(rows);
+        }
     }
 }
