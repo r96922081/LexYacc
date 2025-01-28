@@ -57,7 +57,7 @@
             Table table = Util.GetTable(tableName);
 
             Stack<UndoUpdateData> undos = new Stack<UndoUpdateData>();
-#if !MarkUserOfSqlCodeGen
+
             SqlBooleanExpressionLexYaccCallback.table = table;
             HashSet<int> selectedRows = null;
             if (condition != null)
@@ -102,7 +102,6 @@
                 return table.rows.Count;
             else
                 return selectedRows.Count;
-#endif
         }
     }
 }

@@ -15,11 +15,8 @@
                 return rows;
             }
 
-#if !MarkUserOfSqlCodeGen
             SqlBooleanExpressionLexYaccCallback.table = Util.GetTable(tableName);
             rows = new List<int>((HashSet<int>)sql_boolean_expression.Parse(condition));
-#endif
-
             rows.Sort();
             return rows;
         }
@@ -135,8 +132,6 @@
 
         public static SelectedData SelectRows(List<string> columnInput, string tableName, string whereCondition, List<OrderByColumn> orders)
         {
-#if !MarkUserOfSqlCodeGen
-
             Table table = Util.GetTable(tableName);
 
             SelectedData s = GetSelectedData(table, columnInput, whereCondition);
@@ -148,7 +143,51 @@
             }
 
             return s;
-#endif
+        }
+
+
+        public static SelectedData SelectRows(List<AggregationColumn> columns, string tableName, string whereCondition, List<string> groupByColumns, List<OrderByColumn> orderByColumns)
+        {
+            Table table = Util.GetTable(tableName);
+
+            List<string> columns2 = columns.Select(column => column.columnName).ToList();
+
+            SelectedData s = GetSelectedData(table, columns2, whereCondition);
+            string tempTableName = "TempTable_" + (Gv.sn++);
+
+            List<ColumnDeclare> columnDeclares = new List<ColumnDeclare>();
+            for (int i = 0; i < columns.Count; i++)
+            {
+                AggregationColumn column = columns[i];
+                if (column.op == AggerationOperation.COUNT || column.op == AggerationOperation.SUM)
+                {
+                    ColumnDeclare c = new ColumnDeclare();
+                    c.columnName = column.columnName;
+                    c.type = ColumnType.NUMBER;
+                    c.size = -1;
+                    columnDeclares.Add(c);
+                }
+                else
+                {
+                    ColumnDeclare c = new ColumnDeclare();
+                    c.columnName = column.columnName;
+                    c.type = table.GetColumnType(column.columnName);
+                    c.size = table.GetColumnSize(column.columnName);
+                    columnDeclares.Add(c);
+                }
+            }
+
+            Create.CreateTable(tempTableName, columnDeclares);
+            List<string> row = new List<string>();
+
+            foreach (AggregationColumn column in columns)
+            {
+
+            }
+
+            //Insert.InsertRows(tempTableName, null);
+
+            return null;
         }
     }
 }

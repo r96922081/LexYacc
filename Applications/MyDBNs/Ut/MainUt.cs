@@ -8,7 +8,7 @@
 
             if (Gv.ut)
             {
-                //new GroupByUt().Ut();
+                new GroupByUt().Ut();
                 new CreateDropUt().Ut();
                 new InsertUt().Ut();
                 new SelectUt().Ut();

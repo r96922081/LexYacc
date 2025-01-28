@@ -145,7 +145,7 @@ SELECT column_star_list FROM table
 |
 SELECT aggregation_columns FROM table GROUP BY columns
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $7, null);
 }
 |
 SELECT column_star_list FROM table ORDER BY order_by_columns
@@ -155,7 +155,7 @@ SELECT column_star_list FROM table ORDER BY order_by_columns
 |
 SELECT aggregation_columns FROM table GROUP BY columns ORDER BY order_by_columns
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $10);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $7, $10);
 }
 |
 SELECT column_star_list FROM table WHERE boolean_expression
@@ -165,7 +165,7 @@ SELECT column_star_list FROM table WHERE boolean_expression
 |
 SELECT aggregation_columns FROM table WHERE boolean_expression GROUP BY columns
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, $9, null);
 }
 |
 SELECT column_star_list FROM table WHERE boolean_expression ORDER BY order_by_columns
@@ -175,7 +175,7 @@ SELECT column_star_list FROM table WHERE boolean_expression ORDER BY order_by_co
 |
 SELECT aggregation_columns FROM table WHERE boolean_expression GROUP BY columns ORDER BY order_by_columns
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, $12);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, $9, $12);
 }
 ;
 
@@ -1128,7 +1128,7 @@ ID
         List<string> _7 = (List<string>)objects[7];
 
         // user-defined action
-        _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, null, null);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, null, _7, null);
 
         return _0;
     }
@@ -1163,7 +1163,7 @@ ID
         List<MyDBNs.OrderByColumn> _10 = (List<MyDBNs.OrderByColumn>)objects[10];
 
         // user-defined action
-        _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, null, _10);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, null, _7, _10);
 
         return _0;
     }
@@ -1196,7 +1196,7 @@ ID
         List<string> _9 = (List<string>)objects[9];
 
         // user-defined action
-        _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, _6, null);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, _6, _9, null);
 
         return _0;
     }
@@ -1235,7 +1235,7 @@ ID
         List<MyDBNs.OrderByColumn> _12 = (List<MyDBNs.OrderByColumn>)objects[12];
 
         // user-defined action
-        _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, _6, _12);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, _6, _9, _12);
 
         return _0;
     }

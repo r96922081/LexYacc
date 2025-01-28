@@ -6,7 +6,6 @@
         {
             Table table = Util.GetTable(tableName);
             List<object[]> deletedRows = new List<object[]>();
-#if !MarkUserOfSqlCodeGen
             SqlBooleanExpressionLexYaccCallback.table = table;
             HashSet<int> rows = null;
 
@@ -36,7 +35,6 @@
             }
 
             return deleteCount;
-#endif
         }
     }
 }

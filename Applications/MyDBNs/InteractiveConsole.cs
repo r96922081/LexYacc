@@ -127,7 +127,6 @@
 
         public static void Interactive()
         {
-#if !MarkUserOfSqlCodeGen
             sql_statements.Parse("show tables");
 
 
@@ -161,7 +160,6 @@
                 {
                     System.Console.Write("\ninput sql: ");
                 }
-#endif
             }
         }
     }

@@ -152,10 +152,9 @@
             return MyDBNs.Select.SelectRows(columns, tableName, condition, orderByColumns);
         }
 
-        public static SelectedData Select(List<AggregationColumn> columns, string tableName, string condition, List<OrderByColumn> orderByColumns)
+        public static SelectedData Select(List<AggregationColumn> columns, string tableName, string condition, List<string> groupByColumns, List<OrderByColumn> orderByColumns)
         {
-            return null;
-            //return MyDBNs.Select.SelectRows(columns, tableName, condition, orders);
+            return MyDBNs.Select.SelectRows(columns, tableName, condition, groupByColumns, orderByColumns);
         }
 
         public static void BooleanExpression(ref string booleanExpression, string lhs, string op, string rhs)

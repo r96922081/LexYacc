@@ -4,6 +4,7 @@ namespace MyDBNs
 {
     public class Gv
     {
+        public static int sn = 0;
         public static bool ut = false;
     }
 
@@ -30,6 +31,11 @@ namespace MyDBNs
         public ColumnType GetColumnType(string columnName)
         {
             return columnNameToTypesMap[columnName.ToUpper()];
+        }
+
+        public int GetColumnSize(string columnName)
+        {
+            return columnSizes[GetColumnIndex(columnName.ToUpper())];
         }
     }
 
@@ -66,6 +72,12 @@ namespace MyDBNs
         public List<string> columnNames = new List<string>();
         public List<int> columnIndex = new List<int>();
         public List<int> selectedRows = new List<int>();
+
+        public void Dispose()
+        {
+            if (table.tableName.ToUpper().StartsWith("TempTable_"))
+                Drop.DropTable(table.tableName);
+        }
     }
 
     public class OrderBy
