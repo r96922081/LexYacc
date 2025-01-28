@@ -9,8 +9,8 @@
 %type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start
 %type <List<string>>                                 columns column_star_list string_number_null_list
 %type <List<(string, string)>>                       column_declare
-%type <List<object>>                                 order_by_column
-%type <List<List<object>>>                           order_by_columns
+%type <MyDBNs.OrderByColumn>                         order_by_column
+%type <List<MyDBNs.OrderByColumn>>                   order_by_columns
 %type <MyDBNs.AggregationColumn>                     aggregation_column
 %type <List<MyDBNs.AggregationColumn>>               aggregation_columns
 %type <List<MyDBNs.SetExpressionType>>               set_expression
@@ -308,12 +308,12 @@ string_number_null
 order_by_columns:
 order_by_column
 {
-    MyDBNs.SqlStatementsLexYaccCallback.CommaSepOrderBy($$, $1, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumns($1, null);
 }
 |
-order_by_column ',' order_by_columns
+order_by_columns ',' order_by_column
 {
-    MyDBNs.SqlStatementsLexYaccCallback.CommaSepOrderBy($$, $1, $3);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumns($3, $1);
 };
 
 aggregation_columns:
@@ -420,32 +420,32 @@ arithmetic_expression
 order_by_column:
 column
 {
-    MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref $$, $1, true);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn($1, true);
 }
 | 
 column ASC
 {
-    MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref $$, $1, true);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn($1, true);
 }
 | 
 column DESC
 {
-    MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref $$, $1, false);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn($1, false);
 }
 | 
 POSITIVE_INT
 {
-    MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref $$, $1, true);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn($1, true);
 }
 | 
 POSITIVE_INT ASC
 {
-    MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref $$, $1, true);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn($1, true);
 }
 | 
 POSITIVE_INT DESC
 {
-    MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref $$, $1, false);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn($1, false);
 }
 ;
 

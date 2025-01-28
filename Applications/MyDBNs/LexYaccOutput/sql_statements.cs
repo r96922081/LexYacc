@@ -27,8 +27,8 @@ public class YaccActions{
 %type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start
 %type <List<string>>                                 columns column_star_list string_number_null_list
 %type <List<(string, string)>>                       column_declare
-%type <List<object>>                                 order_by_column
-%type <List<List<object>>>                           order_by_columns
+%type <MyDBNs.OrderByColumn>                         order_by_column
+%type <List<MyDBNs.OrderByColumn>>                   order_by_columns
 %type <MyDBNs.AggregationColumn>                     aggregation_column
 %type <List<MyDBNs.AggregationColumn>>               aggregation_columns
 %type <List<MyDBNs.SetExpressionType>>               set_expression
@@ -326,12 +326,12 @@ string_number_null
 order_by_columns:
 order_by_column
 {
-    MyDBNs.SqlStatementsLexYaccCallback.CommaSepOrderBy($$, $1, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumns($1, null);
 }
 |
-order_by_column ',' order_by_columns
+order_by_columns ',' order_by_column
 {
-    MyDBNs.SqlStatementsLexYaccCallback.CommaSepOrderBy($$, $1, $3);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumns($3, $1);
 };
 
 aggregation_columns:
@@ -438,32 +438,32 @@ arithmetic_expression
 order_by_column:
 column
 {
-    MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref $$, $1, true);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn($1, true);
 }
 | 
 column ASC
 {
-    MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref $$, $1, true);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn($1, true);
 }
 | 
 column DESC
 {
-    MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref $$, $1, false);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn($1, false);
 }
 | 
 POSITIVE_INT
 {
-    MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref $$, $1, true);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn($1, true);
 }
 | 
 POSITIVE_INT ASC
 {
-    MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref $$, $1, true);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn($1, true);
 }
 | 
 POSITIVE_INT DESC
 {
-    MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref $$, $1, false);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn($1, false);
 }
 ;
 
@@ -696,7 +696,8 @@ ID
         actions.Add("Rule_string_number_null_list_Producton_0", Rule_string_number_null_list_Producton_0);
         actions.Add("Rule_string_number_null_list_Producton_1", Rule_string_number_null_list_Producton_1);
         actions.Add("Rule_order_by_columns_Producton_0", Rule_order_by_columns_Producton_0);
-        actions.Add("Rule_order_by_columns_Producton_1", Rule_order_by_columns_Producton_1);
+        actions.Add("Rule_order_by_columns_LeftRecursionExpand_Producton_0", Rule_order_by_columns_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_order_by_columns_LeftRecursionExpand_Producton_1", Rule_order_by_columns_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_aggregation_columns_Producton_0", Rule_aggregation_columns_Producton_0);
         actions.Add("Rule_aggregation_columns_LeftRecursionExpand_Producton_0", Rule_aggregation_columns_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_aggregation_columns_LeftRecursionExpand_Producton_1", Rule_aggregation_columns_LeftRecursionExpand_Producton_1);
@@ -1116,7 +1117,7 @@ ID
         string _4 = (string)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
-        List<List<object>> _7 = (List<List<object>>)objects[7];
+        List<MyDBNs.OrderByColumn> _7 = (List<MyDBNs.OrderByColumn>)objects[7];
 
         // user-defined action
         _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, null, _7);
@@ -1135,7 +1136,7 @@ ID
         List<string> _7 = (List<string>)objects[7];
         string _8 = (string)objects[8];
         string _9 = (string)objects[9];
-        List<List<object>> _10 = (List<List<object>>)objects[10];
+        List<MyDBNs.OrderByColumn> _10 = (List<MyDBNs.OrderByColumn>)objects[10];
 
         // user-defined action
         _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, null, _10);
@@ -1186,7 +1187,7 @@ ID
         string _6 = (string)objects[6];
         string _7 = (string)objects[7];
         string _8 = (string)objects[8];
-        List<List<object>> _9 = (List<List<object>>)objects[9];
+        List<MyDBNs.OrderByColumn> _9 = (List<MyDBNs.OrderByColumn>)objects[9];
 
         // user-defined action
         _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, _6, _9);
@@ -1207,7 +1208,7 @@ ID
         List<string> _9 = (List<string>)objects[9];
         string _10 = (string)objects[10];
         string _11 = (string)objects[11];
-        List<List<object>> _12 = (List<List<object>>)objects[12];
+        List<MyDBNs.OrderByColumn> _12 = (List<MyDBNs.OrderByColumn>)objects[12];
 
         // user-defined action
         _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, _6, _12);
@@ -1555,22 +1556,28 @@ ID
     }
 
     public static object Rule_order_by_columns_Producton_0(Dictionary<int, object> objects) { 
-        List<List<object>> _0 = new List<List<object>>();
-        List<object> _1 = (List<object>)objects[1];
+        List<MyDBNs.OrderByColumn> _0 = new List<MyDBNs.OrderByColumn>();
+        MyDBNs.OrderByColumn _1 = (MyDBNs.OrderByColumn)objects[1];
 
         // user-defined action
-        MyDBNs.SqlStatementsLexYaccCallback.CommaSepOrderBy(_0, _1, null);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumns(_1, null);
 
         return _0;
     }
 
-    public static object Rule_order_by_columns_Producton_1(Dictionary<int, object> objects) { 
-        List<List<object>> _0 = new List<List<object>>();
-        List<object> _1 = (List<object>)objects[1];
-        List<List<object>> _3 = (List<List<object>>)objects[3];
+    public static object Rule_order_by_columns_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        List<MyDBNs.OrderByColumn> _0 = new List<MyDBNs.OrderByColumn>();
+        List<MyDBNs.OrderByColumn> _1 =(List<MyDBNs.OrderByColumn>)objects[1];
+        MyDBNs.OrderByColumn _3 = (MyDBNs.OrderByColumn)objects[3];
 
         // user-defined action
-        MyDBNs.SqlStatementsLexYaccCallback.CommaSepOrderBy(_0, _1, _3);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumns(_3, _1);
+
+        return _0;
+    }
+
+    public static object Rule_order_by_columns_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        List<MyDBNs.OrderByColumn> _0 = new List<MyDBNs.OrderByColumn>();
 
         return _0;
     }
@@ -1799,65 +1806,65 @@ ID
     }
 
     public static object Rule_order_by_column_Producton_0(Dictionary<int, object> objects) { 
-        List<object> _0 = new List<object>();
+        MyDBNs.OrderByColumn _0 = new MyDBNs.OrderByColumn();
         string _1 = (string)objects[1];
 
         // user-defined action
-        MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref _0, _1, true);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(_1, true);
 
         return _0;
     }
 
     public static object Rule_order_by_column_Producton_1(Dictionary<int, object> objects) { 
-        List<object> _0 = new List<object>();
+        MyDBNs.OrderByColumn _0 = new MyDBNs.OrderByColumn();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
 
         // user-defined action
-        MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref _0, _1, true);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(_1, true);
 
         return _0;
     }
 
     public static object Rule_order_by_column_Producton_2(Dictionary<int, object> objects) { 
-        List<object> _0 = new List<object>();
+        MyDBNs.OrderByColumn _0 = new MyDBNs.OrderByColumn();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
 
         // user-defined action
-        MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref _0, _1, false);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(_1, false);
 
         return _0;
     }
 
     public static object Rule_order_by_column_Producton_3(Dictionary<int, object> objects) { 
-        List<object> _0 = new List<object>();
+        MyDBNs.OrderByColumn _0 = new MyDBNs.OrderByColumn();
         int _1 = (int)objects[1];
 
         // user-defined action
-        MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref _0, _1, true);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(_1, true);
 
         return _0;
     }
 
     public static object Rule_order_by_column_Producton_4(Dictionary<int, object> objects) { 
-        List<object> _0 = new List<object>();
+        MyDBNs.OrderByColumn _0 = new MyDBNs.OrderByColumn();
         int _1 = (int)objects[1];
         string _2 = (string)objects[2];
 
         // user-defined action
-        MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref _0, _1, true);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(_1, true);
 
         return _0;
     }
 
     public static object Rule_order_by_column_Producton_5(Dictionary<int, object> objects) { 
-        List<object> _0 = new List<object>();
+        MyDBNs.OrderByColumn _0 = new MyDBNs.OrderByColumn();
         int _1 = (int)objects[1];
         string _2 = (string)objects[2];
 
         // user-defined action
-        MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref _0, _1, false);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(_1, false);
 
         return _0;
     }

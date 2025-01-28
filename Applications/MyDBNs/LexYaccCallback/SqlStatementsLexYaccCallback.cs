@@ -128,12 +128,12 @@
             columnDeclare.AddRange(prevColumnDeclare);
         }
 
-        public static SelectedData Select(List<string> columns, string tableName, string condition, List<List<object>> orders)
+        public static SelectedData Select(List<string> columns, string tableName, string condition, List<OrderByColumn> orderByColumns)
         {
-            return MyDBNs.Select.SelectRows(columns, tableName, condition, orders);
+            return MyDBNs.Select.SelectRows(columns, tableName, condition, orderByColumns);
         }
 
-        public static SelectedData Select(List<AggregationColumn> columns, string tableName, string condition, List<List<object>> orders)
+        public static SelectedData Select(List<AggregationColumn> columns, string tableName, string condition, List<OrderByColumn> orderByColumns)
         {
             return null;
             //return MyDBNs.Select.SelectRows(columns, tableName, condition, orders);
@@ -144,18 +144,28 @@
             booleanExpression = lhs + " " + op + " " + rhs;
         }
 
-        public static void OrderByColumn(ref List<object> ret, object column, bool ascending)
+        public static OrderByColumn OrderByColumn(object column, bool ascending)
         {
-            ret.Add(column);
-            ret.Add(ascending);
+            OrderByColumn o = new OrderByColumn();
+            o.column = column;
+            if (ascending)
+                o.direction = OrderByDirection.ASEC;
+            else
+                o.direction = OrderByDirection.DESC;
+
+            return o;
         }
 
-        public static void CommaSepOrderBy(List<List<object>> condition, List<object> order, List<List<object>> prevCondition)
+        public static List<OrderByColumn> OrderByColumns(OrderByColumn order, List<OrderByColumn> prev)
         {
-            condition.Add(order);
+            List<OrderByColumn> l = new List<OrderByColumn>();
 
-            if (prevCondition != null)
-                condition.AddRange(prevCondition);
+            if (prev != null)
+                l.AddRange(prev);
+
+            l.Add(order);
+
+            return l;
         }
 
         public static List<AggregationColumn> CommaSepAggregrationColumn(List<AggregationColumn> prev, AggregationColumn column)

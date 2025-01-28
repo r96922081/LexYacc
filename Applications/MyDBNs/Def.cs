@@ -68,7 +68,7 @@
 
     public class OrderBy
     {
-        public bool ascending;
+        public OrderByDirection op;
         public int selectColumnIndex;
     }
 
@@ -94,6 +94,18 @@
             this.columnIndex = columnIndex;
             this.value = value;
         }
+    }
+
+    public enum OrderByDirection
+    {
+        ASEC,
+        DESC
+    }
+
+    public class OrderByColumn
+    {
+        public object column;
+        public OrderByDirection direction;
     }
 
     public enum AggerationOperation

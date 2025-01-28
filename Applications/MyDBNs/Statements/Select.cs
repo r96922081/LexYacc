@@ -62,21 +62,21 @@
 
 
 
-        private static List<OrderBy> ConvertOrder(SelectedData s, List<List<object>> orders)
+        private static List<OrderBy> ConvertOrder(SelectedData s, List<OrderByColumn> orders)
         {
             List<OrderBy> orders2 = new List<OrderBy>();
-            foreach (List<object> order in orders)
+            foreach (OrderByColumn order in orders)
             {
-                bool ascending = (bool)order[1];
+                OrderByDirection ascending = order.direction;
 
-                if (order[0] is string)
+                if (order.column is string)
                 {
                     for (int i = 0; i < s.columnNames.Count; i++)
                     {
-                        if (s.columnNames[i].ToUpper() == ((string)order[0]).ToUpper())
+                        if (s.columnNames[i].ToUpper() == ((string)order.column).ToUpper())
                         {
                             OrderBy orderBy = new OrderBy();
-                            orderBy.ascending = ascending;
+                            orderBy.op = ascending;
                             orderBy.selectColumnIndex = (int)i;
                             orders2.Add(orderBy);
                             break;
@@ -86,8 +86,8 @@
                 else
                 {
                     OrderBy orderBy = new OrderBy();
-                    orderBy.ascending = ascending;
-                    orderBy.selectColumnIndex = (int)order[0] - 1;
+                    orderBy.op = ascending;
+                    orderBy.selectColumnIndex = (int)order.column - 1;
                     orders2.Add(orderBy);
                 }
             }
@@ -112,17 +112,17 @@
                         continue;
 
                     if (lhsValue == null && rhsValue != null)
-                        return o.ascending ? -1 : 1;
+                        return o.op == OrderByDirection.ASEC ? -1 : 1;
 
                     if (lhsValue != null && rhsValue == null)
-                        return o.ascending ? 1 : -1;
+                        return o.op == OrderByDirection.ASEC ? 1 : -1;
 
                     ColumnType t = s.table.columnTypes[columnIndex];
 
                     IComparable lCompara = (IComparable)lhsValue;
                     IComparable rCompara = (IComparable)rhsValue;
 
-                    int result = (o.ascending ? 1 : -1) * lCompara.CompareTo(rCompara);
+                    int result = (o.op == OrderByDirection.ASEC ? 1 : -1) * lCompara.CompareTo(rCompara);
                     if (result == 0)
                         continue;
 
@@ -133,7 +133,7 @@
             });
         }
 
-        public static SelectedData SelectRows(List<string> columnInput, string tableName, string whereCondition, List<List<object>> orders)
+        public static SelectedData SelectRows(List<string> columnInput, string tableName, string whereCondition, List<OrderByColumn> orders)
         {
 #if !MarkUserOfSqlCodeGen
 
