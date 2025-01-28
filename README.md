@@ -27,13 +27,21 @@ input.txt:
         int b = 3;
         return a * b - 4;
     }
-
-　
- 
+　 
 
     c_grammar.Parse("input.txt");
 
 ![enter image description here](https://r96922081.github.io/LexYacc/syntax_tree.png)
+
+## How to Use
+
+Feed cal.l & cal.y, it will create cal.cs at D:
+
+    LexYaccCodeGen.GenCode("D:/cal.l", "D:/cal.y", "D:/", "cal");
+
+include cal.cs into your project and call cal.Parse()
+
+    cal.Parse("2 * 3 + 6 / 3"); // output 8
 
 ## Real Use Case of My Project
 [C Compiler](https://github.com/r96922081/C-Compiler)
