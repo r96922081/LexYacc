@@ -3,6 +3,7 @@
 
 
 
+
 # LexYacc Parser
 LexYacc parser written by C# and generates C# code
 
@@ -42,6 +43,9 @@ Feed cal.l & cal.y, it will create cal.cs at D:
 include cal.cs into your project and call cal.Parse()
 
     cal.Parse("2 * 3 + 6 / 3"); // output 8
+
+## Dependeny
+I use my own [regular expression engine](https://github.com/r96922081/Regex) in Lexer
 
 ## Real Use Case of My Project
 [C Compiler](https://github.com/r96922081/C-Compiler)
