@@ -2,36 +2,22 @@
 {
     public class Create
     {
-        public static void CreateTable(string name, List<(string, string)> columnDeclare)
+        public static void CreateTable(string name, List<ColumnDeclare> columnDeclares)
         {
             Table table = new Table();
             table.originalTableName = name;
             table.tableName = name.ToUpper();
-            table.columnNames = new string[columnDeclare.Count];
-            table.originalColumnNames = new string[columnDeclare.Count];
-            table.columnTypes = new ColumnType[columnDeclare.Count];
-            table.columnSizes = new int[columnDeclare.Count];
+            table.columnNames = new string[columnDeclares.Count];
+            table.originalColumnNames = new string[columnDeclares.Count];
+            table.columnTypes = new ColumnType[columnDeclares.Count];
+            table.columnSizes = new int[columnDeclares.Count];
 
-            for (int i = 0; i < columnDeclare.Count; i++)
+            for (int i = 0; i < columnDeclares.Count; i++)
             {
-                table.originalColumnNames[i] = columnDeclare[i].Item1;
-                table.columnNames[i] = columnDeclare[i].Item1.ToUpper();
-                string columnType = columnDeclare[i].Item2.ToUpper();
-                if (columnType == "DOUBLE")
-                {
-                    table.columnTypes[i] = ColumnType.NUMBER;
-                }
-                else if (columnType.StartsWith("VARCHAR"))
-                {
-                    table.columnTypes[i] = ColumnType.VARCHAR;
-                    int left = columnType.IndexOf('(');
-                    int right = columnType.LastIndexOf(')');
-
-                    int lengthInt;
-                    string length = columnType.Substring(left + 1, right - left - 1);
-                    int.TryParse(length, out lengthInt);
-                    table.columnSizes[i] = lengthInt;
-                }
+                table.originalColumnNames[i] = columnDeclares[i].columnName;
+                table.columnNames[i] = columnDeclares[i].columnName.ToUpper();
+                table.columnTypes[i] = columnDeclares[i].type;
+                table.columnSizes[i] = columnDeclares[i].size;
             }
 
 

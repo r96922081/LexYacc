@@ -8,7 +8,8 @@
 
 %type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start
 %type <List<string>>                                 columns column_star_list string_number_null_list
-%type <List<(string, string)>>                       column_declare
+%type <MyDBNs.ColumnDeclare>                         column_declare
+%type <List<MyDBNs.ColumnDeclare>>                   column_declares
 %type <MyDBNs.OrderByColumn>                         order_by_column
 %type <List<MyDBNs.OrderByColumn>>                   order_by_columns
 %type <MyDBNs.AggregationColumn>                     aggregation_column
@@ -50,7 +51,7 @@ rollback: ROLLBACK
 }
 ;
 
-create_table_statement: CREATE TABLE table '(' column_declare ')' 
+create_table_statement: CREATE TABLE table '(' column_declares ')' 
 {
     MyDBNs.SqlStatementsLexYaccCallback.CreateTable($3, $5);
 };
@@ -60,15 +61,21 @@ drop_table_statement: DROP TABLE table
     MyDBNs.SqlStatementsLexYaccCallback.DropTable($3);
 };
 
-column_declare: column column_type 
+column_declares: column_declares ',' column_declare
 {
-    MyDBNs.SqlStatementsLexYaccCallback.ColumnDeclare($$, $1, $2);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.ColumnDeclares($3, $1);
 } 
 | 
-column column_type ',' column_declare 
+column_declare
 {
-    MyDBNs.SqlStatementsLexYaccCallback.ColumnDeclare($$, $1, $2, $4);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.ColumnDeclares($1, null);
 };
+
+column_declare: column column_type 
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.ColumnDeclare($1, $2);
+}
+;
 
 insert_statement: 
 INSERT INTO table VALUES '(' string_number_null_list ')'

@@ -26,7 +26,8 @@ public class YaccActions{
 
 %type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start
 %type <List<string>>                                 columns column_star_list string_number_null_list
-%type <List<(string, string)>>                       column_declare
+%type <MyDBNs.ColumnDeclare>                         column_declare
+%type <List<MyDBNs.ColumnDeclare>>                   column_declares
 %type <MyDBNs.OrderByColumn>                         order_by_column
 %type <List<MyDBNs.OrderByColumn>>                   order_by_columns
 %type <MyDBNs.AggregationColumn>                     aggregation_column
@@ -68,7 +69,7 @@ rollback: ROLLBACK
 }
 ;
 
-create_table_statement: CREATE TABLE table '(' column_declare ')' 
+create_table_statement: CREATE TABLE table '(' column_declares ')' 
 {
     MyDBNs.SqlStatementsLexYaccCallback.CreateTable($3, $5);
 };
@@ -78,15 +79,21 @@ drop_table_statement: DROP TABLE table
     MyDBNs.SqlStatementsLexYaccCallback.DropTable($3);
 };
 
-column_declare: column column_type 
+column_declares: column_declares ',' column_declare
 {
-    MyDBNs.SqlStatementsLexYaccCallback.ColumnDeclare($$, $1, $2);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.ColumnDeclares($3, $1);
 } 
 | 
-column column_type ',' column_declare 
+column_declare
 {
-    MyDBNs.SqlStatementsLexYaccCallback.ColumnDeclare($$, $1, $2, $4);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.ColumnDeclares($1, null);
 };
+
+column_declare: column column_type 
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.ColumnDeclare($1, $2);
+}
+;
 
 insert_statement: 
 INSERT INTO table VALUES '(' string_number_null_list ')'
@@ -648,8 +655,10 @@ ID
         actions.Add("Rule_rollback_Producton_0", Rule_rollback_Producton_0);
         actions.Add("Rule_create_table_statement_Producton_0", Rule_create_table_statement_Producton_0);
         actions.Add("Rule_drop_table_statement_Producton_0", Rule_drop_table_statement_Producton_0);
+        actions.Add("Rule_column_declares_Producton_0", Rule_column_declares_Producton_0);
+        actions.Add("Rule_column_declares_LeftRecursionExpand_Producton_0", Rule_column_declares_LeftRecursionExpand_Producton_0);
+        actions.Add("Rule_column_declares_LeftRecursionExpand_Producton_1", Rule_column_declares_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_column_declare_Producton_0", Rule_column_declare_Producton_0);
-        actions.Add("Rule_column_declare_Producton_1", Rule_column_declare_Producton_1);
         actions.Add("Rule_insert_statement_Producton_0", Rule_insert_statement_Producton_0);
         actions.Add("Rule_insert_statement_Producton_1", Rule_insert_statement_Producton_1);
         actions.Add("Rule_delete_statement_Producton_0", Rule_delete_statement_Producton_0);
@@ -943,7 +952,7 @@ ID
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
         string _3 = (string)objects[3];
-        List<(string, string)> _5 = (List<(string, string)>)objects[5];
+        List<MyDBNs.ColumnDeclare> _5 = (List<MyDBNs.ColumnDeclare>)objects[5];
 
         // user-defined action
         MyDBNs.SqlStatementsLexYaccCallback.CreateTable(_3, _5);
@@ -963,25 +972,40 @@ ID
         return _0;
     }
 
-    public static object Rule_column_declare_Producton_0(Dictionary<int, object> objects) { 
-        List<(string, string)> _0 = new List<(string, string)>();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
+    public static object Rule_column_declares_Producton_0(Dictionary<int, object> objects) { 
+        List<MyDBNs.ColumnDeclare> _0 = new List<MyDBNs.ColumnDeclare>();
+        MyDBNs.ColumnDeclare _1 = (MyDBNs.ColumnDeclare)objects[1];
 
         // user-defined action
-        MyDBNs.SqlStatementsLexYaccCallback.ColumnDeclare(_0, _1, _2);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.ColumnDeclares(_1, null);
 
         return _0;
     }
 
-    public static object Rule_column_declare_Producton_1(Dictionary<int, object> objects) { 
-        List<(string, string)> _0 = new List<(string, string)>();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        List<(string, string)> _4 = (List<(string, string)>)objects[4];
+    public static object Rule_column_declares_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
+        List<MyDBNs.ColumnDeclare> _0 = new List<MyDBNs.ColumnDeclare>();
+        List<MyDBNs.ColumnDeclare> _1 =(List<MyDBNs.ColumnDeclare>)objects[1];
+        MyDBNs.ColumnDeclare _3 = (MyDBNs.ColumnDeclare)objects[3];
 
         // user-defined action
-        MyDBNs.SqlStatementsLexYaccCallback.ColumnDeclare(_0, _1, _2, _4);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.ColumnDeclares(_3, _1);
+
+        return _0;
+    }
+
+    public static object Rule_column_declares_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
+        List<MyDBNs.ColumnDeclare> _0 = new List<MyDBNs.ColumnDeclare>();
+
+        return _0;
+    }
+
+    public static object Rule_column_declare_Producton_0(Dictionary<int, object> objects) { 
+        MyDBNs.ColumnDeclare _0 = new MyDBNs.ColumnDeclare();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+
+        // user-defined action
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.ColumnDeclare(_1, _2);
 
         return _0;
     }

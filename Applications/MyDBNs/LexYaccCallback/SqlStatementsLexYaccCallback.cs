@@ -12,9 +12,9 @@
             Load.LoadDB(name);
         }
 
-        public static void CreateTable(string name, List<(string, string)> columnDeclare)
+        public static void CreateTable(string name, List<ColumnDeclare> columnDeclares)
         {
-            Create.CreateTable(name, columnDeclare);
+            Create.CreateTable(name, columnDeclares);
         }
 
         public static void DropTable(string name)
@@ -117,15 +117,34 @@
             CommaSepColumn(list, s, prevList);
         }
 
-        public static void ColumnDeclare(List<(string, string)> columnDeclare, string columnName, string columnType)
+        public static List<ColumnDeclare> ColumnDeclares(ColumnDeclare columnDeclare, List<ColumnDeclare> prev)
         {
-            columnDeclare.Add((columnName, columnType));
+            List<ColumnDeclare> l = new List<ColumnDeclare>();
+
+            if (prev != null)
+                l.AddRange(prev);
+
+            l.Add(columnDeclare);
+
+            return l;
         }
 
-        public static void ColumnDeclare(List<(string, string)> columnDeclare, string columnName, string columnType, List<(string, string)> prevColumnDeclare)
+        public static ColumnDeclare ColumnDeclare(string columnName, string columnType)
         {
-            columnDeclare.Add((columnName, columnType));
-            columnDeclare.AddRange(prevColumnDeclare);
+            ColumnDeclare c = new ColumnDeclare();
+            c.columnName = columnName;
+            if (columnType.ToUpper().Equals("NUMBER"))
+            {
+                c.type = ColumnType.NUMBER;
+                c.size = -1;
+            }
+            else if (columnType.ToUpper().Contains("VARCHAR"))
+            {
+                c.type = ColumnType.VARCHAR;
+                c.size = Int32.Parse(columnType.ToUpper().Replace(")", "").Replace("VARCHAR(", ""));
+            }
+
+            return c;
         }
 
         public static SelectedData Select(List<string> columns, string tableName, string condition, List<OrderByColumn> orderByColumns)

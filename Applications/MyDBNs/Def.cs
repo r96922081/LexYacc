@@ -1,4 +1,6 @@
-﻿namespace MyDBNs
+﻿using System.Diagnostics;
+
+namespace MyDBNs
 {
     public class Gv
     {
@@ -94,6 +96,13 @@
             this.columnIndex = columnIndex;
             this.value = value;
         }
+    }
+
+    public class ColumnDeclare
+    {
+        public string columnName;
+        public ColumnType type;
+        public int size;
     }
 
     public enum OrderByDirection
