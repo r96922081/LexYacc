@@ -39,7 +39,7 @@ namespace LexYaccNs
                     AppendFile(outputFile, file, name + "Ns");
             }
 
-            allFiles = Directory.GetFiles("../../../RegexNs", "*", SearchOption.AllDirectories);
+            allFiles = Directory.GetFiles("../../../Dependencies/RegexNs", "*", SearchOption.AllDirectories);
             foreach (string file in allFiles)
             {
                 if (file.EndsWith(".cs"))
