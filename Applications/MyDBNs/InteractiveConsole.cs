@@ -1,6 +1,6 @@
 ﻿namespace MyDBNs
 {
-    public class DBConsole
+    public class InteractiveConsole
     {
         private static int[] GetDisplayColumnWidth(Table table, List<string> columnNames, List<int> columnIndex)
         {

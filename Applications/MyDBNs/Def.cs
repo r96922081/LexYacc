@@ -95,4 +95,18 @@
             this.value = value;
         }
     }
+
+    public enum AggerationOperation
+    {
+        MAX,
+        MIN,
+        COUNT,
+        SUM
+    }
+
+    public class AggregationColumn
+    {
+        public string columnName;
+        public AggerationOperation op;
+    }
 }

@@ -6,12 +6,13 @@
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
 
-%type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start aggregation_column
+%type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start
 %type <List<string>> commaSep_column commaSep_column_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
-%type <List<List<object>>> commaSep_orderBy
-%type <List<string>> commaSep_aggregationColumn
+%type <List<List<object>>> order_by_columns
+%type <MyDBNs.AggregationColumn> aggregation_column
+%type <List<MyDBNs.AggregationColumn>> aggregation_columns
 %type <List<MyDBNs.SetExpressionType>> set_expression
 %type <MyDBNs.SelectedData> select_statement
 %type <int> delete_statement insert_statement update_statement commit rollback
@@ -23,145 +24,145 @@ statement: save_db { $$ = $1; } | load_db { $$ = $1; } | transaction_start { $$ 
 
 save_db: SAVE DB file_path
 {
-    MyDBNs.SqlLexYaccCallback.SaveDB($3);
+    MyDBNs.SqlStatementsLexYaccCallback.SaveDB($3);
 };
 
 load_db: LOAD DB file_path
 {
-    MyDBNs.SqlLexYaccCallback.LoadDB($3);
+    MyDBNs.SqlStatementsLexYaccCallback.LoadDB($3);
 };
 
 transaction_start: TRANSACTION START
 {
-    $$ = MyDBNs.SqlLexYaccCallback.TransactionStart();
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.TransactionStart();
 }
 ;
 
 commit: COMMIT
 {
-    $$ = MyDBNs.SqlLexYaccCallback.Commit();
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Commit();
 }
 ;
 
 rollback: ROLLBACK
 {
-    $$ = MyDBNs.SqlLexYaccCallback.Rollback();
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Rollback();
 }
 ;
 
 create_table_statement: CREATE TABLE table '(' column_declare ')' 
 {
-    MyDBNs.SqlLexYaccCallback.CreateTable($3, $5);
+    MyDBNs.SqlStatementsLexYaccCallback.CreateTable($3, $5);
 };
 
 drop_table_statement: DROP TABLE table
 {
-    MyDBNs.SqlLexYaccCallback.DropTable($3);
+    MyDBNs.SqlStatementsLexYaccCallback.DropTable($3);
 };
 
 column_declare: column column_type 
 {
-    MyDBNs.SqlLexYaccCallback.ColumnDeclare($$, $1, $2);
+    MyDBNs.SqlStatementsLexYaccCallback.ColumnDeclare($$, $1, $2);
 } 
 | 
 column column_type ',' column_declare 
 {
-    MyDBNs.SqlLexYaccCallback.ColumnDeclare($$, $1, $2, $4);
+    MyDBNs.SqlStatementsLexYaccCallback.ColumnDeclare($$, $1, $2, $4);
 };
 
 insert_statement: 
 INSERT INTO table VALUES '(' commaSep_string_number_null ')'
 {
-    $$ = MyDBNs.SqlLexYaccCallback.Insert($3, null, $6);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Insert($3, null, $6);
 }
 |
 INSERT INTO table '(' commaSep_column ')' VALUES '(' commaSep_string_number_null ')'
 {
-    $$ = MyDBNs.SqlLexYaccCallback.Insert($3, $5, $9);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Insert($3, $5, $9);
 };
 
 delete_statement:
 DELETE FROM table
 {
-    $$ = MyDBNs.SqlLexYaccCallback.Delete($3, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Delete($3, null);
 }
 |
 DELETE FROM table WHERE boolean_expression
 {
-    $$ = MyDBNs.SqlLexYaccCallback.Delete($3, $5);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Delete($3, $5);
 }
 ;
 
 update_statement:
 UPDATE table SET set_expression
 {
-    $$ = MyDBNs.SqlLexYaccCallback.Update($2, $4, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Update($2, $4, null);
 }
 |
 UPDATE table SET set_expression WHERE boolean_expression
 {
-    $$ = MyDBNs.SqlLexYaccCallback.Update($2, $4, $6);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Update($2, $4, $6);
 }
 ;
 
 show_tables_statement:
 SHOW TABLES
 {
-    MyDBNs.SqlLexYaccCallback.ShowTables();
+    MyDBNs.SqlStatementsLexYaccCallback.ShowTables();
 }
 ;
 
 select_statement:
 SELECT commaSep_column_star FROM table
 {
-    $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, null, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, null);
 }
 |
-SELECT commaSep_aggregationColumn FROM table GROUP BY commaSep_column
+SELECT aggregation_columns FROM table GROUP BY commaSep_column
 {
-    $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, null, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, null);
 }
 |
-SELECT commaSep_column_star FROM table ORDER BY commaSep_orderBy
+SELECT commaSep_column_star FROM table ORDER BY order_by_columns
 {
-    $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, null, $7);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $7);
 }
 |
-SELECT commaSep_aggregationColumn FROM table GROUP BY commaSep_column ORDER BY commaSep_orderBy
+SELECT aggregation_columns FROM table GROUP BY commaSep_column ORDER BY order_by_columns
 {
-    $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, null, $10);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $10);
 }
 |
 SELECT commaSep_column_star FROM table WHERE boolean_expression
 {
-    $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, null);
 }
 |
-SELECT commaSep_aggregationColumn FROM table WHERE boolean_expression GROUP BY commaSep_column
+SELECT aggregation_columns FROM table WHERE boolean_expression GROUP BY commaSep_column
 {
-    $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, null);
 }
 |
-SELECT commaSep_column_star FROM table WHERE boolean_expression ORDER BY commaSep_orderBy
+SELECT commaSep_column_star FROM table WHERE boolean_expression ORDER BY order_by_columns
 {
-    $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, $9);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, $9);
 }
 |
-SELECT commaSep_aggregationColumn FROM table WHERE boolean_expression GROUP BY commaSep_column ORDER BY commaSep_orderBy
+SELECT aggregation_columns FROM table WHERE boolean_expression GROUP BY commaSep_column ORDER BY order_by_columns
 {
-    $$ = MyDBNs.SqlLexYaccCallback.Select($2, $4, $6, $12);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, $12);
 }
 ;
 
 boolean_expression:
 boolean_expression AND boolean_expression
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "AND", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "AND", $3);
 }
 |
 boolean_expression OR boolean_expression
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "OR", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "OR", $3);
 }
 | 
 '(' boolean_expression ')'
@@ -171,178 +172,178 @@ boolean_expression OR boolean_expression
 | 
 string_expression '=' string_expression
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "=", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "=", $3);
 }
 | 
 string_expression '<' string_expression
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "<", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "<", $3);
 }
 | 
 string_expression '>' string_expression
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, ">", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, ">", $3);
 }
 | 
 string_expression NOT_EQUAL string_expression
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "!=", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "!=", $3);
 }
 | 
 string_expression LESS_OR_EQUAL string_expression
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "<=", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "<=", $3);
 }
 | 
 string_expression GREATER_OR_EQUAL string_expression
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, ">=", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, ">=", $3);
 }
 | 
 arithmeticExpression_column '=' arithmeticExpression_column
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "=", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "=", $3);
 }
 | 
 arithmeticExpression_column '<' arithmeticExpression_column
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "<", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "<", $3);
 }
 | 
 arithmeticExpression_column '>' arithmeticExpression_column
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, ">", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, ">", $3);
 }
 | 
 arithmeticExpression_column NOT_EQUAL arithmeticExpression_column
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "!=", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "!=", $3);
 }
 | 
 arithmeticExpression_column LESS_OR_EQUAL arithmeticExpression_column
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "<=", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "<=", $3);
 }
 | 
 arithmeticExpression_column GREATER_OR_EQUAL arithmeticExpression_column
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, ">=", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, ">=", $3);
 }
 |
 column IS NULL
 {
-     MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "IS", "NULL");
+     MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "IS", "NULL");
 }
 |
 column IS NOT NULL
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "IS NOT", "NULL");
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "IS NOT", "NULL");
 }
 |
 column LIKE STRING
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "LIKE", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "LIKE", $3);
 }
 |
 column NOT LIKE STRING
 {
-    MyDBNs.SqlLexYaccCallback.BooleanExpression(ref $$, $1, "NOT LIKE", $4);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "NOT LIKE", $4);
 }
 ;
 
 set_expression:
 column '=' string_expression ',' set_expression
 {
-    $$ = MyDBNs.SqlLexYaccCallback.SetExpressionVarchar($1, $3, $5);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.SetExpressionVarchar($1, $3, $5);
 }
 |
 column '=' string_expression
 {
-    $$ = MyDBNs.SqlLexYaccCallback.SetExpressionVarchar($1, $3);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.SetExpressionVarchar($1, $3);
 }
 |
 column '=' arithmetic_expression ',' set_expression
 {
-    $$ = MyDBNs.SqlLexYaccCallback.SetExpressionNumber($1, $3, $5);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.SetExpressionNumber($1, $3, $5);
 }
 |
 column '=' arithmetic_expression
 {
-    $$ = MyDBNs.SqlLexYaccCallback.SetExpressionNumber($1, $3);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.SetExpressionNumber($1, $3);
 }
 |
 column '=' NULL ',' set_expression
 {
-    $$ = MyDBNs.SqlLexYaccCallback.SetExpressionNull($1, $5);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.SetExpressionNull($1, $5);
 }
 |
 column '=' NULL
 {
-    $$ = MyDBNs.SqlLexYaccCallback.SetExpressionNull($1);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.SetExpressionNull($1);
 }
 ;
 
 commaSep_column: 
 column 
 {
-    MyDBNs.SqlLexYaccCallback.CommaSepColumn($$, $1);
+    MyDBNs.SqlStatementsLexYaccCallback.CommaSepColumn($$, $1);
 }
 | column ',' commaSep_column
 {
-    MyDBNs.SqlLexYaccCallback.CommaSepColumn($$, $1, $3);
+    MyDBNs.SqlStatementsLexYaccCallback.CommaSepColumn($$, $1, $3);
 }
 ;
 
 commaSep_string_number_null: 
 string_number_null 
 {
-    MyDBNs.SqlLexYaccCallback.CommaSepColumn($$, $1);
+    MyDBNs.SqlStatementsLexYaccCallback.CommaSepColumn($$, $1);
 }
 | string_number_null ',' commaSep_string_number_null
 {
-    MyDBNs.SqlLexYaccCallback.CommaSepColumn($$, $1, $3);
+    MyDBNs.SqlStatementsLexYaccCallback.CommaSepColumn($$, $1, $3);
 }
 ;
 
-commaSep_orderBy:
+order_by_columns:
 order_by_column
 {
-    MyDBNs.SqlLexYaccCallback.CommaSepOrderBy($$, $1, null);
+    MyDBNs.SqlStatementsLexYaccCallback.CommaSepOrderBy($$, $1, null);
 }
 |
-order_by_column ',' commaSep_orderBy
+order_by_column ',' order_by_columns
 {
-    MyDBNs.SqlLexYaccCallback.CommaSepOrderBy($$, $1, $3);
+    MyDBNs.SqlStatementsLexYaccCallback.CommaSepOrderBy($$, $1, $3);
 };
 
-commaSep_aggregationColumn:
+aggregation_columns:
 aggregation_column
 {
-    MyDBNs.SqlLexYaccCallback.CommaSepAggregrationColumn($$, $1, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.CommaSepAggregrationColumn(null, $1);
 }
 |
-aggregation_column ',' commaSep_aggregationColumn
+aggregation_columns ',' aggregation_column
 {
-    MyDBNs.SqlLexYaccCallback.CommaSepAggregrationColumn($$, $1, $3);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.CommaSepAggregrationColumn($1, $3);
 };
 
 commaSep_column_star: 
 column 
 {
-    MyDBNs.SqlLexYaccCallback.CommaSep_Column_Star($$, $1);
+    MyDBNs.SqlStatementsLexYaccCallback.CommaSep_Column_Star($$, $1);
 }
 |
 column ',' commaSep_column_star
 {
-    MyDBNs.SqlLexYaccCallback.CommaSep_Column_Star($$, $1, $3);
+    MyDBNs.SqlStatementsLexYaccCallback.CommaSep_Column_Star($$, $1, $3);
 }
 | '*'
 {
-    MyDBNs.SqlLexYaccCallback.CommaSep_Column_Star($$, "*");
+    MyDBNs.SqlStatementsLexYaccCallback.CommaSep_Column_Star($$, "*");
 }
 | '*' ',' commaSep_column_star
 {
-    MyDBNs.SqlLexYaccCallback.CommaSep_Column_Star($$, "*", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.CommaSep_Column_Star($$, "*", $3);
 }
 ;
 
@@ -419,32 +420,32 @@ arithmetic_expression
 order_by_column:
 column
 {
-    MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
+    MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref $$, $1, true);
 }
 | 
 column ASC
 {
-    MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
+    MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref $$, $1, true);
 }
 | 
 column DESC
 {
-    MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, false);
+    MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref $$, $1, false);
 }
 | 
 POSITIVE_INT
 {
-    MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
+    MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref $$, $1, true);
 }
 | 
 POSITIVE_INT ASC
 {
-    MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, true);
+    MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref $$, $1, true);
 }
 | 
 POSITIVE_INT DESC
 {
-    MyDBNs.SqlLexYaccCallback.OrderByColumn(ref $$, $1, false);
+    MyDBNs.SqlStatementsLexYaccCallback.OrderByColumn(ref $$, $1, false);
 }
 ;
 
@@ -473,22 +474,22 @@ ID
 aggregation_column:
 MAX '(' column ')'
 {
-    $$ = "MAX(" + $3 + ")";
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.MAX, $3);
 }
 |
 MIN '(' column ')'
 {
-    $$ = "MIN(" + $3 + ")";
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.MIN, $3);
 }
 |
 COUNT '(' column ')'
 {
-    $$ = "COUNT(" + $3 + ")";
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.COUNT, $3);
 }
 |
 SUM '(' column ')'
 {
-    $$ = "SUM(" + $3 + ")";
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.SUM, $3);
 }
 ;
 

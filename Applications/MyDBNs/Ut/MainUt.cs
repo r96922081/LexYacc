@@ -8,6 +8,7 @@
 
             if (Gv.ut)
             {
+                //new GroupByUt().Ut();
                 new CreateDropUt().Ut();
                 new InsertUt().Ut();
                 new SelectUt().Ut();
@@ -17,14 +18,13 @@
                 new UpdateUt().Ut();
                 new SaveLoadUt().Ut();
                 new TransactionUt().Ut();
-                new GroupByUt().Ut();
                 Console.WriteLine("MyDB Ut Done!");
 
                 //DBConsole.Interactive();
             }
             else
             {
-                DBConsole.Interactive();
+                InteractiveConsole.Interactive();
             }
         }
 

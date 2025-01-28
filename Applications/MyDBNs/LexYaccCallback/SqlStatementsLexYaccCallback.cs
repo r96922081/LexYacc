@@ -1,6 +1,6 @@
 ﻿namespace MyDBNs
 {
-    public class SqlLexYaccCallback
+    public class SqlStatementsLexYaccCallback
     {
         public static void SaveDB(string name)
         {
@@ -133,6 +133,12 @@
             return MyDBNs.Select.SelectRows(columns, tableName, condition, orders);
         }
 
+        public static SelectedData Select(List<AggregationColumn> columns, string tableName, string condition, List<List<object>> orders)
+        {
+            return null;
+            //return MyDBNs.Select.SelectRows(columns, tableName, condition, orders);
+        }
+
         public static void BooleanExpression(ref string booleanExpression, string lhs, string op, string rhs)
         {
             booleanExpression = lhs + " " + op + " " + rhs;
@@ -152,12 +158,24 @@
                 condition.AddRange(prevCondition);
         }
 
-        public static void CommaSepAggregrationColumn(List<string> aggregrationColumns, string groupBy, List<string> prevAggregrationColumns)
+        public static List<AggregationColumn> CommaSepAggregrationColumn(List<AggregationColumn> prev, AggregationColumn column)
         {
-            aggregrationColumns.Add(groupBy);
+            List<AggregationColumn> l = new List<AggregationColumn>();
+            if (prev != null)
+                l.AddRange(prev);
 
-            if (prevAggregrationColumns != null)
-                aggregrationColumns.AddRange(prevAggregrationColumns);
+            l.Add(column);
+
+            return l;
+        }
+
+        public static AggregationColumn AggregationColumn(AggerationOperation op, string columnName)
+        {
+            AggregationColumn a = new AggregationColumn();
+            a.columnName= columnName;
+            a.op= op;
+
+            return a;
         }
 
         public static string TransactionStart()

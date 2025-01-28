@@ -9,7 +9,7 @@
 %type <List<string>> commaSep_column commaSep_column_star commaSep_string_number_null
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
-%type <List<List<object>>> commaSep_orderBy
+%type <List<List<object>>> order_by_columns
 %type <List<Tuple<string, string>>> set_expression
 %type <List<double>> arithmetic_expression term number_double number_column
 %%
