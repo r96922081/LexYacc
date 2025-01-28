@@ -6,7 +6,7 @@
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
 %type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_column update_statement file_path string_number_null column
-%type <List<string>> commaSep_column commaSep_column_star commaSep_string_number_null
+%type <List<string>> columns column_star_list string_number_null_list
 %type <List<(string, string)>> column_declare
 %type <List<object>> order_by_column
 %type <List<List<object>>> order_by_columns

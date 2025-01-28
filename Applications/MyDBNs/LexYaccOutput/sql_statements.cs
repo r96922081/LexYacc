@@ -20,22 +20,22 @@ public class YaccActions{
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT
-%token <int> POSITIVE_INT
-%token <double> DOUBLE
+%token <string>                                      SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT
+%token <int>                                         POSITIVE_INT
+%token <double>                                      DOUBLE
 
-%type <string> column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start
-%type <List<string>> commaSep_column commaSep_column_star commaSep_string_number_null
-%type <List<(string, string)>> column_declare
-%type <List<object>> order_by_column
-%type <List<List<object>>> order_by_columns
-%type <MyDBNs.AggregationColumn> aggregation_column
-%type <List<MyDBNs.AggregationColumn>> aggregation_columns
-%type <List<MyDBNs.SetExpressionType>> set_expression
-%type <MyDBNs.SelectedData> select_statement
-%type <int> delete_statement insert_statement update_statement commit rollback
-%type <object> statement
-%type <double> number_double
+%type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start
+%type <List<string>>                                 columns column_star_list string_number_null_list
+%type <List<(string, string)>>                       column_declare
+%type <List<object>>                                 order_by_column
+%type <List<List<object>>>                           order_by_columns
+%type <MyDBNs.AggregationColumn>                     aggregation_column
+%type <List<MyDBNs.AggregationColumn>>               aggregation_columns
+%type <List<MyDBNs.SetExpressionType>>               set_expression
+%type <MyDBNs.SelectedData>                          select_statement
+%type <int>                                          delete_statement insert_statement update_statement commit rollback
+%type <object>                                       statement
+%type <double>                                       number_double
 %%
 
 statement: save_db { $$ = $1; } | load_db { $$ = $1; } | transaction_start { $$ = $1; } | commit { $$ = $1; } | rollback { $$ = $1; }| create_table_statement { $$ = $1; } | drop_table_statement { $$ = $1; } | insert_statement { $$ = $1; } | delete_statement { $$ = $1; } | show_tables_statement { $$ = $1; } | select_statement { $$ = $1; } | update_statement { $$ = $1; };
@@ -89,12 +89,12 @@ column column_type ',' column_declare
 };
 
 insert_statement: 
-INSERT INTO table VALUES '(' commaSep_string_number_null ')'
+INSERT INTO table VALUES '(' string_number_null_list ')'
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Insert($3, null, $6);
 }
 |
-INSERT INTO table '(' commaSep_column ')' VALUES '(' commaSep_string_number_null ')'
+INSERT INTO table '(' columns ')' VALUES '(' string_number_null_list ')'
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Insert($3, $5, $9);
 };
@@ -131,42 +131,42 @@ SHOW TABLES
 ;
 
 select_statement:
-SELECT commaSep_column_star FROM table
+SELECT column_star_list FROM table
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, null);
 }
 |
-SELECT aggregation_columns FROM table GROUP BY commaSep_column
+SELECT aggregation_columns FROM table GROUP BY columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, null);
 }
 |
-SELECT commaSep_column_star FROM table ORDER BY order_by_columns
+SELECT column_star_list FROM table ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $7);
 }
 |
-SELECT aggregation_columns FROM table GROUP BY commaSep_column ORDER BY order_by_columns
+SELECT aggregation_columns FROM table GROUP BY columns ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $10);
 }
 |
-SELECT commaSep_column_star FROM table WHERE boolean_expression
+SELECT column_star_list FROM table WHERE boolean_expression
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, null);
 }
 |
-SELECT aggregation_columns FROM table WHERE boolean_expression GROUP BY commaSep_column
+SELECT aggregation_columns FROM table WHERE boolean_expression GROUP BY columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, null);
 }
 |
-SELECT commaSep_column_star FROM table WHERE boolean_expression ORDER BY order_by_columns
+SELECT column_star_list FROM table WHERE boolean_expression ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, $9);
 }
 |
-SELECT aggregation_columns FROM table WHERE boolean_expression GROUP BY commaSep_column ORDER BY order_by_columns
+SELECT aggregation_columns FROM table WHERE boolean_expression GROUP BY columns ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, $12);
 }
@@ -301,23 +301,23 @@ column '=' NULL
 }
 ;
 
-commaSep_column: 
+columns: 
 column 
 {
     MyDBNs.SqlStatementsLexYaccCallback.CommaSepColumn($$, $1);
 }
-| column ',' commaSep_column
+| column ',' columns
 {
     MyDBNs.SqlStatementsLexYaccCallback.CommaSepColumn($$, $1, $3);
 }
 ;
 
-commaSep_string_number_null: 
+string_number_null_list: 
 string_number_null 
 {
     MyDBNs.SqlStatementsLexYaccCallback.CommaSepColumn($$, $1);
 }
-| string_number_null ',' commaSep_string_number_null
+| string_number_null ',' string_number_null_list
 {
     MyDBNs.SqlStatementsLexYaccCallback.CommaSepColumn($$, $1, $3);
 }
@@ -345,13 +345,13 @@ aggregation_columns ',' aggregation_column
     $$ = MyDBNs.SqlStatementsLexYaccCallback.CommaSepAggregrationColumn($1, $3);
 };
 
-commaSep_column_star: 
+column_star_list: 
 column 
 {
     MyDBNs.SqlStatementsLexYaccCallback.CommaSep_Column_Star($$, $1);
 }
 |
-column ',' commaSep_column_star
+column ',' column_star_list
 {
     MyDBNs.SqlStatementsLexYaccCallback.CommaSep_Column_Star($$, $1, $3);
 }
@@ -359,7 +359,7 @@ column ',' commaSep_column_star
 {
     MyDBNs.SqlStatementsLexYaccCallback.CommaSep_Column_Star($$, ""*"");
 }
-| '*' ',' commaSep_column_star
+| '*' ',' column_star_list
 {
     MyDBNs.SqlStatementsLexYaccCallback.CommaSep_Column_Star($$, ""*"", $3);
 }
@@ -691,19 +691,19 @@ ID
         actions.Add("Rule_set_expression_Producton_3", Rule_set_expression_Producton_3);
         actions.Add("Rule_set_expression_Producton_4", Rule_set_expression_Producton_4);
         actions.Add("Rule_set_expression_Producton_5", Rule_set_expression_Producton_5);
-        actions.Add("Rule_commaSep_column_Producton_0", Rule_commaSep_column_Producton_0);
-        actions.Add("Rule_commaSep_column_Producton_1", Rule_commaSep_column_Producton_1);
-        actions.Add("Rule_commaSep_string_number_null_Producton_0", Rule_commaSep_string_number_null_Producton_0);
-        actions.Add("Rule_commaSep_string_number_null_Producton_1", Rule_commaSep_string_number_null_Producton_1);
+        actions.Add("Rule_columns_Producton_0", Rule_columns_Producton_0);
+        actions.Add("Rule_columns_Producton_1", Rule_columns_Producton_1);
+        actions.Add("Rule_string_number_null_list_Producton_0", Rule_string_number_null_list_Producton_0);
+        actions.Add("Rule_string_number_null_list_Producton_1", Rule_string_number_null_list_Producton_1);
         actions.Add("Rule_order_by_columns_Producton_0", Rule_order_by_columns_Producton_0);
         actions.Add("Rule_order_by_columns_Producton_1", Rule_order_by_columns_Producton_1);
         actions.Add("Rule_aggregation_columns_Producton_0", Rule_aggregation_columns_Producton_0);
         actions.Add("Rule_aggregation_columns_LeftRecursionExpand_Producton_0", Rule_aggregation_columns_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_aggregation_columns_LeftRecursionExpand_Producton_1", Rule_aggregation_columns_LeftRecursionExpand_Producton_1);
-        actions.Add("Rule_commaSep_column_star_Producton_0", Rule_commaSep_column_star_Producton_0);
-        actions.Add("Rule_commaSep_column_star_Producton_1", Rule_commaSep_column_star_Producton_1);
-        actions.Add("Rule_commaSep_column_star_Producton_2", Rule_commaSep_column_star_Producton_2);
-        actions.Add("Rule_commaSep_column_star_Producton_3", Rule_commaSep_column_star_Producton_3);
+        actions.Add("Rule_column_star_list_Producton_0", Rule_column_star_list_Producton_0);
+        actions.Add("Rule_column_star_list_Producton_1", Rule_column_star_list_Producton_1);
+        actions.Add("Rule_column_star_list_Producton_2", Rule_column_star_list_Producton_2);
+        actions.Add("Rule_column_star_list_Producton_3", Rule_column_star_list_Producton_3);
         actions.Add("Rule_arithmetic_expression_Producton_0", Rule_arithmetic_expression_Producton_0);
         actions.Add("Rule_arithmetic_expression_LeftRecursionExpand_Producton_0", Rule_arithmetic_expression_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_arithmetic_expression_LeftRecursionExpand_Producton_1", Rule_arithmetic_expression_LeftRecursionExpand_Producton_1);
@@ -1512,7 +1512,7 @@ ID
         return _0;
     }
 
-    public static object Rule_commaSep_column_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_columns_Producton_0(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         string _1 = (string)objects[1];
 
@@ -1522,7 +1522,7 @@ ID
         return _0;
     }
 
-    public static object Rule_commaSep_column_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_columns_Producton_1(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         string _1 = (string)objects[1];
         List<string> _3 = (List<string>)objects[3];
@@ -1533,7 +1533,7 @@ ID
         return _0;
     }
 
-    public static object Rule_commaSep_string_number_null_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_string_number_null_list_Producton_0(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         string _1 = (string)objects[1];
 
@@ -1543,7 +1543,7 @@ ID
         return _0;
     }
 
-    public static object Rule_commaSep_string_number_null_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_string_number_null_list_Producton_1(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         string _1 = (string)objects[1];
         List<string> _3 = (List<string>)objects[3];
@@ -1602,7 +1602,7 @@ ID
         return _0;
     }
 
-    public static object Rule_commaSep_column_star_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_column_star_list_Producton_0(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         string _1 = (string)objects[1];
 
@@ -1612,7 +1612,7 @@ ID
         return _0;
     }
 
-    public static object Rule_commaSep_column_star_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_column_star_list_Producton_1(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         string _1 = (string)objects[1];
         List<string> _3 = (List<string>)objects[3];
@@ -1623,7 +1623,7 @@ ID
         return _0;
     }
 
-    public static object Rule_commaSep_column_star_Producton_2(Dictionary<int, object> objects) { 
+    public static object Rule_column_star_list_Producton_2(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
 
         // user-defined action
@@ -1632,7 +1632,7 @@ ID
         return _0;
     }
 
-    public static object Rule_commaSep_column_star_Producton_3(Dictionary<int, object> objects) { 
+    public static object Rule_column_star_list_Producton_3(Dictionary<int, object> objects) { 
         List<string> _0 = new List<string>();
         List<string> _3 = (List<string>)objects[3];
 

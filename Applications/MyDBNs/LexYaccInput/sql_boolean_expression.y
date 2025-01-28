@@ -7,7 +7,7 @@
 %token <double> DOUBLE
 
 %type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_column arithmeticExpression_column arithmetic_expression term number_column string_expression string_column string_number_null column
-%type <List<string>> commaSep_column commaSep_column_star commaSep_string_number_null
+%type <List<string>> columns column_star_list string_number_null_list
 %type <List<(string, string)>> column_declare
 %type <HashSet<int>> boolean_expression
 %type <double> number_double
