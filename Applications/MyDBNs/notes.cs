@@ -1,9 +1,7 @@
 ﻿/*
 Todo:
 
-- join, group by, in, with
-
-- group by min, max, count, sum
+- join, in, with
 
 - case when
 

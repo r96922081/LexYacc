@@ -226,6 +226,39 @@
 
             }
         }
+        
+        private void Ut5_where()
+        {
+            /*
+                --------------------------------
+                | C1   | C2     | C3 | C4 | C5 |
+                --------------------------------
+                | ABC  | ABCDE  | 10 |    | 20 |
+                | ABC  | ABCDEF | 20 |    | 30 |
+                | DEF  | ABCDEF | 20 |    | 30 |
+                | DEF  | ABCDEF | 40 | 50 | 35 |
+                | DEF  | ABCDEF | 45 | 50 | 35 |
+                | DEFX | ABCDEF | 45 | 50 |    |
+                --------------------------------
+            */
+
+            sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_GROUP_BY_2.DB"));
+
+            /*
+                -------------------------
+                | 1_MAX(C1) | 2_SUM(C5) |
+                -------------------------
+                | DEFX      | 70        |
+                -------------------------        
+             */
+            object o = sql_statements.Parse("SELECT MAX(C1), SUM(C5) FROM A WHERE C4 IS NOT NULL");
+            using (SelectedData s = o as SelectedData)
+            {
+                object[] row = s.table.rows[0];
+                Check((string)row[0] == "DEFX");
+                Check((double)row[1] == 70);
+            }
+        }
 
 
         public void Ut()
@@ -234,6 +267,7 @@
             Ut2();
             Ut3_orderby();
             Ut4_groupByNone();
+            Ut5_where();
         }
     }
 }
