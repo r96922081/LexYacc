@@ -62,6 +62,8 @@
 -?\d+(\.\d+)?                                    { value = double.Parse(yytext); return DOUBLE; }
 '([^']|'')*'                                     { value = yytext; return STRING; }
 [a-zA-Z0-9_]*                                    { value = yytext; return ID; }
+[a-zA-Z0-9_]+\.[a-zA-Z0-9_]+                     { value = yytext; return ID_DOT_ID; }
+[a-zA-Z0-9_]+\.\*                                { value = yytext; return ID_DOT_STAR; }
 [a-zA-Z0-9_:\.\\]+                               { value = yytext; return FILE_PATH; }
 [ \t\n]                                          {}
 

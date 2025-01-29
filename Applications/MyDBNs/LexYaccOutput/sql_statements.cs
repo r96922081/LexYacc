@@ -20,7 +20,7 @@ public class YaccActions{
 
 %}
 
-%token <string>                                      SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT
+%token <string>                                      SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR
 %token <int>                                         POSITIVE_INT
 %token <double>                                      DOUBLE
 
@@ -474,6 +474,11 @@ ID
 {
     $$ = $1;
 }
+|
+ID_DOT_ID
+{
+    $$ = $1;
+}
 ;
 
 aggregation_column:
@@ -497,14 +502,9 @@ SUM '(' column ')'
     $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.SUM, $3);
 }
 |
- column
+column
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.NONE, $1);
-}
-|
-'*'
-{
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.NONE, ""*"");
 }
 ;
 
@@ -606,6 +606,26 @@ column:
 ID
 {
     $$ = $1;
+}
+|
+ID '.' ID
+{
+    $$ = $1 + ""."" + $3;
+}
+|
+ID_DOT_ID
+{
+    $$ = $1;
+}
+|
+ID_DOT_STAR
+{
+    $$ = $1;
+}
+|
+'*'
+{
+    $$ = ""*"";
 }
 ;
 
@@ -726,12 +746,12 @@ ID
         actions.Add("Rule_file_path_Producton_1", Rule_file_path_Producton_1);
         actions.Add("Rule_file_path_Producton_2", Rule_file_path_Producton_2);
         actions.Add("Rule_file_path_Producton_3", Rule_file_path_Producton_3);
+        actions.Add("Rule_file_path_Producton_4", Rule_file_path_Producton_4);
         actions.Add("Rule_aggregation_column_Producton_0", Rule_aggregation_column_Producton_0);
         actions.Add("Rule_aggregation_column_Producton_1", Rule_aggregation_column_Producton_1);
         actions.Add("Rule_aggregation_column_Producton_2", Rule_aggregation_column_Producton_2);
         actions.Add("Rule_aggregation_column_Producton_3", Rule_aggregation_column_Producton_3);
         actions.Add("Rule_aggregation_column_Producton_4", Rule_aggregation_column_Producton_4);
-        actions.Add("Rule_aggregation_column_Producton_5", Rule_aggregation_column_Producton_5);
         actions.Add("Rule_number_column_Producton_0", Rule_number_column_Producton_0);
         actions.Add("Rule_number_column_Producton_1", Rule_number_column_Producton_1);
         actions.Add("Rule_string_number_column_Producton_0", Rule_string_number_column_Producton_0);
@@ -748,6 +768,10 @@ ID
         actions.Add("Rule_column_type_Producton_1", Rule_column_type_Producton_1);
         actions.Add("Rule_table_Producton_0", Rule_table_Producton_0);
         actions.Add("Rule_column_Producton_0", Rule_column_Producton_0);
+        actions.Add("Rule_column_Producton_1", Rule_column_Producton_1);
+        actions.Add("Rule_column_Producton_2", Rule_column_Producton_2);
+        actions.Add("Rule_column_Producton_3", Rule_column_Producton_3);
+        actions.Add("Rule_column_Producton_4", Rule_column_Producton_4);
     }
 
     public static object Rule_start_Producton_0(Dictionary<int, object> objects) { 
@@ -1881,6 +1905,16 @@ ID
         return _0;
     }
 
+    public static object Rule_file_path_Producton_4(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
     public static object Rule_aggregation_column_Producton_0(Dictionary<int, object> objects) { 
         MyDBNs.AggregationColumn _0 = new MyDBNs.AggregationColumn();
         string _1 = (string)objects[1];
@@ -1931,15 +1965,6 @@ ID
 
         // user-defined action
         _0 = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.NONE, _1);
-
-        return _0;
-    }
-
-    public static object Rule_aggregation_column_Producton_5(Dictionary<int, object> objects) { 
-        MyDBNs.AggregationColumn _0 = new MyDBNs.AggregationColumn();
-
-        // user-defined action
-        _0 = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.NONE, "*");
 
         return _0;
     }
@@ -2104,6 +2129,46 @@ ID
 
         return _0;
     }
+
+    public static object Rule_column_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = _1 + "." + _3;
+
+        return _0;
+    }
+
+    public static object Rule_column_Producton_2(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_column_Producton_3(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_column_Producton_4(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+
+        // user-defined action
+        _0 = "*";
+
+        return _0;
+    }
 }
 
 }
@@ -2168,8 +2233,10 @@ namespace sql_statementsNs
             { 298, "MAX"},
             { 299, "SUM"},
             { 300, "COUNT"},
-            { 301, "POSITIVE_INT"},
-            { 302, "DOUBLE"},
+            { 301, "ID_DOT_ID"},
+            { 302, "ID_DOT_STAR"},
+            { 303, "POSITIVE_INT"},
+            { 304, "DOUBLE"},
         };
 
         public static int SELECT = 256;
@@ -2217,8 +2284,10 @@ namespace sql_statementsNs
         public static int MAX = 298;
         public static int SUM = 299;
         public static int COUNT = 300;
-        public static int POSITIVE_INT = 301;
-        public static int DOUBLE = 302;
+        public static int ID_DOT_ID = 301;
+        public static int ID_DOT_STAR = 302;
+        public static int POSITIVE_INT = 303;
+        public static int DOUBLE = 304;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -2302,6 +2371,8 @@ namespace sql_statementsNs
 -?\d+(\.\d+)?                                    { value = double.Parse(yytext); return DOUBLE; }
 '([^']|'')*'                                     { value = yytext; return STRING; }
 [a-zA-Z0-9_]*                                    { value = yytext; return ID; }
+[a-zA-Z0-9_]+\.[a-zA-Z0-9_]+                     { value = yytext; return ID_DOT_ID; }
+[a-zA-Z0-9_]+\.\*                                { value = yytext; return ID_DOT_STAR; }
 [a-zA-Z0-9_:\.\\]+                               { value = yytext; return FILE_PATH; }
 [ \t\n]                                          {}
 
@@ -2373,6 +2444,8 @@ namespace sql_statementsNs
             actions.Add("LexRule57", LexAction57);
             actions.Add("LexRule58", LexAction58);
             actions.Add("LexRule59", LexAction59);
+            actions.Add("LexRule60", LexAction60);
+            actions.Add("LexRule61", LexAction61);
         }
         public static object LexAction0(string yytext)
         {
@@ -2901,11 +2974,29 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return FILE_PATH; 
+            value = yytext; return ID_DOT_ID; 
 
             return 0;
         }
         public static object LexAction59(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return ID_DOT_STAR; 
+
+            return 0;
+        }
+        public static object LexAction60(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return FILE_PATH; 
+
+            return 0;
+        }
+        public static object LexAction61(string yytext)
         {
             value = null;
 

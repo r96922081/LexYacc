@@ -2,7 +2,7 @@
 
 %}
 
-%token <string>                                      SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT
+%token <string>                                      SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR
 %token <int>                                         POSITIVE_INT
 %token <double>                                      DOUBLE
 
@@ -456,6 +456,11 @@ ID
 {
     $$ = $1;
 }
+|
+ID_DOT_ID
+{
+    $$ = $1;
+}
 ;
 
 aggregation_column:
@@ -479,14 +484,9 @@ SUM '(' column ')'
     $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.SUM, $3);
 }
 |
- column
+column
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.NONE, $1);
-}
-|
-'*'
-{
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.NONE, "*");
 }
 ;
 
@@ -588,6 +588,26 @@ column:
 ID
 {
     $$ = $1;
+}
+|
+ID '.' ID
+{
+    $$ = $1 + "." + $3;
+}
+|
+ID_DOT_ID
+{
+    $$ = $1;
+}
+|
+ID_DOT_STAR
+{
+    $$ = $1;
+}
+|
+'*'
+{
+    $$ = "*";
 }
 ;
 

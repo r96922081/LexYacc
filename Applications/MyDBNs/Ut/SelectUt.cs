@@ -2,7 +2,7 @@
 {
     public class SelectUt : BaseUt
     {
-        public void SelectUtBasic()
+        public void Basic()
         {
             List<object[]> rows = RunSelectStatementAndConvertResult("SELECT * FROM A");
             Check(rows.Count == 5);
@@ -21,7 +21,7 @@
             Check((double)rows[4][3] == 5);
         }
 
-        public void SelectUtOrderBy()
+        public void OrderBy()
         {
             List<object[]> rows = RunSelectStatementAndConvertResult("SELECT C1 FROM A ORDER BY C1 DESC");
             Check((string)rows[0][0] == "D");
@@ -36,6 +36,15 @@
             CheckSyntaxErrorOrException(() => { return sql_statements.Parse("SELECT C1 FROM A ORDER BY 2"); });
         }
 
+        public void TableName()
+        {
+            object o = sql_statements.Parse("SELECT A.C1, A.C2, A.*, * FROM A");
+            using (SelectedData s = o as SelectedData)
+            {
+                //InteractiveConsole.PrintTable(s);
+            }
+        }
+
         public void Ut()
         {
             Util.DeleteAllTable();
@@ -47,8 +56,9 @@
             sql_statements.Parse("INSERT INTO A VALUES ( 'D', null )");
             sql_statements.Parse("INSERT INTO A VALUES ( null, 5 )");
 
-            SelectUtBasic();
-            SelectUtOrderBy();
+            Basic();
+            OrderBy();
+            TableName();
         }
     }
 }

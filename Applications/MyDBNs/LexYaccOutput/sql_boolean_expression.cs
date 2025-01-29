@@ -20,7 +20,7 @@ public class YaccActions{
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT
+%token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
 
@@ -833,8 +833,10 @@ namespace sql_boolean_expressionNs
             { 298, "MAX"},
             { 299, "SUM"},
             { 300, "COUNT"},
-            { 301, "POSITIVE_INT"},
-            { 302, "DOUBLE"},
+            { 301, "ID_DOT_ID"},
+            { 302, "ID_DOT_STAR"},
+            { 303, "POSITIVE_INT"},
+            { 304, "DOUBLE"},
         };
 
         public static int SELECT = 256;
@@ -882,8 +884,10 @@ namespace sql_boolean_expressionNs
         public static int MAX = 298;
         public static int SUM = 299;
         public static int COUNT = 300;
-        public static int POSITIVE_INT = 301;
-        public static int DOUBLE = 302;
+        public static int ID_DOT_ID = 301;
+        public static int ID_DOT_STAR = 302;
+        public static int POSITIVE_INT = 303;
+        public static int DOUBLE = 304;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -967,6 +971,8 @@ namespace sql_boolean_expressionNs
 -?\d+(\.\d+)?                                    { value = double.Parse(yytext); return DOUBLE; }
 '([^']|'')*'                                     { value = yytext; return STRING; }
 [a-zA-Z0-9_]*                                    { value = yytext; return ID; }
+[a-zA-Z0-9_]+\.[a-zA-Z0-9_]+                     { value = yytext; return ID_DOT_ID; }
+[a-zA-Z0-9_]+\.\*                                { value = yytext; return ID_DOT_STAR; }
 [a-zA-Z0-9_:\.\\]+                               { value = yytext; return FILE_PATH; }
 [ \t\n]                                          {}
 
@@ -1038,6 +1044,8 @@ namespace sql_boolean_expressionNs
             actions.Add("LexRule57", LexAction57);
             actions.Add("LexRule58", LexAction58);
             actions.Add("LexRule59", LexAction59);
+            actions.Add("LexRule60", LexAction60);
+            actions.Add("LexRule61", LexAction61);
         }
         public static object LexAction0(string yytext)
         {
@@ -1566,11 +1574,29 @@ namespace sql_boolean_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext; return FILE_PATH; 
+            value = yytext; return ID_DOT_ID; 
 
             return 0;
         }
         public static object LexAction59(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return ID_DOT_STAR; 
+
+            return 0;
+        }
+        public static object LexAction60(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return FILE_PATH; 
+
+            return 0;
+        }
+        public static object LexAction61(string yytext)
         {
             value = null;
 

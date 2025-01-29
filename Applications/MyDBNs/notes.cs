@@ -1,7 +1,12 @@
 ﻿/*
 Todo:
 
-- join, in, with
+- join
+  - JOIN
+  - LEFT JOIN
+  - CROSS JOIN
+
+- in, with
 
 - case when
 

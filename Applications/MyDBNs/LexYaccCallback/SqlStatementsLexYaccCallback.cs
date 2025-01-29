@@ -147,17 +147,43 @@
             return c;
         }
 
-        private static SelectedData Select(List<string> columns, string tableName, string condition, List<OrderByColumn> orderByColumns)
+        private static SelectedData Select(List<AggregationColumn> columns, string tableName, string condition, List<OrderByColumn> orderByColumns)
         {
             return MyDBNs.Select.SelectRows(columns, tableName, condition, orderByColumns);
         }
 
+        private static List<AggregationColumn> SplitTableColumnName(List<AggregationColumn> columns)
+        {
+            List<AggregationColumn> columns2 = new List<AggregationColumn>();
+            foreach (AggregationColumn a in columns)
+            {
+                AggregationColumn a2 = new AggregationColumn();
+                a2.op = a.op;
+
+                if (a.column.Contains("."))
+                {
+                    a2.table = a.column.Substring(0, a.column.IndexOf("."));
+                    a2.column = a.column.Substring(a.column.IndexOf(".") + 1);
+                }
+                else
+                {
+                    a2.table = "";
+                    a2.column = a.column;
+                }
+
+                columns2.Add(a2);
+            }
+
+            return columns2;
+        }
+
         public static SelectedData Select(List<AggregationColumn> columns, string tableName, string condition, List<string> groupByColumns, List<OrderByColumn> orderByColumns)
         {
+            columns = SplitTableColumnName(columns);
             int aggregrationColumnCount = columns.Where(c => c.op != AggerationOperation.NONE).Count();
 
             if (aggregrationColumnCount == 0)
-                return Select(columns.Select(c => c.columnName).ToList(), tableName, condition, orderByColumns);
+                return Select(columns, tableName, condition, orderByColumns);
             else
                 return MyDBNs.Select.SelectRows(columns, tableName, condition, groupByColumns, orderByColumns);
         }
@@ -205,7 +231,7 @@
         public static AggregationColumn AggregationColumn(AggerationOperation op, string columnName)
         {
             AggregationColumn a = new AggregationColumn();
-            a.columnName= columnName;
+            a.column= columnName;
             a.op= op;
 
             return a;
