@@ -31,64 +31,14 @@ boolean_expression OR boolean_expression
     $$ = $2;
 }
 | 
-string_expression '=' string_expression
+string_expression boolean_operator string_expression
 {
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, "=", $3);
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, $2, $3);
 }
 | 
-string_expression '<' string_expression
+arithmeticExpression_column boolean_operator arithmeticExpression_column
 {
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, "<", $3);
-}
-| 
-string_expression '>' string_expression
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, ">", $3);
-}
-| 
-string_expression NOT_EQUAL string_expression
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, "!=", $3);
-}
-| 
-string_expression LESS_OR_EQUAL string_expression
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, "<=", $3);
-}
-| 
-string_expression GREATER_OR_EQUAL string_expression
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, ">=", $3);
-}
-| 
-arithmeticExpression_column '=' arithmeticExpression_column
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, "=", $3);
-}
-| 
-arithmeticExpression_column '<' arithmeticExpression_column
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, "<", $3);
-}
-| 
-arithmeticExpression_column '>' arithmeticExpression_column
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, ">", $3);
-}
-| 
-arithmeticExpression_column NOT_EQUAL arithmeticExpression_column
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, "!=", $3);
-}
-| 
-arithmeticExpression_column LESS_OR_EQUAL arithmeticExpression_column
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, "<=", $3);
-}
-| 
-arithmeticExpression_column GREATER_OR_EQUAL arithmeticExpression_column
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, ">=", $3);
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, $2, $3);
 }
 |
 column IS NULL

@@ -49,64 +49,14 @@ boolean_expression OR boolean_expression
     $$ = $2;
 }
 | 
-string_expression '=' string_expression
+string_expression boolean_operator string_expression
 {
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, ""="", $3);
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, $2, $3);
 }
 | 
-string_expression '<' string_expression
+arithmeticExpression_column boolean_operator arithmeticExpression_column
 {
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, ""<"", $3);
-}
-| 
-string_expression '>' string_expression
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, "">"", $3);
-}
-| 
-string_expression NOT_EQUAL string_expression
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, ""!="", $3);
-}
-| 
-string_expression LESS_OR_EQUAL string_expression
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, ""<="", $3);
-}
-| 
-string_expression GREATER_OR_EQUAL string_expression
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, "">="", $3);
-}
-| 
-arithmeticExpression_column '=' arithmeticExpression_column
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, ""="", $3);
-}
-| 
-arithmeticExpression_column '<' arithmeticExpression_column
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, ""<"", $3);
-}
-| 
-arithmeticExpression_column '>' arithmeticExpression_column
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, "">"", $3);
-}
-| 
-arithmeticExpression_column NOT_EQUAL arithmeticExpression_column
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, ""!="", $3);
-}
-| 
-arithmeticExpression_column LESS_OR_EQUAL arithmeticExpression_column
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, ""<="", $3);
-}
-| 
-arithmeticExpression_column GREATER_OR_EQUAL arithmeticExpression_column
-{
-    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, "">="", $3);
+    $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, $2, $3);
 }
 |
 column IS NULL
@@ -299,16 +249,6 @@ GREATER_OR_EQUAL
         actions.Add("Rule_boolean_expression_Producton_4", Rule_boolean_expression_Producton_4);
         actions.Add("Rule_boolean_expression_Producton_5", Rule_boolean_expression_Producton_5);
         actions.Add("Rule_boolean_expression_Producton_6", Rule_boolean_expression_Producton_6);
-        actions.Add("Rule_boolean_expression_Producton_7", Rule_boolean_expression_Producton_7);
-        actions.Add("Rule_boolean_expression_Producton_8", Rule_boolean_expression_Producton_8);
-        actions.Add("Rule_boolean_expression_Producton_9", Rule_boolean_expression_Producton_9);
-        actions.Add("Rule_boolean_expression_Producton_10", Rule_boolean_expression_Producton_10);
-        actions.Add("Rule_boolean_expression_Producton_11", Rule_boolean_expression_Producton_11);
-        actions.Add("Rule_boolean_expression_Producton_12", Rule_boolean_expression_Producton_12);
-        actions.Add("Rule_boolean_expression_Producton_13", Rule_boolean_expression_Producton_13);
-        actions.Add("Rule_boolean_expression_Producton_14", Rule_boolean_expression_Producton_14);
-        actions.Add("Rule_boolean_expression_Producton_15", Rule_boolean_expression_Producton_15);
-        actions.Add("Rule_boolean_expression_Producton_16", Rule_boolean_expression_Producton_16);
         actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_0", Rule_boolean_expression_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_1", Rule_boolean_expression_LeftRecursionExpand_Producton_1);
         actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_2", Rule_boolean_expression_LeftRecursionExpand_Producton_2);
@@ -366,10 +306,11 @@ GREATER_OR_EQUAL
     public static object Rule_boolean_expression_Producton_1(Dictionary<int, object> objects) { 
         HashSet<int> _0 = new HashSet<int>();
         string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
         string _3 = (string)objects[3];
 
         // user-defined action
-        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn(_1, "=", _3);
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn(_1, _2, _3);
 
         return _0;
     }
@@ -377,131 +318,16 @@ GREATER_OR_EQUAL
     public static object Rule_boolean_expression_Producton_2(Dictionary<int, object> objects) { 
         HashSet<int> _0 = new HashSet<int>();
         string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
         string _3 = (string)objects[3];
 
         // user-defined action
-        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn(_1, "<", _3);
+        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn(_1, _2, _3);
 
         return _0;
     }
 
     public static object Rule_boolean_expression_Producton_3(Dictionary<int, object> objects) { 
-        HashSet<int> _0 = new HashSet<int>();
-        string _1 = (string)objects[1];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn(_1, ">", _3);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_Producton_4(Dictionary<int, object> objects) { 
-        HashSet<int> _0 = new HashSet<int>();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn(_1, "!=", _3);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_Producton_5(Dictionary<int, object> objects) { 
-        HashSet<int> _0 = new HashSet<int>();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn(_1, "<=", _3);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_Producton_6(Dictionary<int, object> objects) { 
-        HashSet<int> _0 = new HashSet<int>();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn(_1, ">=", _3);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_Producton_7(Dictionary<int, object> objects) { 
-        HashSet<int> _0 = new HashSet<int>();
-        string _1 = (string)objects[1];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn(_1, "=", _3);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_Producton_8(Dictionary<int, object> objects) { 
-        HashSet<int> _0 = new HashSet<int>();
-        string _1 = (string)objects[1];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn(_1, "<", _3);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_Producton_9(Dictionary<int, object> objects) { 
-        HashSet<int> _0 = new HashSet<int>();
-        string _1 = (string)objects[1];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn(_1, ">", _3);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_Producton_10(Dictionary<int, object> objects) { 
-        HashSet<int> _0 = new HashSet<int>();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn(_1, "!=", _3);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_Producton_11(Dictionary<int, object> objects) { 
-        HashSet<int> _0 = new HashSet<int>();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn(_1, "<=", _3);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_Producton_12(Dictionary<int, object> objects) { 
-        HashSet<int> _0 = new HashSet<int>();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        _0 = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn(_1, ">=", _3);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_Producton_13(Dictionary<int, object> objects) { 
         HashSet<int> _0 = new HashSet<int>();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
@@ -513,7 +339,7 @@ GREATER_OR_EQUAL
         return _0;
     }
 
-    public static object Rule_boolean_expression_Producton_14(Dictionary<int, object> objects) { 
+    public static object Rule_boolean_expression_Producton_4(Dictionary<int, object> objects) { 
         HashSet<int> _0 = new HashSet<int>();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
@@ -526,7 +352,7 @@ GREATER_OR_EQUAL
         return _0;
     }
 
-    public static object Rule_boolean_expression_Producton_15(Dictionary<int, object> objects) { 
+    public static object Rule_boolean_expression_Producton_5(Dictionary<int, object> objects) { 
         HashSet<int> _0 = new HashSet<int>();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
@@ -538,7 +364,7 @@ GREATER_OR_EQUAL
         return _0;
     }
 
-    public static object Rule_boolean_expression_Producton_16(Dictionary<int, object> objects) { 
+    public static object Rule_boolean_expression_Producton_6(Dictionary<int, object> objects) { 
         HashSet<int> _0 = new HashSet<int>();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
