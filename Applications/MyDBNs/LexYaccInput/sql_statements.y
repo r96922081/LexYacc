@@ -7,7 +7,7 @@
 %token <double>                                      DOUBLE
 
 %type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start
-%type <List<string>>                                 columns column_star_list string_number_null_list
+%type <List<string>>                                 columns string_number_null_list
 %type <MyDBNs.ColumnDeclare>                         column_declare
 %type <List<MyDBNs.ColumnDeclare>>                   column_declares
 %type <MyDBNs.OrderByColumn>                         order_by_column
@@ -333,26 +333,6 @@ aggregation_columns ',' aggregation_column
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.CommaSepAggregrationColumn($1, $3);
 };
-
-column_star_list: 
-column 
-{
-    MyDBNs.SqlStatementsLexYaccCallback.CommaSep_Column_Star($$, $1);
-}
-|
-column ',' column_star_list
-{
-    MyDBNs.SqlStatementsLexYaccCallback.CommaSep_Column_Star($$, $1, $3);
-}
-| '*'
-{
-    MyDBNs.SqlStatementsLexYaccCallback.CommaSep_Column_Star($$, "*");
-}
-| '*' ',' column_star_list
-{
-    MyDBNs.SqlStatementsLexYaccCallback.CommaSep_Column_Star($$, "*", $3);
-}
-;
 
 arithmetic_expression:
 arithmetic_expression '+' term 
