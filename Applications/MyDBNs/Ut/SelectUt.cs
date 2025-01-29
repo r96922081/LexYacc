@@ -41,7 +41,7 @@
             object o = sql_statements.Parse("SELECT A.C1, A.C2, A.*, * FROM A");
             using (SelectedData s = o as SelectedData)
             {
-                //InteractiveConsole.PrintTable(s);
+                Check(s.columnNames.Count == 6);
             }
         }
 

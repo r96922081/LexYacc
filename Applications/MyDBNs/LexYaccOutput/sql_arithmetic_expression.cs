@@ -20,7 +20,7 @@ public class YaccActions{
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR
+%token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR JOIN ON
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
 %type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_column update_statement file_path string_number_null column
@@ -378,8 +378,10 @@ namespace sql_arithmetic_expressionNs
             { 300, "COUNT"},
             { 301, "ID_DOT_ID"},
             { 302, "ID_DOT_STAR"},
-            { 303, "POSITIVE_INT"},
-            { 304, "DOUBLE"},
+            { 303, "JOIN"},
+            { 304, "ON"},
+            { 305, "POSITIVE_INT"},
+            { 306, "DOUBLE"},
         };
 
         public static int SELECT = 256;
@@ -429,8 +431,10 @@ namespace sql_arithmetic_expressionNs
         public static int COUNT = 300;
         public static int ID_DOT_ID = 301;
         public static int ID_DOT_STAR = 302;
-        public static int POSITIVE_INT = 303;
-        public static int DOUBLE = 304;
+        public static int JOIN = 303;
+        public static int ON = 304;
+        public static int POSITIVE_INT = 305;
+        public static int DOUBLE = 306;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -454,61 +458,63 @@ namespace sql_arithmetic_expressionNs
 %}
 
 %%
-[sS][aA][vV][eE]                                 { return SAVE; }
-[lL][oO][aA][dD]                                 { return LOAD; }
-[dD][bB]                                         { return DB; }
-[sS][eE][lL][eE][cC][tT]                         { return SELECT; }
-[cC][rR][eE][aA][tT][eE]                         { return CREATE; }
-[dD][rR][oO][pP]                                 { return DROP; }
-[tT][aA][bB][lL][eE]                             { return TABLE; }
-[iI][nN][sS][eE][rR][tT]                         { return INSERT; }
-[dD][eE][lL][eE][tT][eE]                         { return DELETE; }
-[uU][pP][dD][aA][tT][eE]                         { return UPDATE; }
-[fF][rR][oO][mM]                                 { return FROM; }
-[iI][nN][tT][oO]                                 { return INTO; }
-[wW][hH][eE][rR][eE]                             { return WHERE; }
-[vV][aA][lL][uU][eE][sS]                         { return VALUES; }
-[sS][eE][tT]                                     { return SET; }
-[sS][hH][oO][wW]                                 { return SHOW; }
-[tT][aA][bB][lL][eE][sS]                         { return TABLES; }
-[aA][nN][dD]                                     { return AND; }
-[oO][rR]                                         { return OR; }
-[nN][oO][tT]                                     { return NOT; }
-[oO][rR][dD][eE][rR]                             { return ORDER; }
-[bB][yY]                                         { return BY; }
-[mM][iI][nN]                                     { return MIN; }
-[mM][aA][xX]                                     { return MAX; }
-[sS][uU][mM]                                     { return SUM; }
-[cC][oO][uU][nN][tT]                             { return COUNT; }
-[aA][sS][cC]                                     { return ASC; }
-[dD][eE][sS][cC]                                 { return DESC; }
-[nN][uU][lL][lL]                                 { return NULL; }
-[lL][iI][kK][eE]                                 { return LIKE; }
-[gG][rR][oO][uU][pP]                             { return GROUP; }
-[iI][sS]                                         { return IS; }
+[sS][aA][vV][eE]                                 { value = yytext;  return SAVE; }
+[lL][oO][aA][dD]                                 { value = yytext;  return LOAD; }
+[dD][bB]                                         { value = yytext;  return DB; }
+[sS][eE][lL][eE][cC][tT]                         { value = yytext;  return SELECT; }
+[cC][rR][eE][aA][tT][eE]                         { value = yytext;  return CREATE; }
+[dD][rR][oO][pP]                                 { value = yytext;  return DROP; }
+[tT][aA][bB][lL][eE]                             { value = yytext;  return TABLE; }
+[iI][nN][sS][eE][rR][tT]                         { value = yytext;  return INSERT; }
+[dD][eE][lL][eE][tT][eE]                         { value = yytext;  return DELETE; }
+[uU][pP][dD][aA][tT][eE]                         { value = yytext;  return UPDATE; }
+[fF][rR][oO][mM]                                 { value = yytext;  return FROM; }
+[iI][nN][tT][oO]                                 { value = yytext;  return INTO; }
+[wW][hH][eE][rR][eE]                             { value = yytext;  return WHERE; }
+[vV][aA][lL][uU][eE][sS]                         { value = yytext;  return VALUES; }
+[sS][eE][tT]                                     { value = yytext;  return SET; }
+[sS][hH][oO][wW]                                 { value = yytext;  return SHOW; }
+[tT][aA][bB][lL][eE][sS]                         { value = yytext;  return TABLES; }
+[aA][nN][dD]                                     { value = yytext;  return AND; }
+[oO][rR]                                         { value = yytext;  return OR; }
+[nN][oO][tT]                                     { value = yytext;  return NOT; }
+[oO][rR][dD][eE][rR]                             { value = yytext;  return ORDER; }
+[bB][yY]                                         { value = yytext;  return BY; }
+[mM][iI][nN]                                     { value = yytext;  return MIN; }
+[mM][aA][xX]                                     { value = yytext;  return MAX; }
+[sS][uU][mM]                                     { value = yytext;  return SUM; }
+[cC][oO][uU][nN][tT]                             { value = yytext;  return COUNT; }
+[aA][sS][cC]                                     { value = yytext;  return ASC; }
+[dD][eE][sS][cC]                                 { value = yytext;  return DESC; }
+[nN][uU][lL][lL]                                 { value = yytext;  return NULL; }
+[lL][iI][kK][eE]                                 { value = yytext;  return LIKE; }
+[gG][rR][oO][uU][pP]                             { value = yytext;  return GROUP; }
+[iI][sS]                                         { value = yytext;  return IS; }
+[jJ][oO][iI][nN]                                 { value = yytext;  return JOIN; }
+[oO][nN]                                         { value = yytext;  return ON; }
 [nN][uU][mM][bB][eE][rR]                         { value = ""NUMBER""; return NUMBER; }
 [vV][aA][rR][cC][hH][aA][rR]                     { value = ""VARCHAR""; return VARCHAR; }
-[sS][tT][aA][rR][tT]                             { return START; }
-[cC][oO][mM][mM][iI][tT]                         { return COMMIT; }
-[rR][oO][lL][lL][bB][aA][cC][kK]                 { return ROLLBACK; }
-[tT][rR][aA][nN][sS][aA][cC][tT][iI][oO][nN]     { return TRANSACTION; }
+[sS][tT][aA][rR][tT]                             { value = yytext;  return START; }
+[cC][oO][mM][mM][iI][tT]                         { value = yytext;  return COMMIT; }
+[rR][oO][lL][lL][bB][aA][cC][kK]                 { value = yytext;  return ROLLBACK; }
+[tT][rR][aA][nN][sS][aA][cC][tT][iI][oO][nN]     { value = yytext;  return TRANSACTION; }
 
-""||""                                             { return TWO_PIPE; }
-""!=""                                             { return NOT_EQUAL; }
-""<=""                                             { return LESS_OR_EQUAL; }
-"">=""                                             { return GREATER_OR_EQUAL; }
-""{""                                              { return '{'; }
-""}""                                              { return '}'; }
-""(""                                              { return '('; }
-"")""                                              { return ')'; }
-"",""                                              { return ','; }
-""=""                                              { return '='; }
-""<""                                              { return '<'; }
-"">""                                              { return '>'; }
-""*""                                              { return '*'; }
-""+""                                              { return '+'; }
-""-""                                              { return '-'; }
-""/""                                              { return '/'; }
+""||""                                             { value = yytext;  return TWO_PIPE; }
+""!=""                                             { value = yytext;  return NOT_EQUAL; }
+""<=""                                             { value = yytext;  return LESS_OR_EQUAL; }
+"">=""                                             { value = yytext;  return GREATER_OR_EQUAL; }
+""{""                                              { value = yytext;  return '{'; }
+""}""                                              { value = yytext;  return '}'; }
+""(""                                              { value = yytext;  return '('; }
+"")""                                              { value = yytext;  return ')'; }
+"",""                                              { value = yytext;  return ','; }
+""=""                                              { value = yytext;  return '='; }
+""<""                                              { value = yytext;  return '<'; }
+"">""                                              { value = yytext;  return '>'; }
+""*""                                              { value = yytext;  return '*'; }
+""+""                                              { value = yytext;  return '+'; }
+""-""                                              { value = yytext;  return '-'; }
+""/""                                              { value = yytext;  return '/'; }
 
 \d+                                              { value = int.Parse(yytext); return POSITIVE_INT; }
 -?\d+(\.\d+)?                                    { value = double.Parse(yytext); return DOUBLE; }
@@ -589,13 +595,15 @@ namespace sql_arithmetic_expressionNs
             actions.Add("LexRule59", LexAction59);
             actions.Add("LexRule60", LexAction60);
             actions.Add("LexRule61", LexAction61);
+            actions.Add("LexRule62", LexAction62);
+            actions.Add("LexRule63", LexAction63);
         }
         public static object LexAction0(string yytext)
         {
             value = null;
 
             // user-defined action
-            return SAVE; 
+            value = yytext;  return SAVE; 
 
             return 0;
         }
@@ -604,7 +612,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return LOAD; 
+            value = yytext;  return LOAD; 
 
             return 0;
         }
@@ -613,7 +621,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return DB; 
+            value = yytext;  return DB; 
 
             return 0;
         }
@@ -622,7 +630,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return SELECT; 
+            value = yytext;  return SELECT; 
 
             return 0;
         }
@@ -631,7 +639,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return CREATE; 
+            value = yytext;  return CREATE; 
 
             return 0;
         }
@@ -640,7 +648,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return DROP; 
+            value = yytext;  return DROP; 
 
             return 0;
         }
@@ -649,7 +657,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return TABLE; 
+            value = yytext;  return TABLE; 
 
             return 0;
         }
@@ -658,7 +666,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return INSERT; 
+            value = yytext;  return INSERT; 
 
             return 0;
         }
@@ -667,7 +675,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return DELETE; 
+            value = yytext;  return DELETE; 
 
             return 0;
         }
@@ -676,7 +684,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return UPDATE; 
+            value = yytext;  return UPDATE; 
 
             return 0;
         }
@@ -685,7 +693,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return FROM; 
+            value = yytext;  return FROM; 
 
             return 0;
         }
@@ -694,7 +702,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return INTO; 
+            value = yytext;  return INTO; 
 
             return 0;
         }
@@ -703,7 +711,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return WHERE; 
+            value = yytext;  return WHERE; 
 
             return 0;
         }
@@ -712,7 +720,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return VALUES; 
+            value = yytext;  return VALUES; 
 
             return 0;
         }
@@ -721,7 +729,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return SET; 
+            value = yytext;  return SET; 
 
             return 0;
         }
@@ -730,7 +738,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return SHOW; 
+            value = yytext;  return SHOW; 
 
             return 0;
         }
@@ -739,7 +747,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return TABLES; 
+            value = yytext;  return TABLES; 
 
             return 0;
         }
@@ -748,7 +756,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return AND; 
+            value = yytext;  return AND; 
 
             return 0;
         }
@@ -757,7 +765,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return OR; 
+            value = yytext;  return OR; 
 
             return 0;
         }
@@ -766,7 +774,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return NOT; 
+            value = yytext;  return NOT; 
 
             return 0;
         }
@@ -775,7 +783,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return ORDER; 
+            value = yytext;  return ORDER; 
 
             return 0;
         }
@@ -784,7 +792,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return BY; 
+            value = yytext;  return BY; 
 
             return 0;
         }
@@ -793,7 +801,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return MIN; 
+            value = yytext;  return MIN; 
 
             return 0;
         }
@@ -802,7 +810,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return MAX; 
+            value = yytext;  return MAX; 
 
             return 0;
         }
@@ -811,7 +819,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return SUM; 
+            value = yytext;  return SUM; 
 
             return 0;
         }
@@ -820,7 +828,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return COUNT; 
+            value = yytext;  return COUNT; 
 
             return 0;
         }
@@ -829,7 +837,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return ASC; 
+            value = yytext;  return ASC; 
 
             return 0;
         }
@@ -838,7 +846,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return DESC; 
+            value = yytext;  return DESC; 
 
             return 0;
         }
@@ -847,7 +855,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return NULL; 
+            value = yytext;  return NULL; 
 
             return 0;
         }
@@ -856,7 +864,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return LIKE; 
+            value = yytext;  return LIKE; 
 
             return 0;
         }
@@ -865,7 +873,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return GROUP; 
+            value = yytext;  return GROUP; 
 
             return 0;
         }
@@ -874,7 +882,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return IS; 
+            value = yytext;  return IS; 
 
             return 0;
         }
@@ -883,7 +891,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = "NUMBER"; return NUMBER; 
+            value = yytext;  return JOIN; 
 
             return 0;
         }
@@ -892,7 +900,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = "VARCHAR"; return VARCHAR; 
+            value = yytext;  return ON; 
 
             return 0;
         }
@@ -901,7 +909,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return START; 
+            value = "NUMBER"; return NUMBER; 
 
             return 0;
         }
@@ -910,7 +918,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return COMMIT; 
+            value = "VARCHAR"; return VARCHAR; 
 
             return 0;
         }
@@ -919,7 +927,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return ROLLBACK; 
+            value = yytext;  return START; 
 
             return 0;
         }
@@ -928,7 +936,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return TRANSACTION; 
+            value = yytext;  return COMMIT; 
 
             return 0;
         }
@@ -937,7 +945,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return TWO_PIPE; 
+            value = yytext;  return ROLLBACK; 
 
             return 0;
         }
@@ -946,7 +954,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return NOT_EQUAL; 
+            value = yytext;  return TRANSACTION; 
 
             return 0;
         }
@@ -955,7 +963,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return LESS_OR_EQUAL; 
+            value = yytext;  return TWO_PIPE; 
 
             return 0;
         }
@@ -964,7 +972,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return GREATER_OR_EQUAL; 
+            value = yytext;  return NOT_EQUAL; 
 
             return 0;
         }
@@ -973,7 +981,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '{'; 
+            value = yytext;  return LESS_OR_EQUAL; 
 
             return 0;
         }
@@ -982,7 +990,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '}'; 
+            value = yytext;  return GREATER_OR_EQUAL; 
 
             return 0;
         }
@@ -991,7 +999,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '('; 
+            value = yytext;  return '{'; 
 
             return 0;
         }
@@ -1000,7 +1008,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return ')'; 
+            value = yytext;  return '}'; 
 
             return 0;
         }
@@ -1009,7 +1017,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return ','; 
+            value = yytext;  return '('; 
 
             return 0;
         }
@@ -1018,7 +1026,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '='; 
+            value = yytext;  return ')'; 
 
             return 0;
         }
@@ -1027,7 +1035,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '<'; 
+            value = yytext;  return ','; 
 
             return 0;
         }
@@ -1036,7 +1044,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '>'; 
+            value = yytext;  return '='; 
 
             return 0;
         }
@@ -1045,7 +1053,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '*'; 
+            value = yytext;  return '<'; 
 
             return 0;
         }
@@ -1054,7 +1062,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '+'; 
+            value = yytext;  return '>'; 
 
             return 0;
         }
@@ -1063,7 +1071,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '-'; 
+            value = yytext;  return '*'; 
 
             return 0;
         }
@@ -1072,7 +1080,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            return '/'; 
+            value = yytext;  return '+'; 
 
             return 0;
         }
@@ -1081,7 +1089,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = int.Parse(yytext); return POSITIVE_INT; 
+            value = yytext;  return '-'; 
 
             return 0;
         }
@@ -1090,7 +1098,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = double.Parse(yytext); return DOUBLE; 
+            value = yytext;  return '/'; 
 
             return 0;
         }
@@ -1099,7 +1107,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext; return STRING; 
+            value = int.Parse(yytext); return POSITIVE_INT; 
 
             return 0;
         }
@@ -1108,7 +1116,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            value = double.Parse(yytext); return DOUBLE; 
 
             return 0;
         }
@@ -1117,7 +1125,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID_DOT_ID; 
+            value = yytext; return STRING; 
 
             return 0;
         }
@@ -1126,7 +1134,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID_DOT_STAR; 
+            value = yytext; return ID; 
 
             return 0;
         }
@@ -1135,11 +1143,29 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext; return FILE_PATH; 
+            value = yytext; return ID_DOT_ID; 
 
             return 0;
         }
         public static object LexAction61(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return ID_DOT_STAR; 
+
+            return 0;
+        }
+        public static object LexAction62(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return FILE_PATH; 
+
+            return 0;
+        }
+        public static object LexAction63(string yytext)
         {
             value = null;
 

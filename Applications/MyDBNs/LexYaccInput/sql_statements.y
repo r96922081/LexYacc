@@ -2,11 +2,11 @@
 
 %}
 
-%token <string>                                      SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR
+%token <string>                                      SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR JOIN ON
 %token <int>                                         POSITIVE_INT
 %token <double>                                      DOUBLE
 
-%type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start
+%type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start join_table join_condition join_conditions boolean_operator
 %type <List<string>>                                 columns string_number_null_list
 %type <MyDBNs.ColumnDeclare>                         column_declare
 %type <List<MyDBNs.ColumnDeclare>>                   column_declares
@@ -161,6 +161,38 @@ SELECT aggregation_columns FROM table WHERE boolean_expression GROUP BY columns 
 }
 ;
 
+join_table:
+table
+{
+
+}
+|
+table JOIN table ON 
+{
+
+}
+;
+
+join_conditions:
+join_conditions join_condition
+{
+
+}
+|
+join_condition
+{
+}
+;
+
+join_condition:
+column '=' column
+{
+
+}
+;
+
+
+
 boolean_expression:
 boolean_expression AND boolean_expression
 {
@@ -177,64 +209,14 @@ boolean_expression OR boolean_expression
     $$ = " ( " + $2 + " ) ";
 }
 | 
-string_expression '=' string_expression
+string_expression boolean_operator string_expression
 {
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "=", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, $2, $3);
 }
 | 
-string_expression '<' string_expression
+arithmeticExpression_column boolean_operator arithmeticExpression_column
 {
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "<", $3);
-}
-| 
-string_expression '>' string_expression
-{
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, ">", $3);
-}
-| 
-string_expression NOT_EQUAL string_expression
-{
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "!=", $3);
-}
-| 
-string_expression LESS_OR_EQUAL string_expression
-{
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "<=", $3);
-}
-| 
-string_expression GREATER_OR_EQUAL string_expression
-{
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, ">=", $3);
-}
-| 
-arithmeticExpression_column '=' arithmeticExpression_column
-{
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "=", $3);
-}
-| 
-arithmeticExpression_column '<' arithmeticExpression_column
-{
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "<", $3);
-}
-| 
-arithmeticExpression_column '>' arithmeticExpression_column
-{
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, ">", $3);
-}
-| 
-arithmeticExpression_column NOT_EQUAL arithmeticExpression_column
-{
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "!=", $3);
-}
-| 
-arithmeticExpression_column LESS_OR_EQUAL arithmeticExpression_column
-{
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "<=", $3);
-}
-| 
-arithmeticExpression_column GREATER_OR_EQUAL arithmeticExpression_column
-{
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, ">=", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, $2, $3);
 }
 |
 column IS NULL
@@ -608,6 +590,38 @@ ID_DOT_STAR
 '*'
 {
     $$ = "*";
+}
+;
+
+boolean_operator:
+'='
+{
+	$$ = "=";
+}
+|
+'<'
+{
+	$$ = "<";
+}
+|
+'>'
+{
+	$$ = ">";
+}
+|
+NOT_EQUAL
+{
+	$$ = $1;
+}
+|
+LESS_OR_EQUAL
+{
+	$$ = $1;
+}
+|
+GREATER_OR_EQUAL
+{
+	$$ = $1;
 }
 ;
 

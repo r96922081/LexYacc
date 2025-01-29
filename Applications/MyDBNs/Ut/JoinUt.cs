@@ -32,7 +32,6 @@
             {
                 InteractiveConsole.PrintTable(s);
             }*/
-
         }
 
         public void Ut()
