@@ -209,17 +209,15 @@ column '=' column
 }
 ;
 
-
-
 boolean_expression:
 boolean_expression AND boolean_expression
 {
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, ""AND"", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, $2, $3);
 }
 |
 boolean_expression OR boolean_expression
 {
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, ""OR"", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, $2, $3);
 }
 | 
 '(' boolean_expression ')'
@@ -1405,7 +1403,7 @@ GREATER_OR_EQUAL
         string _3 = (string)objects[3];
 
         // user-defined action
-        MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref _0, _1, "AND", _3);
+        MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref _0, _1, _2, _3);
 
         return _0;
     }
@@ -1417,7 +1415,7 @@ GREATER_OR_EQUAL
         string _3 = (string)objects[3];
 
         // user-defined action
-        MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref _0, _1, "OR", _3);
+        MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref _0, _1, _2, _3);
 
         return _0;
     }

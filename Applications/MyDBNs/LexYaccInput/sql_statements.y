@@ -191,17 +191,15 @@ column '=' column
 }
 ;
 
-
-
 boolean_expression:
 boolean_expression AND boolean_expression
 {
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "AND", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, $2, $3);
 }
 |
 boolean_expression OR boolean_expression
 {
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "OR", $3);
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, $2, $3);
 }
 | 
 '(' boolean_expression ')'

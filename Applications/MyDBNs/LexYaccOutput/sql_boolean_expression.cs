@@ -24,7 +24,7 @@ public class YaccActions{
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
 
-%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_column arithmeticExpression_column arithmetic_expression term number_column string_expression string_column string_number_null column
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_column arithmeticExpression_column arithmetic_expression term number_column string_expression string_column string_number_null column boolean_operator
 %type <List<string>> columns column_star_list string_number_null_list
 %type <List<(string, string)>> column_declare
 %type <HashSet<int>> boolean_expression
@@ -241,6 +241,39 @@ ID
 {
     $$ = $1;
 }
+;
+
+boolean_operator:
+'='
+{
+	$$ = ""="";
+}
+|
+'<'
+{
+	$$ = ""<"";
+}
+|
+'>'
+{
+	$$ = "">"";
+}
+|
+NOT_EQUAL
+{
+	$$ = $1;
+}
+|
+LESS_OR_EQUAL
+{
+	$$ = $1;
+}
+|
+GREATER_OR_EQUAL
+{
+	$$ = $1;
+}
+;
 
 %%";
 
@@ -302,6 +335,12 @@ ID
         actions.Add("Rule_string_column_Producton_0", Rule_string_column_Producton_0);
         actions.Add("Rule_string_column_Producton_1", Rule_string_column_Producton_1);
         actions.Add("Rule_column_Producton_0", Rule_column_Producton_0);
+        actions.Add("Rule_boolean_operator_Producton_0", Rule_boolean_operator_Producton_0);
+        actions.Add("Rule_boolean_operator_Producton_1", Rule_boolean_operator_Producton_1);
+        actions.Add("Rule_boolean_operator_Producton_2", Rule_boolean_operator_Producton_2);
+        actions.Add("Rule_boolean_operator_Producton_3", Rule_boolean_operator_Producton_3);
+        actions.Add("Rule_boolean_operator_Producton_4", Rule_boolean_operator_Producton_4);
+        actions.Add("Rule_boolean_operator_Producton_5", Rule_boolean_operator_Producton_5);
     }
 
     public static object Rule_start_Producton_0(Dictionary<int, object> objects) { 
@@ -766,6 +805,63 @@ ID
 
         // user-defined action
         _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_boolean_operator_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+
+        // user-defined action
+        	_0 = "=";
+
+        return _0;
+    }
+
+    public static object Rule_boolean_operator_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+
+        // user-defined action
+        	_0 = "<";
+
+        return _0;
+    }
+
+    public static object Rule_boolean_operator_Producton_2(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+
+        // user-defined action
+        	_0 = ">";
+
+        return _0;
+    }
+
+    public static object Rule_boolean_operator_Producton_3(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        	_0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_boolean_operator_Producton_4(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        	_0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_boolean_operator_Producton_5(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        	_0 = _1;
 
         return _0;
     }
