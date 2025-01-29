@@ -174,7 +174,7 @@ table JOIN table ON
 ;
 
 join_conditions:
-join_conditions join_condition
+join_conditions ',' join_condition
 {
 
 }
@@ -185,19 +185,14 @@ join_condition
 ;
 
 join_condition:
-column '=' column
+ID_DOT_STAR '=' ID_DOT_STAR
 {
 
 }
 ;
 
 boolean_expression:
-boolean_expression AND boolean_expression
-{
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, $2, $3);
-}
-|
-boolean_expression OR boolean_expression
+boolean_expression logical_operator boolean_expression
 {
     MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, $2, $3);
 }
@@ -530,8 +525,14 @@ NULL
 
 logical_operator: 
 AND 
+{
+    $$ = $1;
+}
 | 
-OR;
+OR
+{
+    $$ = $1;
+};
 
 number_double:
 DOUBLE

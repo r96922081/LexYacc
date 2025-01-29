@@ -192,7 +192,7 @@ table JOIN table ON
 ;
 
 join_conditions:
-join_conditions join_condition
+join_conditions ',' join_condition
 {
 
 }
@@ -203,19 +203,14 @@ join_condition
 ;
 
 join_condition:
-column '=' column
+ID_DOT_STAR '=' ID_DOT_STAR
 {
 
 }
 ;
 
 boolean_expression:
-boolean_expression AND boolean_expression
-{
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, $2, $3);
-}
-|
-boolean_expression OR boolean_expression
+boolean_expression logical_operator boolean_expression
 {
     MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, $2, $3);
 }
@@ -548,8 +543,14 @@ NULL
 
 logical_operator: 
 AND 
+{
+    $$ = $1;
+}
 | 
-OR;
+OR
+{
+    $$ = $1;
+};
 
 number_double:
 DOUBLE
@@ -711,7 +712,6 @@ GREATER_OR_EQUAL
         actions.Add("Rule_boolean_expression_Producton_6", Rule_boolean_expression_Producton_6);
         actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_0", Rule_boolean_expression_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_1", Rule_boolean_expression_LeftRecursionExpand_Producton_1);
-        actions.Add("Rule_boolean_expression_LeftRecursionExpand_Producton_2", Rule_boolean_expression_LeftRecursionExpand_Producton_2);
         actions.Add("Rule_set_expression_Producton_0", Rule_set_expression_Producton_0);
         actions.Add("Rule_set_expression_Producton_1", Rule_set_expression_Producton_1);
         actions.Add("Rule_set_expression_Producton_2", Rule_set_expression_Producton_2);
@@ -770,6 +770,8 @@ GREATER_OR_EQUAL
         actions.Add("Rule_string_number_null_Producton_0", Rule_string_number_null_Producton_0);
         actions.Add("Rule_string_number_null_Producton_1", Rule_string_number_null_Producton_1);
         actions.Add("Rule_string_number_null_Producton_2", Rule_string_number_null_Producton_2);
+        actions.Add("Rule_logical_operator_Producton_0", Rule_logical_operator_Producton_0);
+        actions.Add("Rule_logical_operator_Producton_1", Rule_logical_operator_Producton_1);
         actions.Add("Rule_number_double_Producton_0", Rule_number_double_Producton_0);
         actions.Add("Rule_number_double_Producton_1", Rule_number_double_Producton_1);
         actions.Add("Rule_column_type_Producton_0", Rule_column_type_Producton_0);
@@ -1293,7 +1295,7 @@ GREATER_OR_EQUAL
     public static object Rule_join_conditions_LeftRecursionExpand_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 =(string)objects[1];
-        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
 
         return _0;
     }
@@ -1409,18 +1411,6 @@ GREATER_OR_EQUAL
     }
 
     public static object Rule_boolean_expression_LeftRecursionExpand_Producton_1(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 =(string)objects[1];
-        string _2 = (string)objects[2];
-        string _3 = (string)objects[3];
-
-        // user-defined action
-        MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref _0, _1, _2, _3);
-
-        return _0;
-    }
-
-    public static object Rule_boolean_expression_LeftRecursionExpand_Producton_2(Dictionary<int, object> objects) { 
         string _0 = new string("");
 
         return _0;
@@ -2011,6 +2001,26 @@ GREATER_OR_EQUAL
 
         // user-defined action
         _0 = null;
+
+        return _0;
+    }
+
+    public static object Rule_logical_operator_Producton_0(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_logical_operator_Producton_1(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = _1;
 
         return _0;
     }
