@@ -17,7 +17,8 @@ namespace MyDBNs
 
         public List<object[]> RunSelectStatementAndConvertResult(string s)
         {
-            return Util.GetSelectRows((SelectedData)sql_statements.Parse(s));
+            object ret = sql_statements.Parse(s);
+            return Util.GetSelectRows((SelectedData)ret);
         }
 
         public void CheckException(Func<object> func)

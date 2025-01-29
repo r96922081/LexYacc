@@ -96,6 +96,16 @@ namespace MyDBNs
             return orders2;
         }
 
+        private static void SortSelectedData(SelectedData s, List<OrderByColumn> orderByColumns)
+        {
+            if (orderByColumns == null)
+                return;
+            
+            List<OrderBy> order = ConvertOrder(s, orderByColumns);
+            SortRows(s, order);
+            
+        }
+
         private static void SortRows(SelectedData s, List<OrderBy> order2)
         {
             s.selectedRows.Sort((lIndex, rIndex) =>
@@ -139,12 +149,7 @@ namespace MyDBNs
             Table table = Util.GetTable(tableName);
 
             SelectedData s = GetSelectedData(table, columnInput, whereCondition);
-
-            if (orders != null)
-            {
-                List<OrderBy> order2 = ConvertOrder(s, orders);
-                SortRows(s, order2);
-            }
+            SortSelectedData(s, orders);
 
             return s;
         }
@@ -197,7 +202,9 @@ namespace MyDBNs
         public static SelectedData SelectRows(List<AggregationColumn> aggregrationColumns, string tableName, string whereCondition, List<string> groupByColumns, List<OrderByColumn> orderByColumns)
         {
             Table srcTable = Util.GetTable(tableName);
-            List<int> groupByColumnIndex = Util.GetColumnIndexFromName(srcTable, groupByColumns);
+            List<int> groupByColumnIndex = null;
+            if (groupByColumns != null)
+                groupByColumnIndex = Util.GetColumnIndexFromName(srcTable, groupByColumns);
             List<int> aggregrationColumnIndex = Util.GetColumnIndexFromName(srcTable, aggregrationColumns.Select(s => s.columnName).ToList());
             SelectedData src = GetSelectedData(srcTable, aggregrationColumns.Select(s => s.columnName).ToList(), whereCondition);
 
@@ -209,7 +216,11 @@ namespace MyDBNs
             {
                 object[] srcRow = srcTable.rows[rowIndex];
 
-                string groupKey = GetGroupKey(srcRow, groupByColumnIndex);
+                string groupKey = "";
+                
+                if (groupByColumns != null)
+                    groupKey = GetGroupKey(srcRow, groupByColumnIndex);
+
                 if (!groupByRows.ContainsKey(groupKey)) 
                 {
                     object[] rowToInsert = new object[aggregrationColumns.Count];
@@ -287,6 +298,8 @@ namespace MyDBNs
             result.columnIndex = Enumerable.Range(0, aggregrationColumns.Count).ToList();
             result.selectedRows = Enumerable.Range(0, result.table.rows.Count).ToList();
             result.needToDispose = true;
+
+            SortSelectedData(result, orderByColumns);
 
             return result;
         }

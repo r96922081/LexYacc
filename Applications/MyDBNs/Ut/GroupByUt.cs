@@ -122,10 +122,118 @@
             }
         }
 
+        private void Ut3_orderby()
+        {
+            /*
+                --------------------------------
+                | C1   | C2     | C3 | C4 | C5 |
+                --------------------------------
+                | ABC  | ABCDE  | 10 |    | 20 |
+                | ABC  | ABCDEF | 20 |    | 30 |
+                | DEF  | ABCDEF | 20 |    | 30 |
+                | DEF  | ABCDEF | 40 | 50 | 35 |
+                | DEF  | ABCDEF | 45 | 50 | 35 |
+                | DEFX | ABCDEF | 45 | 50 |    |
+                --------------------------------
+            */
+
+            sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_GROUP_BY_2.DB"));
+
+            /*
+                -------------------------------------------------------------
+                | 1_MAX(C1) | 2_MIN(C3) | 3_COUNT(C4) | 4_SUM(C5) | C4 | C5 |
+                -------------------------------------------------------------
+                | DEFX      | 45        | 1           | 0         | 50 |    |
+                | DEF       | 40        | 2           | 70        | 50 | 35 |
+                | DEF       | 20        | 0           | 60        |    | 30 |
+                | ABC       | 10        | 0           | 20        |    | 20 |
+                -------------------------------------------------------------       
+             */
+            object o = sql_statements.Parse("SELECT MAX(C1), MIN(C3), COUNT(C4), SUM(C5), C4, C5 FROM A GROUP BY C4, C5 ORDER BY 1 DESC, C5 DESC");
+            using (SelectedData s = o as SelectedData)
+            {
+                //InteractiveConsole.PrintTable(s);
+                int col = 0;
+
+                object[] row = s.table.rows[s.selectedRows[0]];
+                Check((string)row[0] == "DEFX");
+
+                row = s.table.rows[s.selectedRows[1]];
+                Check((string)row[0] == "DEF");
+                Check((double)row[5] == 35);
+
+                row = s.table.rows[s.selectedRows[2]];
+                Check((string)row[0] == "DEF");
+                Check((double)row[5] == 30);
+            }
+
+            o = sql_statements.Parse("SELECT MAX(C1), MIN(C3), COUNT(C4), SUM(C5), C4, C5 FROM A GROUP BY C4, C5 ORDER BY 1 DESC, 6");
+            using (SelectedData s = o as SelectedData)
+            {
+                //InteractiveConsole.PrintTable(s);
+                int col = 0;
+
+                object[] row = s.table.rows[s.selectedRows[0]];
+                Check((string)row[0] == "DEFX");
+
+                row = s.table.rows[s.selectedRows[1]];
+                Check((string)row[0] == "DEF");
+                Check((double)row[5] == 30);
+
+                row = s.table.rows[s.selectedRows[2]];
+                Check((string)row[0] == "DEF");
+                Check((double)row[5] == 35);
+            }
+        }
+
+        private void Ut4_groupByNone()
+        {
+            /*
+                --------------------------------
+                | C1   | C2     | C3 | C4 | C5 |
+                --------------------------------
+                | ABC  | ABCDE  | 10 |    | 20 |
+                | ABC  | ABCDEF | 20 |    | 30 |
+                | DEF  | ABCDEF | 20 |    | 30 |
+                | DEF  | ABCDEF | 40 | 50 | 35 |
+                | DEF  | ABCDEF | 45 | 50 | 35 |
+                | DEFX | ABCDEF | 45 | 50 |    |
+                --------------------------------
+            */
+
+            sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_GROUP_BY_2.DB"));
+
+            /*
+                -----------------------------------------------------------------------------
+                | 1_MAX(C1) | 2_MIN(C2) | 3_MIN(C3) | 4_COUNT(C3) | 5_COUNT(C4) | 6_SUM(C5) |
+                -----------------------------------------------------------------------------
+                | DEFX      | ABCDE     | 10        | 6           | 3           | 150       |
+                -----------------------------------------------------------------------------            
+             */
+            object o = sql_statements.Parse("SELECT MAX(C1), MIN(C2), MIN(C3), COUNT(C3),COUNT(C4), SUM(C5) FROM A ORDER BY 1,2,3,4, 5");
+            using (SelectedData s = o as SelectedData)
+            {
+                //InteractiveConsole.PrintTable(s);
+                int col = 0;
+
+                object[] row = s.table.rows[s.selectedRows[0]];
+                Check((string)row[0] == "DEFX");
+                Check((string)row[1] == "ABCDE");
+                Check((double)row[2] == 10);
+                Check((double)row[3] == 6);
+                Check((double)row[4] == 3);
+                Check((double)row[5] == 150);
+
+            }
+        }
+
+
         public void Ut()
         {
             Ut1();
             Ut2();
+            Ut3_orderby();
+            Ut4_groupByNone();
         }
     }
 }

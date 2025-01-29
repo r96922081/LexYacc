@@ -120,9 +120,9 @@ SHOW TABLES
 ;
 
 select_statement:
-SELECT column_star_list FROM table
+SELECT aggregation_columns FROM table
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, null, null);
 }
 |
 SELECT aggregation_columns FROM table GROUP BY columns
@@ -130,9 +130,9 @@ SELECT aggregation_columns FROM table GROUP BY columns
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $7, null);
 }
 |
-SELECT column_star_list FROM table ORDER BY order_by_columns
+SELECT aggregation_columns FROM table ORDER BY order_by_columns
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $7);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, null, $7);
 }
 |
 SELECT aggregation_columns FROM table GROUP BY columns ORDER BY order_by_columns
@@ -140,9 +140,9 @@ SELECT aggregation_columns FROM table GROUP BY columns ORDER BY order_by_columns
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $7, $10);
 }
 |
-SELECT column_star_list FROM table WHERE boolean_expression
+SELECT aggregation_columns FROM table WHERE boolean_expression
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, null, null);
 }
 |
 SELECT aggregation_columns FROM table WHERE boolean_expression GROUP BY columns
@@ -150,9 +150,9 @@ SELECT aggregation_columns FROM table WHERE boolean_expression GROUP BY columns
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, $9, null);
 }
 |
-SELECT column_star_list FROM table WHERE boolean_expression ORDER BY order_by_columns
+SELECT aggregation_columns FROM table WHERE boolean_expression ORDER BY order_by_columns
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, $9);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, null, $9);
 }
 |
 SELECT aggregation_columns FROM table WHERE boolean_expression GROUP BY columns ORDER BY order_by_columns
@@ -502,6 +502,11 @@ SUM '(' column ')'
  column
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.NONE, $1);
+}
+|
+'*'
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.NONE, "*");
 }
 ;
 

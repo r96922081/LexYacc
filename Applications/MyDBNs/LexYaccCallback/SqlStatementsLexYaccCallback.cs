@@ -147,14 +147,19 @@
             return c;
         }
 
-        public static SelectedData Select(List<string> columns, string tableName, string condition, List<OrderByColumn> orderByColumns)
+        private static SelectedData Select(List<string> columns, string tableName, string condition, List<OrderByColumn> orderByColumns)
         {
             return MyDBNs.Select.SelectRows(columns, tableName, condition, orderByColumns);
         }
 
         public static SelectedData Select(List<AggregationColumn> columns, string tableName, string condition, List<string> groupByColumns, List<OrderByColumn> orderByColumns)
         {
-            return MyDBNs.Select.SelectRows(columns, tableName, condition, groupByColumns, orderByColumns);
+            int aggregrationColumnCount = columns.Where(c => c.op != AggerationOperation.NONE).Count();
+
+            if (aggregrationColumnCount == 0)
+                return Select(columns.Select(c => c.columnName).ToList(), tableName, condition, orderByColumns);
+            else
+                return MyDBNs.Select.SelectRows(columns, tableName, condition, groupByColumns, orderByColumns);
         }
 
         public static void BooleanExpression(ref string booleanExpression, string lhs, string op, string rhs)

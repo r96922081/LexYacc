@@ -138,9 +138,9 @@ SHOW TABLES
 ;
 
 select_statement:
-SELECT column_star_list FROM table
+SELECT aggregation_columns FROM table
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, null, null);
 }
 |
 SELECT aggregation_columns FROM table GROUP BY columns
@@ -148,9 +148,9 @@ SELECT aggregation_columns FROM table GROUP BY columns
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $7, null);
 }
 |
-SELECT column_star_list FROM table ORDER BY order_by_columns
+SELECT aggregation_columns FROM table ORDER BY order_by_columns
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $7);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, null, $7);
 }
 |
 SELECT aggregation_columns FROM table GROUP BY columns ORDER BY order_by_columns
@@ -158,9 +158,9 @@ SELECT aggregation_columns FROM table GROUP BY columns ORDER BY order_by_columns
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $7, $10);
 }
 |
-SELECT column_star_list FROM table WHERE boolean_expression
+SELECT aggregation_columns FROM table WHERE boolean_expression
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, null, null);
 }
 |
 SELECT aggregation_columns FROM table WHERE boolean_expression GROUP BY columns
@@ -168,9 +168,9 @@ SELECT aggregation_columns FROM table WHERE boolean_expression GROUP BY columns
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, $9, null);
 }
 |
-SELECT column_star_list FROM table WHERE boolean_expression ORDER BY order_by_columns
+SELECT aggregation_columns FROM table WHERE boolean_expression ORDER BY order_by_columns
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, $9);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, null, $9);
 }
 |
 SELECT aggregation_columns FROM table WHERE boolean_expression GROUP BY columns ORDER BY order_by_columns
@@ -521,6 +521,11 @@ SUM '(' column ')'
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.NONE, $1);
 }
+|
+'*'
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.NONE, ""*"");
+}
 ;
 
 number_column:
@@ -750,6 +755,7 @@ ID
         actions.Add("Rule_aggregation_column_Producton_2", Rule_aggregation_column_Producton_2);
         actions.Add("Rule_aggregation_column_Producton_3", Rule_aggregation_column_Producton_3);
         actions.Add("Rule_aggregation_column_Producton_4", Rule_aggregation_column_Producton_4);
+        actions.Add("Rule_aggregation_column_Producton_5", Rule_aggregation_column_Producton_5);
         actions.Add("Rule_number_column_Producton_0", Rule_number_column_Producton_0);
         actions.Add("Rule_number_column_Producton_1", Rule_number_column_Producton_1);
         actions.Add("Rule_string_number_column_Producton_0", Rule_string_number_column_Producton_0);
@@ -1113,12 +1119,12 @@ ID
     public static object Rule_select_statement_Producton_0(Dictionary<int, object> objects) { 
         MyDBNs.SelectedData _0 = new MyDBNs.SelectedData();
         string _1 = (string)objects[1];
-        List<string> _2 = (List<string>)objects[2];
+        List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
         string _4 = (string)objects[4];
 
         // user-defined action
-        _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, null, null);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, null, null, null);
 
         return _0;
     }
@@ -1142,7 +1148,7 @@ ID
     public static object Rule_select_statement_Producton_2(Dictionary<int, object> objects) { 
         MyDBNs.SelectedData _0 = new MyDBNs.SelectedData();
         string _1 = (string)objects[1];
-        List<string> _2 = (List<string>)objects[2];
+        List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
         string _4 = (string)objects[4];
         string _5 = (string)objects[5];
@@ -1150,7 +1156,7 @@ ID
         List<MyDBNs.OrderByColumn> _7 = (List<MyDBNs.OrderByColumn>)objects[7];
 
         // user-defined action
-        _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, null, _7);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, null, null, _7);
 
         return _0;
     }
@@ -1177,14 +1183,14 @@ ID
     public static object Rule_select_statement_Producton_4(Dictionary<int, object> objects) { 
         MyDBNs.SelectedData _0 = new MyDBNs.SelectedData();
         string _1 = (string)objects[1];
-        List<string> _2 = (List<string>)objects[2];
+        List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
         string _4 = (string)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
 
         // user-defined action
-        _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, _6, null);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, _6, null, null);
 
         return _0;
     }
@@ -1210,7 +1216,7 @@ ID
     public static object Rule_select_statement_Producton_6(Dictionary<int, object> objects) { 
         MyDBNs.SelectedData _0 = new MyDBNs.SelectedData();
         string _1 = (string)objects[1];
-        List<string> _2 = (List<string>)objects[2];
+        List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
         string _4 = (string)objects[4];
         string _5 = (string)objects[5];
@@ -1220,7 +1226,7 @@ ID
         List<MyDBNs.OrderByColumn> _9 = (List<MyDBNs.OrderByColumn>)objects[9];
 
         // user-defined action
-        _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, _6, _9);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, _6, null, _9);
 
         return _0;
     }
@@ -1989,6 +1995,15 @@ ID
 
         // user-defined action
         _0 = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.NONE, _1);
+
+        return _0;
+    }
+
+    public static object Rule_aggregation_column_Producton_5(Dictionary<int, object> objects) { 
+        MyDBNs.AggregationColumn _0 = new MyDBNs.AggregationColumn();
+
+        // user-defined action
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumn(MyDBNs.AggerationOperation.NONE, "*");
 
         return _0;
     }
