@@ -20,7 +20,7 @@ public class YaccActions{
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR JOIN ON
+%token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR JOIN ON  LEFT CROSS
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
 %type <string> statement column_type save_db load_db create_table_statement insert_statement  delete_statement show_tables_statement drop_table_statement logical_operator select_statement boolean_expression string_number_column update_statement file_path string_number_null column
@@ -380,8 +380,10 @@ namespace sql_arithmetic_expressionNs
             { 302, "ID_DOT_STAR"},
             { 303, "JOIN"},
             { 304, "ON"},
-            { 305, "POSITIVE_INT"},
-            { 306, "DOUBLE"},
+            { 305, "LEFT"},
+            { 306, "CROSS"},
+            { 307, "POSITIVE_INT"},
+            { 308, "DOUBLE"},
         };
 
         public static int SELECT = 256;
@@ -433,8 +435,10 @@ namespace sql_arithmetic_expressionNs
         public static int ID_DOT_STAR = 302;
         public static int JOIN = 303;
         public static int ON = 304;
-        public static int POSITIVE_INT = 305;
-        public static int DOUBLE = 306;
+        public static int LEFT = 305;
+        public static int CROSS = 306;
+        public static int POSITIVE_INT = 307;
+        public static int DOUBLE = 308;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -498,6 +502,8 @@ namespace sql_arithmetic_expressionNs
 [cC][oO][mM][mM][iI][tT]                         { value = yytext;  return COMMIT; }
 [rR][oO][lL][lL][bB][aA][cC][kK]                 { value = yytext;  return ROLLBACK; }
 [tT][rR][aA][nN][sS][aA][cC][tT][iI][oO][nN]     { value = yytext;  return TRANSACTION; }
+[lL][eF][fF][tT]                                 { value = yytext;  return LEFT; }
+[cC][rR][oO][sS][sS]                             { value = yytext;  return CROSS; }
 
 ""||""                                             { value = yytext;  return TWO_PIPE; }
 ""!=""                                             { value = yytext;  return NOT_EQUAL; }
@@ -597,6 +603,8 @@ namespace sql_arithmetic_expressionNs
             actions.Add("LexRule61", LexAction61);
             actions.Add("LexRule62", LexAction62);
             actions.Add("LexRule63", LexAction63);
+            actions.Add("LexRule64", LexAction64);
+            actions.Add("LexRule65", LexAction65);
         }
         public static object LexAction0(string yytext)
         {
@@ -963,7 +971,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext;  return TWO_PIPE; 
+            value = yytext;  return LEFT; 
 
             return 0;
         }
@@ -972,7 +980,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext;  return NOT_EQUAL; 
+            value = yytext;  return CROSS; 
 
             return 0;
         }
@@ -981,7 +989,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext;  return LESS_OR_EQUAL; 
+            value = yytext;  return TWO_PIPE; 
 
             return 0;
         }
@@ -990,7 +998,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext;  return GREATER_OR_EQUAL; 
+            value = yytext;  return NOT_EQUAL; 
 
             return 0;
         }
@@ -999,7 +1007,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '{'; 
+            value = yytext;  return LESS_OR_EQUAL; 
 
             return 0;
         }
@@ -1008,7 +1016,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '}'; 
+            value = yytext;  return GREATER_OR_EQUAL; 
 
             return 0;
         }
@@ -1017,7 +1025,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '('; 
+            value = yytext;  return '{'; 
 
             return 0;
         }
@@ -1026,7 +1034,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext;  return ')'; 
+            value = yytext;  return '}'; 
 
             return 0;
         }
@@ -1035,7 +1043,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext;  return ','; 
+            value = yytext;  return '('; 
 
             return 0;
         }
@@ -1044,7 +1052,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '='; 
+            value = yytext;  return ')'; 
 
             return 0;
         }
@@ -1053,7 +1061,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '<'; 
+            value = yytext;  return ','; 
 
             return 0;
         }
@@ -1062,7 +1070,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '>'; 
+            value = yytext;  return '='; 
 
             return 0;
         }
@@ -1071,7 +1079,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '*'; 
+            value = yytext;  return '<'; 
 
             return 0;
         }
@@ -1080,7 +1088,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '+'; 
+            value = yytext;  return '>'; 
 
             return 0;
         }
@@ -1089,7 +1097,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '-'; 
+            value = yytext;  return '*'; 
 
             return 0;
         }
@@ -1098,7 +1106,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '/'; 
+            value = yytext;  return '+'; 
 
             return 0;
         }
@@ -1107,7 +1115,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = int.Parse(yytext); return POSITIVE_INT; 
+            value = yytext;  return '-'; 
 
             return 0;
         }
@@ -1116,7 +1124,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = double.Parse(yytext); return DOUBLE; 
+            value = yytext;  return '/'; 
 
             return 0;
         }
@@ -1125,7 +1133,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext; return STRING; 
+            value = int.Parse(yytext); return POSITIVE_INT; 
 
             return 0;
         }
@@ -1134,7 +1142,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            value = double.Parse(yytext); return DOUBLE; 
 
             return 0;
         }
@@ -1143,7 +1151,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID_DOT_ID; 
+            value = yytext; return STRING; 
 
             return 0;
         }
@@ -1152,7 +1160,7 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID_DOT_STAR; 
+            value = yytext; return ID; 
 
             return 0;
         }
@@ -1161,11 +1169,29 @@ namespace sql_arithmetic_expressionNs
             value = null;
 
             // user-defined action
-            value = yytext; return FILE_PATH; 
+            value = yytext; return ID_DOT_ID; 
 
             return 0;
         }
         public static object LexAction63(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return ID_DOT_STAR; 
+
+            return 0;
+        }
+        public static object LexAction64(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return FILE_PATH; 
+
+            return 0;
+        }
+        public static object LexAction65(string yytext)
         {
             value = null;
 

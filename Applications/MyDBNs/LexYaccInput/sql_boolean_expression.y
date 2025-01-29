@@ -2,11 +2,11 @@
 
 %}
 
-%token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR JOIN ON
+%token <string> SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR JOIN ON  LEFT CROSS
 %token <int> POSITIVE_INT
 %token <double> DOUBLE
 
-%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_column arithmeticExpression_column arithmetic_expression term number_column string_expression string_column string_number_null column boolean_operator
+%type <string> statement column_type create_table_statement insert_statement  delete_statement show_tables_statement logical_operator select_statement string_number_column arithmeticExpression_column arithmetic_expression term number_column string_expression string_column string_number_null column relational_operator
 %type <List<string>> columns column_star_list string_number_null_list
 %type <List<(string, string)>> column_declare
 %type <HashSet<int>> boolean_expression
@@ -31,12 +31,12 @@ boolean_expression OR boolean_expression
     $$ = $2;
 }
 | 
-string_expression boolean_operator string_expression
+string_expression relational_operator string_expression
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionVarcharColumn($1, $2, $3);
 }
 | 
-arithmeticExpression_column boolean_operator arithmeticExpression_column
+arithmeticExpression_column relational_operator arithmeticExpression_column
 {
     $$ = MyDBNs.SqlBooleanExpressionLexYaccCallback.BooleanExpressionNumberColumn($1, $2, $3);
 }
@@ -175,7 +175,7 @@ ID
 }
 ;
 
-boolean_operator:
+relational_operator:
 '='
 {
 	$$ = "=";

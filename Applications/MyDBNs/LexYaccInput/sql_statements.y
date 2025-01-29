@@ -2,11 +2,11 @@
 
 %}
 
-%token <string>                                      SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR JOIN ON
+%token <string>                                      SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR JOIN ON LEFT CROSS
 %token <int>                                         POSITIVE_INT
 %token <double>                                      DOUBLE
 
-%type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start join_table join_condition join_conditions boolean_operator
+%type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start join_table join_condition join_conditions relational_operator
 %type <List<string>>                                 columns string_number_null_list
 %type <MyDBNs.ColumnDeclare>                         column_declare
 %type <List<MyDBNs.ColumnDeclare>>                   column_declares
@@ -167,7 +167,17 @@ table
 
 }
 |
-table JOIN table ON 
+table JOIN table ON join_conditions
+{
+
+}
+|
+table LEFT JOIN table ON join_conditions
+{
+
+}
+|
+table CROSS JOIN table ON join_conditions
 {
 
 }
@@ -185,7 +195,7 @@ join_condition
 ;
 
 join_condition:
-ID_DOT_STAR '=' ID_DOT_STAR
+ID_DOT_ID relational_operator ID_DOT_ID
 {
 
 }
@@ -202,12 +212,12 @@ boolean_expression logical_operator boolean_expression
     $$ = " ( " + $2 + " ) ";
 }
 | 
-string_expression boolean_operator string_expression
+string_expression relational_operator string_expression
 {
     MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, $2, $3);
 }
 | 
-arithmeticExpression_column boolean_operator arithmeticExpression_column
+arithmeticExpression_column relational_operator arithmeticExpression_column
 {
     MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, $2, $3);
 }
@@ -592,7 +602,7 @@ ID_DOT_STAR
 }
 ;
 
-boolean_operator:
+relational_operator:
 '='
 {
 	$$ = "=";

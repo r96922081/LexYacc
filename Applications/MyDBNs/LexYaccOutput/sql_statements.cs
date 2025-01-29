@@ -20,11 +20,11 @@ public class YaccActions{
 
 %}
 
-%token <string>                                      SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR JOIN ON
+%token <string>                                      SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR JOIN ON LEFT CROSS
 %token <int>                                         POSITIVE_INT
 %token <double>                                      DOUBLE
 
-%type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start join_table join_condition join_conditions boolean_operator
+%type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start join_table join_condition join_conditions relational_operator
 %type <List<string>>                                 columns string_number_null_list
 %type <MyDBNs.ColumnDeclare>                         column_declare
 %type <List<MyDBNs.ColumnDeclare>>                   column_declares
@@ -185,7 +185,17 @@ table
 
 }
 |
-table JOIN table ON 
+table JOIN table ON join_conditions
+{
+
+}
+|
+table LEFT JOIN table ON join_conditions
+{
+
+}
+|
+table CROSS JOIN table ON join_conditions
 {
 
 }
@@ -203,7 +213,7 @@ join_condition
 ;
 
 join_condition:
-ID_DOT_STAR '=' ID_DOT_STAR
+ID_DOT_ID relational_operator ID_DOT_ID
 {
 
 }
@@ -220,12 +230,12 @@ boolean_expression logical_operator boolean_expression
     $$ = "" ( "" + $2 + "" ) "";
 }
 | 
-string_expression boolean_operator string_expression
+string_expression relational_operator string_expression
 {
     MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, $2, $3);
 }
 | 
-arithmeticExpression_column boolean_operator arithmeticExpression_column
+arithmeticExpression_column relational_operator arithmeticExpression_column
 {
     MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, $2, $3);
 }
@@ -610,7 +620,7 @@ ID_DOT_STAR
 }
 ;
 
-boolean_operator:
+relational_operator:
 '='
 {
 	$$ = ""="";
@@ -699,6 +709,8 @@ GREATER_OR_EQUAL
         actions.Add("Rule_select_statement_Producton_7", Rule_select_statement_Producton_7);
         actions.Add("Rule_join_table_Producton_0", Rule_join_table_Producton_0);
         actions.Add("Rule_join_table_Producton_1", Rule_join_table_Producton_1);
+        actions.Add("Rule_join_table_Producton_2", Rule_join_table_Producton_2);
+        actions.Add("Rule_join_table_Producton_3", Rule_join_table_Producton_3);
         actions.Add("Rule_join_conditions_Producton_0", Rule_join_conditions_Producton_0);
         actions.Add("Rule_join_conditions_LeftRecursionExpand_Producton_0", Rule_join_conditions_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_join_conditions_LeftRecursionExpand_Producton_1", Rule_join_conditions_LeftRecursionExpand_Producton_1);
@@ -782,12 +794,12 @@ GREATER_OR_EQUAL
         actions.Add("Rule_column_Producton_2", Rule_column_Producton_2);
         actions.Add("Rule_column_Producton_3", Rule_column_Producton_3);
         actions.Add("Rule_column_Producton_4", Rule_column_Producton_4);
-        actions.Add("Rule_boolean_operator_Producton_0", Rule_boolean_operator_Producton_0);
-        actions.Add("Rule_boolean_operator_Producton_1", Rule_boolean_operator_Producton_1);
-        actions.Add("Rule_boolean_operator_Producton_2", Rule_boolean_operator_Producton_2);
-        actions.Add("Rule_boolean_operator_Producton_3", Rule_boolean_operator_Producton_3);
-        actions.Add("Rule_boolean_operator_Producton_4", Rule_boolean_operator_Producton_4);
-        actions.Add("Rule_boolean_operator_Producton_5", Rule_boolean_operator_Producton_5);
+        actions.Add("Rule_relational_operator_Producton_0", Rule_relational_operator_Producton_0);
+        actions.Add("Rule_relational_operator_Producton_1", Rule_relational_operator_Producton_1);
+        actions.Add("Rule_relational_operator_Producton_2", Rule_relational_operator_Producton_2);
+        actions.Add("Rule_relational_operator_Producton_3", Rule_relational_operator_Producton_3);
+        actions.Add("Rule_relational_operator_Producton_4", Rule_relational_operator_Producton_4);
+        actions.Add("Rule_relational_operator_Producton_5", Rule_relational_operator_Producton_5);
     }
 
     public static object Rule_start_Producton_0(Dictionary<int, object> objects) { 
@@ -1281,6 +1293,31 @@ GREATER_OR_EQUAL
         string _2 = (string)objects[2];
         string _3 = (string)objects[3];
         string _4 = (string)objects[4];
+        string _5 = (string)objects[5];
+
+        return _0;
+    }
+
+    public static object Rule_join_table_Producton_2(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+        string _4 = (string)objects[4];
+        string _5 = (string)objects[5];
+        string _6 = (string)objects[6];
+
+        return _0;
+    }
+
+    public static object Rule_join_table_Producton_3(Dictionary<int, object> objects) { 
+        string _0 = new string("");
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+        string _4 = (string)objects[4];
+        string _5 = (string)objects[5];
+        string _6 = (string)objects[6];
 
         return _0;
     }
@@ -1309,6 +1346,7 @@ GREATER_OR_EQUAL
     public static object Rule_join_condition_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
         string _3 = (string)objects[3];
 
         return _0;
@@ -2126,7 +2164,7 @@ GREATER_OR_EQUAL
         return _0;
     }
 
-    public static object Rule_boolean_operator_Producton_0(Dictionary<int, object> objects) { 
+    public static object Rule_relational_operator_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
 
         // user-defined action
@@ -2135,7 +2173,7 @@ GREATER_OR_EQUAL
         return _0;
     }
 
-    public static object Rule_boolean_operator_Producton_1(Dictionary<int, object> objects) { 
+    public static object Rule_relational_operator_Producton_1(Dictionary<int, object> objects) { 
         string _0 = new string("");
 
         // user-defined action
@@ -2144,7 +2182,7 @@ GREATER_OR_EQUAL
         return _0;
     }
 
-    public static object Rule_boolean_operator_Producton_2(Dictionary<int, object> objects) { 
+    public static object Rule_relational_operator_Producton_2(Dictionary<int, object> objects) { 
         string _0 = new string("");
 
         // user-defined action
@@ -2153,7 +2191,7 @@ GREATER_OR_EQUAL
         return _0;
     }
 
-    public static object Rule_boolean_operator_Producton_3(Dictionary<int, object> objects) { 
+    public static object Rule_relational_operator_Producton_3(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 
@@ -2163,7 +2201,7 @@ GREATER_OR_EQUAL
         return _0;
     }
 
-    public static object Rule_boolean_operator_Producton_4(Dictionary<int, object> objects) { 
+    public static object Rule_relational_operator_Producton_4(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 
@@ -2173,7 +2211,7 @@ GREATER_OR_EQUAL
         return _0;
     }
 
-    public static object Rule_boolean_operator_Producton_5(Dictionary<int, object> objects) { 
+    public static object Rule_relational_operator_Producton_5(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
 
@@ -2250,8 +2288,10 @@ namespace sql_statementsNs
             { 302, "ID_DOT_STAR"},
             { 303, "JOIN"},
             { 304, "ON"},
-            { 305, "POSITIVE_INT"},
-            { 306, "DOUBLE"},
+            { 305, "LEFT"},
+            { 306, "CROSS"},
+            { 307, "POSITIVE_INT"},
+            { 308, "DOUBLE"},
         };
 
         public static int SELECT = 256;
@@ -2303,8 +2343,10 @@ namespace sql_statementsNs
         public static int ID_DOT_STAR = 302;
         public static int JOIN = 303;
         public static int ON = 304;
-        public static int POSITIVE_INT = 305;
-        public static int DOUBLE = 306;
+        public static int LEFT = 305;
+        public static int CROSS = 306;
+        public static int POSITIVE_INT = 307;
+        public static int DOUBLE = 308;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -2368,6 +2410,8 @@ namespace sql_statementsNs
 [cC][oO][mM][mM][iI][tT]                         { value = yytext;  return COMMIT; }
 [rR][oO][lL][lL][bB][aA][cC][kK]                 { value = yytext;  return ROLLBACK; }
 [tT][rR][aA][nN][sS][aA][cC][tT][iI][oO][nN]     { value = yytext;  return TRANSACTION; }
+[lL][eF][fF][tT]                                 { value = yytext;  return LEFT; }
+[cC][rR][oO][sS][sS]                             { value = yytext;  return CROSS; }
 
 ""||""                                             { value = yytext;  return TWO_PIPE; }
 ""!=""                                             { value = yytext;  return NOT_EQUAL; }
@@ -2467,6 +2511,8 @@ namespace sql_statementsNs
             actions.Add("LexRule61", LexAction61);
             actions.Add("LexRule62", LexAction62);
             actions.Add("LexRule63", LexAction63);
+            actions.Add("LexRule64", LexAction64);
+            actions.Add("LexRule65", LexAction65);
         }
         public static object LexAction0(string yytext)
         {
@@ -2833,7 +2879,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return TWO_PIPE; 
+            value = yytext;  return LEFT; 
 
             return 0;
         }
@@ -2842,7 +2888,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return NOT_EQUAL; 
+            value = yytext;  return CROSS; 
 
             return 0;
         }
@@ -2851,7 +2897,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return LESS_OR_EQUAL; 
+            value = yytext;  return TWO_PIPE; 
 
             return 0;
         }
@@ -2860,7 +2906,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return GREATER_OR_EQUAL; 
+            value = yytext;  return NOT_EQUAL; 
 
             return 0;
         }
@@ -2869,7 +2915,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '{'; 
+            value = yytext;  return LESS_OR_EQUAL; 
 
             return 0;
         }
@@ -2878,7 +2924,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '}'; 
+            value = yytext;  return GREATER_OR_EQUAL; 
 
             return 0;
         }
@@ -2887,7 +2933,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '('; 
+            value = yytext;  return '{'; 
 
             return 0;
         }
@@ -2896,7 +2942,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return ')'; 
+            value = yytext;  return '}'; 
 
             return 0;
         }
@@ -2905,7 +2951,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return ','; 
+            value = yytext;  return '('; 
 
             return 0;
         }
@@ -2914,7 +2960,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '='; 
+            value = yytext;  return ')'; 
 
             return 0;
         }
@@ -2923,7 +2969,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '<'; 
+            value = yytext;  return ','; 
 
             return 0;
         }
@@ -2932,7 +2978,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '>'; 
+            value = yytext;  return '='; 
 
             return 0;
         }
@@ -2941,7 +2987,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '*'; 
+            value = yytext;  return '<'; 
 
             return 0;
         }
@@ -2950,7 +2996,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '+'; 
+            value = yytext;  return '>'; 
 
             return 0;
         }
@@ -2959,7 +3005,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '-'; 
+            value = yytext;  return '*'; 
 
             return 0;
         }
@@ -2968,7 +3014,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '/'; 
+            value = yytext;  return '+'; 
 
             return 0;
         }
@@ -2977,7 +3023,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = int.Parse(yytext); return POSITIVE_INT; 
+            value = yytext;  return '-'; 
 
             return 0;
         }
@@ -2986,7 +3032,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = double.Parse(yytext); return DOUBLE; 
+            value = yytext;  return '/'; 
 
             return 0;
         }
@@ -2995,7 +3041,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return STRING; 
+            value = int.Parse(yytext); return POSITIVE_INT; 
 
             return 0;
         }
@@ -3004,7 +3050,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            value = double.Parse(yytext); return DOUBLE; 
 
             return 0;
         }
@@ -3013,7 +3059,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID_DOT_ID; 
+            value = yytext; return STRING; 
 
             return 0;
         }
@@ -3022,7 +3068,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID_DOT_STAR; 
+            value = yytext; return ID; 
 
             return 0;
         }
@@ -3031,11 +3077,29 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return FILE_PATH; 
+            value = yytext; return ID_DOT_ID; 
 
             return 0;
         }
         public static object LexAction63(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return ID_DOT_STAR; 
+
+            return 0;
+        }
+        public static object LexAction64(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return FILE_PATH; 
+
+            return 0;
+        }
+        public static object LexAction65(string yytext)
         {
             value = null;
 
