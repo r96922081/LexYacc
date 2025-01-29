@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data.Common;
 using System.Text;
 
 namespace MyDBNs
@@ -158,29 +159,34 @@ namespace MyDBNs
             return sb.ToString();
         }
 
+        private static string GetTempGroupByColumnName(int columnIndex, AggregationColumn column)
+        {
+            if (column.op == AggerationOperation.NONE)
+                return column.columnName;
+            else
+                return (columnIndex + 1) + "_" + column.op + "(" + column.columnName + ")";
+        }
+
         private static void CreateTempGroupByTable(Table srcTable, string tempTableName, List<AggregationColumn> columns)
         {
             List<ColumnDeclare> columnDeclares = new List<ColumnDeclare>();
             for (int i = 0; i < columns.Count; i++)
             {
-                AggregationColumn column = columns[i];
-                if (column.op == AggerationOperation.COUNT || column.op == AggerationOperation.SUM)
+                AggregationColumn aggregrationColumn = columns[i];
+                if (aggregrationColumn.op == AggerationOperation.COUNT || aggregrationColumn.op == AggerationOperation.SUM)
                 {
                     ColumnDeclare c = new ColumnDeclare();
-                    c.columnName = "Column_" + i + "_" + column.op;
+                    c.columnName = GetTempGroupByColumnName(i, aggregrationColumn);
                     c.type = ColumnType.NUMBER;
                     c.size = -1;
                     columnDeclares.Add(c);
                 }
-                else if (column.op == AggerationOperation.MAX || column.op == AggerationOperation.MIN || column.op == AggerationOperation.NONE)
+                else if (aggregrationColumn.op == AggerationOperation.MAX || aggregrationColumn.op == AggerationOperation.MIN || aggregrationColumn.op == AggerationOperation.NONE)
                 {
                     ColumnDeclare c = new ColumnDeclare();
-                    if (column.op != AggerationOperation.NONE)
-                        c.columnName = column.columnName;
-                    else
-                        c.columnName = "Column_" + i + "_" + column.op;
-                    c.type = srcTable.GetColumnType(column.columnName);
-                    c.size = srcTable.GetColumnSize(column.columnName);
+                    c.columnName = GetTempGroupByColumnName(i, aggregrationColumn);
+                    c.type = srcTable.GetColumnType(aggregrationColumn.columnName);
+                    c.size = srcTable.GetColumnSize(aggregrationColumn.columnName);
                     columnDeclares.Add(c);
                 }
             }
@@ -214,11 +220,21 @@ namespace MyDBNs
                         if (a.op == AggerationOperation.MAX || a.op == AggerationOperation.MIN || a.op == AggerationOperation.NONE)
                             rowToInsert[i] = srcRow[aggregrationColumnIndex[i]];
                         else if (a.op == AggerationOperation.COUNT)
-                            rowToInsert[i] = 1d;
+                        {
+                            if (srcRow[aggregrationColumnIndex[i]] == null)
+                                rowToInsert[i] = 0d;
+                            else
+                                rowToInsert[i] = 1d;
+                        }
                         else if (a.op == AggerationOperation.SUM)
-                            rowToInsert[i] = srcRow[aggregrationColumnIndex[i]];
-                }
-                    groupByRows.Add(groupKey, rowToInsert);
+                        {
+                            if (srcRow[aggregrationColumnIndex[i]] == null)
+                                rowToInsert[i] = 0d;
+                            else
+                                rowToInsert[i] = (double)srcRow[aggregrationColumnIndex[i]];
+                        }
+                    }
+                    groupByRows.Add(groupKey, rowToInsert); 
                 }
                 else
                 {

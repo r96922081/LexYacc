@@ -46,7 +46,7 @@
             Console.WriteLine();
         }
 
-        private static void PrintTable(SelectedData s)
+        public static void PrintTable(SelectedData s)
         {
             int[] columnWidths = GetDisplayColumnWidth(s.table, s.columnNames, s.columnIndex);
 
