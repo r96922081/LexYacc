@@ -50,13 +50,18 @@ namespace MyDBNs
 
 
 
-        private static SelectedData GetSelectedData(Table table, List<AggregationColumn> columns, string condition)
+        private static SelectedData GetSelectedData(TableId tableId, List<AggregationColumn> columns, string condition)
         {
             SelectedData s = new SelectedData();
 
-            s.table = table;
-            GetColumns(table, columns, s.columnNames, s.columnIndex);
-            s.selectedRows = GetSelectedRows(table.tableName, condition);
+            s.table = Util.GetTable(tableId.tableName);
+            GetColumns(s.table, columns, s.columnNames, s.columnIndex);
+            s.selectedRows = GetSelectedRows(s.table.tableName, condition);
+
+            if (Util.IsValid(tableId.displayTableName))
+                s.displayTableName = tableId.displayTableName;
+            else
+                s.displayTableName = tableId.tableName;
 
             return s;
         }
@@ -146,7 +151,8 @@ namespace MyDBNs
         {
             Table table = Util.GetTable(tableId.tableName);
 
-            SelectedData s = GetSelectedData(table, columns, whereCondition);
+            SelectedData s = GetSelectedData(tableId, columns, whereCondition);
+            s.displayTableName = tableId.displayTableName;
 
             SortSelectedData(s, orders);
 
@@ -155,9 +161,7 @@ namespace MyDBNs
 
         public static SelectedData SelectRows(List<AggregationColumn> columns, List<string> groupByColumns, TableId tableId, string whereCondition, List<OrderByColumn> orders)
         {
-            Table table = Util.GetTable(tableId.tableName);
-
-            SelectedData s = GetSelectedData(table, columns, whereCondition, groupByColumns);
+            SelectedData s = GetSelectedData(tableId, columns, whereCondition, groupByColumns);
 
             SortSelectedData(s, orders);
 
@@ -209,14 +213,14 @@ namespace MyDBNs
             Create.CreateTable(tempTableName, columnDeclares);
         }
 
-        public static SelectedData GetSelectedData(Table table, List<AggregationColumn> aggregrationColumns, string condition, List<string> groupByColumns)
+        public static SelectedData GetSelectedData(TableId tableId, List<AggregationColumn> aggregrationColumns, string condition, List<string> groupByColumns)
         {
-            Table srcTable = Util.GetTable(table.tableName);
+            Table srcTable = Util.GetTable(tableId.tableName);
             List<int> groupByColumnIndex = null;
             if (groupByColumns != null)
                 groupByColumnIndex = Util.GetColumnIndexFromName(srcTable, groupByColumns);
             List<int> aggregrationColumnIndex = Util.GetColumnIndexFromName(srcTable, aggregrationColumns.Select(s => s.column).ToList());
-            SelectedData src = GetSelectedData(srcTable, aggregrationColumns, condition);
+            SelectedData src = GetSelectedData(tableId, aggregrationColumns, condition);
 
             string materializeTableName = "TempTable_" + (Gv.sn++);
             CreateTempGroupByTable(srcTable, materializeTableName, aggregrationColumns);
@@ -304,6 +308,11 @@ namespace MyDBNs
 
             SelectedData result = new SelectedData();
             result.table = Util.GetTable(materializeTableName);
+            if (Util.IsValid(tableId.displayTableName))
+                result.displayTableName = tableId.displayTableName;
+            else
+                result.displayTableName = tableId.tableName;
+
             result.columnNames = result.table.columnNames.ToList();
             result.columnIndex = Enumerable.Range(0, aggregrationColumns.Count).ToList();
             result.selectedRows = Enumerable.Range(0, result.table.rows.Count).ToList();

@@ -257,14 +257,9 @@
             return Transaction.Rollback();
         }
 
-        public static TableId TableId(string tableName, string aliasTableName)
+        public static TableId TableId(string tableName, string displayTableName)
         {
-            TableId t = new TableId();
-
-            t.tableName = tableName;
-            t.aliasTableName = aliasTableName;
-
-            return t;
+            return new TableId(tableName, displayTableName);
         }
     }
 }

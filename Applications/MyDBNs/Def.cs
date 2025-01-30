@@ -42,8 +42,23 @@ namespace MyDBNs
     public class TableId
     {
         public string tableName;
-        public string aliasTableName;
-        public string materializeTableName;
+        public string displayTableName;
+
+        public TableId()
+        {
+        }
+
+        public TableId(string tableName)
+        {
+            this.tableName = tableName;
+            displayTableName = tableName;
+        }
+
+        public TableId(string tableName, string displayTableName): this(tableName)
+        {
+            if (displayTableName != null && displayTableName != "")
+                this.displayTableName = displayTableName;
+        }
     }
 
     public enum ColumnType
@@ -76,6 +91,7 @@ namespace MyDBNs
     public class SelectedData : IDisposable
     {
         public Table table;
+        public string displayTableName;
         public List<string> columnNames = new List<string>();
         public List<int> columnIndex = new List<int>();
         public List<int> selectedRows = new List<int>();

@@ -51,7 +51,7 @@
             int[] columnWidths = GetDisplayColumnWidth(s.table, s.columnNames, s.columnIndex);
 
             Console.WriteLine();
-            Console.WriteLine("table " + s.table.tableName);
+            Console.WriteLine("table " + s.displayTableName);
             PrintSeprator(columnWidths);
 
             // show column name

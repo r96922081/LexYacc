@@ -80,5 +80,16 @@
             else
                 return ((string)column1).CompareTo((string)column2);
         }
+
+        public static bool IsValid(string s)
+        {
+            if (s == null)
+                return false;
+
+            if (s.Length == 0)
+                return false;
+
+            return true;
+        }
     }
 }
