@@ -147,9 +147,14 @@
             return c;
         }
 
-        private static SelectedData Select(List<AggregationColumn> columns, string tableName, string condition, List<OrderByColumn> orderByColumns)
+        private static SelectedData Select(List<AggregationColumn> columns, TableId tableId, string condition, List<OrderByColumn> orderByColumns)
         {
-            return MyDBNs.Select.SelectRows(columns, tableName, condition, orderByColumns);
+            return MyDBNs.Select.SelectRows(columns, tableId, condition, orderByColumns);
+        }
+
+        private static SelectedData Select(List<AggregationColumn> columns, List<string> groupByColumns, TableId tableId, string condition, List<OrderByColumn> orderByColumns)
+        {
+            return MyDBNs.Select.SelectRows(columns, groupByColumns, tableId, condition, orderByColumns);
         }
 
         private static List<AggregationColumn> SplitTableColumnName(List<AggregationColumn> columns)
@@ -177,15 +182,15 @@
             return columns2;
         }
 
-        public static SelectedData Select(List<AggregationColumn> columns, string tableName, string condition, List<string> groupByColumns, List<OrderByColumn> orderByColumns)
+        public static SelectedData Select(List<AggregationColumn> columns, TableId tableId, string condition, List<string> groupByColumns, List<OrderByColumn> orderByColumns)
         {
             columns = SplitTableColumnName(columns);
             int aggregrationColumnCount = columns.Where(c => c.op != AggerationOperation.NONE).Count();
 
             if (aggregrationColumnCount == 0)
-                return Select(columns, tableName, condition, orderByColumns);
+                return Select(columns, tableId, condition, orderByColumns);
             else
-                return MyDBNs.Select.SelectRows(columns, tableName, condition, groupByColumns, orderByColumns);
+                return Select(columns, groupByColumns, tableId, condition, orderByColumns);
         }
 
         public static void BooleanExpression(ref string booleanExpression, string lhs, string op, string rhs)
@@ -250,6 +255,16 @@
         public static int Rollback()
         {
             return Transaction.Rollback();
+        }
+
+        public static TableId TableId(string tableName, string aliasTableName)
+        {
+            TableId t = new TableId();
+
+            t.tableName = tableName;
+            t.aliasTableName = aliasTableName;
+
+            return t;
         }
     }
 }

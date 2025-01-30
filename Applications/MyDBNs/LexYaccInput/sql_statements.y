@@ -2,12 +2,13 @@
 
 %}
 
-%token <string>                                      SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR JOIN ON LEFT CROSS
+%token <string>                                      SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR JOIN ON LEFT RIGHT FULL OUTER CROSS AS
 %token <int>                                         POSITIVE_INT
 %token <double>                                      DOUBLE
 
 %type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start join_table join_condition join_conditions relational_operator
 %type <List<string>>                                 columns string_number_null_list
+%type <MyDBNs.TableId>                               table_id
 %type <MyDBNs.ColumnDeclare>                         column_declare
 %type <List<MyDBNs.ColumnDeclare>>                   column_declares
 %type <MyDBNs.OrderByColumn>                         order_by_column
@@ -120,42 +121,42 @@ SHOW TABLES
 ;
 
 select_statement:
-SELECT aggregation_columns FROM table
+SELECT aggregation_columns FROM table_id
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, null, null);
 }
 |
-SELECT aggregation_columns FROM table GROUP BY columns
+SELECT aggregation_columns FROM table_id GROUP BY columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $7, null);
 }
 |
-SELECT aggregation_columns FROM table ORDER BY order_by_columns
+SELECT aggregation_columns FROM table_id ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, null, $7);
 }
 |
-SELECT aggregation_columns FROM table GROUP BY columns ORDER BY order_by_columns
+SELECT aggregation_columns FROM table_id GROUP BY columns ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $7, $10);
 }
 |
-SELECT aggregation_columns FROM table WHERE boolean_expression
+SELECT aggregation_columns FROM table_id WHERE boolean_expression
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, null, null);
 }
 |
-SELECT aggregation_columns FROM table WHERE boolean_expression GROUP BY columns
+SELECT aggregation_columns FROM table_id WHERE boolean_expression GROUP BY columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, $9, null);
 }
 |
-SELECT aggregation_columns FROM table WHERE boolean_expression ORDER BY order_by_columns
+SELECT aggregation_columns FROM table_id WHERE boolean_expression ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, null, $9);
 }
 |
-SELECT aggregation_columns FROM table WHERE boolean_expression GROUP BY columns ORDER BY order_by_columns
+SELECT aggregation_columns FROM table_id WHERE boolean_expression GROUP BY columns ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, $9, $12);
 }
@@ -572,6 +573,23 @@ table:
 ID
 {
     $$ = $1;
+}
+;
+
+table_id:
+ID
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableId($1, null);
+}
+|
+ID ID
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableId($1, $2);
+}
+|
+ID AS ID
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableId($1, $3);
 }
 ;
 

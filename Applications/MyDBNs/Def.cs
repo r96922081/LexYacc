@@ -39,6 +39,13 @@ namespace MyDBNs
         }
     }
 
+    public class TableId
+    {
+        public string tableName;
+        public string aliasTableName;
+        public string materializeTableName;
+    }
+
     public enum ColumnType
     {
         NUMBER,

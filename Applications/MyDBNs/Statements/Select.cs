@@ -61,8 +61,6 @@ namespace MyDBNs
             return s;
         }
 
-
-
         private static List<OrderBy> ConvertOrder(SelectedData s, List<OrderByColumn> orders)
         {
             List<OrderBy> orders2 = new List<OrderBy>();
@@ -144,11 +142,23 @@ namespace MyDBNs
             });
         }
 
-        public static SelectedData SelectRows(List<AggregationColumn> columns, string tableName, string whereCondition, List<OrderByColumn> orders)
+        public static SelectedData SelectRows(List<AggregationColumn> columns, TableId tableId, string whereCondition, List<OrderByColumn> orders)
         {
-            Table table = Util.GetTable(tableName);
+            Table table = Util.GetTable(tableId.tableName);
 
             SelectedData s = GetSelectedData(table, columns, whereCondition);
+
+            SortSelectedData(s, orders);
+
+            return s;
+        }
+
+        public static SelectedData SelectRows(List<AggregationColumn> columns, List<string> groupByColumns, TableId tableId, string whereCondition, List<OrderByColumn> orders)
+        {
+            Table table = Util.GetTable(tableId.tableName);
+
+            SelectedData s = GetSelectedData(table, columns, whereCondition, groupByColumns);
+
             SortSelectedData(s, orders);
 
             return s;
@@ -199,17 +209,17 @@ namespace MyDBNs
             Create.CreateTable(tempTableName, columnDeclares);
         }
 
-        public static SelectedData SelectRows(List<AggregationColumn> aggregrationColumns, string tableName, string whereCondition, List<string> groupByColumns, List<OrderByColumn> orderByColumns)
+        public static SelectedData GetSelectedData(Table table, List<AggregationColumn> aggregrationColumns, string condition, List<string> groupByColumns)
         {
-            Table srcTable = Util.GetTable(tableName);
+            Table srcTable = Util.GetTable(table.tableName);
             List<int> groupByColumnIndex = null;
             if (groupByColumns != null)
                 groupByColumnIndex = Util.GetColumnIndexFromName(srcTable, groupByColumns);
             List<int> aggregrationColumnIndex = Util.GetColumnIndexFromName(srcTable, aggregrationColumns.Select(s => s.column).ToList());
-            SelectedData src = GetSelectedData(srcTable, aggregrationColumns, whereCondition);
+            SelectedData src = GetSelectedData(srcTable, aggregrationColumns, condition);
 
-            string tempTableName = "TempTable_" + (Gv.sn++);
-            CreateTempGroupByTable(srcTable, tempTableName, aggregrationColumns);
+            string materializeTableName = "TempTable_" + (Gv.sn++);
+            CreateTempGroupByTable(srcTable, materializeTableName, aggregrationColumns);
             Dictionary<string, object[]> groupByRows = new Dictionary<string, object[]>();
 
             foreach (int rowIndex in src.selectedRows)
@@ -217,11 +227,11 @@ namespace MyDBNs
                 object[] srcRow = srcTable.rows[rowIndex];
 
                 string groupKey = "";
-                
+
                 if (groupByColumns != null)
                     groupKey = GetGroupKey(srcRow, groupByColumnIndex);
 
-                if (!groupByRows.ContainsKey(groupKey)) 
+                if (!groupByRows.ContainsKey(groupKey))
                 {
                     object[] rowToInsert = new object[aggregrationColumns.Count];
                     for (int i = 0; i < aggregrationColumns.Count; i++)
@@ -245,7 +255,7 @@ namespace MyDBNs
                                 rowToInsert[i] = (double)srcRow[aggregrationColumnIndex[i]];
                         }
                     }
-                    groupByRows.Add(groupKey, rowToInsert); 
+                    groupByRows.Add(groupKey, rowToInsert);
                 }
                 else
                 {
@@ -290,16 +300,14 @@ namespace MyDBNs
                 }
             }
 
-            Insert.InsertRows(tempTableName, groupByRows.Values.ToList());
+            Insert.InsertRows(materializeTableName, groupByRows.Values.ToList());
 
             SelectedData result = new SelectedData();
-            result.table = Util.GetTable(tempTableName);
+            result.table = Util.GetTable(materializeTableName);
             result.columnNames = result.table.columnNames.ToList();
             result.columnIndex = Enumerable.Range(0, aggregrationColumns.Count).ToList();
             result.selectedRows = Enumerable.Range(0, result.table.rows.Count).ToList();
             result.needToDispose = true;
-
-            SortSelectedData(result, orderByColumns);
 
             return result;
         }

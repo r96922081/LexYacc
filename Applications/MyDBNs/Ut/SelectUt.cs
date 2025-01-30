@@ -43,6 +43,12 @@
             {
                 Check(s.columnNames.Count == 6);
             }
+
+            o = sql_statements.Parse("SELECT AA.C1, AA.C2, AA.*, * FROM A AS AA");
+            using (SelectedData s = o as SelectedData)
+            {
+                Check(s.columnNames.Count == 6);
+            }
         }
 
         public void Ut()

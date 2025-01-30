@@ -6,6 +6,8 @@ Todo:
   - LEFT JOIN
   - CROSS JOIN
 
+- update by join
+
 - in, with
 
 - case when

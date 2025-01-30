@@ -20,12 +20,13 @@ public class YaccActions{
 
 %}
 
-%token <string>                                      SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR JOIN ON LEFT CROSS
+%token <string>                                      SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR JOIN ON LEFT RIGHT FULL OUTER CROSS AS
 %token <int>                                         POSITIVE_INT
 %token <double>                                      DOUBLE
 
 %type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start join_table join_condition join_conditions relational_operator
 %type <List<string>>                                 columns string_number_null_list
+%type <MyDBNs.TableId>                               table_id
 %type <MyDBNs.ColumnDeclare>                         column_declare
 %type <List<MyDBNs.ColumnDeclare>>                   column_declares
 %type <MyDBNs.OrderByColumn>                         order_by_column
@@ -138,42 +139,42 @@ SHOW TABLES
 ;
 
 select_statement:
-SELECT aggregation_columns FROM table
+SELECT aggregation_columns FROM table_id
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, null, null);
 }
 |
-SELECT aggregation_columns FROM table GROUP BY columns
+SELECT aggregation_columns FROM table_id GROUP BY columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $7, null);
 }
 |
-SELECT aggregation_columns FROM table ORDER BY order_by_columns
+SELECT aggregation_columns FROM table_id ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, null, $7);
 }
 |
-SELECT aggregation_columns FROM table GROUP BY columns ORDER BY order_by_columns
+SELECT aggregation_columns FROM table_id GROUP BY columns ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $7, $10);
 }
 |
-SELECT aggregation_columns FROM table WHERE boolean_expression
+SELECT aggregation_columns FROM table_id WHERE boolean_expression
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, null, null);
 }
 |
-SELECT aggregation_columns FROM table WHERE boolean_expression GROUP BY columns
+SELECT aggregation_columns FROM table_id WHERE boolean_expression GROUP BY columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, $9, null);
 }
 |
-SELECT aggregation_columns FROM table WHERE boolean_expression ORDER BY order_by_columns
+SELECT aggregation_columns FROM table_id WHERE boolean_expression ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, null, $9);
 }
 |
-SELECT aggregation_columns FROM table WHERE boolean_expression GROUP BY columns ORDER BY order_by_columns
+SELECT aggregation_columns FROM table_id WHERE boolean_expression GROUP BY columns ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, $9, $12);
 }
@@ -593,6 +594,23 @@ ID
 }
 ;
 
+table_id:
+ID
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableId($1, null);
+}
+|
+ID ID
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableId($1, $2);
+}
+|
+ID AS ID
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableId($1, $3);
+}
+;
+
 column:
 ID
 {
@@ -789,6 +807,9 @@ GREATER_OR_EQUAL
         actions.Add("Rule_column_type_Producton_0", Rule_column_type_Producton_0);
         actions.Add("Rule_column_type_Producton_1", Rule_column_type_Producton_1);
         actions.Add("Rule_table_Producton_0", Rule_table_Producton_0);
+        actions.Add("Rule_table_id_Producton_0", Rule_table_id_Producton_0);
+        actions.Add("Rule_table_id_Producton_1", Rule_table_id_Producton_1);
+        actions.Add("Rule_table_id_Producton_2", Rule_table_id_Producton_2);
         actions.Add("Rule_column_Producton_0", Rule_column_Producton_0);
         actions.Add("Rule_column_Producton_1", Rule_column_Producton_1);
         actions.Add("Rule_column_Producton_2", Rule_column_Producton_2);
@@ -1149,7 +1170,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        string _4 = (string)objects[4];
+        MyDBNs.TableId _4 = (MyDBNs.TableId)objects[4];
 
         // user-defined action
         _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, null, null, null);
@@ -1162,7 +1183,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        string _4 = (string)objects[4];
+        MyDBNs.TableId _4 = (MyDBNs.TableId)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
         List<string> _7 = (List<string>)objects[7];
@@ -1178,7 +1199,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        string _4 = (string)objects[4];
+        MyDBNs.TableId _4 = (MyDBNs.TableId)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
         List<MyDBNs.OrderByColumn> _7 = (List<MyDBNs.OrderByColumn>)objects[7];
@@ -1194,7 +1215,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        string _4 = (string)objects[4];
+        MyDBNs.TableId _4 = (MyDBNs.TableId)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
         List<string> _7 = (List<string>)objects[7];
@@ -1213,7 +1234,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        string _4 = (string)objects[4];
+        MyDBNs.TableId _4 = (MyDBNs.TableId)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
 
@@ -1228,7 +1249,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        string _4 = (string)objects[4];
+        MyDBNs.TableId _4 = (MyDBNs.TableId)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
         string _7 = (string)objects[7];
@@ -1246,7 +1267,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        string _4 = (string)objects[4];
+        MyDBNs.TableId _4 = (MyDBNs.TableId)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
         string _7 = (string)objects[7];
@@ -1264,7 +1285,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        string _4 = (string)objects[4];
+        MyDBNs.TableId _4 = (MyDBNs.TableId)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
         string _7 = (string)objects[7];
@@ -2114,6 +2135,39 @@ GREATER_OR_EQUAL
         return _0;
     }
 
+    public static object Rule_table_id_Producton_0(Dictionary<int, object> objects) { 
+        MyDBNs.TableId _0 = new MyDBNs.TableId();
+        string _1 = (string)objects[1];
+
+        // user-defined action
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.TableId(_1, null);
+
+        return _0;
+    }
+
+    public static object Rule_table_id_Producton_1(Dictionary<int, object> objects) { 
+        MyDBNs.TableId _0 = new MyDBNs.TableId();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+
+        // user-defined action
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.TableId(_1, _2);
+
+        return _0;
+    }
+
+    public static object Rule_table_id_Producton_2(Dictionary<int, object> objects) { 
+        MyDBNs.TableId _0 = new MyDBNs.TableId();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.TableId(_1, _3);
+
+        return _0;
+    }
+
     public static object Rule_column_Producton_0(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
@@ -2289,9 +2343,13 @@ namespace sql_statementsNs
             { 303, "JOIN"},
             { 304, "ON"},
             { 305, "LEFT"},
-            { 306, "CROSS"},
-            { 307, "POSITIVE_INT"},
-            { 308, "DOUBLE"},
+            { 306, "RIGHT"},
+            { 307, "FULL"},
+            { 308, "OUTER"},
+            { 309, "CROSS"},
+            { 310, "AS"},
+            { 311, "POSITIVE_INT"},
+            { 312, "DOUBLE"},
         };
 
         public static int SELECT = 256;
@@ -2344,9 +2402,13 @@ namespace sql_statementsNs
         public static int JOIN = 303;
         public static int ON = 304;
         public static int LEFT = 305;
-        public static int CROSS = 306;
-        public static int POSITIVE_INT = 307;
-        public static int DOUBLE = 308;
+        public static int RIGHT = 306;
+        public static int FULL = 307;
+        public static int OUTER = 308;
+        public static int CROSS = 309;
+        public static int AS = 310;
+        public static int POSITIVE_INT = 311;
+        public static int DOUBLE = 312;
 
         public static void CallAction(List<Terminal> tokens, LexRule rule)
         {
@@ -2404,13 +2466,17 @@ namespace sql_statementsNs
 [iI][sS]                                         { value = yytext;  return IS; }
 [jJ][oO][iI][nN]                                 { value = yytext;  return JOIN; }
 [oO][nN]                                         { value = yytext;  return ON; }
-[nN][uU][mM][bB][eE][rR]                         { value = ""NUMBER""; return NUMBER; }
-[vV][aA][rR][cC][hH][aA][rR]                     { value = ""VARCHAR""; return VARCHAR; }
+[aA][sS]                                         { value = yytext;  return AS; }
+[nN][uU][mM][bB][eE][rR]                         { value = yytext.ToUpper(); return NUMBER; }
+[vV][aA][rR][cC][hH][aA][rR]                     { value = yytext.ToUpper(); return VARCHAR; }
 [sS][tT][aA][rR][tT]                             { value = yytext;  return START; }
 [cC][oO][mM][mM][iI][tT]                         { value = yytext;  return COMMIT; }
 [rR][oO][lL][lL][bB][aA][cC][kK]                 { value = yytext;  return ROLLBACK; }
 [tT][rR][aA][nN][sS][aA][cC][tT][iI][oO][nN]     { value = yytext;  return TRANSACTION; }
 [lL][eF][fF][tT]                                 { value = yytext;  return LEFT; }
+[rR][iI][gG][hH][tT]                             { value = yytext;  return RIGHT; }
+[fF][uU][lL][lL]                                 { value = yytext;  return FULL; }
+[oO][uU][tT][eE][rR]                             { value = yytext;  return OUTER; }
 [cC][rR][oO][sS][sS]                             { value = yytext;  return CROSS; }
 
 ""||""                                             { value = yytext;  return TWO_PIPE; }
@@ -2513,6 +2579,10 @@ namespace sql_statementsNs
             actions.Add("LexRule63", LexAction63);
             actions.Add("LexRule64", LexAction64);
             actions.Add("LexRule65", LexAction65);
+            actions.Add("LexRule66", LexAction66);
+            actions.Add("LexRule67", LexAction67);
+            actions.Add("LexRule68", LexAction68);
+            actions.Add("LexRule69", LexAction69);
         }
         public static object LexAction0(string yytext)
         {
@@ -2825,7 +2895,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = "NUMBER"; return NUMBER; 
+            value = yytext;  return AS; 
 
             return 0;
         }
@@ -2834,7 +2904,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = "VARCHAR"; return VARCHAR; 
+            value = yytext.ToUpper(); return NUMBER; 
 
             return 0;
         }
@@ -2843,7 +2913,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return START; 
+            value = yytext.ToUpper(); return VARCHAR; 
 
             return 0;
         }
@@ -2852,7 +2922,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return COMMIT; 
+            value = yytext;  return START; 
 
             return 0;
         }
@@ -2861,7 +2931,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return ROLLBACK; 
+            value = yytext;  return COMMIT; 
 
             return 0;
         }
@@ -2870,7 +2940,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return TRANSACTION; 
+            value = yytext;  return ROLLBACK; 
 
             return 0;
         }
@@ -2879,7 +2949,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return LEFT; 
+            value = yytext;  return TRANSACTION; 
 
             return 0;
         }
@@ -2888,7 +2958,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return CROSS; 
+            value = yytext;  return LEFT; 
 
             return 0;
         }
@@ -2897,7 +2967,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return TWO_PIPE; 
+            value = yytext;  return RIGHT; 
 
             return 0;
         }
@@ -2906,7 +2976,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return NOT_EQUAL; 
+            value = yytext;  return FULL; 
 
             return 0;
         }
@@ -2915,7 +2985,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return LESS_OR_EQUAL; 
+            value = yytext;  return OUTER; 
 
             return 0;
         }
@@ -2924,7 +2994,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return GREATER_OR_EQUAL; 
+            value = yytext;  return CROSS; 
 
             return 0;
         }
@@ -2933,7 +3003,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '{'; 
+            value = yytext;  return TWO_PIPE; 
 
             return 0;
         }
@@ -2942,7 +3012,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '}'; 
+            value = yytext;  return NOT_EQUAL; 
 
             return 0;
         }
@@ -2951,7 +3021,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '('; 
+            value = yytext;  return LESS_OR_EQUAL; 
 
             return 0;
         }
@@ -2960,7 +3030,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return ')'; 
+            value = yytext;  return GREATER_OR_EQUAL; 
 
             return 0;
         }
@@ -2969,7 +3039,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return ','; 
+            value = yytext;  return '{'; 
 
             return 0;
         }
@@ -2978,7 +3048,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '='; 
+            value = yytext;  return '}'; 
 
             return 0;
         }
@@ -2987,7 +3057,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '<'; 
+            value = yytext;  return '('; 
 
             return 0;
         }
@@ -2996,7 +3066,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '>'; 
+            value = yytext;  return ')'; 
 
             return 0;
         }
@@ -3005,7 +3075,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '*'; 
+            value = yytext;  return ','; 
 
             return 0;
         }
@@ -3014,7 +3084,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '+'; 
+            value = yytext;  return '='; 
 
             return 0;
         }
@@ -3023,7 +3093,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '-'; 
+            value = yytext;  return '<'; 
 
             return 0;
         }
@@ -3032,7 +3102,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext;  return '/'; 
+            value = yytext;  return '>'; 
 
             return 0;
         }
@@ -3041,7 +3111,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = int.Parse(yytext); return POSITIVE_INT; 
+            value = yytext;  return '*'; 
 
             return 0;
         }
@@ -3050,7 +3120,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = double.Parse(yytext); return DOUBLE; 
+            value = yytext;  return '+'; 
 
             return 0;
         }
@@ -3059,7 +3129,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return STRING; 
+            value = yytext;  return '-'; 
 
             return 0;
         }
@@ -3068,7 +3138,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID; 
+            value = yytext;  return '/'; 
 
             return 0;
         }
@@ -3077,7 +3147,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID_DOT_ID; 
+            value = int.Parse(yytext); return POSITIVE_INT; 
 
             return 0;
         }
@@ -3086,7 +3156,7 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return ID_DOT_STAR; 
+            value = double.Parse(yytext); return DOUBLE; 
 
             return 0;
         }
@@ -3095,11 +3165,47 @@ namespace sql_statementsNs
             value = null;
 
             // user-defined action
-            value = yytext; return FILE_PATH; 
+            value = yytext; return STRING; 
 
             return 0;
         }
         public static object LexAction65(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return ID; 
+
+            return 0;
+        }
+        public static object LexAction66(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return ID_DOT_ID; 
+
+            return 0;
+        }
+        public static object LexAction67(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return ID_DOT_STAR; 
+
+            return 0;
+        }
+        public static object LexAction68(string yytext)
+        {
+            value = null;
+
+            // user-defined action
+            value = yytext; return FILE_PATH; 
+
+            return 0;
+        }
+        public static object LexAction69(string yytext)
         {
             value = null;
 

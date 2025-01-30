@@ -36,13 +36,17 @@
 [iI][sS]                                         { value = yytext;  return IS; }
 [jJ][oO][iI][nN]                                 { value = yytext;  return JOIN; }
 [oO][nN]                                         { value = yytext;  return ON; }
-[nN][uU][mM][bB][eE][rR]                         { value = "NUMBER"; return NUMBER; }
-[vV][aA][rR][cC][hH][aA][rR]                     { value = "VARCHAR"; return VARCHAR; }
+[aA][sS]                                         { value = yytext;  return AS; }
+[nN][uU][mM][bB][eE][rR]                         { value = yytext.ToUpper(); return NUMBER; }
+[vV][aA][rR][cC][hH][aA][rR]                     { value = yytext.ToUpper(); return VARCHAR; }
 [sS][tT][aA][rR][tT]                             { value = yytext;  return START; }
 [cC][oO][mM][mM][iI][tT]                         { value = yytext;  return COMMIT; }
 [rR][oO][lL][lL][bB][aA][cC][kK]                 { value = yytext;  return ROLLBACK; }
 [tT][rR][aA][nN][sS][aA][cC][tT][iI][oO][nN]     { value = yytext;  return TRANSACTION; }
 [lL][eF][fF][tT]                                 { value = yytext;  return LEFT; }
+[rR][iI][gG][hH][tT]                             { value = yytext;  return RIGHT; }
+[fF][uU][lL][lL]                                 { value = yytext;  return FULL; }
+[oO][uU][tT][eE][rR]                             { value = yytext;  return OUTER; }
 [cC][rR][oO][sS][sS]                             { value = yytext;  return CROSS; }
 
 "||"                                             { value = yytext;  return TWO_PIPE; }
