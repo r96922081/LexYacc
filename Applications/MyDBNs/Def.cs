@@ -165,7 +165,8 @@ namespace MyDBNs
     public class AggregationColumn
     {
         public string table;
-        public string column;
+        public string columnName;
+        public string displayColumnName;
         public AggerationOperation op;
     }
 }

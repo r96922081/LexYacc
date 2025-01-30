@@ -165,15 +165,15 @@
                 AggregationColumn a2 = new AggregationColumn();
                 a2.op = a.op;
 
-                if (a.column.Contains("."))
+                if (a.columnName.Contains("."))
                 {
-                    a2.table = a.column.Substring(0, a.column.IndexOf("."));
-                    a2.column = a.column.Substring(a.column.IndexOf(".") + 1);
+                    a2.table = a.columnName.Substring(0, a.columnName.IndexOf("."));
+                    a2.columnName = a.columnName.Substring(a.columnName.IndexOf(".") + 1);
                 }
                 else
                 {
                     a2.table = "";
-                    a2.column = a.column;
+                    a2.columnName = a.columnName;
                 }
 
                 columns2.Add(a2);
@@ -222,7 +222,7 @@
             return l;
         }
 
-        public static List<AggregationColumn> CommaSepAggregrationColumn(List<AggregationColumn> prev, AggregationColumn column)
+        public static List<AggregationColumn> AggregrationColumns(List<AggregationColumn> prev, AggregationColumn column)
         {
             List<AggregationColumn> l = new List<AggregationColumn>();
             if (prev != null)
@@ -236,8 +236,15 @@
         public static AggregationColumn AggregationColumn(AggerationOperation op, string columnName)
         {
             AggregationColumn a = new AggregationColumn();
-            a.column= columnName;
+            a.columnName= columnName;
             a.op= op;
+
+            return a;
+        }
+
+        public static AggregationColumn AggregationColumnAs(AggregationColumn a, string displayName)
+        {
+            a.displayColumnName = displayName;
 
             return a;
         }

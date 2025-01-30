@@ -31,7 +31,7 @@ public class YaccActions{
 %type <List<MyDBNs.ColumnDeclare>>                   column_declares
 %type <MyDBNs.OrderByColumn>                         order_by_column
 %type <List<MyDBNs.OrderByColumn>>                   order_by_columns
-%type <MyDBNs.AggregationColumn>                     aggregation_column
+%type <MyDBNs.AggregationColumn>                     aggregation_column aggregation_column_as
 %type <List<MyDBNs.AggregationColumn>>               aggregation_columns
 %type <List<MyDBNs.SetExpressionType>>               set_expression
 %type <MyDBNs.SelectedData>                          select_statement
@@ -328,15 +328,16 @@ order_by_columns ',' order_by_column
 };
 
 aggregation_columns:
-aggregation_column
+aggregation_columns ',' aggregation_column_as
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.CommaSepAggregrationColumn(null, $1);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregrationColumns($1, $3);
 }
 |
-aggregation_columns ',' aggregation_column
+aggregation_column_as
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.CommaSepAggregrationColumn($1, $3);
-};
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregrationColumns(null, $1);
+}
+;
 
 arithmetic_expression:
 arithmetic_expression '+' term 
@@ -464,6 +465,23 @@ ID
 ID_DOT_ID
 {
     $$ = $1;
+}
+;
+
+aggregation_column_as:
+aggregation_column
+{
+    $$ = $1;
+}
+|
+aggregation_column ID
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumnAs($1, $2);
+}
+|
+aggregation_column AS ID
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumnAs($1, $3);
 }
 ;
 
@@ -785,6 +803,9 @@ GREATER_OR_EQUAL
         actions.Add("Rule_file_path_Producton_2", Rule_file_path_Producton_2);
         actions.Add("Rule_file_path_Producton_3", Rule_file_path_Producton_3);
         actions.Add("Rule_file_path_Producton_4", Rule_file_path_Producton_4);
+        actions.Add("Rule_aggregation_column_as_Producton_0", Rule_aggregation_column_as_Producton_0);
+        actions.Add("Rule_aggregation_column_as_Producton_1", Rule_aggregation_column_as_Producton_1);
+        actions.Add("Rule_aggregation_column_as_Producton_2", Rule_aggregation_column_as_Producton_2);
         actions.Add("Rule_aggregation_column_Producton_0", Rule_aggregation_column_Producton_0);
         actions.Add("Rule_aggregation_column_Producton_1", Rule_aggregation_column_Producton_1);
         actions.Add("Rule_aggregation_column_Producton_2", Rule_aggregation_column_Producton_2);
@@ -1618,7 +1639,7 @@ GREATER_OR_EQUAL
         MyDBNs.AggregationColumn _1 = (MyDBNs.AggregationColumn)objects[1];
 
         // user-defined action
-        _0 = MyDBNs.SqlStatementsLexYaccCallback.CommaSepAggregrationColumn(null, _1);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.AggregrationColumns(null, _1);
 
         return _0;
     }
@@ -1629,7 +1650,7 @@ GREATER_OR_EQUAL
         MyDBNs.AggregationColumn _3 = (MyDBNs.AggregationColumn)objects[3];
 
         // user-defined action
-        _0 = MyDBNs.SqlStatementsLexYaccCallback.CommaSepAggregrationColumn(_1, _3);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.AggregrationColumns(_1, _3);
 
         return _0;
     }
@@ -1906,6 +1927,39 @@ GREATER_OR_EQUAL
 
         // user-defined action
         _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_aggregation_column_as_Producton_0(Dictionary<int, object> objects) { 
+        MyDBNs.AggregationColumn _0 = new MyDBNs.AggregationColumn();
+        MyDBNs.AggregationColumn _1 = (MyDBNs.AggregationColumn)objects[1];
+
+        // user-defined action
+        _0 = _1;
+
+        return _0;
+    }
+
+    public static object Rule_aggregation_column_as_Producton_1(Dictionary<int, object> objects) { 
+        MyDBNs.AggregationColumn _0 = new MyDBNs.AggregationColumn();
+        MyDBNs.AggregationColumn _1 = (MyDBNs.AggregationColumn)objects[1];
+        string _2 = (string)objects[2];
+
+        // user-defined action
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumnAs(_1, _2);
+
+        return _0;
+    }
+
+    public static object Rule_aggregation_column_as_Producton_2(Dictionary<int, object> objects) { 
+        MyDBNs.AggregationColumn _0 = new MyDBNs.AggregationColumn();
+        MyDBNs.AggregationColumn _1 = (MyDBNs.AggregationColumn)objects[1];
+        string _2 = (string)objects[2];
+        string _3 = (string)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumnAs(_1, _3);
 
         return _0;
     }

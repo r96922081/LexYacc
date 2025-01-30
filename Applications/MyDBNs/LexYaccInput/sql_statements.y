@@ -13,7 +13,7 @@
 %type <List<MyDBNs.ColumnDeclare>>                   column_declares
 %type <MyDBNs.OrderByColumn>                         order_by_column
 %type <List<MyDBNs.OrderByColumn>>                   order_by_columns
-%type <MyDBNs.AggregationColumn>                     aggregation_column
+%type <MyDBNs.AggregationColumn>                     aggregation_column aggregation_column_as
 %type <List<MyDBNs.AggregationColumn>>               aggregation_columns
 %type <List<MyDBNs.SetExpressionType>>               set_expression
 %type <MyDBNs.SelectedData>                          select_statement
@@ -310,15 +310,16 @@ order_by_columns ',' order_by_column
 };
 
 aggregation_columns:
-aggregation_column
+aggregation_columns ',' aggregation_column_as
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.CommaSepAggregrationColumn(null, $1);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregrationColumns($1, $3);
 }
 |
-aggregation_columns ',' aggregation_column
+aggregation_column_as
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.CommaSepAggregrationColumn($1, $3);
-};
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregrationColumns(null, $1);
+}
+;
 
 arithmetic_expression:
 arithmetic_expression '+' term 
@@ -446,6 +447,23 @@ ID
 ID_DOT_ID
 {
     $$ = $1;
+}
+;
+
+aggregation_column_as:
+aggregation_column
+{
+    $$ = $1;
+}
+|
+aggregation_column ID
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumnAs($1, $2);
+}
+|
+aggregation_column AS ID
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumnAs($1, $3);
 }
 ;
 

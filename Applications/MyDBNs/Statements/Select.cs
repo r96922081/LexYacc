@@ -32,7 +32,7 @@ namespace MyDBNs
 
             foreach (AggregationColumn column in columns)
             {
-                if (column.column == "*")
+                if (column.columnName == "*")
                 {
                     foreach (string column2 in table.columnNames)
                     {
@@ -42,8 +42,8 @@ namespace MyDBNs
                 }
                 else
                 {
-                    columnNames.Add(column.column);
-                    columnIndex.Add(table.GetColumnIndex(column.column));
+                    columnNames.Add(column.columnName);
+                    columnIndex.Add(table.GetColumnIndex(column.columnName));
                 }
             }
         }
@@ -181,9 +181,9 @@ namespace MyDBNs
         private static string GetTempGroupByColumnName(int columnIndex, AggregationColumn column)
         {
             if (column.op == AggerationOperation.NONE)
-                return column.column;
+                return column.columnName;
             else
-                return (columnIndex + 1) + "_" + column.op + "(" + column.column + ")";
+                return (columnIndex + 1) + "_" + column.op + "(" + column.columnName + ")";
         }
 
         private static void CreateTempGroupByTable(Table srcTable, string tempTableName, List<AggregationColumn> columns)
@@ -204,8 +204,8 @@ namespace MyDBNs
                 {
                     ColumnDeclare c = new ColumnDeclare();
                     c.columnName = GetTempGroupByColumnName(i, aggregrationColumn);
-                    c.type = srcTable.GetColumnType(aggregrationColumn.column);
-                    c.size = srcTable.GetColumnSize(aggregrationColumn.column);
+                    c.type = srcTable.GetColumnType(aggregrationColumn.columnName);
+                    c.size = srcTable.GetColumnSize(aggregrationColumn.columnName);
                     columnDeclares.Add(c);
                 }
             }
@@ -219,7 +219,7 @@ namespace MyDBNs
             List<int> groupByColumnIndex = null;
             if (groupByColumns != null)
                 groupByColumnIndex = Util.GetColumnIndexFromName(srcTable, groupByColumns);
-            List<int> aggregrationColumnIndex = Util.GetColumnIndexFromName(srcTable, aggregrationColumns.Select(s => s.column).ToList());
+            List<int> aggregrationColumnIndex = Util.GetColumnIndexFromName(srcTable, aggregrationColumns.Select(s => s.columnName).ToList());
             SelectedData src = GetSelectedData(tableId, aggregrationColumns, condition);
 
             string materializeTableName = "TempTable_" + (Gv.sn++);
