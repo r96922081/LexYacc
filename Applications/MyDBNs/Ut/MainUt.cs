@@ -8,6 +8,7 @@
 
             if (Gv.ut)
             {
+                new SaveLoadUt().Ut();
                 new JoinUt().Ut();
                 new CreateDropUt().Ut();
                 new InsertUt().Ut();
@@ -16,7 +17,6 @@
                 new ArithmeticExpressionUt().Ut();
                 new DeleteUt().Ut();
                 new UpdateUt().Ut();
-                new SaveLoadUt().Ut();
                 new TransactionUt().Ut();
                 new GroupByUt().Ut();
                 Console.WriteLine("MyDB Ut Done!");

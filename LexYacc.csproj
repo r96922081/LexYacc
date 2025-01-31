@@ -10,6 +10,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
 
   <ItemGroup>
+    <Folder Include="Applications\MyDBNs\Dependencies\" />
     <Folder Include="Ut\LexYaccOutput\" />
   </ItemGroup>
 
