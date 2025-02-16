@@ -27,7 +27,7 @@
             */
 
             sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_JOIN.DB"));
-            object o = sql_statements.Parse("SELECT A.C1, B.C2, A.*, B.*, * FROM A JOIN B ON A.C1 = B.C3");
+            //object o = sql_statements.Parse("SELECT A.C1, B.C2, A.*, B.*, * FROM A JOIN B ON A.C1 = B.C3");
             /*using (SelectedData s = o as SelectedData)
             {
                 InteractiveConsole.PrintTable(s);

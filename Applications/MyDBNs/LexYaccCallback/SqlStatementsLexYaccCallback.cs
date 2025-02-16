@@ -147,15 +147,15 @@
             return c;
         }
 
-        public static SelectedData Select(List<AggregationColumn> columns, TableId tableId, string condition, List<string> groupByColumns, List<OrderByColumn> orderByColumns)
+        public static SelectedData Select(List<AggregationColumn> columns, TableOrJoins table, string condition, List<string> groupByColumns, List<OrderByColumn> orderByColumns)
         {
-            columns = NormalizeColumns(columns, tableId);
+            columns = NormalizeColumns(columns, table.tableId);
             int aggregrationColumnCount = columns.Where(c => c.op != AggerationOperation.NONE).Count();
 
             if (aggregrationColumnCount == 0)
-                return MyDBNs.Select.SelectRows(columns, tableId, condition, orderByColumns);
+                return MyDBNs.Select.SelectRows(columns, table.tableId, condition, orderByColumns);
             else
-                return MyDBNs.Select.SelectRows(columns, groupByColumns, tableId, condition, orderByColumns);
+                return MyDBNs.Select.SelectRows(columns, groupByColumns, table.tableId, condition, orderByColumns);
         }
 
         private static List<AggregationColumn> NormalizeColumns(List<AggregationColumn> columns, TableId tableId)

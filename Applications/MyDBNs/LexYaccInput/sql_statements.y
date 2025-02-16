@@ -124,42 +124,42 @@ SHOW TABLES
 ;
 
 select_statement:
-SELECT aggregation_columns FROM table_id
+SELECT aggregation_columns FROM table_or_joins
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, null, null);
 }
 |
-SELECT aggregation_columns FROM table_id GROUP BY columns
+SELECT aggregation_columns FROM table_or_joins GROUP BY columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $7, null);
 }
 |
-SELECT aggregation_columns FROM table_id ORDER BY order_by_columns
+SELECT aggregation_columns FROM table_or_joins ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, null, $7);
 }
 |
-SELECT aggregation_columns FROM table_id GROUP BY columns ORDER BY order_by_columns
+SELECT aggregation_columns FROM table_or_joins GROUP BY columns ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $7, $10);
 }
 |
-SELECT aggregation_columns FROM table_id WHERE boolean_expression
+SELECT aggregation_columns FROM table_or_joins WHERE boolean_expression
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, null, null);
 }
 |
-SELECT aggregation_columns FROM table_id WHERE boolean_expression GROUP BY columns
+SELECT aggregation_columns FROM table_or_joins WHERE boolean_expression GROUP BY columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, $9, null);
 }
 |
-SELECT aggregation_columns FROM table_id WHERE boolean_expression ORDER BY order_by_columns
+SELECT aggregation_columns FROM table_or_joins WHERE boolean_expression ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, null, $9);
 }
 |
-SELECT aggregation_columns FROM table_id WHERE boolean_expression GROUP BY columns ORDER BY order_by_columns
+SELECT aggregation_columns FROM table_or_joins WHERE boolean_expression GROUP BY columns ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, $9, $12);
 }

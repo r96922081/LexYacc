@@ -142,42 +142,42 @@ SHOW TABLES
 ;
 
 select_statement:
-SELECT aggregation_columns FROM table_id
+SELECT aggregation_columns FROM table_or_joins
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, null, null);
 }
 |
-SELECT aggregation_columns FROM table_id GROUP BY columns
+SELECT aggregation_columns FROM table_or_joins GROUP BY columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $7, null);
 }
 |
-SELECT aggregation_columns FROM table_id ORDER BY order_by_columns
+SELECT aggregation_columns FROM table_or_joins ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, null, $7);
 }
 |
-SELECT aggregation_columns FROM table_id GROUP BY columns ORDER BY order_by_columns
+SELECT aggregation_columns FROM table_or_joins GROUP BY columns ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, null, $7, $10);
 }
 |
-SELECT aggregation_columns FROM table_id WHERE boolean_expression
+SELECT aggregation_columns FROM table_or_joins WHERE boolean_expression
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, null, null);
 }
 |
-SELECT aggregation_columns FROM table_id WHERE boolean_expression GROUP BY columns
+SELECT aggregation_columns FROM table_or_joins WHERE boolean_expression GROUP BY columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, $9, null);
 }
 |
-SELECT aggregation_columns FROM table_id WHERE boolean_expression ORDER BY order_by_columns
+SELECT aggregation_columns FROM table_or_joins WHERE boolean_expression ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, null, $9);
 }
 |
-SELECT aggregation_columns FROM table_id WHERE boolean_expression GROUP BY columns ORDER BY order_by_columns
+SELECT aggregation_columns FROM table_or_joins WHERE boolean_expression GROUP BY columns ORDER BY order_by_columns
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.Select($2, $4, $6, $9, $12);
 }
@@ -1218,7 +1218,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        MyDBNs.TableId _4 = (MyDBNs.TableId)objects[4];
+        MyDBNs.TableOrJoins _4 = (MyDBNs.TableOrJoins)objects[4];
 
         // user-defined action
         _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, null, null, null);
@@ -1231,7 +1231,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        MyDBNs.TableId _4 = (MyDBNs.TableId)objects[4];
+        MyDBNs.TableOrJoins _4 = (MyDBNs.TableOrJoins)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
         List<string> _7 = (List<string>)objects[7];
@@ -1247,7 +1247,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        MyDBNs.TableId _4 = (MyDBNs.TableId)objects[4];
+        MyDBNs.TableOrJoins _4 = (MyDBNs.TableOrJoins)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
         List<MyDBNs.OrderByColumn> _7 = (List<MyDBNs.OrderByColumn>)objects[7];
@@ -1263,7 +1263,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        MyDBNs.TableId _4 = (MyDBNs.TableId)objects[4];
+        MyDBNs.TableOrJoins _4 = (MyDBNs.TableOrJoins)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
         List<string> _7 = (List<string>)objects[7];
@@ -1282,7 +1282,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        MyDBNs.TableId _4 = (MyDBNs.TableId)objects[4];
+        MyDBNs.TableOrJoins _4 = (MyDBNs.TableOrJoins)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
 
@@ -1297,7 +1297,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        MyDBNs.TableId _4 = (MyDBNs.TableId)objects[4];
+        MyDBNs.TableOrJoins _4 = (MyDBNs.TableOrJoins)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
         string _7 = (string)objects[7];
@@ -1315,7 +1315,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        MyDBNs.TableId _4 = (MyDBNs.TableId)objects[4];
+        MyDBNs.TableOrJoins _4 = (MyDBNs.TableOrJoins)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
         string _7 = (string)objects[7];
@@ -1333,7 +1333,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        MyDBNs.TableId _4 = (MyDBNs.TableId)objects[4];
+        MyDBNs.TableOrJoins _4 = (MyDBNs.TableOrJoins)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
         string _7 = (string)objects[7];
