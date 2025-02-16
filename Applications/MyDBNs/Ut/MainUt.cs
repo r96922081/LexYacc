@@ -8,8 +8,8 @@
 
             if (Gv.ut)
             {
-                new SaveLoadUt().Ut();
                 new JoinUt().Ut();
+                new SaveLoadUt().Ut();
                 new CreateDropUt().Ut();
                 new InsertUt().Ut();
                 new SelectUt().Ut();

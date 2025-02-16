@@ -196,6 +196,45 @@
             return newColumns;
         }
 
+        public static TableOrJoins TableOrJoins(TableId t, List<JoinTable> joins)
+        {
+            TableOrJoins ret = new TableOrJoins();
+            ret.tableId = t;
+            ret.joins = joins;
+
+            return ret;
+        }
+
+        public static List<JoinTable> JoinTables(List<JoinTable> prev, JoinTable table)
+        {
+            List<JoinTable> l = new List<JoinTable>();
+            if (prev != null)
+                l.AddRange(prev);
+
+            l.Add(table);
+
+            return l;
+        }
+
+        public static JoinTable JoinTable(string joinType, TableId rhsTableId, string join_conditions)
+        {
+            JoinTable j = new JoinTable();
+
+            j.joinType = joinType;
+            j.rhsTableId = rhsTableId;
+            j.join_conditions = join_conditions;
+
+            return j;
+        }
+
+        public static string JoinConditions(string lhs, string op, string rhs)
+        {
+            if (op == null)
+                return lhs;
+            else
+                return lhs + " " + op + " " + rhs;
+        }
+
         public static void BooleanExpression(ref string booleanExpression, string lhs, string op, string rhs)
         {
             booleanExpression = lhs + " " + op + " " + rhs;

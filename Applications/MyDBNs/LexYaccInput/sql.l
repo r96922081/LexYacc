@@ -47,6 +47,7 @@
 [rR][iI][gG][hH][tT]                             { value = yytext;  return RIGHT; }
 [fF][uU][lL][lL]                                 { value = yytext;  return FULL; }
 [oO][uU][tT][eE][rR]                             { value = yytext;  return OUTER; }
+[iI][nN][nN][eE][rR]                             { value = yytext;  return INNER; }
 [cC][rR][oO][sS][sS]                             { value = yytext;  return CROSS; }
 
 "||"                                             { value = yytext;  return TWO_PIPE; }

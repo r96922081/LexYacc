@@ -59,6 +59,19 @@
         }
     }
 
+    public class TableOrJoins
+    {
+        public TableId tableId;
+        public List<JoinTable> joins = new List<JoinTable>();
+    }
+
+    public class JoinTable
+    {
+        public string joinType;
+        public TableId rhsTableId;
+        public string join_conditions;
+    }
+
     public enum ColumnType
     {
         NUMBER,

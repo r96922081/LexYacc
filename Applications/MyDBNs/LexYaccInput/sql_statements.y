@@ -2,13 +2,16 @@
 
 %}
 
-%token <string>                                      SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR JOIN ON LEFT RIGHT FULL OUTER CROSS AS
+%token <string>                                      SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR JOIN ON LEFT RIGHT FULL OUTER INNER CROSS AS
 %token <int>                                         POSITIVE_INT
 %token <double>                                      DOUBLE
 
-%type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start join_table join_condition join_conditions relational_operator
+%type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start join_condition join_conditions relational_operator 
 %type <List<string>>                                 columns string_number_null_list
 %type <MyDBNs.TableId>                               table_id
+%type <MyDBNs.JoinTable>                             join_table
+%type <List<MyDBNs.JoinTable>>                       join_tables
+%type <MyDBNs.TableOrJoins>                          table_or_joins
 %type <MyDBNs.ColumnDeclare>                         column_declare
 %type <List<MyDBNs.ColumnDeclare>>                   column_declares
 %type <MyDBNs.OrderByColumn>                         order_by_column
@@ -162,43 +165,68 @@ SELECT aggregation_columns FROM table_id WHERE boolean_expression GROUP BY colum
 }
 ;
 
+table_or_joins:
+table_id
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableOrJoins($1, null);
+}
+|
+table_id join_tables
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableOrJoins($1, $2);
+}
+;
+
+join_tables:
+join_tables join_table
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTables($1, $2);
+}
+|
+join_table
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTables(null, $1);
+}
+;
+
 join_table:
-table
+JOIN table_id ON join_conditions
 {
-
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable("INNER", $2, $4);
 }
 |
-table JOIN table ON join_conditions
+INNER JOIN table_id ON join_conditions
 {
-
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($1, $3, $5);
 }
 |
-table LEFT JOIN table ON join_conditions
+LEFT JOIN table_id ON join_conditions
 {
-
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($1, $3, $5);
 }
 |
-table CROSS JOIN table ON join_conditions
+CROSS JOIN table_id ON join_conditions
 {
-
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($1, $3, $5);
 }
 ;
 
 join_conditions:
-join_conditions ',' join_condition
+join_conditions logical_operator join_condition
 {
-
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinConditions($1, $2, $3);
 }
 |
 join_condition
 {
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinConditions($1, null, null);
 }
 ;
 
 join_condition:
 ID_DOT_ID relational_operator ID_DOT_ID
 {
-
+    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, $2, $3);
 }
 ;
 
