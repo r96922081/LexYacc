@@ -4,7 +4,7 @@
     {
         public static void Ut()
         {
-            Gv.ut = true;
+            Gv.ut = false;
 
             if (Gv.ut)
             {
@@ -25,7 +25,7 @@
             }
             else
             {
-                sql_statements.Parse("load DB TEST.DB");
+                sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_JOIN.DB"));
                 InteractiveConsole.Interactive();
             }
         }

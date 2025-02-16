@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace MyDBNs
+﻿namespace MyDBNs
 {
     public class Gv
     {
@@ -54,7 +52,7 @@ namespace MyDBNs
             displayTableName = tableName;
         }
 
-        public TableId(string tableName, string displayTableName): this(tableName)
+        public TableId(string tableName, string displayTableName) : this(tableName)
         {
             if (displayTableName != null && displayTableName != "")
                 this.displayTableName = displayTableName;
@@ -92,8 +90,11 @@ namespace MyDBNs
     {
         public Table table;
         public string displayTableName;
+
         public List<string> columnNames = new List<string>();
+        public List<string> displayColumnNames = new List<string>();
         public List<int> columnIndex = new List<int>();
+
         public List<int> selectedRows = new List<int>();
         public bool needToDispose = false;
 
@@ -165,6 +166,7 @@ namespace MyDBNs
     public class AggregationColumn
     {
         public string table;
+        public string displayTable;
         public string columnName;
         public string displayColumnName;
         public AggerationOperation op;

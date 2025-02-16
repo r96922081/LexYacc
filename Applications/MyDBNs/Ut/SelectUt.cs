@@ -38,17 +38,27 @@
 
         public void TableName()
         {
-            object o = sql_statements.Parse("SELECT A.C1, A.C2, A.*, * FROM A");
+            object o = sql_statements.Parse("SELECT A.C1, A.C2, C2, A.*, * FROM A");
             using (SelectedData s = o as SelectedData)
             {
-                Check(s.columnNames.Count == 6);
+                Check(s.columnNames.Count == 7);
             }
 
-            o = sql_statements.Parse("SELECT AA.C1, AA.C2, AA.*, * FROM A AS AA");
+            o = sql_statements.Parse("SELECT AA.C1, AA.C2, C2, AA.*, * FROM A AS AA");
             using (SelectedData s = o as SelectedData)
             {
-                Check(s.columnNames.Count == 6);
+                Check(s.columnNames.Count == 7);
             }
+
+            CheckSyntaxErrorOrException(() => { return sql_statements.Parse("SELECT AA.C1 FROM A"); });
+        }
+
+        public void ColumnName()
+        {
+            SelectedData ret = (SelectedData)sql_statements.Parse("SELECT C1 AS C1_ALIAS, C2 C2_ALIAS FROM A");
+
+            Check(ret.displayTableName == "C1_ALIAS");
+            Check(ret.displayTableName == "C2_ALIAS");
         }
 
         public void Ut()
@@ -65,6 +75,7 @@
             Basic();
             OrderBy();
             TableName();
+            ColumnName();
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Data.Common;
-using System.Text;
+﻿using System.Text;
 
 namespace MyDBNs
 {
@@ -25,43 +23,20 @@ namespace MyDBNs
             return rows;
         }
 
-        private static void GetColumns(Table table, List<AggregationColumn> columns, List<string> columnNames, List<int> columnIndex)
-        {
-            columnNames.Clear();
-            columnIndex.Clear();
-
-            foreach (AggregationColumn column in columns)
-            {
-                if (column.columnName == "*")
-                {
-                    foreach (string column2 in table.columnNames)
-                    {
-                        columnNames.Add(column2);
-                        columnIndex.Add(table.GetColumnIndex(column2));
-                    }
-                }
-                else
-                {
-                    columnNames.Add(column.columnName);
-                    columnIndex.Add(table.GetColumnIndex(column.columnName));
-                }
-            }
-        }
-
-
-
         private static SelectedData GetSelectedData(TableId tableId, List<AggregationColumn> columns, string condition)
         {
             SelectedData s = new SelectedData();
 
             s.table = Util.GetTable(tableId.tableName);
-            GetColumns(s.table, columns, s.columnNames, s.columnIndex);
-            s.selectedRows = GetSelectedRows(s.table.tableName, condition);
 
-            if (Util.IsValid(tableId.displayTableName))
-                s.displayTableName = tableId.displayTableName;
-            else
-                s.displayTableName = tableId.tableName;
+            foreach (AggregationColumn column in columns)
+            {
+                s.columnNames.Add(column.columnName);
+                s.displayColumnNames.Add(column.displayColumnName);
+                s.columnIndex.Add(s.table.GetColumnIndex(column.columnName));
+            }
+
+            s.selectedRows = GetSelectedRows(s.table.tableName, condition);
 
             return s;
         }
@@ -103,10 +78,10 @@ namespace MyDBNs
         {
             if (orderByColumns == null)
                 return;
-            
+
             List<OrderBy> order = ConvertOrder(s, orderByColumns);
             SortRows(s, order);
-            
+
         }
 
         private static void SortRows(SelectedData s, List<OrderBy> order2)

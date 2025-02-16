@@ -453,7 +453,7 @@ ID_DOT_ID
 aggregation_column_as:
 aggregation_column
 {
-    $$ = $1;
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumnAs($1, null);
 }
 |
 aggregation_column ID
@@ -615,11 +615,6 @@ column:
 ID
 {
     $$ = $1;
-}
-|
-ID '.' ID
-{
-    $$ = $1 + "." + $3;
 }
 |
 ID_DOT_ID

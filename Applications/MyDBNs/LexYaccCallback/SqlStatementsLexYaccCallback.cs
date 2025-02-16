@@ -147,50 +147,53 @@
             return c;
         }
 
-        private static SelectedData Select(List<AggregationColumn> columns, TableId tableId, string condition, List<OrderByColumn> orderByColumns)
-        {
-            return MyDBNs.Select.SelectRows(columns, tableId, condition, orderByColumns);
-        }
-
-        private static SelectedData Select(List<AggregationColumn> columns, List<string> groupByColumns, TableId tableId, string condition, List<OrderByColumn> orderByColumns)
-        {
-            return MyDBNs.Select.SelectRows(columns, groupByColumns, tableId, condition, orderByColumns);
-        }
-
-        private static List<AggregationColumn> SplitTableColumnName(List<AggregationColumn> columns)
-        {
-            List<AggregationColumn> columns2 = new List<AggregationColumn>();
-            foreach (AggregationColumn a in columns)
-            {
-                AggregationColumn a2 = new AggregationColumn();
-                a2.op = a.op;
-
-                if (a.columnName.Contains("."))
-                {
-                    a2.table = a.columnName.Substring(0, a.columnName.IndexOf("."));
-                    a2.columnName = a.columnName.Substring(a.columnName.IndexOf(".") + 1);
-                }
-                else
-                {
-                    a2.table = "";
-                    a2.columnName = a.columnName;
-                }
-
-                columns2.Add(a2);
-            }
-
-            return columns2;
-        }
-
         public static SelectedData Select(List<AggregationColumn> columns, TableId tableId, string condition, List<string> groupByColumns, List<OrderByColumn> orderByColumns)
         {
-            columns = SplitTableColumnName(columns);
+            columns = NormalizeColumns(columns, tableId);
             int aggregrationColumnCount = columns.Where(c => c.op != AggerationOperation.NONE).Count();
 
             if (aggregrationColumnCount == 0)
-                return Select(columns, tableId, condition, orderByColumns);
+                return MyDBNs.Select.SelectRows(columns, tableId, condition, orderByColumns);
             else
-                return Select(columns, groupByColumns, tableId, condition, orderByColumns);
+                return MyDBNs.Select.SelectRows(columns, groupByColumns, tableId, condition, orderByColumns);
+        }
+
+        private static List<AggregationColumn> NormalizeColumns(List<AggregationColumn> columns, TableId tableId)
+        {
+            List<AggregationColumn> newColumns = new List<AggregationColumn>();
+            foreach (AggregationColumn a in columns)
+            {
+                if (a.displayTable == null)
+                {
+                    a.displayTable = tableId.displayTableName;
+                    a.table = tableId.tableName;
+                }
+                else if (a.displayTable == tableId.displayTableName)
+                {
+                    a.table = tableId.tableName;
+                }
+                else
+                    throw new Exception();
+
+                if (a.columnName == "*" && a.op == AggerationOperation.NONE)
+                {
+                    Table t = Util.GetTable(tableId.tableName);
+                    foreach (string columnName in t.columnNames)
+                    {
+                        AggregationColumn newColumn = new AggregationColumn();
+                        newColumn.table = a.table;
+                        newColumn.displayTable = a.displayTable;
+                        newColumn.columnName = columnName;
+                        newColumn.displayColumnName = columnName;
+                        newColumn.op = a.op;
+                        newColumns.Add(newColumn);
+                    }
+                }
+                else
+                    newColumns.Add(a);
+            }
+
+            return newColumns;
         }
 
         public static void BooleanExpression(ref string booleanExpression, string lhs, string op, string rhs)
@@ -236,8 +239,14 @@
         public static AggregationColumn AggregationColumn(AggerationOperation op, string columnName)
         {
             AggregationColumn a = new AggregationColumn();
-            a.columnName= columnName;
-            a.op= op;
+            a.columnName = columnName;
+            if (a.columnName.Contains("."))
+            {
+                a.displayTable = a.columnName.Substring(0, a.columnName.IndexOf("."));
+                a.columnName = a.columnName.Substring(a.columnName.IndexOf(".") + 1);
+            }
+
+            a.op = op;
 
             return a;
         }
@@ -245,6 +254,8 @@
         public static AggregationColumn AggregationColumnAs(AggregationColumn a, string displayName)
         {
             a.displayColumnName = displayName;
+            if (displayName == null)
+                a.displayColumnName = a.columnName;
 
             return a;
         }

@@ -471,7 +471,7 @@ ID_DOT_ID
 aggregation_column_as:
 aggregation_column
 {
-    $$ = $1;
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumnAs($1, null);
 }
 |
 aggregation_column ID
@@ -633,11 +633,6 @@ column:
 ID
 {
     $$ = $1;
-}
-|
-ID '.' ID
-{
-    $$ = $1 + ""."" + $3;
 }
 |
 ID_DOT_ID
@@ -835,7 +830,6 @@ GREATER_OR_EQUAL
         actions.Add("Rule_column_Producton_1", Rule_column_Producton_1);
         actions.Add("Rule_column_Producton_2", Rule_column_Producton_2);
         actions.Add("Rule_column_Producton_3", Rule_column_Producton_3);
-        actions.Add("Rule_column_Producton_4", Rule_column_Producton_4);
         actions.Add("Rule_relational_operator_Producton_0", Rule_relational_operator_Producton_0);
         actions.Add("Rule_relational_operator_Producton_1", Rule_relational_operator_Producton_1);
         actions.Add("Rule_relational_operator_Producton_2", Rule_relational_operator_Producton_2);
@@ -1936,7 +1930,7 @@ GREATER_OR_EQUAL
         MyDBNs.AggregationColumn _1 = (MyDBNs.AggregationColumn)objects[1];
 
         // user-defined action
-        _0 = _1;
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.AggregationColumnAs(_1, null);
 
         return _0;
     }
@@ -2235,10 +2229,9 @@ GREATER_OR_EQUAL
     public static object Rule_column_Producton_1(Dictionary<int, object> objects) { 
         string _0 = new string("");
         string _1 = (string)objects[1];
-        string _3 = (string)objects[3];
 
         // user-defined action
-        _0 = _1 + "." + _3;
+        _0 = _1;
 
         return _0;
     }
@@ -2254,16 +2247,6 @@ GREATER_OR_EQUAL
     }
 
     public static object Rule_column_Producton_3(Dictionary<int, object> objects) { 
-        string _0 = new string("");
-        string _1 = (string)objects[1];
-
-        // user-defined action
-        _0 = _1;
-
-        return _0;
-    }
-
-    public static object Rule_column_Producton_4(Dictionary<int, object> objects) { 
         string _0 = new string("");
 
         // user-defined action
