@@ -149,7 +149,7 @@
 
         public static SelectedData Select(List<AggregationColumn> columns, TableOrJoins table, string condition, List<string> groupByColumns, List<OrderByColumn> orderByColumns)
         {
-            columns = NormalizeColumns(columns, table.tableId);
+            columns = FixColumns(columns, table);
             int aggregrationColumnCount = columns.Where(c => c.op != AggerationOperation.NONE).Count();
 
             if (aggregrationColumnCount == 0)
@@ -158,9 +158,14 @@
                 return MyDBNs.Select.SelectRows(columns, groupByColumns, table.tableId, condition, orderByColumns);
         }
 
-        private static List<AggregationColumn> NormalizeColumns(List<AggregationColumn> columns, TableId tableId)
+        private static List<AggregationColumn> FixColumns(List<AggregationColumn> columns, TableOrJoins table)
         {
             List<AggregationColumn> newColumns = new List<AggregationColumn>();
+
+            List<TableId> tableIds = new List<TableId>();
+            tableIds.Add(table.tableId);
+            tableIds.AddRange(table.joins.Select(j => j.rhsTableId));
+
             foreach (AggregationColumn a in columns)
             {
                 if (a.displayTable == null)
