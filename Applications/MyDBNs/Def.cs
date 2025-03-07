@@ -61,8 +61,43 @@
 
     public class TableOrJoins
     {
-        public TableId tableId;
+        public TableId mainTableId;
+        public List<TableId> allTableIds = new List<TableId>();
         public List<JoinTable> joins = new List<JoinTable>();
+
+        public TableId GetTableIdByDisplayTable(string displayTable)
+        {
+            foreach (TableId tableId in allTableIds)
+            {
+                if (tableId.displayTableName == displayTable)
+                    return tableId;
+            }
+            return null;
+        }
+
+        public List<TableId> GetTableIdsByColumnName(string columnName)
+        {
+            List<TableId> tableIds = new List<TableId>();
+            foreach (TableId tableId in allTableIds)
+            {
+                Table t = Util.GetTable(tableId.tableName);
+
+                if (t.columnNameToIndexMap.ContainsKey(columnName.ToUpper()))
+                    tableIds.Add(tableId);
+            }
+            return tableIds;
+        }
+
+        public List<TableId> GetTableIdsByDisplayTableName(string displayTableName)
+        {
+            List<TableId> tableIds = new List<TableId>();
+            foreach (TableId tableId in allTableIds)
+            {
+                if (tableId.displayTableName == displayTableName)
+                    tableIds.Add(tableId);
+            }
+            return tableIds;
+        }
     }
 
     public class JoinTable
@@ -99,6 +134,17 @@
         }
     }
 
+    public class SelectedData2
+    {
+        public List<SelectedData> selectedData = new List<SelectedData>();
+
+        public void Dispose()
+        {
+            foreach (SelectedData s in selectedData)
+                s.Dispose();
+        }
+    }
+
     public class SelectedData : IDisposable
     {
         public Table table;
@@ -107,6 +153,7 @@
         public List<string> columnNames = new List<string>();
         public List<string> displayColumnNames = new List<string>();
         public List<int> columnIndex = new List<int>();
+        public List<int> displayColumnIndex = new List<int>();
 
         public List<int> selectedRows = new List<int>();
         public bool needToDispose = false;
@@ -179,7 +226,7 @@
     public class AggregationColumn
     {
         public string table;
-        public string displayTable;
+        public string displayTableName;
         public string columnName;
         public string displayColumnName;
         public AggerationOperation op;

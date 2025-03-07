@@ -122,12 +122,10 @@ namespace MyDBNs
             });
         }
 
-        public static SelectedData SelectRows(List<AggregationColumn> columns, TableId tableId, string whereCondition, List<OrderByColumn> orders)
+        public static SelectedData SelectRows(List<AggregationColumn> columns, TableOrJoins table, string whereCondition, List<OrderByColumn> orders)
         {
-            Table table = Util.GetTable(tableId.tableName);
-
-            SelectedData s = GetSelectedData(tableId, columns, whereCondition);
-            s.displayTableName = tableId.displayTableName;
+            SelectedData s = GetSelectedData(table.mainTableId, columns, whereCondition);
+            s.displayTableName = table.mainTableId.displayTableName;
 
             SortSelectedData(s, orders);
 

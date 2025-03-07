@@ -153,49 +153,69 @@
             int aggregrationColumnCount = columns.Where(c => c.op != AggerationOperation.NONE).Count();
 
             if (aggregrationColumnCount == 0)
-                return MyDBNs.Select.SelectRows(columns, table.tableId, condition, orderByColumns);
+                return MyDBNs.Select.SelectRows(columns, table, condition, orderByColumns);
             else
-                return MyDBNs.Select.SelectRows(columns, groupByColumns, table.tableId, condition, orderByColumns);
+                return MyDBNs.Select.SelectRows(columns, groupByColumns, table.mainTableId, condition, orderByColumns);
         }
 
         private static List<AggregationColumn> FixColumns(List<AggregationColumn> columns, TableOrJoins table)
         {
             List<AggregationColumn> newColumns = new List<AggregationColumn>();
 
-            List<TableId> tableIds = new List<TableId>();
-            tableIds.Add(table.tableId);
-            tableIds.AddRange(table.joins.Select(j => j.rhsTableId));
 
             foreach (AggregationColumn a in columns)
             {
-                if (a.displayTable == null)
-                {
-                    a.displayTable = tableId.displayTableName;
-                    a.table = tableId.tableName;
-                }
-                else if (a.displayTable == tableId.displayTableName)
-                {
-                    a.table = tableId.tableName;
-                }
-                else
-                    throw new Exception();
-
                 if (a.columnName == "*" && a.op == AggerationOperation.NONE)
                 {
-                    Table t = Util.GetTable(tableId.tableName);
-                    foreach (string columnName in t.columnNames)
+                    List<TableId> tableIds = new List<TableId>();
+
+                    if (a.displayTableName == null)
                     {
-                        AggregationColumn newColumn = new AggregationColumn();
-                        newColumn.table = a.table;
-                        newColumn.displayTable = a.displayTable;
-                        newColumn.columnName = columnName;
-                        newColumn.displayColumnName = columnName;
-                        newColumn.op = a.op;
-                        newColumns.Add(newColumn);
+                        tableIds = table.allTableIds;
+                    }
+                    else
+                    {
+                        tableIds.Add(table.GetTableIdByDisplayTable(a.displayTableName));
+                    }
+
+                    foreach (TableId tableId in table.allTableIds)
+                    {
+                        Table t = Util.GetTable(tableId.tableName);
+                        foreach (string columnName in t.columnNames)
+                        {
+                            AggregationColumn newColumn = new AggregationColumn();
+                            newColumn.table = a.table;
+                            newColumn.displayTableName = tableId.displayTableName;
+                            newColumn.columnName = columnName;
+                            newColumn.displayColumnName = columnName;
+                            newColumn.op = a.op;
+                            newColumns.Add(newColumn);
+                        }
                     }
                 }
                 else
-                    newColumns.Add(a);
+                {
+                    if (a.displayTableName == null)
+                    {
+                        List<TableId> tableIds = table.GetTableIdsByColumnName(a.columnName);
+                        if (tableIds.Count != 1)
+                            throw new Exception("Column name is ambiguous or not found: " + a.columnName);
+
+                        TableId tableId = tableIds[0];
+
+                        a.displayTableName = tableId.displayTableName;
+                        a.table = tableId.tableName;
+                        newColumns.Add(a);
+                    }
+                    else
+                    {
+                        List<TableId> tableIds = table.GetTableIdsByDisplayTableName(a.displayTableName);
+                        if (tableIds.Count != 1)
+                            throw new Exception("Table name is ambiguous or not found: " + a.displayTableName);
+
+                        newColumns.Add(a);
+                    }
+                }
             }
 
             return newColumns;
@@ -204,8 +224,14 @@
         public static TableOrJoins TableOrJoins(TableId t, List<JoinTable> joins)
         {
             TableOrJoins ret = new TableOrJoins();
-            ret.tableId = t;
+            ret.mainTableId = t;
+            ret.allTableIds.Add(t);
             ret.joins = joins;
+            if (joins != null)
+            {
+                foreach (JoinTable j in joins)
+                    ret.allTableIds.Add(j.rhsTableId);
+            }
 
             return ret;
         }
@@ -286,7 +312,7 @@
             a.columnName = columnName;
             if (a.columnName.Contains("."))
             {
-                a.displayTable = a.columnName.Substring(0, a.columnName.IndexOf("."));
+                a.displayTableName = a.columnName.Substring(0, a.columnName.IndexOf("."));
                 a.columnName = a.columnName.Substring(a.columnName.IndexOf(".") + 1);
             }
 
