@@ -175,9 +175,9 @@
                             string columnName = column.name;
                             AggregationColumn newColumn = new AggregationColumn();
                             newColumn.table = a.table;
-                            newColumn.displayTableName = tableId.displayTableName;
+                            newColumn.userTableName = tableId.displayTableName;
                             newColumn.columnName = columnName;
-                            newColumn.displayColumnName = columnName;
+                            newColumn.userColumnName = columnName;
                             newColumn.op = a.op;
                             newColumns.Add(newColumn);
                         }
@@ -185,7 +185,7 @@
                 }
                 else
                 {
-                    if (a.displayTableName == null)
+                    if (a.userTableName == null)
                     {
                         List<TableId> tableIds = table.GetTableIdsByColumnName(a.columnName);
                         if (tableIds.Count != 1)
@@ -193,15 +193,15 @@
 
                         TableId tableId = tableIds[0];
 
-                        a.displayTableName = tableId.displayTableName;
+                        a.userTableName = tableId.displayTableName;
                         a.table = tableId.tableName;
                         newColumns.Add(a);
                     }
                     else
                     {
-                        List<TableId> tableIds = table.GetTableIdsByDisplayTableName(a.displayTableName);
+                        List<TableId> tableIds = table.GetTableIdsByDisplayTableName(a.userTableName);
                         if (tableIds.Count != 1)
-                            throw new Exception("Table name is ambiguous or not found: " + a.displayTableName);
+                            throw new Exception("Table name is ambiguous or not found: " + a.userTableName);
 
                         newColumns.Add(a);
                     }
@@ -302,7 +302,7 @@
             a.columnName = columnName;
             if (a.columnName.Contains("."))
             {
-                a.displayTableName = a.columnName.Substring(0, a.columnName.IndexOf("."));
+                a.userTableName = a.columnName.Substring(0, a.columnName.IndexOf("."));
                 a.columnName = a.columnName.Substring(a.columnName.IndexOf(".") + 1);
             }
 
@@ -313,9 +313,9 @@
 
         public static AggregationColumn AggregationColumnAs(AggregationColumn a, string displayName)
         {
-            a.displayColumnName = displayName;
+            a.userColumnName = displayName;
             if (displayName == null)
-                a.displayColumnName = a.columnName;
+                a.userColumnName = a.columnName;
 
             return a;
         }

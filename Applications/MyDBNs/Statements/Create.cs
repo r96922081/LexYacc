@@ -20,5 +20,10 @@
 
             DB.tables.Add(table);
         }
+
+        public static void AddTable(Table t)
+        {
+            DB.tables.Add(t);
+        }
     }
 }

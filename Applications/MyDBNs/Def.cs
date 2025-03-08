@@ -13,15 +13,49 @@
         public Column[] columns;
         public List<object[]> rows = new List<object[]>();
 
-        public int GetColumnIndex(string columnName)
+        public int GetColumnIndex(string columnNameParam)
         {
+            string queryTableName = null;
+            string columnName = null;
+
+            string[] tokens = columnNameParam.Split(".");
+            if (tokens.Length == 2)
+            {
+                queryTableName = tokens[0];
+                columnName = tokens[1];
+            }
+            else
+                columnName = tokens[0];
+
+
+            int index = -1;
+
             for (int i = 0; i < columns.Length; i++)
             {
-                if (columns[i].name == columnName.ToUpper())
-                    return i;
+                Column column = columns[i];
+
+                if (queryTableName == null)
+                {
+                    if (column.name == columnName.ToUpper())
+                    {
+                        if (index != -1)
+                            throw new Exception("Ambiguous column name " + columnName);
+                        index = i;
+                    }
+                }
+                else
+                {
+                    if (column.queryTableName == queryTableName && column.name == columnName.ToUpper())
+                    {
+                        if (index != -1)
+                            throw new Exception("Ambiguous column name " + columnName);
+                        index = i;
+                    }
+                }
+
             }
 
-            return -1;
+            return index;
         }
 
         public ColumnType GetColumnType(string columnName)
@@ -252,9 +286,9 @@
     public class AggregationColumn
     {
         public string table;
-        public string displayTableName;
+        public string userTableName;
         public string columnName;
-        public string displayColumnName;
+        public string userColumnName;
         public AggerationOperation op;
     }
 }

@@ -208,9 +208,19 @@ join_table
 ;
 
 join_table:
+JOIN table_id 
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable(""INNER"", $2, null);
+}
+|
 JOIN table_id ON join_conditions
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable(""INNER"", $2, $4);
+}
+|
+INNER JOIN table_id
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($1, $3, null);
 }
 |
 INNER JOIN table_id ON join_conditions
@@ -218,9 +228,19 @@ INNER JOIN table_id ON join_conditions
     $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($1, $3, $5);
 }
 |
+LEFT JOIN table_id
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($1, $3, null);
+}
+|
 LEFT JOIN table_id ON join_conditions
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($1, $3, $5);
+}
+|
+CROSS JOIN table_id
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($1, $3, null);
 }
 |
 CROSS JOIN table_id ON join_conditions
@@ -775,6 +795,10 @@ GREATER_OR_EQUAL
         actions.Add("Rule_join_table_Producton_1", Rule_join_table_Producton_1);
         actions.Add("Rule_join_table_Producton_2", Rule_join_table_Producton_2);
         actions.Add("Rule_join_table_Producton_3", Rule_join_table_Producton_3);
+        actions.Add("Rule_join_table_Producton_4", Rule_join_table_Producton_4);
+        actions.Add("Rule_join_table_Producton_5", Rule_join_table_Producton_5);
+        actions.Add("Rule_join_table_Producton_6", Rule_join_table_Producton_6);
+        actions.Add("Rule_join_table_Producton_7", Rule_join_table_Producton_7);
         actions.Add("Rule_join_conditions_Producton_0", Rule_join_conditions_Producton_0);
         actions.Add("Rule_join_conditions_LeftRecursionExpand_Producton_0", Rule_join_conditions_LeftRecursionExpand_Producton_0);
         actions.Add("Rule_join_conditions_LeftRecursionExpand_Producton_1", Rule_join_conditions_LeftRecursionExpand_Producton_1);
@@ -1401,6 +1425,17 @@ GREATER_OR_EQUAL
         MyDBNs.JoinTable _0 = new MyDBNs.JoinTable();
         string _1 = (string)objects[1];
         MyDBNs.TableId _2 = (MyDBNs.TableId)objects[2];
+
+        // user-defined action
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.JoinTable("INNER", _2, null);
+
+        return _0;
+    }
+
+    public static object Rule_join_table_Producton_1(Dictionary<int, object> objects) { 
+        MyDBNs.JoinTable _0 = new MyDBNs.JoinTable();
+        string _1 = (string)objects[1];
+        MyDBNs.TableId _2 = (MyDBNs.TableId)objects[2];
         string _3 = (string)objects[3];
         string _4 = (string)objects[4];
 
@@ -1410,25 +1445,23 @@ GREATER_OR_EQUAL
         return _0;
     }
 
-    public static object Rule_join_table_Producton_1(Dictionary<int, object> objects) { 
-        MyDBNs.JoinTable _0 = new MyDBNs.JoinTable();
-        string _1 = (string)objects[1];
-        string _2 = (string)objects[2];
-        MyDBNs.TableId _3 = (MyDBNs.TableId)objects[3];
-        string _4 = (string)objects[4];
-        string _5 = (string)objects[5];
-
-        // user-defined action
-        _0 = MyDBNs.SqlStatementsLexYaccCallback.JoinTable(_1, _3, _5);
-
-        return _0;
-    }
-
     public static object Rule_join_table_Producton_2(Dictionary<int, object> objects) { 
         MyDBNs.JoinTable _0 = new MyDBNs.JoinTable();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
         MyDBNs.TableId _3 = (MyDBNs.TableId)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.JoinTable(_1, _3, null);
+
+        return _0;
+    }
+
+    public static object Rule_join_table_Producton_3(Dictionary<int, object> objects) { 
+        MyDBNs.JoinTable _0 = new MyDBNs.JoinTable();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        MyDBNs.TableId _3 = (MyDBNs.TableId)objects[3];
         string _4 = (string)objects[4];
         string _5 = (string)objects[5];
 
@@ -1438,7 +1471,45 @@ GREATER_OR_EQUAL
         return _0;
     }
 
-    public static object Rule_join_table_Producton_3(Dictionary<int, object> objects) { 
+    public static object Rule_join_table_Producton_4(Dictionary<int, object> objects) { 
+        MyDBNs.JoinTable _0 = new MyDBNs.JoinTable();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        MyDBNs.TableId _3 = (MyDBNs.TableId)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.JoinTable(_1, _3, null);
+
+        return _0;
+    }
+
+    public static object Rule_join_table_Producton_5(Dictionary<int, object> objects) { 
+        MyDBNs.JoinTable _0 = new MyDBNs.JoinTable();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        MyDBNs.TableId _3 = (MyDBNs.TableId)objects[3];
+        string _4 = (string)objects[4];
+        string _5 = (string)objects[5];
+
+        // user-defined action
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.JoinTable(_1, _3, _5);
+
+        return _0;
+    }
+
+    public static object Rule_join_table_Producton_6(Dictionary<int, object> objects) { 
+        MyDBNs.JoinTable _0 = new MyDBNs.JoinTable();
+        string _1 = (string)objects[1];
+        string _2 = (string)objects[2];
+        MyDBNs.TableId _3 = (MyDBNs.TableId)objects[3];
+
+        // user-defined action
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.JoinTable(_1, _3, null);
+
+        return _0;
+    }
+
+    public static object Rule_join_table_Producton_7(Dictionary<int, object> objects) { 
         MyDBNs.JoinTable _0 = new MyDBNs.JoinTable();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];

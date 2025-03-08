@@ -190,9 +190,19 @@ join_table
 ;
 
 join_table:
+JOIN table_id 
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable("INNER", $2, null);
+}
+|
 JOIN table_id ON join_conditions
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable("INNER", $2, $4);
+}
+|
+INNER JOIN table_id
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($1, $3, null);
 }
 |
 INNER JOIN table_id ON join_conditions
@@ -200,9 +210,19 @@ INNER JOIN table_id ON join_conditions
     $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($1, $3, $5);
 }
 |
+LEFT JOIN table_id
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($1, $3, null);
+}
+|
 LEFT JOIN table_id ON join_conditions
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($1, $3, $5);
+}
+|
+CROSS JOIN table_id
+{
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($1, $3, null);
 }
 |
 CROSS JOIN table_id ON join_conditions
