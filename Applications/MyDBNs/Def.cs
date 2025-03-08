@@ -6,16 +6,6 @@
         public static bool ut = false;
     }
 
-    public class Column
-    {
-        public string queryTableName;
-        public string queryName;
-        public string name; // upper cased
-        public string originalName;
-        public ColumnType type;
-        public int size;
-    }
-
     public class Table
     {
         public string name;
@@ -55,6 +45,16 @@
 
             return -1;
         }
+    }
+
+    public class Column
+    {
+        public string queryTableName;
+        public string queryName;
+        public string name; // upper cased
+        public string originalName;
+        public ColumnType type;
+        public int size;
     }
 
     public class TableId
