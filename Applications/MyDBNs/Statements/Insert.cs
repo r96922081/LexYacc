@@ -9,7 +9,7 @@
             if (columnNames != null)
                 columnNames = columnNames.Select(name => name.ToUpper()).ToList();
             else
-                columnNames = table.columns.Select(column => column.name.ToUpper()).ToList();
+                columnNames = table.columns.Select(column => column.columnName.ToUpper()).ToList();
 
             object[] singleRow = new object[table.columns.Length];
 

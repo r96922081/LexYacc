@@ -28,8 +28,8 @@
                     for (int j = 0; j < columnCount; j++)
                     {
                         table.columns[j] = new Column();
-                        table.columns[j].originalName = reader.ReadString();
-                        table.columns[j].name = table.columns[j].originalName.ToUpper();
+                        table.columns[j].originalColumnName = reader.ReadString();
+                        table.columns[j].columnName = table.columns[j].originalColumnName.ToUpper();
                     }
 
                     // Load column types

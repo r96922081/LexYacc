@@ -48,17 +48,17 @@
 
         public static void PrintTable(SelectedData s)
         {
-            int[] columnWidths = GetDisplayColumnWidth(s.table, s.displayColumnNames, s.columnIndex);
+            int[] columnWidths = GetDisplayColumnWidth(s.table, s.userColumnNames, s.columnIndex);
 
             Console.WriteLine();
-            Console.WriteLine("table " + s.displayTableName);
+            Console.WriteLine("table " + s.userTableName);
             PrintSeprator(columnWidths);
 
             // show column name
             Console.Write("| ");
-            for (int i = 0; i < s.displayColumnNames.Count; i++)
+            for (int i = 0; i < s.userColumnNames.Count; i++)
             {
-                Console.Write(s.displayColumnNames[i].PadRight(columnWidths[i]));
+                Console.Write(s.userColumnNames[i].PadRight(columnWidths[i]));
                 if (i == columnWidths.Length - 1)
                     Console.Write(" |");
                 else

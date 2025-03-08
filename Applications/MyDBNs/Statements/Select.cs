@@ -32,7 +32,7 @@ namespace MyDBNs
             foreach (AggregationColumn column in columns)
             {
                 s.columnNames.Add(column.columnName);
-                s.displayColumnNames.Add(column.userColumnName);
+                s.userColumnNames.Add(column.userColumnName);
                 s.columnIndex.Add(s.table.GetColumnIndex(column.userTableName + "." + column.columnName));
             }
 
@@ -138,10 +138,10 @@ namespace MyDBNs
                 foreach (Column column in table.columns)
                 {
                     Column newColumn = new Column();
-                    newColumn.name = column.name;
-                    newColumn.originalName = column.originalName;
-                    newColumn.queryName = column.queryName;
-                    newColumn.queryTableName = table.name;
+                    newColumn.columnName = column.columnName;
+                    newColumn.originalColumnName = column.originalColumnName;
+                    newColumn.userColumnName = column.userColumnName;
+                    newColumn.userTableName = table.name;
                     newColumn.size = column.size;
                     newColumn.type = column.type;
                     joined.columns[index++] = newColumn;
@@ -193,7 +193,7 @@ namespace MyDBNs
             Table joinedTable = JoinTable(table);
 
             SelectedData s = GetSelectedData(joinedTable, columns, whereCondition);
-            s.displayTableName = joinedTable.name;
+            s.userTableName = joinedTable.name;
 
             SortSelectedData(s, orders);
 
@@ -350,9 +350,9 @@ namespace MyDBNs
 
             SelectedData result = new SelectedData();
             result.table = Util.GetTable(materializeTableName);
-            result.displayTableName = table.name;
+            result.userTableName = table.name;
 
-            result.columnNames = result.table.columns.Select(s => s.name).ToList();
+            result.columnNames = result.table.columns.Select(s => s.columnName).ToList();
             result.columnIndex = Enumerable.Range(0, aggregrationColumns.Count).ToList();
             result.selectedRows = Enumerable.Range(0, result.table.rows.Count).ToList();
             result.needToDispose = true;

@@ -172,10 +172,10 @@
                         Table t = Util.GetTable(tableId.tableName);
                         foreach (Column column in t.columns)
                         {
-                            string columnName = column.name;
+                            string columnName = column.columnName;
                             AggregationColumn newColumn = new AggregationColumn();
                             newColumn.table = a.table;
-                            newColumn.userTableName = tableId.displayTableName;
+                            newColumn.userTableName = tableId.userTableName;
                             newColumn.columnName = columnName;
                             newColumn.userColumnName = columnName;
                             newColumn.op = a.op;
@@ -193,7 +193,7 @@
 
                         TableId tableId = tableIds[0];
 
-                        a.userTableName = tableId.displayTableName;
+                        a.userTableName = tableId.userTableName;
                         a.table = tableId.tableName;
                         newColumns.Add(a);
                     }

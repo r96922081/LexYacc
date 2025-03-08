@@ -36,7 +36,7 @@
 
                 if (queryTableName == null)
                 {
-                    if (column.name == columnName.ToUpper())
+                    if (column.columnName == columnName.ToUpper())
                     {
                         if (index != -1)
                             throw new Exception("Ambiguous column name " + columnName);
@@ -45,7 +45,7 @@
                 }
                 else
                 {
-                    if (column.queryTableName == queryTableName && column.name == columnName.ToUpper())
+                    if (column.userTableName == queryTableName && column.columnName == columnName.ToUpper())
                     {
                         if (index != -1)
                             throw new Exception("Ambiguous column name " + columnName);
@@ -62,7 +62,7 @@
         {
             foreach (Column c in columns)
             {
-                if (c.name == columnName.ToUpper())
+                if (c.columnName == columnName.ToUpper())
                     return c.type;
             }
 
@@ -73,7 +73,7 @@
         {
             foreach (Column c in columns)
             {
-                if (c.name == columnName.ToUpper())
+                if (c.columnName == columnName.ToUpper())
                     return c.size;
             }
 
@@ -83,10 +83,10 @@
 
     public class Column
     {
-        public string queryTableName;
-        public string queryName;
-        public string name; // upper cased
-        public string originalName;
+        public string userTableName;
+        public string userColumnName;
+        public string columnName; // upper cased
+        public string originalColumnName;
         public ColumnType type;
         public int size;
     }
@@ -94,7 +94,7 @@
     public class TableId
     {
         public string tableName;
-        public string displayTableName;
+        public string userTableName;
 
         public TableId()
         {
@@ -103,13 +103,13 @@
         public TableId(string tableName)
         {
             this.tableName = tableName;
-            displayTableName = tableName;
+            userTableName = tableName;
         }
 
         public TableId(string tableName, string displayTableName) : this(tableName)
         {
             if (displayTableName != null && displayTableName != "")
-                this.displayTableName = displayTableName;
+                this.userTableName = displayTableName;
         }
     }
 
@@ -123,7 +123,7 @@
         {
             foreach (TableId tableId in allTableIds)
             {
-                if (tableId.displayTableName == displayTable)
+                if (tableId.userTableName == displayTable)
                     return tableId;
             }
             return null;
@@ -138,7 +138,7 @@
 
                 foreach (Column c in t.columns)
                 {
-                    if (c.name == columnName.ToUpper())
+                    if (c.columnName == columnName.ToUpper())
                     {
                         tableIds.Add(tableId);
                     }
@@ -152,7 +152,7 @@
             List<TableId> tableIds = new List<TableId>();
             foreach (TableId tableId in allTableIds)
             {
-                if (tableId.displayTableName == displayTableName)
+                if (tableId.userTableName == displayTableName)
                     tableIds.Add(tableId);
             }
             return tableIds;
@@ -208,12 +208,12 @@
     public class SelectedData : IDisposable
     {
         public Table table;
-        public string displayTableName;
+        public string userTableName;
 
         public List<string> columnNames = new List<string>();
-        public List<string> displayColumnNames = new List<string>();
+        public List<string> userColumnNames = new List<string>();
         public List<int> columnIndex = new List<int>();
-        public List<int> displayColumnIndex = new List<int>();
+        public List<int> userColumnIndex = new List<int>();
 
         public List<int> selectedRows = new List<int>();
         public bool needToDispose = false;

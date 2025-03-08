@@ -12,7 +12,7 @@ namespace MyDBNs
                 sb.AppendLine("table: " + t.originaName);
                 for (int i = 0; i < t.columns.Length; i++)
                 {
-                    sb.Append(t.columns[i].originalName + " " + t.columns[i].type);
+                    sb.Append(t.columns[i].originalColumnName + " " + t.columns[i].type);
                     if (t.columns[i].type == ColumnType.VARCHAR)
                     {
                         sb.Append("(" + t.columns[i].size + ")");

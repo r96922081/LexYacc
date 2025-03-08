@@ -57,8 +57,8 @@
         {
             SelectedData ret = (SelectedData)sql_statements.Parse("SELECT C1 AS C1_ALIAS, C2 C2_ALIAS FROM A");
 
-            Check(ret.displayColumnNames[0] == "C1_ALIAS");
-            Check(ret.displayColumnNames[1] == "C2_ALIAS");
+            Check(ret.userColumnNames[0] == "C1_ALIAS");
+            Check(ret.userColumnNames[1] == "C2_ALIAS");
         }
 
         public void Ut()
