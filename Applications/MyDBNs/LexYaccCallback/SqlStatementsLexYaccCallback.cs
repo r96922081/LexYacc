@@ -169,6 +169,10 @@
                 {
                     foreach (TableId tableId in table.allTableIds)
                     {
+                        // Distinguish between * and A.* 
+                        if (a.userTableName != null && tableId.userTableName != a.userTableName)
+                            continue;
+
                         Table t = Util.GetTable(tableId.tableName);
                         foreach (Column column in t.columns)
                         {
@@ -182,6 +186,7 @@
                             newColumns.Add(newColumn);
                         }
                     }
+
                 }
                 else
                 {

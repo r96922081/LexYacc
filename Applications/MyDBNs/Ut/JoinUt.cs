@@ -37,6 +37,7 @@
             o = sql_statements.Parse("SELECT A.C1, B.C2, A.*, B.*, * FROM A JOIN B");
             using (SelectedData s = o as SelectedData)
             {
+                Check(s.columnNames.Count == 14);
                 InteractiveConsole.PrintTable(s);
             }
 
