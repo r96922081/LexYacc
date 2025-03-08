@@ -147,15 +147,15 @@
             return c;
         }
 
-        public static SelectedData Select(List<AggregationColumn> columns, TableOrJoins table, string condition, List<string> groupByColumns, List<OrderByColumn> orderByColumns)
+        public static SelectedData Select(List<AggregationColumn> columns, TableOrJoins table, string whereCondition, List<string> groupByColumns, List<OrderByColumn> orderByColumns)
         {
             columns = FixColumns(columns, table);
             int aggregrationColumnCount = columns.Where(c => c.op != AggerationOperation.NONE).Count();
 
             if (aggregrationColumnCount == 0)
-                return MyDBNs.Select.SelectRows(columns, table, condition, orderByColumns);
+                return MyDBNs.Select.SelectRows(columns, table, whereCondition, orderByColumns);
             else
-                return MyDBNs.Select.SelectRows(columns, groupByColumns, table.mainTableId, condition, orderByColumns);
+                return MyDBNs.Select.SelectRows(columns, groupByColumns, table.mainTableId, whereCondition, orderByColumns);
         }
 
         private static List<AggregationColumn> FixColumns(List<AggregationColumn> columns, TableOrJoins table)
@@ -248,7 +248,7 @@
 
             j.joinType = joinType;
             j.rhsTableId = rhsTableId;
-            j.join_conditions = join_conditions;
+            j.joinConditions = join_conditions;
 
             return j;
         }
@@ -261,9 +261,9 @@
                 return lhs + " " + op + " " + rhs;
         }
 
-        public static void BooleanExpression(ref string booleanExpression, string lhs, string op, string rhs)
+        public static string BooleanExpression(string lhs, string op, string rhs)
         {
-            booleanExpression = lhs + " " + op + " " + rhs;
+            return lhs + " " + op + " " + rhs;
         }
 
         public static OrderByColumn OrderByColumn(object column, bool ascending)

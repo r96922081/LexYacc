@@ -246,14 +246,14 @@ join_condition
 join_condition:
 ID_DOT_ID relational_operator ID_DOT_ID
 {
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, $2, $3);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression($1, $2, $3);
 }
 ;
 
 boolean_expression:
 boolean_expression logical_operator boolean_expression
 {
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, $2, $3);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression($1, $2, $3);
 }
 | 
 '(' boolean_expression ')'
@@ -263,32 +263,32 @@ boolean_expression logical_operator boolean_expression
 | 
 string_expression relational_operator string_expression
 {
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, $2, $3);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression($1, $2, $3);
 }
 | 
 arithmeticExpression_column relational_operator arithmeticExpression_column
 {
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, $2, $3);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression($1, $2, $3);
 }
 |
 column IS NULL
 {
-     MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "IS", "NULL");
+     $$ = MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression($1, "IS", "NULL");
 }
 |
 column IS NOT NULL
 {
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "IS NOT", "NULL");
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression($1, "IS NOT", "NULL");
 }
 |
 column LIKE STRING
 {
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "LIKE", $3);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression($1, "LIKE", $3);
 }
 |
 column NOT LIKE STRING
 {
-    MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression(ref $$, $1, "NOT LIKE", $4);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression($1, "NOT LIKE", $4);
 }
 ;
 

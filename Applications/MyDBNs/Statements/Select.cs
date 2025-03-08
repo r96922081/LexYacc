@@ -4,10 +4,10 @@ namespace MyDBNs
 {
     public class Select
     {
-        private static List<int> GetSelectedRows(string tableName, string condition)
+        private static List<int> GetSelectedRows(string tableName, string whereCondition)
         {
             List<int> rows = new List<int>();
-            if (condition == null)
+            if (whereCondition == null)
             {
                 Table table = Util.GetTable(tableName);
                 rows = new List<int>();
@@ -18,12 +18,12 @@ namespace MyDBNs
             }
 
             SqlBooleanExpressionLexYaccCallback.table = Util.GetTable(tableName);
-            rows = new List<int>((HashSet<int>)sql_boolean_expression.Parse(condition));
+            rows = new List<int>((HashSet<int>)sql_boolean_expression.Parse(whereCondition));
             rows.Sort();
             return rows;
         }
 
-        private static SelectedData GetSelectedData(Table table, List<AggregationColumn> columns, string condition)
+        private static SelectedData GetSelectedData(Table table, List<AggregationColumn> columns, string whereCondition, string joinCondition)
         {
             SelectedData s = new SelectedData();
 
@@ -36,7 +36,7 @@ namespace MyDBNs
                 s.columnIndex.Add(s.table.GetColumnIndex(column.userTableName + "." + column.columnName));
             }
 
-            s.selectedRows = GetSelectedRows(s.table.name, condition);
+            s.selectedRows = GetSelectedRows(s.table.name, whereCondition);
 
             return s;
         }
@@ -192,7 +192,7 @@ namespace MyDBNs
         {
             Table joinedTable = JoinTable(table);
 
-            SelectedData s = GetSelectedData(joinedTable, columns, whereCondition);
+            SelectedData s = GetSelectedData(joinedTable, columns, whereCondition, null);
             s.userTableName = joinedTable.name;
 
             SortSelectedData(s, orders);
@@ -204,7 +204,7 @@ namespace MyDBNs
         {
             Table t = Util.GetTable(tableId.tableName);
 
-            SelectedData s = GetSelectedData(t, columns, whereCondition, groupByColumns);
+            SelectedData s = GetSelectedData(t, columns, whereCondition, null, groupByColumns);
 
             SortSelectedData(s, orders);
 
@@ -256,13 +256,13 @@ namespace MyDBNs
             Create.CreateTable(tempTableName, columnDeclares);
         }
 
-        public static SelectedData GetSelectedData(Table table, List<AggregationColumn> aggregrationColumns, string condition, List<string> groupByColumns)
+        public static SelectedData GetSelectedData(Table table, List<AggregationColumn> aggregrationColumns, string whereCondition, string joinCondition, List<string> groupByColumns)
         {
             List<int> groupByColumnIndex = null;
             if (groupByColumns != null)
                 groupByColumnIndex = Util.GetColumnIndexFromName(table, groupByColumns);
             List<int> aggregrationColumnIndex = Util.GetColumnIndexFromName(table, aggregrationColumns.Select(s => s.columnName).ToList());
-            SelectedData src = GetSelectedData(table, aggregrationColumns, condition);
+            SelectedData src = GetSelectedData(table, aggregrationColumns, whereCondition, joinCondition);
 
             string materializeTableName = "TempTable_" + (Gv.sn++);
             CreateTempGroupByTable(table, materializeTableName, aggregrationColumns);

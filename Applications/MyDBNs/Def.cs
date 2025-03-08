@@ -163,7 +163,7 @@
     {
         public string joinType;
         public TableId rhsTableId;
-        public string join_conditions;
+        public string joinConditions;
     }
 
     public enum ColumnType
