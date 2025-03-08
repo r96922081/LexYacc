@@ -6,34 +6,54 @@
         public static bool ut = false;
     }
 
+    public class Column
+    {
+        public string queryTableName;
+        public string queryName;
+        public string name; // upper cased
+        public string originalName;
+        public ColumnType type;
+        public int size;
+    }
+
     public class Table
     {
-        public string tableName;
-        public string[] columnNames;
-        public ColumnType[] columnTypes;
-        public int[] columnSizes;
-
-        public Dictionary<string, int> columnNameToIndexMap;
-        public Dictionary<string, ColumnType> columnNameToTypesMap;
-
-        public string originalTableName;
-        public string[] originalColumnNames;
-
+        public string name;
+        public string originaName;
+        public Column[] columns;
         public List<object[]> rows = new List<object[]>();
 
         public int GetColumnIndex(string columnName)
         {
-            return columnNameToIndexMap[columnName.ToUpper()];
+            for (int i = 0; i < columns.Length; i++)
+            {
+                if (columns[i].name == columnName.ToUpper())
+                    return i;
+            }
+
+            return -1;
         }
 
         public ColumnType GetColumnType(string columnName)
         {
-            return columnNameToTypesMap[columnName.ToUpper()];
+            foreach (Column c in columns)
+            {
+                if (c.name == columnName.ToUpper())
+                    return c.type;
+            }
+
+            return ColumnType.INVALID;
         }
 
         public int GetColumnSize(string columnName)
         {
-            return columnSizes[GetColumnIndex(columnName.ToUpper())];
+            foreach (Column c in columns)
+            {
+                if (c.name == columnName.ToUpper())
+                    return c.size;
+            }
+
+            return -1;
         }
     }
 
@@ -65,7 +85,7 @@
         public List<TableId> allTableIds = new List<TableId>();
         public List<JoinTable> joins = new List<JoinTable>();
 
-        public TableId GetTableIdByDisplayTable(string displayTable)
+        public TableId GetTableIdByDisplayTableName(string displayTable)
         {
             foreach (TableId tableId in allTableIds)
             {
@@ -82,8 +102,13 @@
             {
                 Table t = Util.GetTable(tableId.tableName);
 
-                if (t.columnNameToIndexMap.ContainsKey(columnName.ToUpper()))
-                    tableIds.Add(tableId);
+                foreach (Column c in t.columns)
+                {
+                    if (c.name == columnName.ToUpper())
+                    {
+                        tableIds.Add(tableId);
+                    }
+                }
             }
             return tableIds;
         }
@@ -110,7 +135,8 @@
     public enum ColumnType
     {
         NUMBER,
-        VARCHAR
+        VARCHAR,
+        INVALID
     }
 
     public enum StringType
@@ -161,7 +187,7 @@
         public void Dispose()
         {
             if (needToDispose)
-                Drop.DropTable(table.tableName);
+                Drop.DropTable(table.name);
         }
     }
 

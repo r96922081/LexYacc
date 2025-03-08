@@ -6,7 +6,7 @@
         {
             for (int i = 0; i < DB.tables.Count; i++)
             {
-                if (DB.tables[i].tableName.ToUpper() == name.ToUpper())
+                if (DB.tables[i].name.ToUpper() == name.ToUpper())
                 {
                     DB.tables.RemoveAt(i);
                     break;

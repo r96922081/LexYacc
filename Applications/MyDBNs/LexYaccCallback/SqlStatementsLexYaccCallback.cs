@@ -167,22 +167,12 @@
             {
                 if (a.columnName == "*" && a.op == AggerationOperation.NONE)
                 {
-                    List<TableId> tableIds = new List<TableId>();
-
-                    if (a.displayTableName == null)
-                    {
-                        tableIds = table.allTableIds;
-                    }
-                    else
-                    {
-                        tableIds.Add(table.GetTableIdByDisplayTable(a.displayTableName));
-                    }
-
                     foreach (TableId tableId in table.allTableIds)
                     {
                         Table t = Util.GetTable(tableId.tableName);
-                        foreach (string columnName in t.columnNames)
+                        foreach (Column column in t.columns)
                         {
+                            string columnName = column.name;
                             AggregationColumn newColumn = new AggregationColumn();
                             newColumn.table = a.table;
                             newColumn.displayTableName = tableId.displayTableName;

@@ -9,7 +9,7 @@
 
         public static Table GetTable(string tableName)
         {
-            return DB.tables.FirstOrDefault(t => t.tableName.ToUpper() == tableName.ToUpper());
+            return DB.tables.FirstOrDefault(t => t.name.ToUpper() == tableName.ToUpper());
         }
 
         public static List<Table> GetTables()

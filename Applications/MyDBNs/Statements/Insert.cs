@@ -4,15 +4,14 @@
     {
         public static int InsertRows(string tableName, List<string> columnNames, List<string> values)
         {
-            if (columnNames != null)
-                columnNames = columnNames.Select(name => name.ToUpper()).ToList();
-
             Table table = Util.GetTable(tableName);
 
-            if (columnNames == null || columnNames.Count == 0)
-                columnNames = table.columnNames.ToList();
+            if (columnNames != null)
+                columnNames = columnNames.Select(name => name.ToUpper()).ToList();
+            else
+                columnNames = table.columns.Select(column => column.name.ToUpper()).ToList();
 
-            object[] singleRow = new object[table.columnNames.Length];
+            object[] singleRow = new object[table.columns.Length];
 
             for (int i = 0; i < values.Count; i++)
             {
@@ -42,6 +41,10 @@
                             throw new Exception("value = " + value + " is not a varchar");
 
                         singleRow[columnIndex] = Util.ExtractStringFromSingleQuote(value);
+                    }
+                    else
+                    {
+                        throw new Exception("Unknown column type");
                     }
                 }
             }

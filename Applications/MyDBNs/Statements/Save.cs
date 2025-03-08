@@ -13,30 +13,30 @@
                 foreach (var table in DB.tables)
                 {
                     // Save table name
-                    writer.Write(table.originalTableName);
+                    writer.Write(table.originaName);
 
                     // Save column names
-                    writer.Write(table.originalColumnNames.Length);
-                    foreach (var columnName in table.originalColumnNames)
-                        writer.Write(columnName);
+                    writer.Write(table.columns.Length);
+                    foreach (Column column in table.columns)
+                        writer.Write(column.originalName);
 
                     // Save column types
-                    writer.Write(table.columnTypes.Length);
-                    foreach (var columnType in table.columnTypes)
-                        writer.Write((int)columnType);
+                    writer.Write(table.columns.Length);
+                    foreach (Column column in table.columns)
+                        writer.Write((int)column.type);
 
                     // Save column sizes
-                    writer.Write(table.columnSizes.Length);
-                    foreach (var columnSize in table.columnSizes)
-                        writer.Write(columnSize);
+                    writer.Write(table.columns.Length);
+                    foreach (Column column in table.columns)
+                        writer.Write(column.size);
 
                     // row count
                     writer.Write(table.rows.Count);
                     foreach (var row in table.rows)
                     {
-                        for (int i = 0; i < table.columnTypes.Length; i++)
+                        for (int i = 0; i < table.columns.Length; i++)
                         {
-                            ColumnType type = table.columnTypes[i];
+                            ColumnType type = table.columns[i].type;
                             object value = row[i];
                             if (value == null)
                             {

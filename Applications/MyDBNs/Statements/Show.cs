@@ -9,16 +9,16 @@ namespace MyDBNs
             foreach (Table t in DB.tables)
             {
                 StringBuilder sb = new StringBuilder();
-                sb.AppendLine("table: " + t.originalTableName);
-                for (int i = 0; i < t.originalColumnNames.Length; i++)
+                sb.AppendLine("table: " + t.originaName);
+                for (int i = 0; i < t.columns.Length; i++)
                 {
-                    sb.Append(t.originalColumnNames[i] + " " + t.columnTypes[i]);
-                    if (t.columnTypes[i] == ColumnType.VARCHAR)
+                    sb.Append(t.columns[i].originalName + " " + t.columns[i].type);
+                    if (t.columns[i].type == ColumnType.VARCHAR)
                     {
-                        sb.Append("(" + t.columnSizes[i] + ")");
+                        sb.Append("(" + t.columns[i].size + ")");
                     }
 
-                    if (i != t.originalColumnNames.Length - 1)
+                    if (i != t.columns.Length - 1)
                         sb.AppendLine(",");
                     else
                         sb.AppendLine();

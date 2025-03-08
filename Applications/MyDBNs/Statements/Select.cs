@@ -36,7 +36,7 @@ namespace MyDBNs
                 s.columnIndex.Add(s.table.GetColumnIndex(column.columnName));
             }
 
-            s.selectedRows = GetSelectedRows(s.table.tableName, condition);
+            s.selectedRows = GetSelectedRows(s.table.name, condition);
 
             return s;
         }
@@ -106,7 +106,7 @@ namespace MyDBNs
                     if (lhsValue != null && rhsValue == null)
                         return o.op == OrderByDirection.ASEC ? 1 : -1;
 
-                    ColumnType t = s.table.columnTypes[columnIndex];
+                    ColumnType t = s.table.columns[columnIndex].type;
 
                     IComparable lCompara = (IComparable)lhsValue;
                     IComparable rCompara = (IComparable)rhsValue;
@@ -286,7 +286,7 @@ namespace MyDBNs
             else
                 result.displayTableName = tableId.tableName;
 
-            result.columnNames = result.table.columnNames.ToList();
+            result.columnNames = result.table.columns.Select(s => s.name).ToList();
             result.columnIndex = Enumerable.Range(0, aggregrationColumns.Count).ToList();
             result.selectedRows = Enumerable.Range(0, result.table.rows.Count).ToList();
             result.needToDispose = true;

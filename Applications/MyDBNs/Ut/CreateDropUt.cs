@@ -9,11 +9,11 @@
             CheckOk(sql_statements.Parse("CREATE TABLE A ( C1 VARCHAR(123), C2 NUMBER)"));
 
             Table t = Util.GetTable("A");
-            Check(t.columnNames[0] == "C1");
-            Check(t.columnNames[1] == "C2");
-            Check(t.columnSizes[0] == 123);
-            Check(t.columnTypes[0] == ColumnType.VARCHAR);
-            Check(t.columnTypes[1] == ColumnType.NUMBER);
+            Check(t.columns[0].name == "C1");
+            Check(t.columns[1].name == "C2");
+            Check(t.columns[0].size == 123);
+            Check(t.columns[0].type == ColumnType.VARCHAR);
+            Check(t.columns[1].type == ColumnType.NUMBER);
 
             CheckOk(sql_statements.Parse("DROP TABLE A"));
             Check(Util.GetTables().Count == 0);

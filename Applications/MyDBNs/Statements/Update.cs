@@ -76,14 +76,14 @@
                 }
                 else if (setExpression.rhsType == StringType.String)
                 {
-                    if (table.columnTypes[lhsColumnIndex] != ColumnType.VARCHAR)
+                    if (table.columns[lhsColumnIndex].type != ColumnType.VARCHAR)
                         throw new Exception("Update with wrong type");
 
                     UpdateRowsVarchar(table, lhsColumnIndex, setExpression, selectedRows, undos);
                 }
                 else if (setExpression.rhsType == StringType.Number)
                 {
-                    if (table.columnTypes[lhsColumnIndex] != ColumnType.NUMBER)
+                    if (table.columns[lhsColumnIndex].type != ColumnType.NUMBER)
                         throw new Exception("Update with wrong type");
 
                     UpdateRowsNumber(table, lhsColumnIndex, setExpression, selectedRows, undos);

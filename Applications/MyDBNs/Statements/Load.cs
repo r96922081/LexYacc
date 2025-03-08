@@ -18,51 +18,40 @@
                     var table = new Table();
 
                     // Load table name
-                    table.originalTableName = reader.ReadString();
-                    table.tableName = table.originalTableName.ToUpper();
+                    table.originaName = reader.ReadString();
+                    table.name = table.originaName.ToUpper();
 
                     // Load column names
-                    int columnNameCount = reader.ReadInt32();
-                    table.originalColumnNames = new string[columnNameCount];
-                    table.columnNames = new string[columnNameCount];
+                    int columnCount = reader.ReadInt32();
+                    table.columns = new Column[columnCount];
 
-                    for (int j = 0; j < columnNameCount; j++)
+                    for (int j = 0; j < columnCount; j++)
                     {
-                        table.originalColumnNames[j] = reader.ReadString();
-                        table.columnNames[j] = table.originalColumnNames[j].ToUpper();
+                        table.columns[j] = new Column();
+                        table.columns[j].originalName = reader.ReadString();
+                        table.columns[j].name = table.columns[j].originalName.ToUpper();
                     }
 
                     // Load column types
-                    int columnTypeCount = reader.ReadInt32();
-                    table.columnTypes = new ColumnType[columnTypeCount];
-                    for (int j = 0; j < columnTypeCount; j++)
-                        table.columnTypes[j] = (ColumnType)reader.ReadInt32();
+                    columnCount = reader.ReadInt32();
+                    for (int j = 0; j < columnCount; j++)
+                        table.columns[j].type = (ColumnType)reader.ReadInt32();
 
                     // Load column sizes
-                    int columnSizeCount = reader.ReadInt32();
-                    table.columnSizes = new int[columnSizeCount];
-                    for (int j = 0; j < columnSizeCount; j++)
-                        table.columnSizes[j] = reader.ReadInt32();
-
-                    table.columnNameToIndexMap = new Dictionary<string, int>();
-                    table.columnNameToTypesMap = new Dictionary<string, ColumnType>();
-
-                    for (int j = 0; j < table.columnNames.Length; j++)
-                    {
-                        table.columnNameToIndexMap.Add(table.columnNames[j], j);
-                        table.columnNameToTypesMap.Add(table.columnNames[j], table.columnTypes[j]);
-                    }
+                    columnCount = reader.ReadInt32();
+                    for (int j = 0; j < columnCount; j++)
+                        table.columns[j].size = reader.ReadInt32();
 
                     // row count
                     int rowCount = reader.ReadInt32();
                     for (int j = 0; j < rowCount; j++)
                     {
-                        object[] row = new object[table.columnTypes.Length];
+                        object[] row = new object[columnCount];
                         table.rows.Add(row);
 
-                        for (int k = 0; k < table.columnTypes.Length; k++)
+                        for (int k = 0; k < columnCount; k++)
                         {
-                            ColumnType type = table.columnTypes[k];
+                            ColumnType type = table.columns[k].type;
                             bool hasValue = reader.ReadBoolean();
                             if (hasValue)
                             {
