@@ -4,11 +4,11 @@
     {
         public static void DropTable(string name)
         {
-            for (int i = 0; i < DB.tables.Count; i++)
+            for (int i = 0; i < Gv.db.tables.Count; i++)
             {
-                if (DB.tables[i].name.ToUpper() == name.ToUpper())
+                if (Gv.db.tables[i].name.ToUpper() == name.ToUpper())
                 {
-                    DB.tables.RemoveAt(i);
+                    Gv.db.tables.RemoveAt(i);
                     break;
                 }
             }

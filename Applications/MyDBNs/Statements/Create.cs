@@ -18,12 +18,12 @@
                 table.columns[i].size = columnDeclares[i].size;
             }
 
-            DB.tables.Add(table);
+            Gv.db.tables.Add(table);
         }
 
         public static void AddTable(Table t)
         {
-            DB.tables.Add(t);
+            Gv.db.tables.Add(t);
         }
     }
 }

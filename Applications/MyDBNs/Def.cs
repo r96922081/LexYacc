@@ -2,6 +2,7 @@
 {
     public class Gv
     {
+        public static DB db = new DB();
         public static int sn = 0;
         public static bool ut = false;
     }
@@ -10,6 +11,7 @@
     {
         public string name;
         public string originaName;
+        public string userTableName;
         public Column[] columns;
         public List<object[]> rows = new List<object[]>();
 
@@ -91,78 +93,54 @@
         public int size;
     }
 
-    public class TableId
-    {
-        public string tableName;
-        public string userTableName;
-
-        public TableId()
-        {
-        }
-
-        public TableId(string tableName)
-        {
-            this.tableName = tableName;
-            userTableName = tableName;
-        }
-
-        public TableId(string tableName, string displayTableName) : this(tableName)
-        {
-            if (displayTableName != null && displayTableName != "")
-                this.userTableName = displayTableName;
-        }
-    }
-
     public class TableOrJoins
     {
-        public TableId mainTableId;
-        public List<TableId> allTableIds = new List<TableId>();
+        public Table mainTable;
+        public List<Table> allTables = new List<Table>();
         public List<JoinTable> joins = new List<JoinTable>();
 
-        public TableId GetTableIdByDisplayTableName(string displayTable)
+        public Table GetTableByDisplayTableName(string displayTable)
         {
-            foreach (TableId tableId in allTableIds)
+            foreach (Table table in allTables)
             {
-                if (tableId.userTableName == displayTable)
-                    return tableId;
+                if (table.userTableName == displayTable)
+                    return table;
             }
             return null;
         }
 
-        public List<TableId> GetTableIdsByColumnName(string columnName)
+        public List<Table> GetTableIdsByColumnName(string columnName)
         {
-            List<TableId> tableIds = new List<TableId>();
-            foreach (TableId tableId in allTableIds)
+            List<Table> tables = new List<Table>();
+            foreach (Table table in allTables)
             {
-                Table t = Util.GetTable(tableId.tableName);
-
-                foreach (Column c in t.columns)
+                foreach (Column c in table.columns)
                 {
                     if (c.columnName == columnName.ToUpper())
                     {
-                        tableIds.Add(tableId);
+                        tables.Add(table);
                     }
                 }
             }
-            return tableIds;
+            return tables;
         }
 
-        public List<TableId> GetTableIdsByDisplayTableName(string displayTableName)
+        public List<Table> GetTableIdsByDisplayTableName(string displayTableName)
         {
-            List<TableId> tableIds = new List<TableId>();
-            foreach (TableId tableId in allTableIds)
+            List<Table> tables = new List<Table>();
+            foreach (Table table in allTables)
             {
-                if (tableId.userTableName == displayTableName)
-                    tableIds.Add(tableId);
+                if (table.userTableName == displayTableName)
+                    tables.Add(table);
             }
-            return tableIds;
+            return tables;
         }
     }
 
     public class JoinTable
     {
         public string joinType;
-        public TableId rhsTableId;
+        public Table rhsTable;
         public string joinConditions;
     }
 

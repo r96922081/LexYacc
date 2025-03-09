@@ -30,31 +30,31 @@
 
         public static string TransactionStart()
         {
-            DB.inTransaction = true;
+            Gv.db.inTransaction = true;
 
             return "start transaction";
         }
 
         public static int Commit()
         {
-            int count = DB.transactionLog.Count;
-            DB.transactionLog.Clear();
-            DB.inTransaction = false;
+            int count = Gv.db.transactionLog.Count;
+            Gv.db.transactionLog.Clear();
+            Gv.db.inTransaction = false;
 
             return count;
         }
 
         public static int Rollback()
         {
-            int count = DB.transactionLog.Count;
+            int count = Gv.db.transactionLog.Count;
 
-            while (DB.transactionLog.Count > 0)
+            while (Gv.db.transactionLog.Count > 0)
             {
-                Action action = DB.transactionLog.Pop();
+                Action action = Gv.db.transactionLog.Pop();
                 action();
             }
 
-            DB.inTransaction = false;
+            Gv.db.inTransaction = false;
 
             return count;
         }

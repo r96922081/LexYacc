@@ -2,10 +2,12 @@
 {
     public class SqlBooleanExpressionLexYaccCallback
     {
-        public static Table table = null;
+        public static List<Table> tables = null;
 
         public static void VerifyBooleanExpression(string lhs, string op, string rhs)
         {
+            Table table = tables[0];
+
             StringType lhsType = Util.GetStringType(lhs);
             StringType rhsType = Util.GetStringType(rhs);
 
@@ -122,7 +124,7 @@
 
         public static HashSet<int> BooleanExpressionNumberColumn(string lhs, string op, string rhs)
         {
-            SqlArithmeticExpressionLexYaccCallback.table = table;
+            SqlArithmeticExpressionLexYaccCallback.tables = tables;
             List<double> lhsValues = (List<double>)sql_arithmetic_expression.Parse(lhs);
             List<double> rhsValues = (List<double>)sql_arithmetic_expression.Parse(rhs);
 
@@ -198,6 +200,8 @@
         {
             bool not = op.ToUpper().Trim().StartsWith("NOT");
 
+            Table table = tables[0];
+
             List<string> lhsValues = StringExpression.Parse(table, lhs);
 
             string pattern = Util.ExtractStringFromSingleQuote(rhs);
@@ -223,6 +227,8 @@
 
         public static HashSet<int> BooleanExpressionNullity(string lhs, string op)
         {
+            Table table = tables[0];
+
             bool isNull = op.ToUpper() == "IS";
 
             HashSet<int> rows = new HashSet<int>();
@@ -249,7 +255,7 @@
         public static ColumnType GetType(string s, ref int columnIndex)
         {
             StringType type = Util.GetStringType(s);
-            List<Table> tables = MyDBNs.DB.tables;
+            Table table = tables[0];
 
             ColumnType type2 = ColumnType.NUMBER;
             if (type == StringType.String)
@@ -296,6 +302,8 @@
 
         public static HashSet<int> BooleanExpressionVarcharColumn(string lhs, string op, string rhs)
         {
+            Table table = tables[0];
+
             List<string> lhsValues = StringExpression.Parse(table, lhs);
             List<string> rhsValues = StringExpression.Parse(table, rhs);
 

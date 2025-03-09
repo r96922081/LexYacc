@@ -155,10 +155,10 @@
             if (aggregrationColumnCount == 0)
                 return MyDBNs.Select.SelectRows(columns, table, whereCondition, orderByColumns);
             else
-                return MyDBNs.Select.SelectRows(columns, groupByColumns, table.mainTableId, whereCondition, orderByColumns);
+                return MyDBNs.Select.SelectRows(columns, groupByColumns, table.mainTable, whereCondition, orderByColumns);
         }
 
-        private static List<AggregationColumn> FixColumns(List<AggregationColumn> columns, TableOrJoins table)
+        private static List<AggregationColumn> FixColumns(List<AggregationColumn> columns, TableOrJoins joinTables)
         {
             List<AggregationColumn> newColumns = new List<AggregationColumn>();
 
@@ -167,45 +167,43 @@
             {
                 if (a.columnName == "*" && a.op == AggerationOperation.NONE)
                 {
-                    foreach (TableId tableId in table.allTableIds)
+                    foreach (Table t in joinTables.allTables)
                     {
                         // Distinguish between * and A.* 
-                        if (a.userTableName != null && tableId.userTableName != a.userTableName)
+                        if (a.userTableName != null && t.userTableName != a.userTableName)
                             continue;
 
-                        Table t = Util.GetTable(tableId.tableName);
                         foreach (Column column in t.columns)
                         {
                             string columnName = column.columnName;
                             AggregationColumn newColumn = new AggregationColumn();
                             newColumn.table = a.table;
-                            newColumn.userTableName = tableId.userTableName;
+                            newColumn.userTableName = t.userTableName;
                             newColumn.columnName = columnName;
                             newColumn.userColumnName = columnName;
                             newColumn.op = a.op;
                             newColumns.Add(newColumn);
                         }
                     }
-
                 }
                 else
                 {
                     if (a.userTableName == null)
                     {
-                        List<TableId> tableIds = table.GetTableIdsByColumnName(a.columnName);
-                        if (tableIds.Count != 1)
+                        List<Table> tables = joinTables.GetTableIdsByColumnName(a.columnName);
+                        if (tables.Count != 1)
                             throw new Exception("Column name is ambiguous or not found: " + a.columnName);
 
-                        TableId tableId = tableIds[0];
+                        Table table = tables[0];
 
-                        a.userTableName = tableId.userTableName;
-                        a.table = tableId.tableName;
+                        a.userTableName = table.userTableName;
+                        a.table = table.name;
                         newColumns.Add(a);
                     }
                     else
                     {
-                        List<TableId> tableIds = table.GetTableIdsByDisplayTableName(a.userTableName);
-                        if (tableIds.Count != 1)
+                        List<Table> tables = joinTables.GetTableIdsByDisplayTableName(a.userTableName);
+                        if (tables.Count != 1)
                             throw new Exception("Table name is ambiguous or not found: " + a.userTableName);
 
                         newColumns.Add(a);
@@ -216,16 +214,16 @@
             return newColumns;
         }
 
-        public static TableOrJoins TableOrJoins(TableId t, List<JoinTable> joins)
+        public static TableOrJoins TableOrJoins(Table t, List<JoinTable> joins)
         {
             TableOrJoins ret = new TableOrJoins();
-            ret.mainTableId = t;
-            ret.allTableIds.Add(t);
+            ret.mainTable = t;
+            ret.allTables.Add(t);
             ret.joins = joins;
             if (joins != null)
             {
                 foreach (JoinTable j in joins)
-                    ret.allTableIds.Add(j.rhsTableId);
+                    ret.allTables.Add(j.rhsTable);
             }
 
             return ret;
@@ -242,12 +240,12 @@
             return l;
         }
 
-        public static JoinTable JoinTable(string joinType, TableId rhsTableId, string join_conditions)
+        public static JoinTable JoinTable(string joinType, Table rhsTableId, string join_conditions)
         {
             JoinTable j = new JoinTable();
 
             j.joinType = joinType;
-            j.rhsTableId = rhsTableId;
+            j.rhsTable = rhsTableId;
             j.joinConditions = join_conditions;
 
             return j;

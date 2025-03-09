@@ -17,7 +17,7 @@ namespace MyDBNs
                 return rows;
             }
 
-            SqlBooleanExpressionLexYaccCallback.table = Util.GetTable(tableName);
+            SqlBooleanExpressionLexYaccCallback.tables = new List<Table> { Util.GetTable(tableName) };
             rows = new List<int>((HashSet<int>)sql_boolean_expression.Parse(whereCondition));
             rows.Sort();
             return rows;
@@ -128,13 +128,12 @@ namespace MyDBNs
             joined.name = "TempJoinedTable_" + (Gv.sn++);
             joined.originaName = joined.name;
 
-            int columnCount = tables.allTableIds.Select(t => Util.GetTable(t.tableName).columns.Length).Sum();
+            int columnCount = tables.allTables.Select(t => t.columns.Length).Sum();
             joined.columns = new Column[columnCount];
 
             int index = 0;
-            foreach (TableId tableId in tables.allTableIds)
+            foreach (Table table in tables.allTables)
             {
-                Table table = Util.GetTable(tableId.tableName);
                 foreach (Column column in table.columns)
                 {
                     Column newColumn = new Column();
@@ -148,7 +147,7 @@ namespace MyDBNs
                 }
             }
 
-            int totalRowCount = tables.allTableIds.Select(t => Util.GetTable(t.tableName).rows.Count).Aggregate(1, (a, b) => a * b);
+            int totalRowCount = tables.allTables.Select(t => t.rows.Count).Aggregate(1, (a, b) => a * b);
             joined.rows = new List<object[]>();
             for (int i = 0; i < totalRowCount; i++)
             {
@@ -158,9 +157,9 @@ namespace MyDBNs
 
             int columnStartIndex = 0;
             int repeatCount = totalRowCount;
-            for (int tableIndex = 0; tableIndex < tables.allTableIds.Count; tableIndex++)
+            for (int tableIndex = 0; tableIndex < tables.allTables.Count; tableIndex++)
             {
-                Table table = Util.GetTable(tables.allTableIds[tableIndex].tableName);
+                Table table = tables.allTables[tableIndex];
                 repeatCount /= table.rows.Count;
                 int rowIndex = 0;
 
@@ -200,11 +199,9 @@ namespace MyDBNs
             return s;
         }
 
-        public static SelectedData SelectRows(List<AggregationColumn> columns, List<string> groupByColumns, TableId tableId, string whereCondition, List<OrderByColumn> orders)
+        public static SelectedData SelectRows(List<AggregationColumn> columns, List<string> groupByColumns, Table table, string whereCondition, List<OrderByColumn> orders)
         {
-            Table t = Util.GetTable(tableId.tableName);
-
-            SelectedData s = GetSelectedData(t, columns, whereCondition, null, groupByColumns);
+            SelectedData s = GetSelectedData(table, columns, whereCondition, null, groupByColumns);
 
             SortSelectedData(s, orders);
 

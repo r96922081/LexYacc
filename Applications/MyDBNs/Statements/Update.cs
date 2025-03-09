@@ -11,7 +11,7 @@
                 if (selectedRows != null && !selectedRows.Contains(i))
                     continue;
 
-                if (DB.inTransaction)
+                if (Gv.db.inTransaction)
                     undos.Push(new UndoUpdateData(table.rows[i], lhsColumnIndex, table.rows[i][lhsColumnIndex]));
 
                 table.rows[i][lhsColumnIndex] = rows[i];
@@ -20,7 +20,7 @@
 
         public static void UpdateRowsNumber(Table table, int lhsColumnIndex, SetExpressionType setExpression, HashSet<int> selectedRows, Stack<UndoUpdateData> undos)
         {
-            SqlArithmeticExpressionLexYaccCallback.table = table;
+            SqlArithmeticExpressionLexYaccCallback.tables = new List<Table> { table };
             List<double> values = (List<double>)sql_arithmetic_expression.Parse(setExpression.rhs);
 
             for (int i = 0; i < table.rows.Count; i++)
@@ -28,7 +28,7 @@
                 if (selectedRows != null && !selectedRows.Contains(i))
                     continue;
 
-                if (DB.inTransaction)
+                if (Gv.db.inTransaction)
                     undos.Push(new UndoUpdateData(table.rows[i], lhsColumnIndex, table.rows[i][lhsColumnIndex]));
 
                 table.rows[i][lhsColumnIndex] = values[i];
@@ -44,7 +44,7 @@
 
                 object[] row = table.rows[i];
 
-                if (DB.inTransaction)
+                if (Gv.db.inTransaction)
                     undos.Push(new UndoUpdateData(row, lhsColumnIndex, row[lhsColumnIndex]));
 
                 row[lhsColumnIndex] = null;
@@ -58,7 +58,7 @@
 
             Stack<UndoUpdateData> undos = new Stack<UndoUpdateData>();
 
-            SqlBooleanExpressionLexYaccCallback.table = table;
+            SqlBooleanExpressionLexYaccCallback.tables = new List<Table> { table };
             HashSet<int> selectedRows = null;
             if (condition != null)
             {
@@ -90,9 +90,9 @@
                 }
             }
 
-            if (DB.inTransaction)
+            if (Gv.db.inTransaction)
             {
-                DB.transactionLog.Push(() =>
+                Gv.db.transactionLog.Push(() =>
                 {
                     Transaction.UndoUpdate(undos);
                 });

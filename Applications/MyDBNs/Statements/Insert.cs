@@ -51,9 +51,9 @@
 
             table.rows.Add(singleRow);
 
-            if (DB.inTransaction)
+            if (Gv.db.inTransaction)
             {
-                DB.transactionLog.Push(() =>
+                Gv.db.transactionLog.Push(() =>
                 {
                     Transaction.UndoInsert(table, singleRow);
                 });
