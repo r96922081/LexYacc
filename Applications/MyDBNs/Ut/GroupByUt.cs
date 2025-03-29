@@ -86,12 +86,12 @@
             {
                 //InteractiveConsole.PrintTable(s);
                 int col = 0;
-                Check((string)s.columnNames[col++] == "1_MAX(C1)");
-                Check((string)s.columnNames[col++] == "2_MIN(C3)");
-                Check((string)s.columnNames[col++] == "3_COUNT(C4)");
-                Check((string)s.columnNames[col++] == "4_SUM(C5)");
-                Check((string)s.columnNames[col++] == "C4");
-                Check((string)s.columnNames[col++] == "C5");
+                Check((string)s.selectedColumnNames[col++] == "1_MAX(C1)");
+                Check((string)s.selectedColumnNames[col++] == "2_MIN(C3)");
+                Check((string)s.selectedColumnNames[col++] == "3_COUNT(C4)");
+                Check((string)s.selectedColumnNames[col++] == "4_SUM(C5)");
+                Check((string)s.selectedColumnNames[col++] == "C4");
+                Check((string)s.selectedColumnNames[col++] == "C5");
 
                 object[] row = s.table.rows[0];
                 col = 0;

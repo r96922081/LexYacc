@@ -8,10 +8,10 @@
 
 %type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start join_condition join_conditions relational_operator 
 %type <List<string>>                                 columns string_number_null_list
-%type <MyDBNs.TableId>                               table_id
+%type <MyDBNs.TableNameAlias>                               table_id
 %type <MyDBNs.JoinTable>                             join_table
 %type <List<MyDBNs.JoinTable>>                       join_tables
-%type <MyDBNs.TableOrJoins>                          table_or_joins
+%type <MyDBNs.Tables>                          table_or_joins
 %type <MyDBNs.ColumnDeclare>                         column_declare
 %type <List<MyDBNs.ColumnDeclare>>                   column_declares
 %type <MyDBNs.OrderByColumn>                         order_by_column
@@ -168,12 +168,12 @@ SELECT aggregation_columns FROM table_or_joins WHERE boolean_expression GROUP BY
 table_or_joins:
 table_id
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableOrJoins($1, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Tables($1, null);
 }
 |
 table_id join_tables
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableOrJoins($1, $2);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Tables($1, $2);
 }
 ;
 
@@ -645,17 +645,17 @@ ID
 table_id:
 ID
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableId($1, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableNameAlias($1, null);
 }
 |
 ID ID
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableId($1, $2);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableNameAlias($1, $2);
 }
 |
 ID AS ID
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableId($1, $3);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableNameAlias($1, $3);
 }
 ;
 

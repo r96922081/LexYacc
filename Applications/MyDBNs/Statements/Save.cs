@@ -13,7 +13,7 @@
                 foreach (var table in DB.tables)
                 {
                     // Save table name
-                    writer.Write(table.originaName);
+                    writer.Write(table.name);
 
                     // Save column names
                     writer.Write(table.columns.Length);

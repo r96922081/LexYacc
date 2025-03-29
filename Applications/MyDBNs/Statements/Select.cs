@@ -31,9 +31,9 @@ namespace MyDBNs
 
             foreach (AggregationColumn column in columns)
             {
-                s.columnNames.Add(column.columnName);
-                s.userColumnNames.Add(column.userColumnName);
-                s.columnIndex.Add(s.table.GetColumnIndex(column.userTableName + "." + column.columnName));
+                s.selectedColumnNames.Add(column.columnName);
+                s.customColumnNames.Add(column.customColumnName);
+                s.selectedColumnIndex.Add(s.table.GetColumnIndex(column.tableName + "." + column.columnName));
             }
 
             s.selectedRows = GetSelectedRows(s.table.name, whereCondition);
@@ -50,9 +50,9 @@ namespace MyDBNs
 
                 if (order.column is string)
                 {
-                    for (int i = 0; i < s.columnNames.Count; i++)
+                    for (int i = 0; i < s.selectedColumnNames.Count; i++)
                     {
-                        if (s.columnNames[i].ToUpper() == ((string)order.column).ToUpper())
+                        if (s.selectedColumnNames[i].ToUpper() == ((string)order.column).ToUpper())
                         {
                             OrderBy orderBy = new OrderBy();
                             orderBy.op = ascending;
@@ -93,7 +93,7 @@ namespace MyDBNs
 
                 foreach (OrderBy o in order2)
                 {
-                    int columnIndex = s.columnIndex[o.selectColumnIndex];
+                    int columnIndex = s.selectedColumnIndex[o.selectColumnIndex];
                     object lhsValue = lhsColumns[columnIndex];
                     object rhsValue = rhsColumns[columnIndex];
 
@@ -122,33 +122,31 @@ namespace MyDBNs
             });
         }
 
-        public static Table JoinTable(TableOrJoins tables)
+        public static Table JoinTable(Tables tables)
         {
             Table joined = new Table();
             joined.name = "TempJoinedTable_" + (Gv.sn++);
-            joined.originaName = joined.name;
 
-            int columnCount = tables.allTableIds.Select(t => Util.GetTable(t.tableName).columns.Length).Sum();
+            int columnCount = tables.GetAllTables().Select(t => Util.GetTable(t.targetTableName).columns.Length).Sum();
             joined.columns = new Column[columnCount];
 
             int index = 0;
-            foreach (TableId tableId in tables.allTableIds)
+            foreach (TableNameAlias tableId in tables.GetAllTables())
             {
-                Table table = Util.GetTable(tableId.tableName);
+                Table table = Util.GetTable(tableId.targetTableName);
                 foreach (Column column in table.columns)
                 {
                     Column newColumn = new Column();
                     newColumn.columnName = column.columnName;
                     newColumn.originalColumnName = column.originalColumnName;
                     newColumn.userColumnName = column.userColumnName;
-                    newColumn.userTableName = table.name;
                     newColumn.size = column.size;
                     newColumn.type = column.type;
                     joined.columns[index++] = newColumn;
                 }
             }
 
-            int totalRowCount = tables.allTableIds.Select(t => Util.GetTable(t.tableName).rows.Count).Aggregate(1, (a, b) => a * b);
+            int totalRowCount = tables.GetAllTables().Select(t => Util.GetTable(t.targetTableName).rows.Count).Aggregate(1, (a, b) => a * b);
             joined.rows = new List<object[]>();
             for (int i = 0; i < totalRowCount; i++)
             {
@@ -158,9 +156,9 @@ namespace MyDBNs
 
             int columnStartIndex = 0;
             int repeatCount = totalRowCount;
-            for (int tableIndex = 0; tableIndex < tables.allTableIds.Count; tableIndex++)
+            for (int tableIndex = 0; tableIndex < tables.GetAllTables().Count; tableIndex++)
             {
-                Table table = Util.GetTable(tables.allTableIds[tableIndex].tableName);
+                Table table = Util.GetTable(tables.GetAllTables()[tableIndex].targetTableName);
                 repeatCount /= table.rows.Count;
                 int rowIndex = 0;
 
@@ -187,23 +185,156 @@ namespace MyDBNs
             return joined;
         }
 
-
-        public static SelectedData SelectRows(List<AggregationColumn> columns, TableOrJoins table, string whereCondition, List<OrderByColumn> orders)
+        private static List<AggregationColumn> ExpandWildCard(List<AggregationColumn> columns, Tables tables)
         {
-            Table joinedTable = JoinTable(table);
+            List<AggregationColumn> expandedColumns = new List<AggregationColumn>();
 
-            SelectedData s = GetSelectedData(joinedTable, columns, whereCondition, null);
-            s.userTableName = joinedTable.name;
+            foreach (AggregationColumn a in columns)
+            {
+                if (a.columnName != "*")
+                {
+                    expandedColumns.Add(a);
+                    continue;
+                }
+
+                if (a.tableName == null)
+                {
+                    foreach (TableNameAlias table in tables.GetAllTables())
+                    {
+                        Table t = Util.GetTable(table.targetTableName);
+                        foreach (Column column in t.columns)
+                        {
+                            AggregationColumn newColumn = new AggregationColumn();
+                            if (table.aliasTableName != null)
+                                newColumn.tableName = table.aliasTableName;
+                            else
+                                newColumn.tableName = table.targetTableName;
+                            newColumn.columnName = column.columnName;
+                            newColumn.op = a.op;
+                            expandedColumns.Add(newColumn);
+                        }
+                    }
+                }
+                else
+                {
+                    Table t = null;
+                    TableNameAlias tableAlias = null;
+                    foreach (TableNameAlias table in tables.GetAllTables())
+                    {
+                        if (table.aliasTableName != null && table.aliasTableName.ToUpper() == a.tableName.ToUpper())
+                        {
+                            t = Util.GetTable(table.targetTableName);
+                            tableAlias = table;
+                            break;
+                        }
+                        else if (table.targetTableName.ToUpper() == a.tableName.ToUpper())
+                        {
+                            t = Util.GetTable(table.targetTableName);
+                            tableAlias = table;
+                            break;
+                        }
+                    }
+                    if (t == null)
+                        throw new Exception("Table " + a.tableName + " not found");
+
+                    foreach (Column column in t.columns)
+                    {
+                        AggregationColumn newColumn = new AggregationColumn();
+                        if (tableAlias.aliasTableName != null)
+                            newColumn.tableName = tableAlias.aliasTableName;
+                        else
+                            newColumn.tableName = tableAlias.targetTableName;
+                        newColumn.columnName = column.columnName;
+                        newColumn.op = a.op;
+                        expandedColumns.Add(newColumn);
+                    }
+                }
+            }
+
+            return expandedColumns;
+        }
+
+        private static void AddTableNameToColumn(List<AggregationColumn> columns, Tables tables)
+        {
+            foreach (AggregationColumn column in columns)
+            {
+                if (column.tableName == null)
+                {
+                    foreach (TableNameAlias table in tables.GetAllTables())
+                    {
+                        Table t = Util.GetTable(table.targetTableName);
+                        if (t.GetColumnIndex(column.columnName.ToUpper()) != -1)
+                        {
+                            if (table.aliasTableName != null)
+                                column.tableName = table.aliasTableName;
+                            else
+                                column.tableName = table.targetTableName;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        public static SelectedData SelectRowsNoGroupBy(List<AggregationColumn> columns, Tables tables, string whereCondition, List<OrderByColumn> orders)
+        {
+            columns = ExpandWildCard(columns, tables);
+
+            AddTableNameToColumn(columns, tables);
+
+            SelectedData s = new SelectedData();
+
+            Table table = JoinTable(tables);
+
+            s.table = table;
+
+            foreach (AggregationColumn column in columns)
+            {
+                s.selectedColumnNames.Add(column.columnName);
+                s.customColumnNames.Add(column.customColumnName);
+
+                // set column index
+                int columnIndex = 0;
+                int foundColumnIndex = -1;
+                List<TableNameAlias> availableTables = tables.GetAllTables();
+                for (int i = 0; i < availableTables.Count && foundColumnIndex == -1; i++)
+                {
+                    TableNameAlias availableTable = availableTables[i];
+                    Table t = Util.GetTable(availableTables[i].targetTableName);
+                    if ((availableTable.aliasTableName != null && availableTable.aliasTableName.ToUpper() == column.tableName.ToUpper())
+                        ||
+                        (availableTable.targetTableName.ToUpper() == column.tableName.ToUpper()))
+                    {
+                        for (int j = 0; j < t.columns.Length; j++)
+                        {
+                            if (t.columns[j].columnName.ToUpper() == column.columnName.ToUpper())
+                            {
+                                foundColumnIndex = columnIndex + j;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        columnIndex += t.columns.Length;
+                    }
+                }
+
+                if (foundColumnIndex == -1)
+                    throw new Exception("Column " + column.columnName + " not found");
+
+                s.selectedColumnIndex.Add(foundColumnIndex);
+            }
+
+            s.selectedRows = GetSelectedRows(s.table.name, whereCondition);
 
             SortSelectedData(s, orders);
 
             return s;
         }
 
-        public static SelectedData SelectRows(List<AggregationColumn> columns, List<string> groupByColumns, TableId tableId, string whereCondition, List<OrderByColumn> orders)
+        public static SelectedData SelectRowsGroupBy(List<AggregationColumn> columns, List<string> groupByColumns, Table t, string whereCondition, List<OrderByColumn> orders)
         {
-            Table t = Util.GetTable(tableId.tableName);
-
             SelectedData s = GetSelectedData(t, columns, whereCondition, null, groupByColumns);
 
             SortSelectedData(s, orders);
@@ -350,10 +481,8 @@ namespace MyDBNs
 
             SelectedData result = new SelectedData();
             result.table = Util.GetTable(materializeTableName);
-            result.userTableName = table.name;
-
-            result.columnNames = result.table.columns.Select(s => s.columnName).ToList();
-            result.columnIndex = Enumerable.Range(0, aggregrationColumns.Count).ToList();
+            result.selectedColumnNames = result.table.columns.Select(s => s.columnName).ToList();
+            result.selectedColumnIndex = Enumerable.Range(0, aggregrationColumns.Count).ToList();
             result.selectedRows = Enumerable.Range(0, result.table.rows.Count).ToList();
             result.needToDispose = true;
 

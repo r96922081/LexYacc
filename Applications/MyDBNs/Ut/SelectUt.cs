@@ -41,13 +41,13 @@
             object o = sql_statements.Parse("SELECT A.C1, A.C2, C2, A.*, * FROM A");
             using (SelectedData s = o as SelectedData)
             {
-                Check(s.columnNames.Count == 7);
+                Check(s.selectedColumnNames.Count == 7);
             }
 
             o = sql_statements.Parse("SELECT AA.C1, AA.C2, C2, AA.*, * FROM A AS AA");
             using (SelectedData s = o as SelectedData)
             {
-                Check(s.columnNames.Count == 7);
+                Check(s.selectedColumnNames.Count == 7);
             }
 
             CheckSyntaxErrorOrException(() => { return sql_statements.Parse("SELECT AA.C1 FROM A"); });
@@ -57,8 +57,8 @@
         {
             SelectedData ret = (SelectedData)sql_statements.Parse("SELECT C1 AS C1_ALIAS, C2 C2_ALIAS FROM A");
 
-            Check(ret.userColumnNames[0] == "C1_ALIAS");
-            Check(ret.userColumnNames[1] == "C2_ALIAS");
+            Check(ret.customColumnNames[0] == "C1_ALIAS");
+            Check(ret.customColumnNames[1] == "C2_ALIAS");
         }
 
         public void Ut()

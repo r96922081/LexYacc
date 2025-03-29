@@ -5,8 +5,7 @@
         public static void CreateTable(string name, List<ColumnDeclare> columnDeclares)
         {
             Table table = new Table();
-            table.originaName = name;
-            table.name = name.ToUpper();
+            table.name = name;
             table.columns = new Column[columnDeclares.Count];
 
             for (int i = 0; i < columnDeclares.Count; i++)

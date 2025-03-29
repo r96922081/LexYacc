@@ -9,7 +9,6 @@
     public class Table
     {
         public string name;
-        public string originaName;
         public Column[] columns;
         public List<object[]> rows = new List<object[]>();
 
@@ -36,7 +35,7 @@
 
                 if (queryTableName == null)
                 {
-                    if (column.columnName == columnName.ToUpper())
+                    if (column.columnName.ToUpper() == columnName.ToUpper())
                     {
                         if (index != -1)
                             throw new Exception("Ambiguous column name " + columnName);
@@ -45,7 +44,7 @@
                 }
                 else
                 {
-                    if (column.userTableName == queryTableName && column.columnName == columnName.ToUpper())
+                    if (column.columnName.ToUpper() == columnName.ToUpper())
                     {
                         if (index != -1)
                             throw new Exception("Ambiguous column name " + columnName);
@@ -83,7 +82,6 @@
 
     public class Column
     {
-        public string userTableName;
         public string userColumnName;
         public string columnName; // upper cased
         public string originalColumnName;
@@ -91,68 +89,76 @@
         public int size;
     }
 
-    public class TableId
+    public class TableNameAlias
     {
-        public string tableName;
-        public string userTableName;
+        public string targetTableName;
+        public string aliasTableName;
 
-        public TableId()
+        public TableNameAlias()
         {
         }
 
-        public TableId(string tableName)
+        public TableNameAlias(string tableName)
         {
-            this.tableName = tableName;
-            userTableName = tableName;
+            targetTableName = tableName;
+            aliasTableName = tableName;
         }
 
-        public TableId(string tableName, string displayTableName) : this(tableName)
+        public TableNameAlias(string tableName, string aliasTableName)
         {
-            if (displayTableName != null && displayTableName != "")
-                this.userTableName = displayTableName;
+            targetTableName = tableName;
+
+            if (aliasTableName == null || aliasTableName == "")
+                aliasTableName = tableName;
+            else
+                this.aliasTableName = aliasTableName;
         }
     }
 
-    public class TableOrJoins
+    public class Tables
     {
-        public TableId mainTableId;
-        public List<TableId> allTableIds = new List<TableId>();
-        public List<JoinTable> joins = new List<JoinTable>();
+        public TableNameAlias mainTable;
+        public List<JoinTable> joinTables = new List<JoinTable>();
 
-        public TableId GetTableIdByDisplayTableName(string displayTable)
+        public List<TableNameAlias> GetAllTables()
         {
-            foreach (TableId tableId in allTableIds)
+            List<TableNameAlias> allTables = new List<TableNameAlias>();
+            allTables.Add(mainTable);
+
+            if (joinTables != null)
             {
-                if (tableId.userTableName == displayTable)
-                    return tableId;
+                foreach (JoinTable joinTable in joinTables)
+                    allTables.Add(joinTable.rhsTableId);
             }
-            return null;
+
+            return allTables;
         }
 
-        public List<TableId> GetTableIdsByColumnName(string columnName)
+        public List<TableNameAlias> GetTablesByColumnName(string columnName)
         {
-            List<TableId> tableIds = new List<TableId>();
-            foreach (TableId tableId in allTableIds)
+            List<TableNameAlias> tables = new List<TableNameAlias>();
+
+            foreach (TableNameAlias table in GetAllTables())
             {
-                Table t = Util.GetTable(tableId.tableName);
+                Table t = Util.GetTable(table.targetTableName);
 
                 foreach (Column c in t.columns)
                 {
-                    if (c.columnName == columnName.ToUpper())
+                    if (c.columnName.ToUpper() == columnName.ToUpper())
                     {
-                        tableIds.Add(tableId);
+                        tables.Add(table);
                     }
                 }
             }
-            return tableIds;
+            return tables;
         }
 
-        public List<TableId> GetTableIdsByDisplayTableName(string displayTableName)
+        public List<TableNameAlias> GetTablesByTableName(string tableName)
         {
-            List<TableId> tableIds = new List<TableId>();
-            foreach (TableId tableId in allTableIds)
+            List<TableNameAlias> tableIds = new List<TableNameAlias>();
+            foreach (TableNameAlias tableId in GetAllTables())
             {
-                if (tableId.userTableName == displayTableName)
+                if (tableId.aliasTableName.ToUpper() == tableName.ToUpper())
                     tableIds.Add(tableId);
             }
             return tableIds;
@@ -162,7 +168,7 @@
     public class JoinTable
     {
         public string joinType;
-        public TableId rhsTableId;
+        public TableNameAlias rhsTableId;
         public string joinConditions;
     }
 
@@ -208,12 +214,12 @@
     public class SelectedData : IDisposable
     {
         public Table table;
-        public string userTableName;
 
-        public List<string> columnNames = new List<string>();
-        public List<string> userColumnNames = new List<string>();
-        public List<int> columnIndex = new List<int>();
-        public List<int> userColumnIndex = new List<int>();
+        public List<string> selectedColumnNames = new List<string>();
+        public List<int> selectedColumnIndex = new List<int>();
+
+        public List<string> customColumnNames = new List<string>();
+        public List<int> customColumnIndex = new List<int>();
 
         public List<int> selectedRows = new List<int>();
         public bool needToDispose = false;
@@ -285,10 +291,9 @@
 
     public class AggregationColumn
     {
-        public string table;
-        public string userTableName;
+        public string tableName;
         public string columnName;
-        public string userColumnName;
+        public string customColumnName;
         public AggerationOperation op;
     }
 }

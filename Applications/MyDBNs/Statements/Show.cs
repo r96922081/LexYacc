@@ -9,7 +9,7 @@ namespace MyDBNs
             foreach (Table t in DB.tables)
             {
                 StringBuilder sb = new StringBuilder();
-                sb.AppendLine("table: " + t.originaName);
+                sb.AppendLine("table: " + t.name);
                 for (int i = 0; i < t.columns.Length; i++)
                 {
                     sb.Append(t.columns[i].originalColumnName + " " + t.columns[i].type);

@@ -26,9 +26,9 @@
             {
                 object[] selectedRow = t.rows[s.selectedRows[i]];
 
-                object[] row = new object[s.columnIndex.Count];
-                for (int j = 0; j < s.columnIndex.Count; j++)
-                    row[j] = selectedRow[s.columnIndex[j]];
+                object[] row = new object[s.selectedColumnIndex.Count];
+                for (int j = 0; j < s.selectedColumnIndex.Count; j++)
+                    row[j] = selectedRow[s.selectedColumnIndex[j]];
 
                 rows.Add(row);
             }

@@ -18,8 +18,7 @@
                     var table = new Table();
 
                     // Load table name
-                    table.originaName = reader.ReadString();
-                    table.name = table.originaName.ToUpper();
+                    table.name = reader.ReadString();
 
                     // Load column names
                     int columnCount = reader.ReadInt32();

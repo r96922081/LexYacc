@@ -26,10 +26,10 @@ public class YaccActions{
 
 %type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start join_condition join_conditions relational_operator 
 %type <List<string>>                                 columns string_number_null_list
-%type <MyDBNs.TableId>                               table_id
+%type <MyDBNs.TableNameAlias>                               table_id
 %type <MyDBNs.JoinTable>                             join_table
 %type <List<MyDBNs.JoinTable>>                       join_tables
-%type <MyDBNs.TableOrJoins>                          table_or_joins
+%type <MyDBNs.Tables>                          table_or_joins
 %type <MyDBNs.ColumnDeclare>                         column_declare
 %type <List<MyDBNs.ColumnDeclare>>                   column_declares
 %type <MyDBNs.OrderByColumn>                         order_by_column
@@ -186,12 +186,12 @@ SELECT aggregation_columns FROM table_or_joins WHERE boolean_expression GROUP BY
 table_or_joins:
 table_id
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableOrJoins($1, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Tables($1, null);
 }
 |
 table_id join_tables
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableOrJoins($1, $2);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.Tables($1, $2);
 }
 ;
 
@@ -663,17 +663,17 @@ ID
 table_id:
 ID
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableId($1, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableNameAlias($1, null);
 }
 |
 ID ID
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableId($1, $2);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableNameAlias($1, $2);
 }
 |
 ID AS ID
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableId($1, $3);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.TableNameAlias($1, $3);
 }
 ;
 
@@ -1242,7 +1242,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        MyDBNs.TableOrJoins _4 = (MyDBNs.TableOrJoins)objects[4];
+        MyDBNs.Tables _4 = (MyDBNs.Tables)objects[4];
 
         // user-defined action
         _0 = MyDBNs.SqlStatementsLexYaccCallback.Select(_2, _4, null, null, null);
@@ -1255,7 +1255,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        MyDBNs.TableOrJoins _4 = (MyDBNs.TableOrJoins)objects[4];
+        MyDBNs.Tables _4 = (MyDBNs.Tables)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
         List<string> _7 = (List<string>)objects[7];
@@ -1271,7 +1271,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        MyDBNs.TableOrJoins _4 = (MyDBNs.TableOrJoins)objects[4];
+        MyDBNs.Tables _4 = (MyDBNs.Tables)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
         List<MyDBNs.OrderByColumn> _7 = (List<MyDBNs.OrderByColumn>)objects[7];
@@ -1287,7 +1287,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        MyDBNs.TableOrJoins _4 = (MyDBNs.TableOrJoins)objects[4];
+        MyDBNs.Tables _4 = (MyDBNs.Tables)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
         List<string> _7 = (List<string>)objects[7];
@@ -1306,7 +1306,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        MyDBNs.TableOrJoins _4 = (MyDBNs.TableOrJoins)objects[4];
+        MyDBNs.Tables _4 = (MyDBNs.Tables)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
 
@@ -1321,7 +1321,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        MyDBNs.TableOrJoins _4 = (MyDBNs.TableOrJoins)objects[4];
+        MyDBNs.Tables _4 = (MyDBNs.Tables)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
         string _7 = (string)objects[7];
@@ -1339,7 +1339,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        MyDBNs.TableOrJoins _4 = (MyDBNs.TableOrJoins)objects[4];
+        MyDBNs.Tables _4 = (MyDBNs.Tables)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
         string _7 = (string)objects[7];
@@ -1357,7 +1357,7 @@ GREATER_OR_EQUAL
         string _1 = (string)objects[1];
         List<MyDBNs.AggregationColumn> _2 = (List<MyDBNs.AggregationColumn>)objects[2];
         string _3 = (string)objects[3];
-        MyDBNs.TableOrJoins _4 = (MyDBNs.TableOrJoins)objects[4];
+        MyDBNs.Tables _4 = (MyDBNs.Tables)objects[4];
         string _5 = (string)objects[5];
         string _6 = (string)objects[6];
         string _7 = (string)objects[7];
@@ -1374,22 +1374,22 @@ GREATER_OR_EQUAL
     }
 
     public static object Rule_table_or_joins_Producton_0(Dictionary<int, object> objects) { 
-        MyDBNs.TableOrJoins _0 = new MyDBNs.TableOrJoins();
-        MyDBNs.TableId _1 = (MyDBNs.TableId)objects[1];
+        MyDBNs.Tables _0 = new MyDBNs.Tables();
+        MyDBNs.TableNameAlias _1 = (MyDBNs.TableNameAlias)objects[1];
 
         // user-defined action
-        _0 = MyDBNs.SqlStatementsLexYaccCallback.TableOrJoins(_1, null);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.Tables(_1, null);
 
         return _0;
     }
 
     public static object Rule_table_or_joins_Producton_1(Dictionary<int, object> objects) { 
-        MyDBNs.TableOrJoins _0 = new MyDBNs.TableOrJoins();
-        MyDBNs.TableId _1 = (MyDBNs.TableId)objects[1];
+        MyDBNs.Tables _0 = new MyDBNs.Tables();
+        MyDBNs.TableNameAlias _1 = (MyDBNs.TableNameAlias)objects[1];
         List<MyDBNs.JoinTable> _2 = (List<MyDBNs.JoinTable>)objects[2];
 
         // user-defined action
-        _0 = MyDBNs.SqlStatementsLexYaccCallback.TableOrJoins(_1, _2);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.Tables(_1, _2);
 
         return _0;
     }
@@ -1424,7 +1424,7 @@ GREATER_OR_EQUAL
     public static object Rule_join_table_Producton_0(Dictionary<int, object> objects) { 
         MyDBNs.JoinTable _0 = new MyDBNs.JoinTable();
         string _1 = (string)objects[1];
-        MyDBNs.TableId _2 = (MyDBNs.TableId)objects[2];
+        MyDBNs.TableNameAlias _2 = (MyDBNs.TableNameAlias)objects[2];
 
         // user-defined action
         _0 = MyDBNs.SqlStatementsLexYaccCallback.JoinTable("INNER", _2, null);
@@ -1435,7 +1435,7 @@ GREATER_OR_EQUAL
     public static object Rule_join_table_Producton_1(Dictionary<int, object> objects) { 
         MyDBNs.JoinTable _0 = new MyDBNs.JoinTable();
         string _1 = (string)objects[1];
-        MyDBNs.TableId _2 = (MyDBNs.TableId)objects[2];
+        MyDBNs.TableNameAlias _2 = (MyDBNs.TableNameAlias)objects[2];
         string _3 = (string)objects[3];
         string _4 = (string)objects[4];
 
@@ -1449,7 +1449,7 @@ GREATER_OR_EQUAL
         MyDBNs.JoinTable _0 = new MyDBNs.JoinTable();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
-        MyDBNs.TableId _3 = (MyDBNs.TableId)objects[3];
+        MyDBNs.TableNameAlias _3 = (MyDBNs.TableNameAlias)objects[3];
 
         // user-defined action
         _0 = MyDBNs.SqlStatementsLexYaccCallback.JoinTable(_1, _3, null);
@@ -1461,7 +1461,7 @@ GREATER_OR_EQUAL
         MyDBNs.JoinTable _0 = new MyDBNs.JoinTable();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
-        MyDBNs.TableId _3 = (MyDBNs.TableId)objects[3];
+        MyDBNs.TableNameAlias _3 = (MyDBNs.TableNameAlias)objects[3];
         string _4 = (string)objects[4];
         string _5 = (string)objects[5];
 
@@ -1475,7 +1475,7 @@ GREATER_OR_EQUAL
         MyDBNs.JoinTable _0 = new MyDBNs.JoinTable();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
-        MyDBNs.TableId _3 = (MyDBNs.TableId)objects[3];
+        MyDBNs.TableNameAlias _3 = (MyDBNs.TableNameAlias)objects[3];
 
         // user-defined action
         _0 = MyDBNs.SqlStatementsLexYaccCallback.JoinTable(_1, _3, null);
@@ -1487,7 +1487,7 @@ GREATER_OR_EQUAL
         MyDBNs.JoinTable _0 = new MyDBNs.JoinTable();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
-        MyDBNs.TableId _3 = (MyDBNs.TableId)objects[3];
+        MyDBNs.TableNameAlias _3 = (MyDBNs.TableNameAlias)objects[3];
         string _4 = (string)objects[4];
         string _5 = (string)objects[5];
 
@@ -1501,7 +1501,7 @@ GREATER_OR_EQUAL
         MyDBNs.JoinTable _0 = new MyDBNs.JoinTable();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
-        MyDBNs.TableId _3 = (MyDBNs.TableId)objects[3];
+        MyDBNs.TableNameAlias _3 = (MyDBNs.TableNameAlias)objects[3];
 
         // user-defined action
         _0 = MyDBNs.SqlStatementsLexYaccCallback.JoinTable(_1, _3, null);
@@ -1513,7 +1513,7 @@ GREATER_OR_EQUAL
         MyDBNs.JoinTable _0 = new MyDBNs.JoinTable();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
-        MyDBNs.TableId _3 = (MyDBNs.TableId)objects[3];
+        MyDBNs.TableNameAlias _3 = (MyDBNs.TableNameAlias)objects[3];
         string _4 = (string)objects[4];
         string _5 = (string)objects[5];
 
@@ -2359,34 +2359,34 @@ GREATER_OR_EQUAL
     }
 
     public static object Rule_table_id_Producton_0(Dictionary<int, object> objects) { 
-        MyDBNs.TableId _0 = new MyDBNs.TableId();
+        MyDBNs.TableNameAlias _0 = new MyDBNs.TableNameAlias();
         string _1 = (string)objects[1];
 
         // user-defined action
-        _0 = MyDBNs.SqlStatementsLexYaccCallback.TableId(_1, null);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.TableNameAlias(_1, null);
 
         return _0;
     }
 
     public static object Rule_table_id_Producton_1(Dictionary<int, object> objects) { 
-        MyDBNs.TableId _0 = new MyDBNs.TableId();
+        MyDBNs.TableNameAlias _0 = new MyDBNs.TableNameAlias();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
 
         // user-defined action
-        _0 = MyDBNs.SqlStatementsLexYaccCallback.TableId(_1, _2);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.TableNameAlias(_1, _2);
 
         return _0;
     }
 
     public static object Rule_table_id_Producton_2(Dictionary<int, object> objects) { 
-        MyDBNs.TableId _0 = new MyDBNs.TableId();
+        MyDBNs.TableNameAlias _0 = new MyDBNs.TableNameAlias();
         string _1 = (string)objects[1];
         string _2 = (string)objects[2];
         string _3 = (string)objects[3];
 
         // user-defined action
-        _0 = MyDBNs.SqlStatementsLexYaccCallback.TableId(_1, _3);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.TableNameAlias(_1, _3);
 
         return _0;
     }

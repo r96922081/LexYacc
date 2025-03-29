@@ -2,12 +2,15 @@
 {
     public class InteractiveConsole
     {
-        private static int[] GetDisplayColumnWidth(Table table, List<string> columnNames, List<int> columnIndex)
+        private static int[] GetDisplayColumnWidth(Table table, List<string> columnNames, List<string> customColumnNames, List<int> columnIndex)
         {
             int[] columnWidths = new int[columnNames.Count];
             for (int i = 0; i < columnIndex.Count; i++)
             {
-                columnWidths[i] = columnNames[i].Length;
+                if (customColumnNames[i] != null)
+                    columnWidths[i] = customColumnNames[i].Length;
+                else
+                    columnWidths[i] = columnNames[i].Length;
             }
 
             // get column width
@@ -48,17 +51,20 @@
 
         public static void PrintTable(SelectedData s)
         {
-            int[] columnWidths = GetDisplayColumnWidth(s.table, s.userColumnNames, s.columnIndex);
+            int[] columnWidths = GetDisplayColumnWidth(s.table, s.selectedColumnNames, s.customColumnNames, s.selectedColumnIndex);
 
             Console.WriteLine();
-            Console.WriteLine("table " + s.userTableName);
             PrintSeprator(columnWidths);
 
             // show column name
             Console.Write("| ");
-            for (int i = 0; i < s.userColumnNames.Count; i++)
+            for (int i = 0; i < s.customColumnNames.Count; i++)
             {
-                Console.Write(s.userColumnNames[i].PadRight(columnWidths[i]));
+                string columnName = s.customColumnNames[i];
+                if (columnName == null)
+                    columnName = s.selectedColumnNames[i];
+
+                Console.Write(columnName.PadRight(columnWidths[i]));
                 if (i == columnWidths.Length - 1)
                     Console.Write(" |");
                 else
@@ -74,7 +80,7 @@
                 object[] row = s.table.rows[s.selectedRows[i]];
                 Console.Write("| ");
                 int k = 0;
-                foreach (int j in s.columnIndex)
+                foreach (int j in s.selectedColumnIndex)
                 {
                     if (row[j] == null)
                         Console.Write("".PadRight(columnWidths[k]));
