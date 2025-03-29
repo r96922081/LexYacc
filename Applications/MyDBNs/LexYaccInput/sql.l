@@ -43,12 +43,6 @@
 [cC][oO][mM][mM][iI][tT]                         { value = yytext;  return COMMIT; }
 [rR][oO][lL][lL][bB][aA][cC][kK]                 { value = yytext;  return ROLLBACK; }
 [tT][rR][aA][nN][sS][aA][cC][tT][iI][oO][nN]     { value = yytext;  return TRANSACTION; }
-[lL][eF][fF][tT]                                 { value = yytext;  return LEFT; }
-[rR][iI][gG][hH][tT]                             { value = yytext;  return RIGHT; }
-[fF][uU][lL][lL]                                 { value = yytext;  return FULL; }
-[oO][uU][tT][eE][rR]                             { value = yytext;  return OUTER; }
-[iI][nN][nN][eE][rR]                             { value = yytext;  return INNER; }
-[cC][rR][oO][sS][sS]                             { value = yytext;  return CROSS; }
 
 "||"                                             { value = yytext;  return TWO_PIPE; }
 "!="                                             { value = yytext;  return NOT_EQUAL; }

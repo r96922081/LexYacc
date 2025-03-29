@@ -12,76 +12,69 @@
         public Column[] columns;
         public List<object[]> rows = new List<object[]>();
 
-        public int GetColumnIndex(string columnNameParam)
+        public int GetColumnIndex(string searchColumnNameParam)
         {
-            string queryTableName = null;
-            string columnName = null;
+            string searchTableName = null;
+            string searchColumnName = null;
 
-            string[] tokens = columnNameParam.Split(".");
+            string[] tokens = searchColumnNameParam.Split(".");
             if (tokens.Length == 2)
             {
-                queryTableName = tokens[0];
-                columnName = tokens[1];
+                searchTableName = tokens[0];
+                searchColumnName = tokens[1];
             }
             else
-                columnName = tokens[0];
+                searchColumnName = tokens[0];
 
 
             int index = -1;
+            string prevColumnTableName = "";
 
             for (int i = 0; i < columns.Length; i++)
             {
                 Column column = columns[i];
+                if (column.tableName == null || column.tableName == "")
+                    throw new Exception("Table name is not set for column " + column.columnName);
 
-                if (queryTableName == null)
+                if (searchTableName == null)
                 {
-                    if (column.columnName.ToUpper() == columnName.ToUpper())
+                    if (column.columnName.ToUpper() == searchColumnName.ToUpper())
                     {
-                        if (index != -1)
-                            throw new Exception("Ambiguous column name " + columnName);
+                        if (index != -1 && column.tableName.ToUpper() != prevColumnTableName.ToUpper())
+                            throw new Exception("Ambiguous column name " + searchColumnName);
                         index = i;
+                        prevColumnTableName = column.tableName;
                     }
                 }
                 else
                 {
-                    if (column.columnName.ToUpper() == columnName.ToUpper())
+                    if (column.columnName.ToUpper() == searchColumnName.ToUpper() && column.tableName.ToUpper() == searchTableName.ToUpper())
                     {
-                        if (index != -1)
-                            throw new Exception("Ambiguous column name " + columnName);
                         index = i;
                     }
                 }
-
             }
+
+            if (index == -1)
+                throw new Exception("Column " + searchColumnNameParam + " not found in table " + name);
 
             return index;
         }
 
         public ColumnType GetColumnType(string columnName)
         {
-            foreach (Column c in columns)
-            {
-                if (c.columnName == columnName.ToUpper())
-                    return c.type;
-            }
-
-            return ColumnType.INVALID;
+            return columns[GetColumnIndex(columnName)].type;
         }
 
         public int GetColumnSize(string columnName)
         {
-            foreach (Column c in columns)
-            {
-                if (c.columnName == columnName.ToUpper())
-                    return c.size;
-            }
-
-            return -1;
+            return columns[GetColumnIndex(columnName)].size;
         }
     }
 
     public class Column
     {
+        public string tableName; // used in table join table to tell which table this column belongs to
         public string userColumnName;
         public string columnName; // upper cased
         public string originalColumnName;

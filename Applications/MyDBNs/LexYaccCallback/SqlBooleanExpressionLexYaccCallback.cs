@@ -249,7 +249,6 @@
         public static ColumnType GetType(string s, ref int columnIndex)
         {
             StringType type = Util.GetStringType(s);
-            List<Table> tables = MyDBNs.DB.tables;
 
             ColumnType type2 = ColumnType.NUMBER;
             if (type == StringType.String)

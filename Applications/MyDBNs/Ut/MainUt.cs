@@ -18,10 +18,12 @@
                 new DeleteUt().Ut();
                 new UpdateUt().Ut();
                 new TransactionUt().Ut();
-                new GroupByUt().Ut();
+
+                //mojo
+                //new GroupByUt().Ut();
                 Console.WriteLine("MyDB Ut Done!");
 
-                //InteractiveConsole.Interactive();
+                InteractiveConsole.Interactive();
             }
             else
             {

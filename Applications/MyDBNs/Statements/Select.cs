@@ -131,9 +131,9 @@ namespace MyDBNs
             joined.columns = new Column[columnCount];
 
             int index = 0;
-            foreach (TableNameAlias tableId in tables.GetAllTables())
+            foreach (TableNameAlias tableAlias in tables.GetAllTables())
             {
-                Table table = Util.GetTable(tableId.targetTableName);
+                Table table = Util.GetTable(tableAlias.targetTableName);
                 foreach (Column column in table.columns)
                 {
                     Column newColumn = new Column();
@@ -142,6 +142,12 @@ namespace MyDBNs
                     newColumn.userColumnName = column.userColumnName;
                     newColumn.size = column.size;
                     newColumn.type = column.type;
+
+                    if (tableAlias.aliasTableName != null)
+                        newColumn.tableName = tableAlias.aliasTableName;
+                    else
+                        newColumn.tableName = tableAlias.targetTableName;
+
                     joined.columns[index++] = newColumn;
                 }
             }

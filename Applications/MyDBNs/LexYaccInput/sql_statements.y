@@ -2,7 +2,7 @@
 
 %}
 
-%token <string>                                      SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR JOIN ON LEFT RIGHT FULL OUTER INNER CROSS AS
+%token <string>                                      SELECT ID CREATE TABLE NUMBER VARCHAR INSERT INTO VALUES DELETE FROM WHERE AND OR NOT SHOW TABLES NOT_EQUAL LESS_OR_EQUAL GREATER_OR_EQUAL STRING UPDATE SET ORDER BY ASC DESC DROP SAVE LOAD DB FILE_PATH TWO_PIPE NULL IS LIKE TRANSACTION COMMIT ROLLBACK START GROUP MIN MAX SUM COUNT ID_DOT_ID ID_DOT_STAR JOIN ON AS
 %token <int>                                         POSITIVE_INT
 %token <double>                                      DOUBLE
 
@@ -11,7 +11,7 @@
 %type <MyDBNs.TableNameAlias>                               table_id
 %type <MyDBNs.JoinTable>                             join_table
 %type <List<MyDBNs.JoinTable>>                       join_tables
-%type <MyDBNs.Tables>                          table_or_joins
+%type <MyDBNs.Tables>                                table_or_joins
 %type <MyDBNs.ColumnDeclare>                         column_declare
 %type <List<MyDBNs.ColumnDeclare>>                   column_declares
 %type <MyDBNs.OrderByColumn>                         order_by_column
@@ -198,36 +198,6 @@ JOIN table_id
 JOIN table_id ON join_conditions
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable("INNER", $2, $4);
-}
-|
-INNER JOIN table_id
-{
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($1, $3, null);
-}
-|
-INNER JOIN table_id ON join_conditions
-{
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($1, $3, $5);
-}
-|
-LEFT JOIN table_id
-{
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($1, $3, null);
-}
-|
-LEFT JOIN table_id ON join_conditions
-{
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($1, $3, $5);
-}
-|
-CROSS JOIN table_id
-{
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($1, $3, null);
-}
-|
-CROSS JOIN table_id ON join_conditions
-{
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($1, $3, $5);
 }
 ;
 

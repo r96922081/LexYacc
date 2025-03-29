@@ -15,6 +15,7 @@
                 table.columns[i].columnName = columnDeclares[i].columnName.ToUpper();
                 table.columns[i].type = columnDeclares[i].type;
                 table.columns[i].size = columnDeclares[i].size;
+                table.columns[i].tableName = name;
             }
 
             DB.tables.Add(table);
