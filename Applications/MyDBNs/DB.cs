@@ -2,8 +2,8 @@
 {
     public class DB
     {
-        public List<Table> tables = new List<Table>();
-        public bool inTransaction = false;
-        public Stack<Action> transactionLog = new Stack<Action>();
+        public static List<Table> tables = new List<Table>();
+        public static bool inTransaction = false;
+        public static Stack<Action> transactionLog = new Stack<Action>();
     }
 }

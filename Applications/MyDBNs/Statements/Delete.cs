@@ -6,7 +6,7 @@
         {
             Table table = Util.GetTable(tableName);
             List<object[]> deletedRows = new List<object[]>();
-            SqlBooleanExpressionLexYaccCallback.tables = new List<Table> { table };
+            SqlBooleanExpressionLexYaccCallback.table = table;
             HashSet<int> rows = null;
 
             if (condition != null)
@@ -26,9 +26,9 @@
                 deleteCount++;
             }
 
-            if (Gv.db.inTransaction)
+            if (DB.inTransaction)
             {
-                Gv.db.transactionLog.Push(() =>
+                DB.transactionLog.Push(() =>
                 {
                     Transaction.UndoDelete(table, deletedRows);
                 });

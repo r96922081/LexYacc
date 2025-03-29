@@ -6,7 +6,7 @@ namespace MyDBNs
     {
         public static void ShowTables()
         {
-            foreach (Table t in Gv.db.tables)
+            foreach (Table t in DB.tables)
             {
                 StringBuilder sb = new StringBuilder();
                 sb.AppendLine("table: " + t.originaName);

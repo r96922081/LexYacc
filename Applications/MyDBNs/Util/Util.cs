@@ -4,17 +4,17 @@
     {
         public static void DeleteAllTable()
         {
-            Gv.db.tables.Clear();
+            DB.tables.Clear();
         }
 
         public static Table GetTable(string tableName)
         {
-            return Gv.db.tables.FirstOrDefault(t => t.name.ToUpper() == tableName.ToUpper());
+            return DB.tables.FirstOrDefault(t => t.name.ToUpper() == tableName.ToUpper());
         }
 
         public static List<Table> GetTables()
         {
-            return Gv.db.tables;
+            return DB.tables;
         }
 
         public static List<object[]> GetSelectRows(SelectedData s)

@@ -8,9 +8,9 @@
             using (var writer = new BinaryWriter(stream))
             {
                 // Write the number of tables
-                writer.Write(Gv.db.tables.Count);
+                writer.Write(DB.tables.Count);
 
-                foreach (var table in Gv.db.tables)
+                foreach (var table in DB.tables)
                 {
                     // Save table name
                     writer.Write(table.originaName);

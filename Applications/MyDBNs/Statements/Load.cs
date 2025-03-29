@@ -8,7 +8,7 @@
             using (var reader = new BinaryReader(stream))
             {
                 // Clear existing tables
-                Gv.db.tables.Clear();
+                DB.tables.Clear();
 
                 // Read the number of tables
                 int tableCount = reader.ReadInt32();
@@ -63,7 +63,7 @@
                         }
                     }
 
-                    Gv.db.tables.Add(table);
+                    DB.tables.Add(table);
                 }
             }
         }
