@@ -18,7 +18,7 @@
                     // Save column names
                     writer.Write(table.columns.Length);
                     foreach (Column column in table.columns)
-                        writer.Write(column.originalColumnName);
+                        writer.Write(column.columnName);
 
                     // Save column types
                     writer.Write(table.columns.Length);

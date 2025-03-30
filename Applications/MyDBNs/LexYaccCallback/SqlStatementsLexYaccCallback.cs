@@ -249,11 +249,10 @@
             return l;
         }
 
-        public static JoinTable JoinTable(string joinType, TableNameAlias rhsTableId, string join_conditions)
+        public static JoinTable JoinTable(TableNameAlias rhsTableId, string join_conditions)
         {
             JoinTable j = new JoinTable();
 
-            j.joinType = joinType;
             j.rhsTableId = rhsTableId;
             j.joinConditions = join_conditions;
 

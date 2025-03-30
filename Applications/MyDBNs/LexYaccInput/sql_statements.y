@@ -192,12 +192,12 @@ join_table
 join_table:
 JOIN table_id 
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable("INNER", $2, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($2, null);
 }
 |
 JOIN table_id ON join_conditions
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable("INNER", $2, $4);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($2, $4);
 }
 ;
 

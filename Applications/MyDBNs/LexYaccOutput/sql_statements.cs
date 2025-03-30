@@ -210,12 +210,12 @@ join_table
 join_table:
 JOIN table_id 
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable(""INNER"", $2, null);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($2, null);
 }
 |
 JOIN table_id ON join_conditions
 {
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable(""INNER"", $2, $4);
+    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($2, $4);
 }
 ;
 
@@ -1391,7 +1391,7 @@ GREATER_OR_EQUAL
         MyDBNs.TableNameAlias _2 = (MyDBNs.TableNameAlias)objects[2];
 
         // user-defined action
-        _0 = MyDBNs.SqlStatementsLexYaccCallback.JoinTable("INNER", _2, null);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.JoinTable(_2, null);
 
         return _0;
     }
@@ -1404,7 +1404,7 @@ GREATER_OR_EQUAL
         string _4 = (string)objects[4];
 
         // user-defined action
-        _0 = MyDBNs.SqlStatementsLexYaccCallback.JoinTable("INNER", _2, _4);
+        _0 = MyDBNs.SqlStatementsLexYaccCallback.JoinTable(_2, _4);
 
         return _0;
     }

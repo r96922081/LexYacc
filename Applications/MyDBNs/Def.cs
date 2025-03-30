@@ -77,7 +77,6 @@
         public string tableName; // used in table join table to tell which table this column belongs to
         public string userColumnName;
         public string columnName; // upper cased
-        public string originalColumnName;
         public ColumnType type;
         public int size;
     }
@@ -160,7 +159,6 @@
 
     public class JoinTable
     {
-        public string joinType;
         public TableNameAlias rhsTableId;
         public string joinConditions;
     }
@@ -193,17 +191,6 @@
         }
     }
 
-    public class SelectedData2
-    {
-        public List<SelectedData> selectedData = new List<SelectedData>();
-
-        public void Dispose()
-        {
-            foreach (SelectedData s in selectedData)
-                s.Dispose();
-        }
-    }
-
     public class SelectedData : IDisposable
     {
         public Table table;
@@ -219,8 +206,10 @@
 
         public void Dispose()
         {
-            if (needToDispose)
+            if (needToDispose && table.name.StartsWith("TempJoined"))
+            {
                 Drop.DropTable(table.name);
+            }
         }
     }
 

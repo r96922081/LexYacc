@@ -131,14 +131,15 @@ namespace MyDBNs
             joined.columns = new Column[columnCount];
 
             int index = 0;
-            foreach (TableNameAlias tableAlias in tables.GetAllTables())
+            for (int tableIndex = 0; tableIndex < tables.GetAllTables().Count; tableIndex++)
             {
+                TableNameAlias tableAlias = tables.GetAllTables()[tableIndex];
                 Table table = Util.GetTable(tableAlias.targetTableName);
+
                 foreach (Column column in table.columns)
                 {
                     Column newColumn = new Column();
                     newColumn.columnName = column.columnName;
-                    newColumn.originalColumnName = column.originalColumnName;
                     newColumn.userColumnName = column.userColumnName;
                     newColumn.size = column.size;
                     newColumn.type = column.type;
