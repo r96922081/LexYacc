@@ -8,7 +8,6 @@
 
             if (Gv.ut)
             {
-                new JoinUt().Ut();
                 new SaveLoadUt().Ut();
                 new CreateDropUt().Ut();
                 new InsertUt().Ut();
@@ -18,6 +17,7 @@
                 new DeleteUt().Ut();
                 new UpdateUt().Ut();
                 new TransactionUt().Ut();
+                new JoinUt().Ut();
 
                 //mojo
                 //new GroupByUt().Ut();

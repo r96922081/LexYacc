@@ -213,11 +213,10 @@
         public List<int> customColumnIndex = new List<int>();
 
         public List<int> selectedRows = new List<int>();
-        public bool needToDispose = false;
 
         public void Dispose()
         {
-            if (needToDispose && table.name.StartsWith("TempJoined"))
+            if (table.name.StartsWith("TempJoined"))
             {
                 Drop.DropTable(table.name);
             }

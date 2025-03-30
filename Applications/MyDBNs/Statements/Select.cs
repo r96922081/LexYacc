@@ -219,6 +219,7 @@ namespace MyDBNs
                     }
                 }
 
+                Drop.DropTable(joined.name);
                 Create.AddTable(newJoined);
 
                 joined = newJoined;
@@ -526,7 +527,6 @@ namespace MyDBNs
             result.selectedColumnNames = result.table.columns.Select(s => s.columnName).ToList();
             result.selectedColumnIndex = Enumerable.Range(0, aggregrationColumns.Count).ToList();
             result.selectedRows = Enumerable.Range(0, result.table.rows.Count).ToList();
-            result.needToDispose = true;
 
             return result;
         }
