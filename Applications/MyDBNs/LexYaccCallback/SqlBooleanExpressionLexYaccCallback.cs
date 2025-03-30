@@ -120,8 +120,29 @@
             return false;
         }
 
+        // return true if s is column and its type  is varchar
+        private static bool IsVarcharColumn(string s)
+        {
+            try
+            {
+                table.GetColumnIndex(s);
+            }
+            catch
+            {
+                return false;
+            }
+
+            return table.GetColumnType(s) == ColumnType.VARCHAR;
+        }
+
         public static HashSet<int> BooleanExpressionNumberColumn(string lhs, string op, string rhs)
         {
+            // work around the yacc rule issue,
+            // that in this case, C1 = C2, although both C1 and C2 are VARCHAR type,
+            // but in my yacc declare it will be consider as both are NUMBER type
+            if (IsVarcharColumn(lhs) && IsVarcharColumn(rhs))
+                return BooleanExpressionVarcharColumn(lhs, op, rhs);
+
             SqlArithmeticExpressionLexYaccCallback.table = table;
             List<double> lhsValues = (List<double>)sql_arithmetic_expression.Parse(lhs);
             List<double> rhsValues = (List<double>)sql_arithmetic_expression.Parse(rhs);

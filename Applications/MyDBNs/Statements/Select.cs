@@ -122,72 +122,107 @@ namespace MyDBNs
             });
         }
 
-        public static Table JoinTable(Tables tables)
+        private static Table GetMainTableForJoin(TableNameAlias tableNameAlias)
         {
             Table joined = new Table();
             joined.name = "TempJoinedTable_" + (Gv.sn++);
 
-            int columnCount = tables.GetAllTables().Select(t => Util.GetTable(t.targetTableName).columns.Length).Sum();
-            joined.columns = new Column[columnCount];
+            Table targetTable = Util.GetTable(tableNameAlias.targetTableName);
+            joined.columns = new Column[targetTable.columns.Length];
 
-            int index = 0;
-            for (int tableIndex = 0; tableIndex < tables.GetAllTables().Count; tableIndex++)
+            for (int i = 0; i < targetTable.columns.Length; i++)
             {
-                TableNameAlias tableAlias = tables.GetAllTables()[tableIndex];
-                Table table = Util.GetTable(tableAlias.targetTableName);
+                Column column = targetTable.columns[i];
+                Column newColumn = new Column();
+                newColumn.columnName = column.columnName;
+                newColumn.userColumnName = column.userColumnName;
+                newColumn.size = column.size;
+                newColumn.type = column.type;
 
-                foreach (Column column in table.columns)
+                if (tableNameAlias.aliasTableName != null)
+                    newColumn.tableName = tableNameAlias.aliasTableName;
+                else
+                    newColumn.tableName = tableNameAlias.targetTableName;
+
+                joined.columns[i] = newColumn;
+            }
+            joined.rows = targetTable.rows;
+
+            Create.AddTable(joined);
+
+            return joined;
+        }
+
+        public static Table JoinTable(Tables tables)
+        {
+            Table joined = GetMainTableForJoin(tables.mainTable);
+
+            if (tables.joinTables == null)
+                return joined;
+
+            for (int i = 0; i < tables.joinTables.Count; i++)
+            {
+                Table newJoined = new Table();
+                newJoined.name = "TempJoinedTable_" + (Gv.sn++);
+
+                JoinTable joinSetting = tables.joinTables[i];
+                Table targetTable = Util.GetTable(joinSetting.tableNameAlias.targetTableName);
+
+                newJoined.columns = new Column[joined.columns.Length + targetTable.columns.Length];
+
+                for (int j = 0; j < joined.columns.Length; j++)
                 {
+                    newJoined.columns[j] = joined.columns[j].Clone();
+                }
+
+                for (int j = 0; j < targetTable.columns.Length; j++)
+                {
+                    Column column = targetTable.columns[j];
                     Column newColumn = new Column();
                     newColumn.columnName = column.columnName;
                     newColumn.userColumnName = column.userColumnName;
                     newColumn.size = column.size;
                     newColumn.type = column.type;
 
-                    if (tableAlias.aliasTableName != null)
-                        newColumn.tableName = tableAlias.aliasTableName;
+                    if (joinSetting.tableNameAlias.aliasTableName != null)
+                        newColumn.tableName = joinSetting.tableNameAlias.aliasTableName;
                     else
-                        newColumn.tableName = tableAlias.targetTableName;
+                        newColumn.tableName = joinSetting.tableNameAlias.targetTableName;
 
-                    joined.columns[index++] = newColumn;
+                    newJoined.columns[joined.columns.Length + j] = newColumn;
                 }
-            }
 
-            int totalRowCount = tables.GetAllTables().Select(t => Util.GetTable(t.targetTableName).rows.Count).Aggregate(1, (a, b) => a * b);
-            joined.rows = new List<object[]>();
-            for (int i = 0; i < totalRowCount; i++)
-            {
-                object[] row = new object[columnCount];
-                joined.rows.Add(row);
-            }
-
-            int columnStartIndex = 0;
-            int repeatCount = totalRowCount;
-            for (int tableIndex = 0; tableIndex < tables.GetAllTables().Count; tableIndex++)
-            {
-                Table table = Util.GetTable(tables.GetAllTables()[tableIndex].targetTableName);
-                repeatCount /= table.rows.Count;
-                int rowIndex = 0;
-
-                while (rowIndex < totalRowCount)
+                for (int j = 0; j < joined.rows.Count; j++)
                 {
-                    for (int i = 0; i < table.rows.Count; i++)
+                    for (int k = 0; k < targetTable.rows.Count; k++)
                     {
-                        for (int j = 0; j < repeatCount; j++)
-                        {
-                            for (int k = 0; k < table.columns.Length; k++)
-                            {
-                                joined.rows[rowIndex][columnStartIndex + k] = table.rows[i][k];
-                            }
-                            rowIndex++;
-                        }
+                        object[] row = new object[newJoined.columns.Length];
+                        newJoined.rows.Add(row);
+
+                        for (int l = 0; l < joined.columns.Length; l++)
+                            row[l] = joined.rows[j][l];
+
+                        for (int l = 0; l < targetTable.columns.Length; l++)
+                            row[joined.columns.Length + l] = targetTable.rows[k][l];
                     }
                 }
 
-                columnStartIndex += table.columns.Length;
-            }
+                // filter rows
+                if (joinSetting.conditions != null)
+                {
+                    SqlBooleanExpressionLexYaccCallback.table = newJoined;
+                    HashSet<int> filteredRows = (HashSet<int>)sql_boolean_expression.Parse(joinSetting.conditions);
+                    for (int j = newJoined.rows.Count - 1; j >= 0; j--)
+                    {
+                        if (!filteredRows.Contains(j))
+                            newJoined.rows.RemoveAt(j);
+                    }
+                }
 
-            Create.AddTable(joined);
+                Create.AddTable(newJoined);
+
+                joined = newJoined;
+            }
 
             return joined;
         }

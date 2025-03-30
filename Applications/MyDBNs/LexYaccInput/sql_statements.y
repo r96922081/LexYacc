@@ -6,9 +6,9 @@
 %token <int>                                         POSITIVE_INT
 %token <double>                                      DOUBLE
 
-%type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start join_condition join_conditions relational_operator 
+%type <string>                                       column_type save_db load_db create_table_statement show_tables_statement drop_table_statement logical_operator boolean_expression string_number_column file_path arithmetic_expression string_expression term number_column string_column arithmeticExpression_column string_number_null table column transaction_start relational_operator 
 %type <List<string>>                                 columns string_number_null_list
-%type <MyDBNs.TableNameAlias>                               table_id
+%type <MyDBNs.TableNameAlias>                        table_id
 %type <MyDBNs.JoinTable>                             join_table
 %type <List<MyDBNs.JoinTable>>                       join_tables
 %type <MyDBNs.Tables>                                table_or_joins
@@ -195,28 +195,9 @@ JOIN table_id
     $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($2, null);
 }
 |
-JOIN table_id ON join_conditions
+JOIN table_id ON boolean_expression
 {
     $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinTable($2, $4);
-}
-;
-
-join_conditions:
-join_conditions logical_operator join_condition
-{
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinConditions($1, $2, $3);
-}
-|
-join_condition
-{
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.JoinConditions($1, null, null);
-}
-;
-
-join_condition:
-ID_DOT_ID relational_operator ID_DOT_ID
-{
-    $$ = MyDBNs.SqlStatementsLexYaccCallback.BooleanExpression($1, $2, $3);
 }
 ;
 

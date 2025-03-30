@@ -100,6 +100,9 @@
             Check(rows.Count == 2);
 
             CheckSyntaxErrorOrException(() => { return sql_statements.Parse("SELECT * FROM A WHERE C3 NOT LIKE 'D%'"); });
+
+            rows = RunSelectStatementAndConvertResult("SELECT * FROM A WHERE C2 != C1");
+            Check(rows.Count == 4);
         }
 
         public void Ut3_alias()

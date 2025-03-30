@@ -79,6 +79,17 @@
         public string columnName; // upper cased
         public ColumnType type;
         public int size;
+
+        public Column Clone()
+        {
+            Column c = new Column();
+            c.tableName = tableName;
+            c.userColumnName = userColumnName;
+            c.columnName = columnName;
+            c.type = type;
+            c.size = size;
+            return c;
+        }
     }
 
     public class TableNameAlias
@@ -120,7 +131,7 @@
             if (joinTables != null)
             {
                 foreach (JoinTable joinTable in joinTables)
-                    allTables.Add(joinTable.rhsTableId);
+                    allTables.Add(joinTable.tableNameAlias);
             }
 
             return allTables;
@@ -159,8 +170,8 @@
 
     public class JoinTable
     {
-        public TableNameAlias rhsTableId;
-        public string joinConditions;
+        public TableNameAlias tableNameAlias;
+        public string conditions;
     }
 
     public enum ColumnType

@@ -27,7 +27,7 @@
             }
             else
             {
-                sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_JOIN.DB"));
+                sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_JOIN_2.DB"));
                 InteractiveConsole.Interactive();
             }
         }

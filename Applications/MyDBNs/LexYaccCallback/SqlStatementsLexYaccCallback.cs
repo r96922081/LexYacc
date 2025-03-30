@@ -253,8 +253,8 @@
         {
             JoinTable j = new JoinTable();
 
-            j.rhsTableId = rhsTableId;
-            j.joinConditions = join_conditions;
+            j.tableNameAlias = rhsTableId;
+            j.conditions = join_conditions;
 
             return j;
         }
