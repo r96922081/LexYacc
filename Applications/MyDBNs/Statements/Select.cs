@@ -23,24 +23,6 @@ namespace MyDBNs
             return rows;
         }
 
-        private static SelectedData GetSelectedData(Table table, List<AggregationColumn> columns, string whereCondition, string joinCondition)
-        {
-            SelectedData s = new SelectedData();
-
-            s.table = table;
-
-            foreach (AggregationColumn column in columns)
-            {
-                s.selectedColumnNames.Add(column.columnName);
-                s.customColumnNames.Add(column.customColumnName);
-                s.selectedColumnIndex.Add(s.table.GetColumnIndex(column.tableName + "." + column.columnName));
-            }
-
-            s.selectedRows = GetSelectedRows(s.table.name, whereCondition);
-
-            return s;
-        }
-
         private static List<OrderBy> ConvertOrder(SelectedData s, List<OrderByColumn> orders)
         {
             List<OrderBy> orders2 = new List<OrderBy>();
@@ -125,7 +107,7 @@ namespace MyDBNs
         private static Table GetMainTableForJoin(TableNameAlias tableNameAlias)
         {
             Table joined = new Table();
-            joined.name = "TempJoinedTable_" + (Gv.sn++);
+            joined.name = "TempTableJoined_" + (Gv.sn++);
 
             Table targetTable = Util.GetTable(tableNameAlias.targetTableName);
             joined.columns = new Column[targetTable.columns.Length];
@@ -163,7 +145,7 @@ namespace MyDBNs
             for (int i = 0; i < tables.joinTables.Count; i++)
             {
                 Table newJoined = new Table();
-                newJoined.name = "TempJoinedTable_" + (Gv.sn++);
+                newJoined.name = "TempTableJoined_" + (Gv.sn++);
 
                 JoinTable joinSetting = tables.joinTables[i];
                 Table targetTable = Util.GetTable(joinSetting.tableNameAlias.targetTableName);
@@ -319,132 +301,66 @@ namespace MyDBNs
             }
         }
 
-        public static SelectedData SelectRowsNoGroupBy(List<AggregationColumn> columns, Tables tables, string whereCondition, List<OrderByColumn> orders)
+        public static SelectedData DoSelect(List<AggregationColumn> columns, Tables tables, string whereCondition, List<string> groupByColumns, List<OrderByColumn> orderByColumns)
         {
-            columns = ExpandWildCard(columns, tables);
-
-            AddTableNameToColumn(columns, tables);
+            int aggregrationColumnCount = columns.Where(c => c.op != AggerationOperation.NONE).Count();
 
             SelectedData s = new SelectedData();
-
             Table table = JoinTable(tables);
-
             s.table = table;
-
-            foreach (AggregationColumn column in columns)
-            {
-                s.selectedColumnNames.Add(column.columnName);
-                s.customColumnNames.Add(column.customColumnName);
-
-                // set column index
-                int columnIndex = 0;
-                int foundColumnIndex = -1;
-                List<TableNameAlias> availableTables = tables.GetAllTables();
-                for (int i = 0; i < availableTables.Count && foundColumnIndex == -1; i++)
-                {
-                    TableNameAlias availableTable = availableTables[i];
-                    Table t = Util.GetTable(availableTables[i].targetTableName);
-                    if ((availableTable.aliasTableName != null && availableTable.aliasTableName.ToUpper() == column.tableName.ToUpper())
-                        ||
-                        (availableTable.targetTableName.ToUpper() == column.tableName.ToUpper()))
-                    {
-                        for (int j = 0; j < t.columns.Length; j++)
-                        {
-                            if (t.columns[j].columnName.ToUpper() == column.columnName.ToUpper())
-                            {
-                                foundColumnIndex = columnIndex + j;
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        columnIndex += t.columns.Length;
-                    }
-                }
-
-                if (foundColumnIndex == -1)
-                    throw new Exception("Column " + column.columnName + " not found");
-
-                s.selectedColumnIndex.Add(foundColumnIndex);
-            }
-
             s.selectedRows = GetSelectedRows(s.table.name, whereCondition);
 
-            SortSelectedData(s, orders);
-
-            return s;
-        }
-
-        public static SelectedData SelectRowsGroupBy(List<AggregationColumn> columns, List<string> groupByColumns, Table t, string whereCondition, List<OrderByColumn> orders)
-        {
-            SelectedData s = GetSelectedData(t, columns, whereCondition, null, groupByColumns);
-
-            SortSelectedData(s, orders);
-
-            return s;
-        }
-
-        private static string GetGroupKey(object[] row, List<int> groupByColumnIndex)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            foreach (int index in groupByColumnIndex)
-                sb.Append(row[index] + "_");
-
-            return sb.ToString();
-        }
-
-        private static string GetTempGroupByColumnName(int columnIndex, AggregationColumn column)
-        {
-            if (column.op == AggerationOperation.NONE)
-                return column.columnName;
+            if (aggregrationColumnCount == 0)
+                SetColumnsWithoutGroupBy(s, columns, tables);
             else
-                return (columnIndex + 1) + "_" + column.op + "(" + column.columnName + ")";
+                SetColumnsWithGroupBy(s, columns, tables, groupByColumns);
+
+            SortSelectedData(s, orderByColumns);
+
+            return s;
         }
 
-        private static void CreateTempGroupByTable(Table srcTable, string tempTableName, List<AggregationColumn> columns)
+        public static void SetColumnsWithGroupBy(SelectedData s, List<AggregationColumn> aggregrationColumns, Tables tables, List<string> groupByColumns)
         {
-            List<ColumnDeclare> columnDeclares = new List<ColumnDeclare>();
-            for (int i = 0; i < columns.Count; i++)
+            // modify count(*) to count(C1)
+            foreach (AggregationColumn a in aggregrationColumns)
             {
-                AggregationColumn aggregrationColumn = columns[i];
-                if (aggregrationColumn.op == AggerationOperation.COUNT || aggregrationColumn.op == AggerationOperation.SUM)
-                {
-                    ColumnDeclare c = new ColumnDeclare();
-                    c.columnName = GetTempGroupByColumnName(i, aggregrationColumn);
-                    c.type = ColumnType.NUMBER;
-                    c.size = -1;
-                    columnDeclares.Add(c);
-                }
-                else if (aggregrationColumn.op == AggerationOperation.MAX || aggregrationColumn.op == AggerationOperation.MIN || aggregrationColumn.op == AggerationOperation.NONE)
-                {
-                    ColumnDeclare c = new ColumnDeclare();
-                    c.columnName = GetTempGroupByColumnName(i, aggregrationColumn);
-                    c.type = srcTable.GetColumnType(aggregrationColumn.columnName);
-                    c.size = srcTable.GetColumnSize(aggregrationColumn.columnName);
-                    columnDeclares.Add(c);
-                }
+                if (a.columnName == "*")
+                    a.columnName = s.table.columns[0].columnName;
             }
 
-            Create.CreateTable(tempTableName, columnDeclares);
-        }
+            AddTableNameToColumn(aggregrationColumns, tables);
+            List<int> aggregrationColumnIndex = new List<int>();
+            foreach (AggregationColumn a in aggregrationColumns)
+            {
+                int columnIndex = s.table.GetColumnIndex(a.tableName + "." + a.columnName);
+                aggregrationColumnIndex.Add(columnIndex);
+            }
 
-        public static SelectedData GetSelectedData(Table table, List<AggregationColumn> aggregrationColumns, string whereCondition, string joinCondition, List<string> groupByColumns)
-        {
-            List<int> groupByColumnIndex = null;
+            Table srcTable = s.table;
+            List<int> groupByColumnIndex = new List<int>();
+
             if (groupByColumns != null)
-                groupByColumnIndex = Util.GetColumnIndexFromName(table, groupByColumns);
-            List<int> aggregrationColumnIndex = Util.GetColumnIndexFromName(table, aggregrationColumns.Select(s => s.columnName).ToList());
-            SelectedData src = GetSelectedData(table, aggregrationColumns, whereCondition, joinCondition);
+            {
+                foreach (string groupByColumn in groupByColumns)
+                {
+                    int columnIndex = srcTable.GetColumnIndex(groupByColumn);
+                    if (columnIndex == -1)
+                        throw new Exception("Column " + groupByColumn + " not found");
+                    groupByColumnIndex.Add(columnIndex);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < s.table.columns.Length; i++)
+                    groupByColumnIndex.Add(i);
+            }
 
-            string materializeTableName = "TempTable_" + (Gv.sn++);
-            CreateTempGroupByTable(table, materializeTableName, aggregrationColumns);
             Dictionary<string, object[]> groupByRows = new Dictionary<string, object[]>();
 
-            foreach (int rowIndex in src.selectedRows)
+            foreach (int rowIndex in s.selectedRows)
             {
-                object[] srcRow = table.rows[rowIndex];
+                object[] srcRow = srcTable.rows[rowIndex];
 
                 string groupKey = "";
 
@@ -518,17 +434,106 @@ namespace MyDBNs
                         }
                     }
                 }
+
+                string tempTableName = "TempTableGroupBy_" + (Gv.sn++);
+                CreateTempGroupByTable(srcTable, tempTableName, aggregrationColumns);
+
+                Insert.InsertRows(tempTableName, groupByRows.Values.ToList());
+
+                s.table = Util.GetTable(tempTableName);
+                s.selectedColumnNames = s.table.columns.Select(s => s.columnName).ToList();
+                s.customColumnNames = aggregrationColumns.Select(s => s.customColumnName).ToList();
+                s.selectedColumnIndex = Enumerable.Range(0, aggregrationColumns.Count).ToList();
+                s.selectedRows = Enumerable.Range(0, s.table.rows.Count).ToList();
+            }
+        }
+
+        private static void CreateTempGroupByTable(Table srcTable, string tempTableName, List<AggregationColumn> columns)
+        {
+            List<ColumnDeclare> columnDeclares = new List<ColumnDeclare>();
+            for (int i = 0; i < columns.Count; i++)
+            {
+                AggregationColumn aggregrationColumn = columns[i];
+                if (aggregrationColumn.op == AggerationOperation.COUNT || aggregrationColumn.op == AggerationOperation.SUM)
+                {
+                    ColumnDeclare c = new ColumnDeclare();
+                    c.columnName = GetTempGroupByColumnName(i, aggregrationColumn);
+                    c.type = ColumnType.NUMBER;
+                    c.size = -1;
+                    columnDeclares.Add(c);
+                }
+                else if (aggregrationColumn.op == AggerationOperation.MAX || aggregrationColumn.op == AggerationOperation.MIN || aggregrationColumn.op == AggerationOperation.NONE)
+                {
+                    ColumnDeclare c = new ColumnDeclare();
+                    c.columnName = GetTempGroupByColumnName(i, aggregrationColumn);
+                    c.type = srcTable.GetColumnType(aggregrationColumn.columnName);
+                    c.size = srcTable.GetColumnSize(aggregrationColumn.columnName);
+                    columnDeclares.Add(c);
+                }
             }
 
-            Insert.InsertRows(materializeTableName, groupByRows.Values.ToList());
+            Create.CreateTable(tempTableName, columnDeclares);
+        }
 
-            SelectedData result = new SelectedData();
-            result.table = Util.GetTable(materializeTableName);
-            result.selectedColumnNames = result.table.columns.Select(s => s.columnName).ToList();
-            result.selectedColumnIndex = Enumerable.Range(0, aggregrationColumns.Count).ToList();
-            result.selectedRows = Enumerable.Range(0, result.table.rows.Count).ToList();
+        public static void SetColumnsWithoutGroupBy(SelectedData s, List<AggregationColumn> columns, Tables tables)
+        {
+            columns = ExpandWildCard(columns, tables);
+            AddTableNameToColumn(columns, tables);
+            foreach (AggregationColumn column in columns)
+            {
+                s.selectedColumnNames.Add(column.columnName);
+                s.customColumnNames.Add(column.customColumnName);
 
-            return result;
+                // set column index
+                int columnIndex = 0;
+                int foundColumnIndex = -1;
+                List<TableNameAlias> availableTables = tables.GetAllTables();
+                for (int i = 0; i < availableTables.Count && foundColumnIndex == -1; i++)
+                {
+                    TableNameAlias availableTable = availableTables[i];
+                    Table t = Util.GetTable(availableTables[i].targetTableName);
+                    if ((availableTable.aliasTableName != null && availableTable.aliasTableName.ToUpper() == column.tableName.ToUpper())
+                        ||
+                        (availableTable.targetTableName.ToUpper() == column.tableName.ToUpper()))
+                    {
+                        for (int j = 0; j < t.columns.Length; j++)
+                        {
+                            if (t.columns[j].columnName.ToUpper() == column.columnName.ToUpper())
+                            {
+                                foundColumnIndex = columnIndex + j;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        columnIndex += t.columns.Length;
+                    }
+                }
+
+                if (foundColumnIndex == -1)
+                    throw new Exception("Column " + column.columnName + " not found");
+
+                s.selectedColumnIndex.Add(foundColumnIndex);
+            }
+        }
+
+        private static string GetGroupKey(object[] row, List<int> groupByColumnIndex)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (int index in groupByColumnIndex)
+                sb.Append(row[index] + "_");
+
+            return sb.ToString();
+        }
+
+        private static string GetTempGroupByColumnName(int columnIndex, AggregationColumn column)
+        {
+            if (column.op == AggerationOperation.NONE)
+                return column.columnName;
+            else
+                return (columnIndex + 1) + "_" + column.op + "(" + column.columnName + ")";
         }
     }
 }

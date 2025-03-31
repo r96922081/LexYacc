@@ -61,15 +61,6 @@
             return s.Substring(1, s.Length - 2);
         }
 
-        public static List<int> GetColumnIndexFromName(Table t, List<string> names)
-        {
-            List<int> ret = new List<int>();
-            foreach (string name in names)
-                ret.Add(t.GetColumnIndex(name));
-
-            return ret;
-        }
-
         public static int CompareNonNullColumn(object column1, object column2)
         {
             if (column1 == null || column2 == null)

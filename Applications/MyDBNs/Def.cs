@@ -208,15 +208,13 @@
 
         public List<string> selectedColumnNames = new List<string>();
         public List<int> selectedColumnIndex = new List<int>();
-
         public List<string> customColumnNames = new List<string>();
-        public List<int> customColumnIndex = new List<int>();
 
         public List<int> selectedRows = new List<int>();
 
         public void Dispose()
         {
-            if (table.name.StartsWith("TempJoined"))
+            if (table.name.StartsWith("TempTable"))
             {
                 Drop.DropTable(table.name);
             }
