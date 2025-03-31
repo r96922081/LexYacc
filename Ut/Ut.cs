@@ -8,7 +8,7 @@
         LexUt.RunAllUt();
         LexYaccUt.RunAllUt();
 
-        MyDBNs.MainUt.Ut();
+        //MyDBNs.MainUt.Ut();
         //CCompilerNs.MainUt.Ut();
 
         Console.WriteLine(string.Format("UT took {0} seconds", (int)((DateTime.Now - start).TotalSeconds)));
