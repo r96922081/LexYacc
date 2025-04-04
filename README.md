@@ -45,6 +45,6 @@ Call cal.Parse()
 ## Dependeny
 I use my own [regular expression engine](https://github.com/r96922081/Regex) in Lexer
 
-## Real Use Case of My Project
+## Real Use Cases of My Projects
 [C Compiler](https://github.com/r96922081/C-Compiler)\
 [Relational Database](https://github.com/r96922081/Relational-Database)
