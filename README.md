@@ -1,12 +1,5 @@
-
-
-
-
-
-
-
 # LexYacc Parser
-LexYacc parser written by C# and generates C# code
+LexYacc parser that generates parser code in C#
 
 ![enter image description here](https://r96922081.github.io/LexYacc/arch.png)
 
