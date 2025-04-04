@@ -1,3 +1,4 @@
+
 # LexYacc Parser
 LexYacc parser that generates parser code in C#
 
@@ -5,42 +6,41 @@ LexYacc parser that generates parser code in C#
 
 ## Create a Calculator
 
-[cal.l](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccInput/cal.l)\
-[cal.y](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccInput/cal.y)\
-Generated [cal.cs](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccOutput/cal.cs)
-    
-    cal.Parse("2 * 3 + 6 / 3"); // return 8
+[cal.l](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccInput/cal.l) (input)\
+[cal.y](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccInput/cal.y) (input) \
+[cal.cs](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccOutput/cal.cs)  (generated)\
+\
+Use generated cal.cs 
+
+    cal.Parse("2 * 3 + 6 / 3"); // returns 8
     
 ## Create a C code syntax tree parser
 
-[c_grammar.l](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccInput/c_grammar.l)\
-[c_grammar.y](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccInput/c_grammar.y)\
-Generated [c_grammar.cs](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccOutput/c_grammar.cs)
+[c_grammar.l](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccInput/c_grammar.l) (input)\
+[c_grammar.y](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccInput/c_grammar.y) (input)\
+[c_grammar.cs](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccOutput/c_grammar.cs) (generated)\
+\
+Use generated c_grammar.cs:
 
-
-
-input.txt:
-
-    int main(int a) 
+    string input = @"
+    void main(int a, int b) 
     {
-        int b = 3;
-        return a * b - 4;
-    }
-　 
-
-    c_grammar.Parse("input.txt");
+        int c = 2 + 3;
+        return c * a - 5;
+    }";
+    c_grammar.Parse(input);
 
 ![enter image description here](https://r96922081.github.io/LexYacc/syntax_tree.png)
 
-## How to Use
+## Usage:
 
-Feed cal.l & cal.y, it will create cal.cs at D:
+Feed cal.l & cal.y, it will generate parser cal.cs
 
     LexYaccCodeGen.GenCode("D:/cal.l", "D:/cal.y", "D:/", "cal");
 
-include cal.cs into your project and call cal.Parse()
+Call cal.Parse()
 
-    cal.Parse("2 * 3 + 6 / 3"); // output 8
+    cal.Parse("2 * 3 + 6 / 3"); // returns 8
 
 ## Dependeny
 I use my own [regular expression engine](https://github.com/r96922081/Regex) in Lexer
