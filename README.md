@@ -6,7 +6,8 @@ LexYacc parser that generates parser code in C#
 ## Create a Calculator
 
 [cal.l](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccInput/cal.l)\
-[cal.y](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccInput/cal.y)
+[cal.y](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccInput/cal.y)\
+Generated [cal.cs](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccOutput/cal.cs)
     
     cal.Parse("2 * 3 + 6 / 3"); // return 8
     
@@ -14,7 +15,8 @@ LexYacc parser that generates parser code in C#
 
 [c_grammar.l](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccInput/c_grammar.l)\
 [c_grammar.y](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccInput/c_grammar.y)\
-[Generated cal.cs](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccOutput/cal.cs)
+Generated [c_grammar.cs](https://github.com/r96922081/LexYacc/blob/main/Ut/LexYaccOutput/c_grammar.cs)
+
 
 
 input.txt:
