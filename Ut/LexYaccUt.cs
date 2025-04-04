@@ -27,14 +27,14 @@ public class LexYaccUt
 
         ret = pair.Parse("     key1 = 11 key2 =2222  key3 = 888");
 
-        string input = @"
-void main(int a, int b) 
-{
-    int c = 2 + 3;
-    return c * a - 5;
-}
-";
-        ret = c_grammar.Parse(input);
+string input = @"
+                    void main(int a, int b) 
+                    {
+                        int c = 2 + 3;
+                        return c * a - 5;
+                    }
+                ";
+ret = c_grammar.Parse(input);
 #endif
     }
 }
